@@ -1,0 +1,80 @@
+name: SunfoldGreenfield
+
+options:
+  bundleIdPrefix: com.sunfold
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    # iPad only. This slice is an iPad-native landscape RTS.
+    TARGETED_DEVICE_FAMILY: "2"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGNING_REQUIRED: NO
+    CODE_SIGN_IDENTITY: ""
+
+targets:
+  SunfoldGreenfield:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+      - path: Resources
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sunfold.greenfield
+        # Product name stays SunfoldGreenfield so the test target's TEST_HOST
+        # resolves; the player-facing name comes from CFBundleDisplayName below.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: NO
+    info:
+      path: Sources/App/Info.plist
+      properties:
+        CFBundleDisplayName: Sunfold
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen:
+          UIColorName: VoidBackground
+        UIRequiresFullScreen: true
+        UIStatusBarHidden: true
+        UIUserInterfaceStyle: Dark
+        # Landscape only, both directions, per the locked product decision.
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+
+  SunfoldGreenfieldTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: SunfoldGreenfield
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sunfold.greenfield.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  SunfoldGreenfield:
+    build:
+      targets:
+        SunfoldGreenfield: all
+        # Built in every action, not just `test`: a test that no longer compiles
+        # is worse than no test, and this surfaces it on an ordinary build.
+        SunfoldGreenfieldTests: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SunfoldGreenfieldTests

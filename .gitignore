@@ -1,0 +1,16 @@
+# Generated from project.yml — never the source of truth.
+*.xcodeproj/
+*.xcworkspace/
+
+# Build products
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+
+# macOS
+.DS_Store
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
