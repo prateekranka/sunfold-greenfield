@@ -5,6 +5,7 @@
 # Build products
 build/
 DerivedData/
+build-agents/
 *.ipa
 *.dSYM.zip
 

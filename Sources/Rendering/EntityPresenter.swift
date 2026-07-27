@@ -173,9 +173,28 @@ final class EntityPresenter {
             pack.components.set(
                 ModelComponent(
                     mesh: cargoMesh(),
-                    materials: [StructureMaterial.matte(SunfoldPalette.resourceTint(cargo.kind))]
+                    materials: [
+                        StructureMaterial.matte(
+                            SunfoldPalette.resourceTint(cargo.kind),
+                            surface: Self.cargoSurface(cargo.kind)
+                        )
+                    ]
                 )
             )
+        }
+    }
+
+    /// A carried load is made of the same stuff as the deposit it came from, so
+    /// it takes the deposit's surface class rather than being classified from
+    /// its tint. Provisions in particular must not land on the gold-trim
+    /// surface: the resource tint is a hair from `sunwovenGold`, and a bushel
+    /// rendered as burnished metal is the one reading that would be wrong.
+    private static func cargoSurface(_ kind: ResourceKind) -> MaterialLibrary.Surface {
+        switch kind {
+        case .provisions: .growth
+        case .matter: .rawMatter
+        case .lumen: .crystallineLumen
+        case .aether: .crystallineAether
         }
     }
 
@@ -296,6 +315,11 @@ final class EntityPresenter {
         let entity = Entity()
         entity.name = "selection.ring"
 
+        // No UV projection, deliberately. The ring is a UI affordance, not a
+        // surface: it is drawn with an `UnlitMaterial` so it stays equally
+        // readable in shadow and in the key light, and an unlit material samples
+        // no texture. Emitting coordinates for it would cost three extra vertex
+        // buffers per selected unit and change nothing on screen.
         var builder = FlatMeshBuilder()
         let segments = 28
         let inner = radius * 0.82

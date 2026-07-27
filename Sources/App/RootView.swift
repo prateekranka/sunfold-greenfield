@@ -9,6 +9,13 @@ struct RootView: View {
     @State private var controller: WorldController
     @State private var isDebugExpanded = true
 
+    /// The debug surface is developer tooling, not chrome, and a visible telemetry
+    /// panel is the single loudest "this is a dev build" signal in a captured
+    /// frame. It is opt-in: pass `-sunfoldDebug` as a launch argument (Xcode
+    /// scheme → Arguments) to bring it back.
+    private static let showsDebugOverlay =
+        ProcessInfo.processInfo.arguments.contains("-sunfoldDebug")
+
     init(seed: UInt64) {
         _controller = State(initialValue: WorldController(simulation: SkirmishSimulation(seed: seed)))
     }
@@ -42,8 +49,10 @@ struct RootView: View {
                 age: simulation.age(for: .sunwoven)
             )
             Spacer(minLength: 0)
-            DebugOverlay(controller: controller, isExpanded: $isDebugExpanded)
-                .padding(.top, 12)
+            if Self.showsDebugOverlay {
+                DebugOverlay(controller: controller, isExpanded: $isDebugExpanded)
+                    .padding(.top, 12)
+            }
         }
         .padding(.horizontal, 20)
     }

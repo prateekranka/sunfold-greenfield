@@ -123,9 +123,25 @@ enum BuildingMeshes {
         return StructureAssembly.entity(
             named: "farm.sunwoven",
             zones: [
-                StructureZone("soil", soil, StructureMaterial.matte(StructureMaterial.shade(SunfoldPalette.sunwovenRock, 0.72), roughness: 0.98)),
+                StructureZone(
+                    "soil",
+                    soil,
+                    StructureMaterial.matte(
+                        StructureMaterial.shade(SunfoldPalette.sunwovenRock, 0.72),
+                        roughness: 0.98,
+                        surface: .regolithGround
+                    )
+                ),
                 StructureZone("kerb", gold, StructureMaterial.matte(SunfoldPalette.sunwovenGold, roughness: 0.88)),
-                StructureZone("crop", crop, StructureMaterial.matte(StructureMaterial.shade(SunfoldPalette.sunwovenGold, 1.14), roughness: 0.95)),
+                StructureZone(
+                    "crop",
+                    crop,
+                    StructureMaterial.matte(
+                        StructureMaterial.shade(SunfoldPalette.sunwovenGold, 1.14),
+                        roughness: 0.95,
+                        surface: .growth
+                    )
+                ),
                 StructureZone("pennant", glow, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.85)),
             ]
         )

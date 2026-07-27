@@ -59,6 +59,12 @@ final class WorldController {
     func attach(to content: inout RealityViewCameraContent) {
         content.camera = .virtual
 
+        // Bloom, filmic tonemap, split-tone grade and vignette, run on the
+        // rendered frame before SwiftUI draws the HUD on top of it. Installing
+        // is validated: if the Metal library is missing the frame is left
+        // ungraded rather than left undefined.
+        SunfoldPostProcess.install(into: &content)
+
         let (root, rig) = WorldScene.build(
             map: simulation.map,
             tuning: simulation.tuning,

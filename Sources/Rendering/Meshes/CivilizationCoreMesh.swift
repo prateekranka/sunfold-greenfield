@@ -3,23 +3,34 @@ import RealityKit
 import UIKit
 import simd
 
-/// The visual anchor of a home fragment: ~10 m across, ~8 m tall — roughly four
-/// citizen-heights of vertical mass, so it dominates its fragment at the default
-/// 82 m zoom without swallowing the buildable ground around it.
+/// The visual anchor of a home fragment — and the single most important object
+/// in the frame. ~10.8 m across at the plinth and ~15.4 m to the finial tip:
+/// better than four times the height of every prop around it, which is what
+/// makes it read as *the town centre* rather than as a large resource node.
 ///
 /// The two Cores are authored to separate in a black-and-white thumbnail, which
 /// is the bible's real test of civilization identity:
 ///
-/// - **Sunwoven** — a flared solar-fabric canopy with a drooping hem, ribbed in
-///   gold, sitting over an ivory drum on a stepped apron. Four pennant masts
-///   push the silhouette outward. The read is *pavilion*: light, tented, woven.
-/// - **Gravemark** — three battered plated tiers stacked into a keep, ringed by
+/// - **Sunwoven** — a tiered pavilion: stepped stone plinth, a gold colonnade
+///   with backlit fabric panels between its piers, an ivory upper drum, a
+///   pleated ribbed dome, and a finial spire, flanked by four banner masts. The
+///   read is *pavilion*: tall, woven, lit from within.
+/// - **Gravemark** — four battered plated tiers stacked into a keep, ringed by
 ///   copper seams, with four angular corner pylons and a blunt central spire.
 ///   The read is *bunker*: heavy, terraced, planted.
 ///
 /// Nothing here is a stock primitive. Every volume is a tapered polygonal solid
 /// with a deliberate batter, and every structure carries at least one identity
 /// detail that survives at thumbnail size.
+///
+/// ## Why the Core is the one structure that carries its own light
+///
+/// Every other building takes the world rig and nothing else. A Core carries a
+/// `PointLightComponent` at its base because a landmark has to *do* something to
+/// the ground around it: the warm pool it throws separates the settlement's
+/// centre from the flat regolith at any zoom, and it is the only cue that
+/// survives when the building itself is only a couple of hundred pixels tall.
+/// It illuminates; it casts no shadows and touches no simulation state.
 @MainActor
 enum CivilizationCoreMesh {
 
@@ -35,105 +46,300 @@ enum CivilizationCoreMesh {
     private static func sunwoven(seed: UInt64) -> Entity {
         var random = DeterministicRandom.stream(seed: seed, tag: "core.sunwoven")
 
-        var stone = StructureBuilder()
-        var ivory = StructureBuilder()
-        var gold = StructureBuilder()
-        var glow = StructureBuilder()
-
-        let sides = 8
-        // Half a segment of phase puts a flat face toward +Z, which is the face
-        // the default north-up camera looks straight at.
+        // Twelve sides, not eight: the dome is the hero silhouette and eight
+        // facets read as a folded paper cone at this size. Half a segment of
+        // phase puts a flat *face* toward +Z, which is what the default
+        // north-up camera looks straight at.
+        let sides = 12
         let phase = Float.pi / Float(sides)
 
-        // Stepped apron. Uncapped: the gold collar lands on the same ring, so a
-        // cap here would only ever be hidden geometry.
+        var stone = StructureBuilder()
+        var gold = StructureBuilder()
+        var panel = StructureBuilder()
+        var lantern = StructureBuilder()
+        // The drum wraps, so it gets a cylindrical unwrap rather than box
+        // mapping: the weave then runs continuously around it instead of
+        // restarting at every facet.
+        var drum = StructureBuilder(
+            uv: .cylindrical(metersPerTile: MaterialLibrary.metersPerTile, tilesAround: 5.5)
+        )
+        // The dome is split into two builders on alternating gores. That split
+        // is the fix for "the dome is blown to near-pure white with no shading
+        // gradient": the two zones differ by ~19% in albedo, and the pleat below
+        // gives their facets genuinely different normals, so neighbouring panels
+        // can never resolve to one flat white shape.
+        let domeUV = MeshUVProjection.spherical(
+            tilesAround: 5,
+            tilesOver: 1.2,
+            center: [0, 8.6, 0]
+        )
+        var domeLight = StructureBuilder(uv: domeUV)
+        var domeDeep = StructureBuilder(uv: domeUV)
+
+        // MARK: Stepped plinth
         //
-        // The apron is deliberately wider than the canopy above it. An apron
-        // tucked inside the overhang disappears from a 57° top-down view, which
-        // flattens the whole building into a disc — measured in the rendered
-        // build, not assumed.
-        let apronFoot = StructureGeometry.ring(sides: sides, radius: 5.30, y: 0, phase: phase)
-        let apronTop = StructureGeometry.ring(sides: sides, radius: 5.00, y: 0.52, phase: phase)
-        stone.addSolid(lower: apronFoot, upper: apronTop, capTop: false)
+        // Three risers and three treads. The plinth is deliberately wider than
+        // everything above it: an apron tucked inside the overhang disappears
+        // from a 57° top-down view, which flattens the whole building into a
+        // disc — measured in the rendered build, not assumed.
+        let plinth: [(radius: Float, y: Float, tread: Float)] = [
+            (5.40, 0.00, 5.02),
+            (4.90, 0.26, 4.62),
+            (4.50, 0.54, 4.22),
+        ]
+        var plinthFoot = StructureGeometry.ring(sides: sides, radius: plinth[0].radius, y: 0, phase: phase)
+        for (index, step) in plinth.enumerated() {
+            let riseTop = index + 1 < plinth.count ? plinth[index + 1].y : 0.82
+            let foot = StructureGeometry.ring(sides: sides, radius: step.radius, y: step.y, phase: phase)
+            let head = StructureGeometry.ring(sides: sides, radius: step.radius - 0.14, y: riseTop, phase: phase)
+            let tread = StructureGeometry.ring(sides: sides, radius: step.tread, y: riseTop, phase: phase)
+            stone.addBand(lower: foot, upper: head, pivot: [0, step.y, 0])
+            stone.addTread(outer: head, inner: tread)
+            if index == 0 { plinthFoot = foot }
+        }
+        _ = plinthFoot
 
-        // Woven-gold collar. Its cap is the visible walkway ring around the drum.
-        let collarTop = StructureGeometry.ring(sides: sides, radius: 4.62, y: 0.90, phase: phase)
-        gold.addSolid(lower: apronTop, upper: collarTop)
+        // MARK: Gold walkway kerb
+        //
+        // The band the colonnade stands on. Its tread is the visible ring of
+        // gold decking around the drum — the first hard value break above the
+        // pale stone, and the thing that stops the plinth and the shell reading
+        // as one continuous mass.
+        let kerbFoot = StructureGeometry.ring(sides: sides, radius: 4.22, y: 0.82, phase: phase)
+        let kerbTop = StructureGeometry.ring(sides: sides, radius: 4.06, y: 1.14, phase: phase)
+        let kerbTread = StructureGeometry.ring(sides: sides, radius: 3.38, y: 1.14, phase: phase)
+        gold.addBand(lower: kerbFoot, upper: kerbTop, pivot: [0, 0.82, 0])
+        gold.addTread(outer: kerbTop, inner: kerbTread)
 
-        // Ivory drum.
-        let drumFoot = StructureGeometry.ring(sides: sides, radius: 3.50, y: 0.90, phase: phase)
-        let drumTop = StructureGeometry.ring(sides: sides, radius: 3.28, y: 3.35, phase: phase)
-        ivory.addSolid(lower: drumFoot, upper: drumTop, capTop: false)
+        // MARK: Colonnade
+        //
+        // A ring of gold piers standing off an ivory inner drum, with backlit
+        // fabric panels in the bays between them. This is the tier that reads as
+        // *architecture* from above: six piers throw six separate shadows across
+        // the plinth, which no smooth cone can do.
+        let colonnadeFoot = StructureGeometry.ring(sides: sides, radius: 3.38, y: 1.14, phase: phase)
+        let colonnadeTop = StructureGeometry.ring(sides: sides, radius: 3.26, y: 4.62, phase: phase)
+        drum.addSolid(lower: colonnadeFoot, upper: colonnadeTop, capTop: false)
 
-        // Light-lattice inlays on alternating drum faces — the restrained
-        // turquoise the bible allows as an accent, never as a body colour.
+        // Bays on the even faces, piers on the odd ones — so the face the camera
+        // looks straight at is a lit panel rather than a pier blocking it.
         for face in stride(from: 0, to: sides, by: 2) {
-            glow.addFacePanel(
-                lower: drumFoot,
-                upper: drumTop,
-                face: face,
-                inset: 0.30,
-                from: 0.22,
-                to: 0.78,
-                proud: 0.07
+            panel.addFacePanel(
+                lower: colonnadeFoot, upper: colonnadeTop, face: face,
+                inset: 0.16, from: 0.06, to: 0.92, proud: 0.05
+            )
+        }
+        for face in stride(from: 1, to: sides, by: 2) {
+            let angle = phase + (Float(face) + 0.5) * 2 * .pi / Float(sides)
+            let center = SIMD2<Float>(cos(angle) * 4.00, sin(angle) * 4.00)
+            // Phase + π/4 turns a flat face of the square pier outward, so it
+            // catches the key as a plane rather than as an edge.
+            let shaftFoot = StructureGeometry.ring(sides: 4, radius: 0.40, y: 1.14, phase: angle + .pi / 4, center: center)
+            let shaftTop = StructureGeometry.ring(sides: 4, radius: 0.33, y: 4.24, phase: angle + .pi / 4, center: center)
+            let capital = StructureGeometry.ring(sides: 4, radius: 0.52, y: 4.62, phase: angle + .pi / 4, center: center)
+            gold.addSolid(lower: shaftFoot, upper: shaftTop, capTop: false)
+            gold.addSolid(lower: shaftTop, upper: capital, capTop: true)
+        }
+
+        // MARK: Architrave and cornice
+        let architraveFoot = StructureGeometry.ring(sides: sides, radius: 4.58, y: 4.62, phase: phase)
+        let architraveTop = StructureGeometry.ring(sides: sides, radius: 4.34, y: 5.18, phase: phase)
+        let cornice = StructureGeometry.ring(sides: sides, radius: 3.66, y: 5.18, phase: phase)
+        gold.addBand(lower: architraveFoot, upper: architraveTop, pivot: [0, 4.62, 0])
+        gold.addTread(outer: architraveTop, inner: cornice)
+        // Closed from below as well: the cornice overhangs the colonnade by more
+        // than half a metre and, at this camera pitch, its underside is visible
+        // on the far side of the building.
+        gold.addTread(outer: architraveFoot, inner: colonnadeTop, up: false)
+
+        // MARK: Upper drum
+        let upperFoot = StructureGeometry.ring(sides: sides, radius: 3.66, y: 5.18, phase: phase)
+        let upperTop = StructureGeometry.ring(sides: sides, radius: 3.44, y: 8.36, phase: phase)
+        drum.addSolid(lower: upperFoot, upper: upperTop, capTop: false)
+        for index in 0..<sides {
+            gold.addRib(
+                from: upperFoot[index], to: upperTop[index],
+                axis: .zero, halfWidth: 0.13, taper: 0.92, proud: 0.05
+            )
+        }
+        for face in stride(from: 0, to: sides, by: 2) {
+            panel.addFacePanel(
+                lower: upperFoot, upper: upperTop, face: face,
+                inset: 0.30, from: 0.12, to: 0.82, proud: 0.05
             )
         }
 
-        // Canopy: an overhanging hem, then the long flare up to the crown. Its
-        // eaves stop short of the apron rim so the pennant masts stand outside
-        // the silhouette rather than inside a tent they cannot be seen through.
-        let crownY = random.float(in: 6.15...6.45)
-        let hem = StructureGeometry.ring(sides: sides, radius: 3.86, y: 2.96, phase: phase)
-        let eaves = StructureGeometry.ring(sides: sides, radius: 4.42, y: 3.35, phase: phase)
-        let crown = StructureGeometry.ring(sides: sides, radius: 1.15, y: crownY, phase: phase)
-        ivory.addBand(lower: hem, upper: eaves, pivot: [0, 3.15, 0])
-        ivory.addBand(lower: eaves, upper: crown, pivot: [0, 4.10, 0])
+        // MARK: Flared eave
+        let eaveFoot = StructureGeometry.ring(sides: sides, radius: 3.44, y: 8.36, phase: phase)
+        let eaveTop = StructureGeometry.pleatedRing(sides: sides, radius: 3.98, valley: 0.90, y: 8.82, phase: phase)
+        gold.addBand(lower: eaveFoot, upper: eaveTop, pivot: [0, 8.20, 0])
 
-        // Gold ribbing along every canopy fold. These are what make the dome read
-        // as woven fabric over a frame rather than as a smooth cone.
-        for index in 0..<sides {
-            gold.addRib(from: eaves[index], to: crown[index], axis: .zero, halfWidth: 0.11, taper: 0.55, proud: 0.05)
+        // MARK: Pleated dome
+        //
+        // Fabric stretched over a frame, not a smooth shell: every odd meridian
+        // is pulled in to 90% radius, so the surface alternates between a raised
+        // fold and a sunken valley all the way to the crown. That pleat is what
+        // gives neighbouring facets different normals — the geometric half of the
+        // fix for a dome that used to resolve to one flat white blob.
+        let crownY = random.float(in: 12.30...12.60)
+        let domeRings = [
+            eaveTop,
+            StructureGeometry.pleatedRing(sides: sides, radius: 3.68, valley: 0.90, y: 9.96, phase: phase),
+            StructureGeometry.pleatedRing(sides: sides, radius: 2.92, valley: 0.91, y: 11.06, phase: phase),
+            StructureGeometry.pleatedRing(sides: sides, radius: 1.74, valley: 0.92, y: 11.96, phase: phase),
+            StructureGeometry.ring(sides: sides, radius: 0.76, y: crownY, phase: phase),
+        ]
+        for level in 0..<(domeRings.count - 1) {
+            let lower = domeRings[level]
+            let upper = domeRings[level + 1]
+            let pivot = SIMD3<Float>(0, (lower[0].y + upper[0].y) * 0.5 - 2.6, 0)
+            for index in 0..<sides {
+                let next = (index + 1) % sides
+                // Gore parity picks the zone. Alternating gores therefore differ
+                // in albedo as well as in normal.
+                if index % 2 == 0 {
+                    domeLight.addQuad(lower[index], lower[next], upper[next], upper[index], pivot: pivot)
+                } else {
+                    domeDeep.addQuad(lower[index], lower[next], upper[next], upper[index], pivot: pivot)
+                }
+            }
+        }
+        // Gold ribs capping every raised fold, eave to crown.
+        for level in 0..<(domeRings.count - 1) {
+            for index in stride(from: 0, to: sides, by: 2) {
+                gold.addRib(
+                    from: domeRings[level][index], to: domeRings[level + 1][index],
+                    axis: .zero, halfWidth: 0.13, taper: 0.78, proud: 0.045
+                )
+            }
+        }
+        // The crown is capped. The previous Core left this ring open, and the
+        // hole read as a hard-edged black polygonal void at the apex.
+        gold.addCap(ring: domeRings[domeRings.count - 1], pivot: [0, crownY - 2, 0])
+
+        // MARK: Finial
+        let finialFoot = StructureGeometry.ring(sides: 6, radius: 0.70, y: crownY - 0.06)
+        let finialNeck = StructureGeometry.ring(sides: 6, radius: 0.56, y: crownY + 0.86)
+        let finialCollar = StructureGeometry.ring(sides: 6, radius: 0.30, y: crownY + 1.28)
+        gold.addSolid(lower: finialFoot, upper: finialNeck, capTop: false)
+        gold.addSolid(lower: finialNeck, upper: finialCollar, capTop: false)
+        gold.addSpire(base: finialCollar, apex: [0, random.float(in: 15.25...15.60), 0])
+        // A lantern in the finial drum. It is small, high and bright, which is
+        // exactly what the post-process bright pass wants: the Core gains a
+        // point of bloom at its tip that nothing else in the frame has.
+        for face in stride(from: 0, to: 6, by: 2) {
+            lantern.addFacePanel(
+                lower: finialFoot, upper: finialNeck, face: face,
+                inset: 0.20, from: 0.16, to: 0.84, proud: 0.05
+            )
         }
 
-        // Finial drum and spire.
-        let finialFoot = StructureGeometry.ring(sides: 6, radius: 1.05, y: crownY)
-        let finialTop = StructureGeometry.ring(sides: 6, radius: 0.78, y: crownY + 0.55)
-        gold.addSolid(lower: finialFoot, upper: finialTop, capTop: false)
-        gold.addSpire(base: finialTop, apex: [0, random.float(in: 7.85...8.15), 0])
-
-        // Four pennant masts on the apron, outboard of the canopy eaves. They
-        // break the dome's rotational symmetry, which is what stops it reading
-        // as a bare hemisphere from directly above.
+        // MARK: Banner masts
+        //
+        // Four, outboard on the second plinth tread. They break the dome's
+        // rotational symmetry — which is what stops it reading as a bare
+        // hemisphere from directly above — and their pennants are the only
+        // moving-looking silhouette on an otherwise rigid building.
         for index in 0..<4 {
             let angle = phase + (Float(index) + 0.5) * .pi / 2
-            let base = SIMD2<Float>(cos(angle) * 4.78, sin(angle) * 4.78)
-            let topY = random.float(in: 2.55...3.05)
+            let base = SIMD2<Float>(cos(angle) * 4.76, sin(angle) * 4.76)
+            let topY = random.float(in: 6.35...6.85)
 
-            let poleFoot = StructureGeometry.ring(sides: 4, radius: 0.12, y: 0.90, phase: .pi / 4, center: base)
-            let poleTop = StructureGeometry.ring(sides: 4, radius: 0.085, y: topY, phase: .pi / 4, center: base)
+            let poleFoot = StructureGeometry.ring(sides: 4, radius: 0.17, y: 0.54, phase: angle + .pi / 4, center: base)
+            let poleTop = StructureGeometry.ring(sides: 4, radius: 0.11, y: topY, phase: angle + .pi / 4, center: base)
             gold.addSolid(lower: poleFoot, upper: poleTop, capTop: false)
-            gold.addSpire(base: poleTop, apex: [base.x, topY + 0.30, base.y])
+            gold.addSpire(base: poleTop, apex: [base.x, topY + 0.62, base.y])
 
             let radial = StructureGeometry.direction([base.x, 0, base.y])
             let tangent = simd_cross([0, 1, 0], radial)
-            let anchor = SIMD3<Float>(base.x, topY - 0.12, base.y)
-            glow.addQuad(
-                anchor,
-                anchor + tangent * 0.72 - [0, 0.22, 0],
-                anchor + tangent * 0.72 - [0, 0.82, 0],
-                anchor - [0, 0.68, 0],
+            let head = SIMD3<Float>(base.x, topY - 0.35, base.y)
+            let drop = random.float(in: 2.05...2.55)
+            // A crossarm, then a tapering pennant hanging off it.
+            gold.addRib(
+                from: head + [0, 0.10, 0], to: head + tangent * 1.22 + [0, 0.10, 0],
+                axis: .zero, halfWidth: 0.075, taper: 0.7, proud: 0.0
+            )
+            lantern.addQuad(
+                head,
+                head + tangent * 1.22,
+                head + tangent * 0.94 - [0, drop, 0],
+                head - [0, drop * 0.86, 0],
                 facing: radial
             )
         }
 
-        return StructureAssembly.entity(
+        let core = StructureAssembly.entity(
             named: "core.sunwoven",
             zones: [
-                StructureZone("apron", stone, StructureMaterial.matte(SunfoldPalette.sunwovenSurface)),
-                StructureZone("shell", ivory, StructureMaterial.matte(SunfoldPalette.sunwovenIvory, roughness: 0.88)),
-                StructureZone("gold", gold, StructureMaterial.matte(SunfoldPalette.sunwovenGold, roughness: 0.86)),
-                StructureZone("seam", glow, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.88)),
+                StructureZone("plinth", stone, plinthMaterial),
+                StructureZone("shell", drum, shellMaterial),
+                StructureZone("dome", domeLight, domePanelMaterial),
+                StructureZone("domefold", domeDeep, domeFoldMaterial),
+                StructureZone("gold", gold, MaterialLibrary.material(.goldTrim)),
+                StructureZone("panel", panel, MaterialLibrary.luminousSeam(SunfoldPalette.sunwovenTurquoise, intensity: 1.9)),
+                StructureZone("lantern", lantern, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.92)),
             ]
+        )
+        core.addChild(
+            hearthLight(
+                named: "core.sunwoven.hearth",
+                color: StructureMaterial.blend(SunfoldPalette.sunwovenGold, .white, 0.34),
+                intensity: 90_000,
+                radius: 15,
+                height: 1.6
+            )
+        )
+        return core
+    }
+
+    // MARK: Sunwoven materials
+    //
+    // Every ivory surface on the Core is pulled well down from the palette's
+    // near-white 0.96: at 3200 lux of key plus the IBL, a 0.96 albedo shell
+    // clips before the tonemap ever sees it and the dome's form is destroyed.
+    // 0.74 keeps every facet inside the shoulder, so the pleat actually shades.
+
+    /// The dome's lit gores. ~0.72 luminance — the value the shell is authored
+    /// around, and the reference the fold zone is measured against.
+    private static var domePanelMaterial: PhysicallyBasedMaterial {
+        StructureMaterial.matte(
+            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.75),
+            // A multiplier on the recipe's 0.58–0.88 roughness map, so the dome
+            // lands near 0.35: a broad specular lobe that sweeps across the
+            // facets instead of a matte surface with no highlight at all.
+            roughness: 0.45,
+            surface: .wovenIvory
+        )
+    }
+
+    /// The dome's sunken gores, 20% darker than the lit ones. Alternating panels
+    /// therefore separate by more than the 15% the frame needs to read the pleat.
+    private static var domeFoldMaterial: PhysicallyBasedMaterial {
+        StructureMaterial.matte(
+            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.60),
+            roughness: 0.52,
+            surface: .wovenIvory
+        )
+    }
+
+    /// The vertical drums. A shade brighter than the dome because a vertical
+    /// face takes far less of an overhead key — the *rendered* values land
+    /// close, which is what keeps the building one material.
+    private static var shellMaterial: PhysicallyBasedMaterial {
+        StructureMaterial.matte(
+            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.82),
+            roughness: 0.62,
+            surface: .wovenIvory
+        )
+    }
+
+    /// Fractured pale stone, deliberately darker than the regolith it stands on
+    /// so the plinth separates from the ground by value rather than by outline.
+    private static var plinthMaterial: PhysicallyBasedMaterial {
+        StructureMaterial.matte(
+            StructureMaterial.shade(SunfoldPalette.sunwovenSurface, 0.80),
+            roughness: 0.95,
+            surface: .rimStone
         )
     }
 
@@ -144,83 +350,172 @@ enum CivilizationCoreMesh {
 
         var rock = StructureBuilder()
         var plate = StructureBuilder()
+        var plateLit = StructureBuilder()
         var copper = StructureBuilder()
+        var panel = StructureBuilder()
         var glow = StructureBuilder()
 
         // Octagonal apron under a hexagonal keep: the mismatch in symmetry is
         // deliberate and reads as a fortified platform carrying a separate mass.
-        let apronFoot = StructureGeometry.ring(sides: 8, radius: 5.20, y: 0, phase: .pi / 8)
-        let apronTop = StructureGeometry.ring(sides: 8, radius: 4.95, y: 0.38, phase: .pi / 8)
-        rock.addSolid(lower: apronFoot, upper: apronTop, capTop: false)
+        // Two steps rather than one, so the keep is *planted* on something.
+        let apronFoot = StructureGeometry.ring(sides: 8, radius: 5.35, y: 0, phase: .pi / 8)
+        let apronHead = StructureGeometry.ring(sides: 8, radius: 5.18, y: 0.32, phase: .pi / 8)
+        let apronTread = StructureGeometry.ring(sides: 8, radius: 4.94, y: 0.32, phase: .pi / 8)
+        rock.addBand(lower: apronFoot, upper: apronHead, pivot: [0, 0, 0])
+        rock.addTread(outer: apronHead, inner: apronTread)
 
-        // Three battered tiers. Alternating phase gives each tier its own corner
-        // rhythm, so the stack does not read as one extruded prism.
-        let tierOneFoot = StructureGeometry.ring(sides: 6, radius: 4.30, y: 0.38)
-        let tierOneTop = StructureGeometry.ring(sides: 6, radius: 3.85, y: 2.05)
+        let stepFoot = StructureGeometry.ring(sides: 8, radius: 4.86, y: 0.32, phase: .pi / 8)
+        let stepHead = StructureGeometry.ring(sides: 8, radius: 4.72, y: 0.66, phase: .pi / 8)
+        let stepTread = StructureGeometry.ring(sides: 8, radius: 4.44, y: 0.66, phase: .pi / 8)
+        rock.addBand(lower: stepFoot, upper: stepHead, pivot: [0, 0.32, 0])
+        rock.addTread(outer: stepHead, inner: stepTread)
+
+        // Four battered tiers. Alternating phase gives each tier its own corner
+        // rhythm, so the stack does not read as one extruded prism, and the
+        // zones alternate so consecutive tiers separate by value as well.
+        let tierOneFoot = StructureGeometry.ring(sides: 6, radius: 4.40, y: 0.66)
+        let tierOneTop = StructureGeometry.ring(sides: 6, radius: 3.92, y: 3.10)
         plate.addSolid(lower: tierOneFoot, upper: tierOneTop)
 
-        let tierTwoFoot = StructureGeometry.ring(sides: 6, radius: 3.15, y: 2.05, phase: .pi / 6)
-        let tierTwoTop = StructureGeometry.ring(sides: 6, radius: 2.75, y: 3.95, phase: .pi / 6)
-        plate.addSolid(lower: tierTwoFoot, upper: tierTwoTop)
+        let tierTwoFoot = StructureGeometry.ring(sides: 6, radius: 3.38, y: 3.10, phase: .pi / 6)
+        let tierTwoTop = StructureGeometry.ring(sides: 6, radius: 2.98, y: 5.90, phase: .pi / 6)
+        plateLit.addSolid(lower: tierTwoFoot, upper: tierTwoTop)
 
-        let tierThreeFoot = StructureGeometry.ring(sides: 6, radius: 2.05, y: 3.95)
-        let tierThreeTop = StructureGeometry.ring(sides: 6, radius: 1.68, y: 5.55)
-        plate.addSolid(lower: tierThreeFoot, upper: tierThreeTop, capTop: false)
+        let tierThreeFoot = StructureGeometry.ring(sides: 6, radius: 2.56, y: 5.90)
+        let tierThreeTop = StructureGeometry.ring(sides: 6, radius: 2.16, y: 8.34)
+        plate.addSolid(lower: tierThreeFoot, upper: tierThreeTop)
+
+        let tierFourFoot = StructureGeometry.ring(sides: 6, radius: 1.82, y: 8.34, phase: .pi / 6)
+        let tierFourTop = StructureGeometry.ring(sides: 6, radius: 1.56, y: 10.15, phase: .pi / 6)
+        // Capped: the four-sided spire that lands on it is narrower than this
+        // ring, and an uncapped hexagon under it would read as a black hole.
+        plateLit.addSolid(lower: tierFourFoot, upper: tierFourTop, capTop: true)
 
         // Blunt central spire — squared, not needle-thin, so it reads as mass.
-        let spireFoot = StructureGeometry.ring(sides: 4, radius: 1.05, y: 5.55, phase: .pi / 4)
-        let spireNeck = StructureGeometry.ring(sides: 4, radius: 0.44, y: 7.15, phase: .pi / 4)
+        let spireFoot = StructureGeometry.ring(sides: 4, radius: 1.12, y: 10.10, phase: .pi / 4)
+        let spireNeck = StructureGeometry.ring(sides: 4, radius: 0.50, y: 12.35, phase: .pi / 4)
         plate.addSolid(lower: spireFoot, upper: spireNeck, capTop: false)
-        plate.addSpire(base: spireNeck, apex: [0, random.float(in: 7.85...8.15), 0])
+        plate.addSpire(base: spireNeck, apex: [0, random.float(in: 13.75...14.15), 0])
 
         // Copper seams at the tier joints — the oxidised-metal signature.
-        copper.addBand(
-            lower: StructureGeometry.ring(sides: 6, radius: 3.97, y: 1.78),
-            upper: StructureGeometry.ring(sides: 6, radius: 3.97, y: 2.06),
-            pivot: [0, 1.92, 0]
-        )
-        copper.addBand(
-            lower: StructureGeometry.ring(sides: 6, radius: 2.88, y: 3.66, phase: .pi / 6),
-            upper: StructureGeometry.ring(sides: 6, radius: 2.88, y: 3.96, phase: .pi / 6),
-            pivot: [0, 3.81, 0]
-        )
+        for joint in [
+            (radius: Float(4.04), low: Float(2.80), high: Float(3.12), phase: Float(0)),
+            (radius: Float(3.10), low: Float(5.58), high: Float(5.92), phase: .pi / 6),
+            (radius: Float(2.28), low: Float(8.02), high: Float(8.36), phase: Float(0)),
+            (radius: Float(1.68), low: Float(9.84), high: Float(10.16), phase: .pi / 6),
+        ] {
+            copper.addBand(
+                lower: StructureGeometry.ring(sides: 6, radius: joint.radius, y: joint.low, phase: joint.phase),
+                upper: StructureGeometry.ring(sides: 6, radius: joint.radius, y: joint.high, phase: joint.phase),
+                pivot: [0, (joint.low + joint.high) * 0.5, 0]
+            )
+        }
 
         // Four corner pylons, tapering to copper tips. These are the strongest
-        // thumbnail cue: a spiked crown no Sunwoven building ever has.
+        // thumbnail cue: a spiked crown no Sunwoven building ever has, and now
+        // tall enough to break the keep's own silhouette rather than hide in it.
         for index in 0..<4 {
             let angle = (Float(index) + 0.5) * .pi / 2
-            let base = SIMD2<Float>(cos(angle) * 4.15, sin(angle) * 4.15)
-            let shoulderY = random.float(in: 3.10...3.55)
+            let base = SIMD2<Float>(cos(angle) * 4.22, sin(angle) * 4.22)
+            let shoulderY = random.float(in: 5.05...5.65)
 
-            let shaftFoot = StructureGeometry.ring(sides: 4, radius: 0.58, y: 0.38, phase: angle, center: base)
-            let shaftTop = StructureGeometry.ring(sides: 4, radius: 0.32, y: shoulderY, phase: angle, center: base)
-            rock.addSolid(lower: shaftFoot, upper: shaftTop, capTop: false)
-            copper.addSpire(base: shaftTop, apex: [base.x, shoulderY + 0.95, base.y])
+            let shaftFoot = StructureGeometry.ring(sides: 4, radius: 0.62, y: 0.66, phase: angle, center: base)
+            let shaftWaist = StructureGeometry.ring(sides: 4, radius: 0.44, y: shoulderY * 0.62, phase: angle, center: base)
+            let shaftTop = StructureGeometry.ring(sides: 4, radius: 0.30, y: shoulderY, phase: angle, center: base)
+            rock.addSolid(lower: shaftFoot, upper: shaftWaist, capTop: false)
+            rock.addSolid(lower: shaftWaist, upper: shaftTop, capTop: false)
+            copper.addSpire(base: shaftTop, apex: [base.x, shoulderY + 1.35, base.y])
+
+            // A mineral slit up the outboard face of every pylon.
+            let radial = StructureGeometry.direction([base.x, 0, base.y])
+            let tangent = simd_cross([0, 1, 0], radial)
+            let face = SIMD3<Float>(base.x, 0, base.y) + radial * 0.34
+            glow.addQuad(
+                face + tangent * 0.13 + [0, shoulderY * 0.30, 0],
+                face - tangent * 0.13 + [0, shoulderY * 0.30, 0],
+                face - tangent * 0.10 + [0, shoulderY * 0.92, 0],
+                face + tangent * 0.10 + [0, shoulderY * 0.92, 0],
+                facing: radial
+            )
         }
 
-        // Mineral-blue glow slots recessed into the lower tiers.
+        // Mineral-blue glow slots recessed into the tiers. The big ones are lit
+        // emissive so they still take the key and read as *lit windows in a
+        // wall*; the pylon slits stay unlit so they hold their colour at size.
         for face in [0, 2, 4] {
-            glow.addFacePanel(
+            panel.addFacePanel(
                 lower: tierOneFoot, upper: tierOneTop, face: face,
-                inset: 0.40, from: 0.18, to: 0.74, proud: 0.06
+                inset: 0.36, from: 0.14, to: 0.78, proud: 0.06
             )
         }
-        for face in [1, 4] {
-            glow.addFacePanel(
+        for face in [1, 3, 5] {
+            panel.addFacePanel(
                 lower: tierTwoFoot, upper: tierTwoTop, face: face,
-                inset: 0.38, from: 0.20, to: 0.72, proud: 0.06
+                inset: 0.34, from: 0.16, to: 0.80, proud: 0.06
+            )
+        }
+        for face in [0, 3] {
+            panel.addFacePanel(
+                lower: tierThreeFoot, upper: tierThreeTop, face: face,
+                inset: 0.32, from: 0.18, to: 0.76, proud: 0.06
             )
         }
 
-        return StructureAssembly.entity(
+        let core = StructureAssembly.entity(
             named: "core.gravemark",
             zones: [
-                StructureZone("apron", rock, StructureMaterial.matte(SunfoldPalette.gravemarkRock, roughness: 0.97)),
-                StructureZone("plate", plate, StructureMaterial.matte(SunfoldPalette.gravemarkSurface)),
-                StructureZone("copper", copper, StructureMaterial.matte(SunfoldPalette.gravemarkCopper, roughness: 0.85)),
+                StructureZone("apron", rock, StructureMaterial.matte(SunfoldPalette.gravemarkRock, roughness: 0.97, surface: .rimStone)),
+                StructureZone("plate", plate, StructureMaterial.matte(SunfoldPalette.gravemarkSurface, roughness: 0.78, surface: .platedSlate)),
+                StructureZone("plateup", plateLit, StructureMaterial.matte(
+                    StructureMaterial.shade(SunfoldPalette.gravemarkSurface, 1.24),
+                    roughness: 0.70,
+                    surface: .platedSlate
+                )),
+                StructureZone("copper", copper, MaterialLibrary.material(.oxidisedCopper)),
+                StructureZone("panel", panel, MaterialLibrary.luminousSeam(SunfoldPalette.gravemarkMineral, intensity: 2.1)),
                 StructureZone("seam", glow, StructureMaterial.glow(SunfoldPalette.gravemarkMineral, opacity: 0.85)),
             ]
         )
+        core.addChild(
+            hearthLight(
+                named: "core.gravemark.hearth",
+                color: StructureMaterial.blend(SunfoldPalette.gravemarkMineral, .white, 0.28),
+                intensity: 58_000,
+                radius: 13,
+                height: 1.4
+            )
+        )
+        return core
+    }
+
+    // MARK: - Local light
+
+    /// A shadowless warm/cool pool at a Core's base.
+    ///
+    /// Intensity is in lumens, so illuminance falls as `intensity / (4π d²)`:
+    /// 90 000 lm lands ~450 lux four metres out, which is a seventh of the key
+    /// and reads as a pool rather than as a second sun. The entity carries no
+    /// `ModelComponent`, so `LightingRigSystem` skips it entirely — it neither
+    /// receives the IBL nor rasterises into the shadow map.
+    private static func hearthLight(
+        named name: String,
+        color: UIColor,
+        intensity: Float,
+        radius: Float,
+        height: Float
+    ) -> Entity {
+        let entity = Entity()
+        entity.name = name
+        entity.position = [0, height, 0]
+        entity.components.set(
+            PointLightComponent(
+                color: color,
+                intensity: intensity,
+                attenuationRadius: radius,
+                attenuationFalloffExponent: 2.0
+            )
+        )
+        return entity
     }
 }
 
@@ -238,8 +533,18 @@ enum CivilizationCoreMesh {
 /// material zone that ended up empty be dropped instead of handed to
 /// `MeshResource` as an empty descriptor.
 struct StructureBuilder {
-    private var flat = FlatMeshBuilder()
+    private var flat: FlatMeshBuilder
     private(set) var triangleCount = 0
+
+    /// Authored structures are boxy — plates, kerbs, decks, hulls — so the
+    /// default is dominant-axis box mapping at the project's single texel
+    /// density. Every existing `StructureBuilder()` call therefore starts
+    /// emitting UVs and a tangent frame with no edit, which is what lets
+    /// `MaterialLibrary`'s normal and roughness maps actually land. Pass a
+    /// different projection where a part is round or strongly slanted.
+    init(uv projection: MeshUVProjection = MaterialLibrary.structureUVProjection) {
+        self.flat = FlatMeshBuilder(uv: projection)
+    }
 
     /// Adds a triangle facing away from `reference`, exactly as
     /// `FlatMeshBuilder` does, and counts it.
@@ -299,6 +604,25 @@ struct StructureBuilder {
             let a = lower[index], b = lower[next], c = upper[next], d = upper[index]
             let reference = (a + b + c + d) * 0.25 - pivot
             addQuad(a, b, c, d, facing: outward ? reference : -reference)
+        }
+    }
+
+    /// A flat horizontal annulus between two concentric rings — the tread of a
+    /// plinth step, a walkway deck, the top of a cornice.
+    ///
+    /// Facing is stated rather than derived from a pivot: a tread is horizontal,
+    /// so "away from the interior" is degenerate for it and any pivot-based
+    /// reference would be decided by floating-point noise.
+    mutating func addTread(
+        outer: [SIMD3<Float>],
+        inner: [SIMD3<Float>],
+        up: Bool = true
+    ) {
+        guard outer.count == inner.count, outer.count >= 3 else { return }
+        let facing = SIMD3<Float>(0, up ? 1 : -1, 0)
+        for index in outer.indices {
+            let next = (index + 1) % outer.count
+            addQuad(outer[index], outer[next], inner[next], inner[index], facing: facing)
         }
     }
 
@@ -564,6 +888,31 @@ enum StructureGeometry {
         }
     }
 
+    /// A closed horizontal polygon whose radius alternates between `radius` at
+    /// even vertices and `radius * valley` at odd ones.
+    ///
+    /// Stacking these produces a *pleated* surface of the kind fabric makes when
+    /// it is stretched over a radial frame: alternating gores lean opposite ways
+    /// about their shared meridian, so neighbouring facets take the key light at
+    /// visibly different angles. On a smooth dome every facet at one height has
+    /// the same normal and the whole shell resolves to a single flat value —
+    /// which is exactly the failure this exists to prevent.
+    ///
+    /// The side count is rounded down to an even number; an odd one would put
+    /// two folds or two valleys next to each other and break the alternation.
+    static func pleatedRing(
+        sides: Int,
+        radius: Float,
+        valley: Float,
+        y: Float,
+        phase: Float = 0,
+        center: SIMD2<Float> = .zero
+    ) -> [SIMD3<Float>] {
+        let count = max(sides, 4) / 2 * 2
+        let radii = (0..<count).map { $0 % 2 == 0 ? radius : radius * valley }
+        return ring(radii: radii, y: y, phase: phase, center: center)
+    }
+
     /// A closed horizontal ellipse, for hulls and long plated slabs.
     static func ring(
         sides: Int,
@@ -622,14 +971,33 @@ enum StructureGeometry {
 @MainActor
 enum StructureMaterial {
 
-    /// Non-metallic and rough, per the bible's flat/soft PBR ceiling.
-    static func matte(_ color: UIColor, roughness: Float = 0.92) -> PhysicallyBasedMaterial {
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: color)
-        material.roughness = .init(floatLiteral: roughness)
-        material.metallic = .init(floatLiteral: 0.0)
-        material.faceCulling = .none
-        return material
+    /// A lit structure surface at `color`.
+    ///
+    /// This used to be a flat tint plus a scalar roughness — the placeholder
+    /// look. It now routes through `MaterialLibrary`, so the same call gets base
+    /// colour, normal, roughness, AO and (where the surface has it) metallic,
+    /// while the rendered hue stays exactly the palette colour asked for.
+    ///
+    /// The signature is unchanged so every existing call site is untouched.
+    /// `surface` is optional because every tint in the project is a `shade` or
+    /// `blend` of a locked palette colour, which `MaterialLibrary` can classify;
+    /// pass it explicitly where a call site wants a specific surface class
+    /// rather than the nearest palette match. `roughness` keeps its meaning as
+    /// "how rough, relative to the others" — it now multiplies the recipe's
+    /// roughness map instead of replacing it.
+    static func matte(
+        _ color: UIColor,
+        roughness: Float = 0.92,
+        surface: MaterialLibrary.Surface? = nil
+    ) -> PhysicallyBasedMaterial {
+        MaterialLibrary.material(
+            surface ?? MaterialLibrary.surface(matching: color),
+            tint: color,
+            roughness: roughness,
+            // Inference must never turn a matte call luminous; emissive is only
+            // ever opt-in, through `MaterialLibrary.luminousSeam`.
+            emissiveIntensity: 0
+        )
     }
 
     /// Reserved for glow seams, lumen light and drive wash — nothing else.
@@ -638,18 +1006,33 @@ enum StructureMaterial {
     /// it renders fully opaque until `blending` is set. Measured in the rendered
     /// build: ground seams asked for 0.34 and came back solid gold. Anything
     /// wanting partial opacity must say so on `blending`.
-    static func glow(_ color: UIColor, opacity: CGFloat = 1.0) -> UnlitMaterial {
-        var material = UnlitMaterial(color: color)
-        material.faceCulling = .none
-        if opacity < 1 {
-            material.blending = .transparent(opacity: .init(floatLiteral: Float(opacity)))
-        }
-        return material
+    ///
+    /// Routed through `LuminousMaterial` so a seam is authored at emitter
+    /// brightness rather than at paint brightness. The hue is unchanged — only the
+    /// level moves — and it is the level that decides whether the post-process
+    /// bright pass can tell a glow seam apart from the lit ground behind it.
+    ///
+    /// `strength` is the one thing a call site must think about when it encodes
+    /// meaning in *brightness*. At the default of 1 the lift normalises the
+    /// brightest channel to full, which preserves the hue exactly but discards
+    /// the input's value: `shade(sunwovenGold, 0.30)` and `sunwovenGold` both
+    /// come back as the same colour. That is correct for a seam — a seam is a
+    /// source and every source should read as one — but wrong wherever dim
+    /// versus bright *is* the information, and there is one such place: an
+    /// unwoven causeway must not look like a woven one. Pass `strength: 0,
+    /// whiten: 0` there to render the authored colour untouched.
+    static func glow(
+        _ color: UIColor,
+        opacity: CGFloat = 1.0,
+        strength: Float = 1.0,
+        whiten: Float = LuminousMaterial.defaultWhiten
+    ) -> UnlitMaterial {
+        LuminousMaterial.unlit(color, strength: strength, whiten: whiten, opacity: opacity)
     }
 
     /// Mixes two colours. Nothing built from this invents a hue that is not
     /// already in the locked identity — it only sits between two of them.
-    static func blend(_ from: UIColor, _ to: UIColor, _ amount: CGFloat) -> UIColor {
+    nonisolated static func blend(_ from: UIColor, _ to: UIColor, _ amount: CGFloat) -> UIColor {
         var fromRed: CGFloat = 0, fromGreen: CGFloat = 0, fromBlue: CGFloat = 0, fromAlpha: CGFloat = 1
         var toRed: CGFloat = 0, toGreen: CGFloat = 0, toBlue: CGFloat = 0, toAlpha: CGFloat = 1
         guard from.getRed(&fromRed, green: &fromGreen, blue: &fromBlue, alpha: &fromAlpha),
@@ -665,7 +1048,7 @@ enum StructureMaterial {
 
     /// Shifts a palette colour's value without inventing a new hue, so soil,
     /// crop and crystal tones all stay traceable to the locked identity.
-    static func shade(_ color: UIColor, _ factor: CGFloat) -> UIColor {
+    nonisolated static func shade(_ color: UIColor, _ factor: CGFloat) -> UIColor {
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 1
         guard color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else { return color }
         return UIColor(

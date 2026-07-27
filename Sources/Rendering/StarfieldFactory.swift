@@ -61,6 +61,9 @@ enum StarfieldFactory {
         let entity = Entity()
         entity.name = "void.stars"
 
+        // No UV projection: a star is a two-triangle emitter drawn with an
+        // `UnlitMaterial`, which samples no texture. The backdrop card behind
+        // them is a bare `generatePlane` for the same reason.
         var warm = FlatMeshBuilder()
         var cool = FlatMeshBuilder()
         let half = baseExtent / 2
@@ -98,8 +101,11 @@ enum StarfieldFactory {
     private static func makeStarLayer(builder: FlatMeshBuilder, color: UIColor, name: String) -> Entity {
         let entity = Entity()
         entity.name = name
-        var material = UnlitMaterial(color: color)
-        material.faceCulling = .none
+        // Stars are the one thing in frame that is unambiguously a light source,
+        // so they are authored at full emitter level and are the strongest thing
+        // the post-process bright pass picks up. The backdrop card deliberately
+        // stays an ordinary UnlitMaterial — it must never bloom.
+        let material = LuminousMaterial.unlit(color, whiten: 0.35)
         entity.components.set(
             ModelComponent(mesh: builder.makeMesh(named: name), materials: [material])
         )
@@ -118,10 +124,21 @@ enum StarfieldFactory {
         // Sized to ~15% of viewport height at default zoom, matching concept 01.
         // Larger reads as a nearby moon competing with the playfield.
         let radius = random.float(in: 5.5...7.0)
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: UIColor(red: 0.46, green: 0.42, blue: 0.47, alpha: 1))
-        material.roughness = .init(floatLiteral: 1.0)
-        material.metallic = .init(floatLiteral: 0.0)
+
+        // The last flat-tint material in the scene. It is a distant rock, so it
+        // takes the same fractured-stone class the fragment undersides take,
+        // at the same violet-grey it has always been — the tint is what it
+        // reads as, not a multiplier, so the colour is unchanged.
+        //
+        // `.rimStone` tiles once per `metersPerTile`, and `generateSphere`'s UVs
+        // run 0...1 over the whole body, so a ~6 m moon gets a single tile of
+        // very low-frequency mottling rather than gravel. That is the correct
+        // read for something this far away.
+        let material = MaterialLibrary.material(
+            .rimStone,
+            tint: UIColor(red: 0.46, green: 0.42, blue: 0.47, alpha: 1),
+            roughness: 1.0
+        )
 
         entity.components.set(
             ModelComponent(mesh: .generateSphere(radius: radius), materials: [material])

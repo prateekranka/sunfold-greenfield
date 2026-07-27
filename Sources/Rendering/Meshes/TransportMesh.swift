@@ -163,7 +163,15 @@ enum TransportMesh {
         return StructureAssembly.entity(
             named: "transport.sunwoven",
             zones: [
-                StructureZone("hull", ivory, StructureMaterial.matte(SunfoldPalette.sunwovenIvory, roughness: 0.86)),
+                StructureZone(
+                    "hull",
+                    ivory,
+                    StructureMaterial.matte(
+                        SunfoldPalette.sunwovenIvory,
+                        roughness: 0.86,
+                        surface: .transportHull
+                    )
+                ),
                 StructureZone("deck", deck, StructureMaterial.matte(SunfoldPalette.sunwovenSurface)),
                 StructureZone("gold", gold, StructureMaterial.matte(SunfoldPalette.sunwovenGold, roughness: 0.85)),
                 StructureZone("trim", glow, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.85)),
@@ -286,7 +294,15 @@ enum TransportMesh {
         return StructureAssembly.entity(
             named: "transport.gravemark",
             zones: [
-                StructureZone("hull", plate, StructureMaterial.matte(SunfoldPalette.gravemarkSurface, roughness: 0.90)),
+                StructureZone(
+                    "hull",
+                    plate,
+                    StructureMaterial.matte(
+                        SunfoldPalette.gravemarkSurface,
+                        roughness: 0.90,
+                        surface: .armouredHull
+                    )
+                ),
                 StructureZone("sponson", rock, StructureMaterial.matte(SunfoldPalette.gravemarkRock, roughness: 0.96)),
                 StructureZone("copper", copper, StructureMaterial.matte(SunfoldPalette.gravemarkCopper, roughness: 0.85)),
                 StructureZone("drive", glow, StructureMaterial.glow(SunfoldPalette.gravemarkMineral, opacity: 0.85)),

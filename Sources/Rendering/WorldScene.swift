@@ -65,13 +65,25 @@ enum WorldScene {
         let top = Entity()
         top.name = "\(entity.name).top"
         top.components.set(
-            ModelComponent(mesh: built.top, materials: [surfaceMaterial(colors.surface)])
+            ModelComponent(
+                mesh: built.top,
+                materials: FragmentMeshFactory.topMaterials(
+                    surface: colors.surface,
+                    rock: colors.rock
+                )
+            )
         )
 
         let underside = Entity()
         underside.name = "\(entity.name).under"
         underside.components.set(
-            ModelComponent(mesh: built.underside, materials: [rockMaterial(colors.rock)])
+            ModelComponent(
+                mesh: built.underside,
+                materials: FragmentMeshFactory.cliffMaterials(
+                    surface: colors.surface,
+                    rock: colors.rock
+                )
+            )
         )
 
         entity.addChild(top)
@@ -85,32 +97,6 @@ enum WorldScene {
             )
         )
         return entity
-    }
-
-    private static func surfaceMaterial(_ color: UIColor) -> PhysicallyBasedMaterial {
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: color)
-        material.roughness = .init(floatLiteral: 0.92)
-        material.metallic = .init(floatLiteral: 0.0)
-        material.faceCulling = .none
-        return material
-    }
-
-    /// Cool stone under warm ground.
-    ///
-    /// Darkening the flank was tried first and was the wrong variable: in concept
-    /// 01 the rim rock is close to the habitable top in *value*, and the read
-    /// comes from it being cooler and from having real mass. Pulling the palette
-    /// rock toward a neutral cool grey separates it from the sand without
-    /// inventing a hue or fighting the key light.
-    private static func rockMaterial(_ color: UIColor) -> PhysicallyBasedMaterial {
-        let cool = UIColor(red: 0.55, green: 0.575, blue: 0.625, alpha: 1)
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: StructureMaterial.blend(color, cool, 0.46))
-        material.roughness = .init(floatLiteral: 0.98)
-        material.metallic = .init(floatLiteral: 0.0)
-        material.faceCulling = .none
-        return material
     }
 
     // MARK: - Causeways
@@ -168,9 +154,23 @@ enum WorldScene {
         )
         entity.addChild(field)
 
-        let railColor = lit
-            ? SunfoldPalette.sunwovenGold
-            : StructureMaterial.shade(SunfoldPalette.sunwovenGold, 0.30)
+        // The rails carry the one piece of gameplay information a causeway has:
+        // woven or not. That is encoded in *brightness*, which makes it the one
+        // place `StructureMaterial.glow`'s default emitter lift is wrong — the
+        // lift normalises the brightest channel to full, so a dimmed gold and a
+        // full gold come out of it as the same colour and an unwoven route would
+        // read as walkable. The unwoven rail therefore opts out of the lift
+        // entirely (`strength: 0, whiten: 0`) and renders the authored dim gold,
+        // whose linear luminance sits far below the bloom threshold. The woven
+        // rail keeps the full emitter treatment and is one of the things the
+        // bright pass is meant to find.
+        let railMaterial = lit
+            ? StructureMaterial.glow(SunfoldPalette.sunwovenGold)
+            : StructureMaterial.glow(
+                StructureMaterial.shade(SunfoldPalette.sunwovenGold, 0.30),
+                strength: 0,
+                whiten: 0
+            )
 
         for side in [Float(-1), Float(1)] {
             let rail = Entity()
@@ -179,7 +179,7 @@ enum WorldScene {
             rail.components.set(
                 ModelComponent(
                     mesh: .generatePlane(width: 0.5, depth: span * 0.97, cornerRadius: 0.25),
-                    materials: [StructureMaterial.glow(railColor)]
+                    materials: [railMaterial]
                 )
             )
             entity.addChild(rail)
@@ -190,32 +190,10 @@ enum WorldScene {
 
     // MARK: - Lighting
 
-    /// Key light from above-camera with a cool fill, matching the bible's
-    /// "soft directional key, gentle rim on fragment edges" without an IBL asset.
+    /// Warm shadow-casting key, cool fill, rim, and a procedurally generated
+    /// image-based light. Everything about the look — including the tuning
+    /// constants — lives in `LightingRig`.
     private static func makeLighting() -> Entity {
-        let root = Entity()
-        root.name = "world.lighting"
-
-        let key = Entity()
-        var keyLight = DirectionalLightComponent(
-            color: UIColor(red: 1.0, green: 0.94, blue: 0.84, alpha: 1),
-            intensity: 2700
-        )
-        keyLight.isRealWorldProxy = false
-        key.components.set(keyLight)
-        key.look(at: [0, 0, 0], from: [-90, 150, 110], relativeTo: nil)
-
-        let fill = Entity()
-        var fillLight = DirectionalLightComponent(
-            color: UIColor(red: 0.62, green: 0.72, blue: 0.95, alpha: 1),
-            intensity: 850
-        )
-        fillLight.isRealWorldProxy = false
-        fill.components.set(fillLight)
-        fill.look(at: [0, 0, 0], from: [120, 90, -140], relativeTo: nil)
-
-        root.addChild(key)
-        root.addChild(fill)
-        return root
+        LightingRig.makeLighting()
     }
 }
