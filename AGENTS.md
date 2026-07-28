@@ -122,14 +122,23 @@ fragment-to-void ratio, sparse starfield) still holds.
   stretches flat triangles between its samples, so it rides *above* the height
   field across every dip; a decal placed on the function is under the mesh and
   vanishes. Recompute that constant if a relief amplitude or cell count changes.
+- **`WorldMap.bounds` is a camera limit, not the extent of the land.** It is
+  `[118, 86]` against a fragment field of `94 × 55`, deliberately, so the camera
+  can look past the edge. Anything fitting a view to the *world* must measure the
+  fragments; fitting to `bounds` leaves the theatre small and off-centre.
+- **A `Spacer` inside a SwiftUI column that has no width of its own makes the
+  whole column greedy.** A HUD panel built this way stretches the length of the
+  frame instead of sitting in its corner. Pin the row's width.
 
 ## Where the frame actually stands
 
 Measured from the rendered frame, not guessed. Textures, IBL, shadows, the
-post-process, exposure, bloom, soft stars and terrain relief all landed across
-CP-01…CP-04 — `PROJECT_STATE.md` has the numbers. What is still missing:
+post-process, exposure, bloom, soft stars, terrain relief and the HUD chrome all
+landed across CP-01…CP-05 — `PROJECT_STATE.md` has the numbers. What is still
+missing:
 
-- **No HUD chrome beyond the resource rail** — no minimap, command grid,
-  selection portraits or health bars. The largest gap.
+- **The void is flat black.** No nebula wash, and the celestial body does not
+  appear in frame. Concept 01 has both. The largest gap.
 - No animation. Units slide; nothing has an idle, walk or work cycle.
-- The void carries no nebula, and the celestial body does not appear in frame.
+- No health bars — the one chrome surface of concept 01's five that is still
+  absent. It belongs with combat, which is parked G2 work.

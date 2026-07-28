@@ -57,10 +57,21 @@ struct RootView: View {
         .padding(.horizontal, 20)
     }
 
+    /// Map at one thumb, commands at the other, and the selection between them.
+    ///
+    /// The selection panel sits centre-bottom rather than in the corner it used
+    /// to occupy: it is the answer to "did my order land?", and the corner is
+    /// where the eye goes last. It is also the only one of the three that comes
+    /// and goes, so the two anchored panels must not move when it does — hence
+    /// the centre column takes the slack rather than the panels being laid out
+    /// against each other.
     private var bottomStrip: some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .bottom, spacing: 14) {
+            Minimap(simulation: simulation, rig: controller.rig)
+            Spacer(minLength: 0)
             SelectionPanel(simulation: simulation, selection: controller.selection)
             Spacer(minLength: 0)
+            CommandGrid(simulation: simulation, selection: controller.selection)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 16)

@@ -6,7 +6,10 @@ source tree.
 
 Rules for this file:
 
-- It is updated **at the close of every checkpoint**, never mid-flight.
+- The **checkpoint log** is updated at the close of every checkpoint, never mid-flight.
+- The **In flight** section below is the exception: it carries an open checkpoint across a
+  session boundary so the next agent resumes instead of restarting. It is deleted when that
+  checkpoint closes and its log entry is written.
 - It records what was **observed**, not what was intended. A claim here without evidence
   behind it is a bug in this file.
 - It is short. Detail lives in the documents it points to; this file says where things
@@ -18,16 +21,18 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-04 — Terrain relief · **closed** |
+| **Last checkpoint** | CP-05 — HUD chrome · **closed** |
 | **Closed** | 2026-07-28 |
 | **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero new warnings. |
-| **Renders** | 🟢 Clean. Exposure on target, bloom emitter-selective, stars soft, ground has relief. |
-| **Current frame** | `Docs/QA/AAA/cp04-terrain-relief.png` |
+| **Renders** | 🟢 Clean. Four of concept 01's five chrome surfaces are up and reading. |
+| **Current frame** | `Docs/QA/AAA/cp05-hud-chrome.png` |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
 | **Current direction** | Finish the AAA visual push toward concept 01. G2 gameplay is parked. |
-| **Uncommitted work** | None. `acfcf1b` is the current head of `visual/aaa-uplift-cp02`. |
-| **Next checkpoint** | CP-05 — HUD chrome. The rail is the only chrome in a frame whose target has five more. |
+| **Uncommitted work** | None. `visual/aaa-uplift-cp02` carries CP-05. |
+| **Next checkpoint** | CP-06 — the void. It is flat black; concept 01 has a nebula wash and a celestial body in frame. |
+
+---
 
 ---
 
@@ -137,16 +142,18 @@ selects emitters and the turquoise glazing carries a halo.
 **Fixed at CP-04.** The ground has relief, and everything that stands on it — units, props,
 deposits, decals — sits on that relief rather than on a datum plane.
 
-**Still short of concept 01**, measured against `cp04-terrain-relief.png`:
+**Fixed at CP-05.** The frame now carries four of concept 01's five chrome surfaces: the
+resource rail, a live minimap, the selection panel and the command grid.
 
-- **No HUD chrome beyond the resource rail** — no minimap, no command grid, no selection
-  portraits, no health bars. Concept 01 has all five. The largest remaining gap, and the
-  next checkpoint.
+**Still short of concept 01**, measured against `cp05-hud-chrome.png`:
+
+- **The void is empty** — flat black, no nebula wash, and the celestial body does not appear
+  in frame. Concept 01 has both. The largest remaining gap, and the next checkpoint.
+- **No health bars.** The fifth chrome surface, and the only one CP-05 did not add — it
+  belongs with combat, which is parked G2 work.
 - **The Core is a plain dome** where concept 01 has an ornate pavilion with a tented canopy
   and a fine gold armature.
 - **Vegetation is spiky low-poly** against the concept's fine golden branching.
-- **The void is empty** — no nebula wash, and the celestial body does not appear in frame.
-  Concept 01 has both.
 - **The transport's dark spar** reads as a slab crossing the frame rather than a vessel part.
 - **The second fragment is clipped by the frame edge** and still reads as pasted on.
 
@@ -199,6 +206,63 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+### CP-05 — HUD chrome · 2026-07-28 · closed
+
+**Goal.** Concept 01 carries five pieces of chrome; the build shipped two. Add the minimap
+and the command grid, and re-lay the bottom strip so map, selection and orders take the
+three thumb positions of a landscape iPad.
+
+**Done.**
+
+- **`Minimap`** — `Canvas`-drawn from `WorldMap` and the live simulation rather than from a
+  baked image, so it cannot drift out of step with the terrain. Causeways underneath (dashed
+  where they must be woven first), fragments tinted by owner, deposits, buildings as squares,
+  units as dots, and the camera's footprint as a **yaw-rotated quad** — an axis-aligned
+  rectangle would be a lie the moment the player yaws, and yaw is a control this game ships.
+  Four tool tiles and a compass reading sit with it.
+- **`CameraRig` is `@Observable`**, so that quad tracks `focus` / `yaw` / `zoom`. Without it
+  the reticle is placed once at scene build and never moves again, which is worse than
+  having no reticle.
+- **`CommandGrid`** — a fixed 3×3 whatever is selected. A card that reflows forces the player
+  to re-find every button, and muscle memory for a command's *position* is most of what makes
+  an RTS fast, so a command that does not apply is dimmed in place rather than removed. Only
+  `stop` is wired, as a move order to the unit's own position — the simulation clears a
+  destination on arrival, so that is exactly "cancel" without a second verb. Everything else
+  is parked G2 work and renders disabled: an enabled button that silently does nothing is
+  worse chrome than a dimmed one.
+- **`RootView.bottomStrip`** — minimap · spacer · selection · spacer · command grid. The
+  selection panel is the only one of the three that comes and goes, so the centre column
+  takes the slack and the two anchored panels never move under it.
+
+**Verified.** Build green, zero errors, zero new warnings. Installed, launched, rotated,
+captured at full resolution as `Docs/QA/AAA/cp05-hud-chrome.png`. The reticle was then
+checked under an actual camera pan rather than assumed: swiping the world moved the quad
+with it, which is the one claim `@Observable` is there to make.
+
+**Two Swift type-checker cliffs, both in `CommandGrid`.** Each fails as `failed to produce
+diagnostic for expression`, which names neither the cause nor a useful line:
+
+1. A nested `[[Cell]]` literal — nine memberwise inits with defaulted arguments is more than
+   the checker will spend. Fixed by building each row as a separately annotated `[Cell]`.
+2. `hasUnits ? stop : nil` — inferring `(() -> Void)?` from a bare method reference against
+   `nil`. Fixed with an explicit `let stopAction: (() -> Void)? = hasUnits ? { self.stop() } : nil`.
+
+**Two layout defects the render caught that reasoning had not.**
+
+1. **A `Spacer` in a column with no width of its own makes the whole column greedy.** The
+   minimap's header `HStack` held one, and the panel stretched the length of the frame
+   instead of sitting in its corner. Pinning the header to the map's width fixes it.
+2. **`WorldMap.bounds` is a camera limit, not the land.** It is deliberately wider than the
+   rock — `[118, 86]` against a fragment field of `94 × 55` — so a well fitted to it showed
+   the theatre at 80% × 47% of its own area, pushed off-centre and floating. The well now
+   measures the land from the fragments themselves and takes **the land's aspect** rather
+   than a forced square; the bible allows a rounded rectangle here, and a square showing a
+   1.7:1 theatre can only ever be half empty. Land area on screen roughly doubled.
+
+Changes confined to `Sources/HUD`, `Sources/App` and one `@Observable` on `CameraRig`.
+`Simulation` and `Domain` import neither RealityKit nor UIKit; no ad-hoc randomness anywhere
+in `Sources/`.
 
 ### CP-04 — Terrain relief · 2026-07-28 · closed
 
