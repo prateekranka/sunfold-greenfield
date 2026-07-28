@@ -16,7 +16,7 @@ import simd
 /// | Kind       | Silhouette class            | Footprint | Height | Hue        |
 /// |------------|-----------------------------|-----------|--------|------------|
 /// | Matter     | broken scree nest, spiked   | ~4.6 m    | ~1.9 m | cool grey  |
-/// | Lumen      | vertical druse, radiating   | ~2.5 m    | ~3.1 m | warm gold  |
+/// | Lumen      | vertical druse, radiating   | ~3.6 m    | ~4.8 m | warm gold  |
 /// | Aether     | airborne, ground nearly bare| ~3.2 m    | ~3.3 m | turquoise  |
 /// | Provisions | low arching dome, no spikes | ~2.6 m    | ~1.2 m | olive-saff.|
 ///
@@ -190,13 +190,10 @@ enum DepositMeshes {
     /// A luminous crystal druse: a tight fan of tapered gold and ivory prisms
     /// radiating off a small rock collar.
     ///
-    /// ~2.5 m across, ~3.1 m tall. The **tallest and narrowest** node, which is
-    /// the entire silhouette argument — where Matter spreads, Lumen spikes. The
-    /// gold prisms are authored genuinely emissive through `MaterialLibrary` (a
-    /// *lit* emissive surface, so they still take the key light and still cast
-    /// into the shadow map) at an intensity the post-process bright pass will
-    /// pick up, which is what makes the node glow rather than merely look
-    /// yellow.
+    /// ~3.6 m across, ~4.8 m tall after CP-09. Still the **tallest and narrowest**
+    /// node — Matter spreads, Lumen spikes — but the concept's left-side cluster
+    /// is a landmark, not a jewellery tip, so the major prisms and collar both
+    /// grew without approaching the Core's mass.
     static func lumen(seed: UInt64) -> Entity {
         var random = DeterministicRandom.stream(seed: seed, tag: "deposit.lumen")
 
@@ -206,50 +203,49 @@ enum DepositMeshes {
         var core = StructureBuilder(uv: crystalUV)
         var pool = StructureBuilder(uv: crystalUV)
 
-        // A modest collar, not a plinth. Anything wider and the node stops
-        // being narrow, which is the one thing it has to be.
+        // Collar wide enough to seat the taller prisms without becoming a plinth.
         collar.addSolid(
-            lower: StructureGeometry.ring(sides: 7, radius: 1.02, y: 0, phase: random.float(in: 0...1)),
-            upper: StructureGeometry.ring(sides: 7, radius: 0.84, y: 0.28)
+            lower: StructureGeometry.ring(sides: 7, radius: 1.28, y: 0, phase: random.float(in: 0...1)),
+            upper: StructureGeometry.ring(sides: 7, radius: 1.05, y: 0.36)
         )
-        for index in 0..<4 {
-            let angle = Float(index) / 4 * 2 * .pi + random.float(in: -0.5...0.5)
-            let distance = random.float(in: 0.96...1.24)
+        for index in 0..<6 {
+            let angle = Float(index) / 6 * 2 * .pi + random.float(in: -0.5...0.5)
+            let distance = random.float(in: 1.10...1.55)
             collar.addBoulder(
                 center: [cos(angle) * distance, sin(angle) * distance],
-                radius: random.float(in: 0.20...0.36),
-                height: random.float(in: 0.16...0.34),
+                radius: random.float(in: 0.28...0.48),
+                height: random.float(in: 0.22...0.48),
                 sides: 5, random: &random
             )
         }
 
-        // Five pale prisms splayed hard outward — the fan that makes the
+        // Six pale prisms splayed hard outward — the fan that makes the
         // cluster read as grown rather than assembled.
-        for index in 0..<5 {
-            let yaw = Float(index) / 5 * 2 * .pi + random.float(in: -0.28...0.28)
-            let distance = random.float(in: 0.30...0.58)
+        for index in 0..<6 {
+            let yaw = Float(index) / 6 * 2 * .pi + random.float(in: -0.28...0.28)
+            let distance = random.float(in: 0.34...0.72)
             addCrystal(
                 into: &ivory,
-                base: [cos(yaw) * distance, 0.22, sin(yaw) * distance],
+                base: [cos(yaw) * distance, 0.28, sin(yaw) * distance],
                 axis: tiltedAxis(yaw: yaw, tilt: random.float(in: 0.24...0.56)),
-                length: random.float(in: 1.55...2.30),
-                radius: random.float(in: 0.15...0.27),
+                length: random.float(in: 2.10...3.20),
+                radius: random.float(in: 0.18...0.34),
                 sides: 5,
                 random: &random
             )
         }
 
-        // Three near-vertical gold prisms carry the spike of the silhouette and
+        // Four near-vertical gold prisms carry the spike of the silhouette and
         // all of the node's light.
-        for index in 0..<3 {
-            let yaw = Float(index) / 3 * 2 * .pi + random.float(in: -0.5...0.5)
-            let distance = random.float(in: 0.06...0.30)
+        for index in 0..<4 {
+            let yaw = Float(index) / 4 * 2 * .pi + random.float(in: -0.5...0.5)
+            let distance = random.float(in: 0.06...0.36)
             addCrystal(
                 into: &gold,
-                base: [cos(yaw) * distance, 0.24, sin(yaw) * distance],
+                base: [cos(yaw) * distance, 0.30, sin(yaw) * distance],
                 axis: tiltedAxis(yaw: yaw, tilt: random.float(in: 0.02...0.22)),
-                length: random.float(in: 2.20...2.90),
-                radius: random.float(in: 0.19...0.30),
+                length: random.float(in: 3.20...4.40),
+                radius: random.float(in: 0.24...0.38),
                 sides: 6,
                 random: &random
             )
@@ -258,22 +254,22 @@ enum DepositMeshes {
         // Unlit inner slivers: excluded from the shadow map by `LightingRig`, so
         // they sit *inside* the cluster as a light leak rather than as more
         // geometry casting more shadow onto the crystal around them.
-        for index in 0..<3 {
-            let yaw = Float(index) / 3 * 2 * .pi + 0.9
-            let distance = random.float(in: 0.22...0.46)
+        for index in 0..<4 {
+            let yaw = Float(index) / 4 * 2 * .pi + 0.9
+            let distance = random.float(in: 0.22...0.52)
             addCrystal(
                 into: &core,
-                base: [cos(yaw) * distance, 0.24, sin(yaw) * distance],
+                base: [cos(yaw) * distance, 0.28, sin(yaw) * distance],
                 axis: tiltedAxis(yaw: yaw, tilt: random.float(in: 0.05...0.30)),
-                length: random.float(in: 1.00...1.70),
-                radius: random.float(in: 0.06...0.11),
+                length: random.float(in: 1.40...2.40),
+                radius: random.float(in: 0.07...0.13),
                 sides: 3,
                 random: &random
             )
         }
 
         pool.addCap(
-            ring: StructureGeometry.ring(sides: 7, radius: 1.42, y: 0.04),
+            ring: StructureGeometry.ring(sides: 7, radius: 1.85, y: 0.04),
             pivot: [0, -0.2, 0]
         )
 
@@ -315,7 +311,7 @@ enum DepositMeshes {
                 ),
             ]
         )
-        return varied(entity, random: &random, spread: 0.86...1.16)
+        return varied(entity, random: &random, spread: 0.90...1.18)
     }
 
     // MARK: - Aether

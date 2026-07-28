@@ -157,6 +157,10 @@ enum FragmentMeshFactory {
         /// The base, 55% darker and coolest, so the mass falls away into the
         /// void rather than ending at a hard line.
         case base
+        /// Pale crystalline spurs on the rim promontories. Own material slot so
+        /// the geometry can take warm ivory crystal instead of cold rimStone —
+        /// retinting a cold reference stays muted (CP-07).
+        case crystal
     }
 
     struct Built {
@@ -185,6 +189,7 @@ enum FragmentMeshFactory {
             angles: angles,
             rimRadii: rimRadii,
             isSpur: isSpur,
+            seed: seed,
             random: &random
         )
 
@@ -608,6 +613,7 @@ enum FragmentMeshFactory {
         angles: [Float],
         rimRadii: [Float],
         isSpur: [Bool],
+        seed: UInt64,
         random: inout DeterministicRandom
     ) -> MeshResource {
         // The flank's top ring is the top surface's outer ring, sampled from the
@@ -687,6 +693,25 @@ enum FragmentMeshFactory {
             builders[.middle] = spurBuilder
         }
 
+        // Pale crystalline accents on the rim promontories — concept 01's edge
+        // detail. Own stream so the flank's existing draws (and the island
+        // silhouette they define) stay put.
+        if shouldCrystalSpur(fragment), var crystalBuilder = builders[.crystal] {
+            var crystalRandom = DeterministicRandom.stream(
+                seed: seed,
+                tag: "fragment.\(fragment.id.rawValue).crystalSpurs"
+            )
+            addCrystalSpurs(
+                into: &crystalBuilder,
+                rim: rim,
+                angles: angles,
+                isSpur: isSpur,
+                radius: fragment.radius,
+                random: &crystalRandom
+            )
+            builders[.crystal] = crystalBuilder
+        }
+
         let parts = CliffBand.allCases.compactMap { band -> MeshDescriptor? in
             builders[band]?.makeDescriptor(
                 named: "\(fragment.id.rawValue).under.\(band)",
@@ -740,6 +765,128 @@ enum FragmentMeshFactory {
             builder.addTriangle(a, b, tip, facing: (a + b + tip) / 3 - pivot)
             builder.addTriangle(b, c, tip, facing: (b + c + tip) / 3 - pivot)
             builder.addTriangle(c, a, tip, facing: (c + a + tip) / 3 - pivot)
+        }
+    }
+
+    /// Pale crystalline spurs grow from the rim promontories, outward and up.
+    ///
+    /// The hanging stone spikes below already say *torn*; these say *mineral*.
+    /// They sit on the lip so a 57° camera sees them as light accents along the
+    /// rocky edge rather than as underside detail.
+    private static func shouldCrystalSpur(_ fragment: Fragment) -> Bool {
+        switch fragment.id {
+        case .sunwovenHome, .sunwovenExpansion, .dominion, .neutralOutcropNorth, .neutralOutcropSouth:
+            return true
+        case .gravemarkHome, .gravemarkExpansion:
+            return false
+        }
+    }
+
+    private static func addCrystalSpurs(
+        into builder: inout FlatMeshBuilder,
+        rim: [SIMD3<Float>],
+        angles: [Float],
+        isSpur: [Bool],
+        radius: Float,
+        random: inout DeterministicRandom
+    ) {
+        let count = rim.count
+        guard count >= 3, isSpur.count == count, angles.count == count else { return }
+
+        for index in 0..<count where isSpur[index] {
+            // Not every promontory: a full ring of identical crystals would read
+            // as decoration bolted on. About two thirds keep the edge irregular.
+            guard random.unitFloat() < 0.68 else { continue }
+
+            let origin = rim[index]
+            let outward = SIMD3<Float>(cos(angles[index]), 0, sin(angles[index]))
+            let up = SIMD3<Float>(0, 1, 0)
+            // Outward and slightly up — readable from above without becoming a
+            // vertical fence along the rim.
+            let axis = simd_normalize(outward * 0.78 + up * random.float(in: 0.42...0.72))
+            let length = radius * random.float(in: 0.055...0.110)
+            let crystalRadius = radius * random.float(in: 0.008...0.016)
+            let sides = random.unitFloat() < 0.55 ? 5 : 4
+
+            addCrystalPrism(
+                into: &builder,
+                base: origin + outward * (crystalRadius * 0.4) + up * 0.04,
+                axis: axis,
+                length: length,
+                radius: crystalRadius,
+                sides: sides,
+                random: &random
+            )
+
+            // Occasional companion shard, shorter and more splayed.
+            if random.unitFloat() < 0.45 {
+                let yaw = angles[index] + random.float(in: -0.55...0.55)
+                let sideOut = SIMD3<Float>(cos(yaw), 0, sin(yaw))
+                let sideAxis = simd_normalize(sideOut * 0.70 + up * random.float(in: 0.30...0.60))
+                addCrystalPrism(
+                    into: &builder,
+                    base: origin + sideOut * (crystalRadius * 0.8) + up * 0.02,
+                    axis: sideAxis,
+                    length: length * random.float(in: 0.45...0.75),
+                    radius: crystalRadius * random.float(in: 0.55...0.80),
+                    sides: 4,
+                    random: &random
+                )
+            }
+        }
+    }
+
+    /// A tapered prism along an arbitrary axis — same construction DepositMeshes
+    /// uses for resource crystals, local so the flank does not import that file.
+    private static func addCrystalPrism(
+        into builder: inout FlatMeshBuilder,
+        base: SIMD3<Float>,
+        axis: SIMD3<Float>,
+        length: Float,
+        radius: Float,
+        sides: Int,
+        random: inout DeterministicRandom
+    ) {
+        let dir = simd_normalize(axis)
+        // Build a stable orthonormal frame around the axis.
+        let helper: SIMD3<Float> = abs(dir.y) < 0.9 ? [0, 1, 0] : [1, 0, 0]
+        let tangent = simd_normalize(simd_cross(dir, helper))
+        let bitangent = simd_normalize(simd_cross(dir, tangent))
+        let phase = random.float(in: 0...(2 * .pi))
+
+        func ring(at t: Float, scale: Float) -> [SIMD3<Float>] {
+            let center = base + dir * (length * t)
+            return (0..<sides).map { index in
+                let angle = phase + Float(index) / Float(sides) * 2 * .pi
+                let offset = (tangent * cos(angle) + bitangent * sin(angle)) * (radius * scale)
+                return center + offset
+            }
+        }
+
+        // Foot / belly / shoulder / tip — the belly is the widest so the prism
+        // reads as a crystal rather than as a cone.
+        let foot = ring(at: 0, scale: 0.72)
+        let belly = ring(at: 0.28, scale: 1.00)
+        let shoulder = ring(at: 0.72, scale: 0.55)
+        let tip = base + dir * length
+
+        func loft(_ lower: [SIMD3<Float>], _ upper: [SIMD3<Float>]) {
+            for index in 0..<sides {
+                let next = (index + 1) % sides
+                let outward = simd_normalize(
+                    (lower[index] + lower[next] + upper[index] + upper[next]) * 0.25 - (base + dir * length * 0.4)
+                )
+                builder.addTriangle(lower[index], upper[index], upper[next], facing: outward)
+                builder.addTriangle(lower[index], upper[next], lower[next], facing: outward)
+            }
+        }
+
+        loft(foot, belly)
+        loft(belly, shoulder)
+        for index in 0..<sides {
+            let next = (index + 1) % sides
+            let outward = simd_normalize((shoulder[index] + shoulder[next] + tip) / 3 - base)
+            builder.addTriangle(shoulder[index], tip, shoulder[next], facing: outward)
         }
     }
 
@@ -856,6 +1003,15 @@ enum FragmentMeshFactory {
                         0.45
                     ),
                     roughness: 1.0
+                )
+            case .crystal:
+                // Warm ivory on a warm crystalline surface — not a retint of
+                // `.rimStone`, whose cold reference would mute any pale tint.
+                MaterialLibrary.material(
+                    .crystallineLumen,
+                    tint: SunfoldPalette.sunwovenIvory,
+                    roughness: 0.32,
+                    emissiveIntensity: 1.1
                 )
             }
         }

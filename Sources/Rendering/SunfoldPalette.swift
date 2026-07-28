@@ -15,6 +15,13 @@ enum SunfoldPalette {
     static let voidHorizon = UIColor(red: 0.055, green: 0.062, blue: 0.130, alpha: 1)
     static let starWarm = UIColor(red: 1.00, green: 0.95, blue: 0.86, alpha: 1)
     static let starCool = UIColor(red: 0.82, green: 0.88, blue: 1.00, alpha: 1)
+    /// Warm dust lobe sampled from concept 01's soft-void — not a second backdrop,
+    /// just the tint the nebula wash leans toward.
+    static let voidNebulaWarm = UIColor(red: 0.310, green: 0.248, blue: 0.188, alpha: 1)
+    /// Cool indigo counter-lobe; keeps the wash from reading as a brown fog.
+    static let voidNebulaCool = UIColor(red: 0.110, green: 0.125, blue: 0.220, alpha: 1)
+    /// Distant gas-giant midtone from concept 01 (centre sample ≈ 0.80 / 0.73 / 0.64).
+    static let celestialBody = UIColor(red: 0.780, green: 0.695, blue: 0.575, alpha: 1)
 
     // MARK: - Sunwoven
 

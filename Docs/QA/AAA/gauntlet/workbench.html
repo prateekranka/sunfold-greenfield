@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Sunfold Gauntlet — CP-08 + CP-09</title>
+<style>
+  :root { color-scheme: dark; --bg:#0b0c12; --panel:#141622; --ink:#e8e4d8; --mute:#8a8698; --gold:#c9a24a; --ok:#6fbf73; --bad:#d4676a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); }
+  header { padding: 20px 28px; border-bottom: 1px solid #22253a; }
+  header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; letter-spacing: 0.02em; }
+  header p { margin: 0; color: var(--mute); }
+  main { padding: 20px 28px 48px; display: grid; gap: 18px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--panel); border: 1px solid #22253a; border-radius: 10px; padding: 14px; }
+  .card h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold); }
+  .card img { width: 100%; border-radius: 6px; background: #000; display: block; }
+  .meta { color: var(--mute); font-size: 12px; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #22253a; font-size: 13px; }
+  th { color: var(--mute); font-weight: 500; }
+  .status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
+  .closed { background: #142616; color: var(--ok); }
+  ul { margin: 8px 0 0; padding-left: 18px; color: var(--mute); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: #c9c4b8; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sunfold Gauntlet Loop — CP-08 + CP-09</h1>
+  <p>Bar: <code>Docs/Concepts/01-sunwoven-foundation-opening.png</code> · Closed 2026-07-28 on try4 · Next: CP-10 HUD parity</p>
+</header>
+<main>
+  <section class="card">
+    <h2>Wave status</h2>
+    <table>
+      <tr><th>Piece</th><th>Owner file</th><th>Status</th></tr>
+      <tr><td>CP-08 Nebula wash</td><td><code>StarfieldFactory.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-08 Celestial body</td><td><code>StarfieldFactory.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-08 Drifting debris</td><td><code>StarfieldFactory.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-09 Rim crystalline spurs</td><td><code>FragmentMeshFactory.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-09 Larger crystal deposits</td><td><code>DepositMeshes.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-09 Branching plant mass</td><td><code>TerrainDressing.swift</code></td><td><span class="status closed">closed</span></td></tr>
+    </table>
+    <ul>
+      <li>try4 void-sides: floor luma 0.036 (concept 0.032), soft-void 0.362 (concept 0.338).</li>
+      <li>Celestial body in upper-right. Debris: angular mid-grey shards inside ±35 on the card.</li>
+      <li>Canopy uses a separate site list (scrub jam at 1.3 m was killing placement). Dialed to 7 m spacing so crowns do not bury the Core.</li>
+      <li>Verified frames: <code>../cp08-void.png</code> · <code>../cp09-rim-mass.png</code> (same capture).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2 style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:0.08em;">Bar vs closed — void</h2>
+    <div class="row">
+      <div class="card">
+        <h2>Concept 01 — void top</h2>
+        <img src="bar-concept-void-top.png" alt="concept void" />
+        <p class="meta">Warm nebula wash + gas giant in upper field.</p>
+      </div>
+      <div class="card">
+        <h2>cp08 try4 — void top</h2>
+        <img src="try4-void-top.png" alt="cp08 void" />
+        <p class="meta">Wash + planet + debris shards. soft-void 0.362.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:0.08em;">Bar vs closed — island mass</h2>
+    <div class="row">
+      <div class="card">
+        <h2>Concept 01 — island</h2>
+        <img src="bar-concept-island.png" alt="concept island" />
+        <p class="meta">Pale rim detail, large crystal cluster, branching golden masses.</p>
+      </div>
+      <div class="card">
+        <h2>cp09 try4 — island</h2>
+        <img src="try4-island.png" alt="cp09 island" />
+        <p class="meta">Rim spurs, lumen cluster, tree-scale crowns clear of Core.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Frames</h2>
+    <p class="meta">Closed on <code>Docs/QA/AAA/cp08-09-try4.png</code>, copied to <code>cp08-void.png</code> and <code>cp09-rim-mass.png</code>. Intermediate: try1b (nebula weak), try2 (void ok / canopy jammed), try3 (canopy overshot).</p>
+  </section>
+</main>
+</body>
+</html>

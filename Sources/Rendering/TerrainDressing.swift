@@ -458,6 +458,7 @@ enum TerrainDressing {
     /// material zone the geometry lands in, and how wide a dust decal it earns.
     private enum PropClass {
         case paleTree
+        case branchingMass
         case scrubClump
         case bladeTuft
         case rockScatter
@@ -579,6 +580,7 @@ enum TerrainDressing {
 
             switch kind {
             case .paleTree: addPaleTree(into: &props, instance, random: &random)
+            case .branchingMass: addBranchingMass(into: &props, instance, random: &random)
             case .scrubClump: addScrubClump(into: &props, instance, random: &random)
             case .bladeTuft: addBladeTuft(into: &props, instance, random: &random)
             case .rockScatter: addRockScatter(into: &props, instance, random: &random)
@@ -693,6 +695,56 @@ enum TerrainDressing {
             let (classes, spread) = kinds(vigour: vigour)
             cluster(at: candidate, vigour: vigour, kinds: classes, spread: spread)
         }
+
+        // Canopy pass: a few large branching masses. CP-06 already matched the
+        // concept's *count*; what remained was silhouette mass. Draws append
+        // after the fringe/interior loops so those prop positions stay put.
+        //
+        // Critical: do **not** jam against the scrub `sites` list. Fringe/interior
+        // already pack at 1.3–1.5 m, so a 4.2 m check against every scrub site
+        // rejects nearly every canopy candidate (try2: planting stayed a carpet
+        // of medium clumps). Canopy only keeps clear of claimed ground, the rim,
+        // and other canopy trunks.
+        if character == .sunwoven || character == .neutral {
+            var canopySites: [SIMD2<Float>] = []
+            // Rare tree-scale masses — concept 01 carries a handful, not a grove
+            // that buries the Core (try3 overshot with 4.0 m spacing).
+            let canopySpacing: Float = 7.0
+            let canopyCandidates = max(5, Int(fragment.radius * fragment.radius * 0.045))
+            for _ in 0..<canopyCandidates {
+                let angle = random.float(in: 0...(2 * .pi))
+                let localRim = rim.radius(atAngle: angle)
+                // Prefer mid-ring / fringe so crowns silhouette against void and
+                // stay clear of the Core's claimed circle.
+                let distance = localRim * random.float(in: 0.42...0.78)
+                let candidate = SIMD2<Float>(cos(angle) * distance, sin(angle) * distance)
+
+                let vigour = mask(candidate)
+                guard vigour > 0.24 else { continue }
+                guard random.unitFloat() < 0.55 + vigour * 0.25 else { continue }
+                guard rim.contains(candidate, margin: 0.93) else { continue }
+                // Extra clearance past claimed radii so large crowns do not lean
+                // over the pavilion (try3).
+                guard claimed.allSatisfy({
+                    simd_distance($0.center, candidate) > $0.radius + 2.8
+                }) else { continue }
+                guard canopySites.allSatisfy({ simd_distance($0, candidate) > canopySpacing }) else {
+                    continue
+                }
+                canopySites.append(candidate)
+
+                place(.branchingMass, at: candidate, vigour: max(vigour, 0.55))
+                if random.unitFloat() < 0.45 {
+                    let footAngle = random.float(in: 0...(2 * .pi))
+                    let footDist = random.float(in: 1.8...2.8)
+                    place(
+                        .scrubClump,
+                        at: candidate + SIMD2<Float>(cos(footAngle), sin(footAngle)) * footDist,
+                        vigour: vigour * 0.75
+                    )
+                }
+            }
+        }
     }
 
     // MARK: - Prop meshes
@@ -798,6 +850,122 @@ enum TerrainDressing {
         }
 
         addContactDecal(into: &props, at: center, radius: crownRadius * 1.05 + 0.35 * wide, random: &random)
+    }
+
+    /// A large branching mass: a thick trunk that splits into three spreading
+    /// limbs, each tipped with a lobed crown.
+    ///
+    /// Concept 01's remaining planting gap after CP-06 was never count — it was
+    /// that every prop was a medium spiky clump while the concept carries a few
+    /// tree-scale golden silhouettes. This is that silhouette. Kept rare by the
+    /// canopy pass's 4.8 m spacing.
+    private static func addBranchingMass(
+        into props: inout Props,
+        _ instance: Instance,
+        random: inout DeterministicRandom
+    ) {
+        let center = instance.center
+        // Tree-scale but not pavilion-burying: try3 crowns at 2.4–3.6·wide ate the Core.
+        let height = random.float(in: 7.0...9.5) * instance.tall
+        let wide = instance.wide * random.float(in: 1.10...1.35)
+
+        let leanAngle = instance.yaw + random.float(in: -0.4...0.4)
+        let lean = random.float(in: 0.18...0.55) * wide
+        let head = center + SIMD2<Float>(cos(leanAngle), sin(leanAngle)) * lean
+        func along(_ t: Float) -> SIMD2<Float> { center + (head - center) * t }
+
+        let sides = 6
+        let phase = instance.yaw
+        let flare = StructureGeometry.ring(
+            radii: (0..<sides).map { _ in 0.48 * wide * random.float(in: 0.82...1.22) },
+            y: -0.14,
+            phase: phase,
+            center: center
+        )
+        let shin = StructureGeometry.ring(
+            radii: (0..<sides).map { _ in 0.30 * wide * random.float(in: 0.90...1.10) },
+            y: height * 0.18,
+            phase: phase,
+            center: along(0.18)
+        )
+        let fork = StructureGeometry.ring(
+            sides: sides, radius: 0.22 * wide, y: height * 0.42, phase: phase, center: along(0.42)
+        )
+
+        let bark = Contact(foot: -0.14, reach: height * 0.40, top: instance.top(for: props.barkSteps))
+        props.bark.band(lower: flare, upper: shin, pivot: [center.x, height * 0.2, center.y], bark)
+        props.bark.band(lower: shin, upper: fork, pivot: [center.x, height * 0.35, center.y], bark)
+
+        let foliage = Contact(
+            foot: height * 0.40,
+            reach: height * 0.40,
+            top: instance.top(for: props.foliageSteps)
+        )
+
+        // Three primary limbs radiating from the fork, each with its own crown.
+        let limbCount = 3
+        var crownReach: Float = 0
+        for limb in 0..<limbCount {
+            let angle = instance.yaw + Float(limb) / Float(limbCount) * 2 * .pi
+                + random.float(in: -0.35...0.35)
+            let reach = random.float(in: 2.0...3.2) * wide
+            crownReach = max(crownReach, reach)
+            let forkPoint = along(0.42)
+            let tipXZ = forkPoint + SIMD2<Float>(cos(angle), sin(angle)) * reach
+            let tipY = height * random.float(in: 0.72...0.95)
+
+            let socket = StructureGeometry.ring(
+                sides: 4, radius: 0.14 * wide, y: height * 0.42, phase: angle, center: forkPoint
+            )
+            let midCenter = forkPoint + (tipXZ - forkPoint) * 0.55
+            let mid = StructureGeometry.ring(
+                sides: 4,
+                radius: 0.09 * wide,
+                y: (height * 0.42 + tipY) * 0.55,
+                phase: angle,
+                center: midCenter
+            )
+            let tipCenter = forkPoint + (tipXZ - forkPoint) * 0.92
+            let tipRing = StructureGeometry.ring(
+                sides: 4, radius: 0.05 * wide, y: tipY * 0.92, phase: angle, center: tipCenter
+            )
+
+            props.bark.band(lower: socket, upper: mid, pivot: [forkPoint.x, height * 0.5, forkPoint.y], bark)
+            props.bark.band(lower: mid, upper: tipRing, pivot: [tipCenter.x, tipY * 0.7, tipCenter.y], bark)
+
+            // Open lobed crown — sparse enough to read as tree, not another scrub mound.
+            let lobeCount = random.unitFloat() < 0.45 ? 3 : 2
+            let crownRadius = random.float(in: 1.60...2.40) * wide
+            for lobe in 0..<lobeCount {
+                let lobeAngle = angle + Float(lobe) / Float(lobeCount) * 1.6
+                    + random.float(in: -0.3...0.3)
+                let offset = crownRadius * random.float(in: 0.28...0.78)
+                let seat = tipXZ + SIMD2<Float>(cos(lobeAngle), sin(lobeAngle)) * offset
+                let radius = crownRadius * random.float(in: 0.48...0.88)
+                let base = tipY * random.float(in: 0.72...0.90)
+                let rise = radius * random.float(in: 0.85...1.35)
+
+                addLobe(
+                    into: &props.foliage,
+                    center: seat,
+                    radius: radius,
+                    base: base,
+                    rise: rise,
+                    sides: 6,
+                    phase: lobeAngle,
+                    contact: foliage,
+                    capBottom: true,
+                    random: &random
+                )
+            }
+        }
+
+        addContactDecal(
+            into: &props,
+            at: center,
+            radius: crownReach * 0.85 + 0.55 * wide,
+            random: &random
+        )
     }
 
     /// Low golden scrub: a small compact mass with a corona of thin folded
@@ -1267,7 +1435,7 @@ enum TerrainDressing {
 
         func ladderCount(for kind: PropClass) -> Int {
             switch kind {
-            case .paleTree, .scrubClump, .bladeTuft: foliage.count
+            case .paleTree, .branchingMass, .scrubClump, .bladeTuft: foliage.count
             case .rockScatter: stone.count
             case .mineralSpikes: mineral.count
             }

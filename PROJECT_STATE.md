@@ -21,16 +21,16 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-07 — the Core pavilion · **closed** |
+| **Last checkpoint** | CP-08 + CP-09 — void + rim/plant mass · **closed** |
 | **Closed** | 2026-07-28 |
 | **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero new warnings. |
-| **Renders** | 🟢 Clean. The Core reads as a bright tented pavilion, on the concept's numbers. |
-| **Current frame** | `Docs/QA/AAA/cp07-core-pavilion.png` |
+| **Renders** | 🟢 Clean. Void wash + planet in frame; rim crystals, lumen mass, tree-scale crowns. |
+| **Current frame** | `Docs/QA/AAA/cp08-void.png` / `Docs/QA/AAA/cp09-rim-mass.png` (same try4 capture) |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
 | **Current direction** | Finish the AAA visual push toward concept 01. G2 gameplay is parked. |
-| **Uncommitted work** | None. `visual/aaa-uplift-cp02` carries CP-07. |
-| **Next checkpoint** | CP-08 — the void. See the ladder below. |
+| **Uncommitted work** | On `visual/aaa-uplift-cp02` — CP-08 + CP-09 closed, not yet committed. |
+| **Next checkpoint** | CP-10 — HUD parity. |
 
 ---
 
@@ -52,16 +52,10 @@ Two gaps needed no number, both visible in a side-by-side crop: the concept's gr
 was a **value inversion**, the concept's ivory-and-gold pavilion being the brightest object in
 frame against our charcoal dome darker than the ground it stood on. Closed at CP-07.
 
-**CP-08 — The void.** Nebula wash, the celestial body in frame, drifting debris. The bible
-allots the void 45–60% of the frame and it is currently flat black. Isolated, no gameplay
-coupling — the cheapest single checkpoint here if a quick win is wanted ahead of the Core.
+**CP-08 — The void.** · **closed.** Nebula wash, celestial body in frame, drifting debris.
 
-**CP-09 — Rim, deposits and plant mass.** Pale crystalline rim spurs; larger crystal clusters.
-Also the half of the planting gap CP-06 could not close: the island now carries *more* separate
-plantings than concept 01 does (146 against 132) at 62% of its coverage, so what is left is not
-count but **mass** — the concept's growth includes a few large branching masses where every one
-of ours is a medium spiky clump. That is a mesh problem, and scattering more copies of the same
-silhouette would read as a carpet rather than close it.
+**CP-09 — Rim, deposits and plant mass.** · **closed.** Pale rim spurs, larger lumen clusters,
+tree-scale branching masses. Ground-inlay rosette near the Core still carried (terrain drape).
 
 **CP-10 — HUD parity.** Top-bar centre emblem and speed controls, the alert row, pinned group
 slots, selection portraits, health bars, and minimap fragment silhouettes rather than circles.
@@ -88,8 +82,6 @@ reprioritization — `Sources/Domain` and `Sources/Simulation` import **only** `
 `Observation` and `simd`, which is the hard precondition for a SwiftPM extraction, and the
 host has Swift 6.3.3 with `swift test` **not** hook-blocked. Roughly one checkpoint whenever
 it is wanted.
-
----
 
 ---
 
@@ -271,6 +263,69 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+### CP-09 — Rim, deposits and plant mass · 2026-07-28 · closed
+
+**Goal.** Close the half of the planting gap CP-06 could not: not *count* but **mass** —
+concept 01 carries a few tree-scale branching silhouettes where every prop of ours was a
+medium spiky clump — plus pale crystalline rim spurs and larger lumen deposit clusters.
+
+**Verified frame.** `Docs/QA/AAA/cp09-rim-mass.png` (same capture as CP-08 try4).
+
+**Observed.**
+
+| piece | observed |
+|---|---|
+| Rim crystal spurs | Pale ivory tips along the rim, readable against void. |
+| Lumen deposits | Larger bright cluster left of the Core. |
+| Branching mass | Tree-scale lobed crowns with pale limbs, mid-ring / fringe — Core stays clear. |
+
+**What closed the mass gap.** A new `PropClass.branchingMass` alone was not enough. try2
+enlarged crowns but almost none placed: the canopy pass jammed `site(..., spacing: 4.2)`
+against the scrub list already packed at 1.3–1.5 m. Fix: a separate `canopySites` list that
+only keeps clear of other canopy trunks, claimed ground (+2.8 m), and the rim. try3 then
+*overshot* into a forest burying the pavilion — dialed to 7.0 m canopy spacing, mid-ring
+placement, and smaller crowns (1.6–2.4·wide). Ground-inlay rosette still carried (terrain
+drape under relief).
+
+**Cost.** `TerrainDressing.swift` (branchingMass + canopy pass), `FragmentMeshFactory.swift`
+(crystal rim spurs), `DepositMeshes.swift` (larger lumen clusters). Dressing stream draw
+order ahead of the canopy pass unchanged.
+
+### CP-08 — The void · 2026-07-28 · closed
+
+**Goal.** Give the void depth: nebula wash (bible: not busy over the playfield), the
+celestial body actually in frame, and drifting debris.
+
+**Verified frame.** `Docs/QA/AAA/cp08-void.png` (Gauntlet try4).
+
+**Measured (void-sides band, matching the pre-edit method):**
+
+| | concept 01 | cp07 | try1b | **cp08 (try4)** |
+|---|---|---|---|---|
+| void floor luma (L&lt;0.08) | 0.032 | 0.006 | 0.007 | **0.036** |
+| soft-void frac (0.02&lt;L&lt;0.18) | 0.338 | 0.023 | 0.033 | **0.362** |
+| soft-void saturation | 0.57 | 0.47 | 0.47 | **0.49** |
+| celestial body upper-right | warm gas giant | out of frame | in frame | **in frame** |
+
+**Five things the renders taught.**
+
+1. **The celestial body was never missing — it was outside the frustum.** Authored at
+   `[46, 29]` with half-width ≈38.7. Reposition to `[18, 14]`, radius ~14, warm banded
+   unlit texture.
+2. **Nebula opacity must peak ~0.70 before ACES and the black plate.** try1b at softer
+   opacity left soft-void at 0.05; 0.70 landed 0.36 against concept 0.34.
+3. **Debris must sit inside the visible card (±~35), not ±120.** Off-frustum shards are
+   invisible regardless of mesh. Mid-grey unlit (~0.44) angular tetrahedra; charcoal
+   quads vanish.
+4. **Screenshot rotation follows the *device* orientation that stuck.** After
+   Portrait→LandscapeLeft, `rotation: "LandscapeLeft"` puts resources TL / Theatre BL.
+   `LandscapeRight` flips the HUD 180°.
+5. **Opaque void floor texture** (deep indigo + warm/cool mottling) is what moves floor
+   luma; a shy transparent wash alone cannot.
+
+**Cost.** `StarfieldFactory.swift` + `SunfoldPalette.swift` (void / celestial colours). New
+streams `"nebula"` and `"debris"`; `"starfield"` / `"celestial"` draw order untouched.
 
 ### CP-07 — The Core pavilion · 2026-07-28 · closed
 

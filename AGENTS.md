@@ -60,7 +60,8 @@ Then, in order:
    **The app is landscape-only and renders nothing in portrait.** This step is not
    optional.
 4. `mcp__argent__screenshot` — udid, `scale: 1.0`, `rotation: "LandscapeLeft"` for a
-   full-resolution frame you can actually judge detail in.
+   full-resolution frame you can actually judge detail in. After Portrait→LandscapeLeft,
+   that tag puts resources TL / Theatre BL; `LandscapeRight` flips the HUD 180°.
 
 **The simulator is a single shared resource.** Only install/launch/screenshot when
 the orchestrator has told you it is your turn. Never do it concurrently with another
@@ -172,20 +173,29 @@ fragment-to-void ratio, sparse starfield) still holds.
   the tint.
 - **A cone has no facet pointing at an overhead key**, so it renders as a dark
   plug however bright its material is. Break it into facets or keep it short.
+- **Orthographic sky cards clip hard.** Anything on the void card past the
+  camera's half-extent (~38.7 at default zoom) is simply outside the frustum.
+  The celestial body at `[46, 29]` was "missing" for that reason alone; debris
+  authored at ±120 never appeared. Keep sky props inside roughly ±35.
+- **Nebula wash needs authored opacity ~0.70** to survive ACES + the black plate
+  into concept-range soft-void (~0.34). Quieter peaks read as flat black.
+- **A late scatter pass that jams against earlier `sites` will place nothing.**
+  Fringe/interior already pack at 1.3–1.5 m; a canopy check at 4 m against that
+  list rejects every candidate. Use a separate site list for rare large props,
+  and keep them clear of claimed ground by an extra margin so crowns do not bury
+  the Core.
 
 ## Where the frame actually stands
 
 Measured from the rendered frame, not guessed. Textures, IBL, shadows, the
 post-process, exposure, bloom, soft stars, terrain relief, the HUD chrome, the
-ground's planting and palette, and the Core pavilion all landed across
-CP-01…CP-07 — `PROJECT_STATE.md` has the numbers. What is still missing:
+ground's planting and palette, the Core pavilion, the void wash + celestial
+body + debris, rim crystals, lumen mass, and tree-scale branching crowns all
+landed across CP-01…CP-09 — `PROJECT_STATE.md` has the numbers. What is still
+missing:
 
-- **The void is flat black.** No nebula wash, and the celestial body does not
-  appear in frame. Concept 01 has both.
-- Plant *mass*. CP-06 brought the island past concept 01's count of separate
-  plantings (146 against 132) at 62% of its coverage; the rest is that the
-  concept has a few large branching masses and every one of ours is a medium
-  spiky clump.
+- HUD parity (CP-10): centre emblem, speed controls, alert row, portraits,
+  health bars, minimap silhouettes.
+- Transport / pier (CP-11).
 - No animation. Units slide; nothing has an idle, walk or work cycle.
-- No health bars — the one chrome surface of concept 01's five that is still
-  absent. It belongs with combat, which is parked G2 work.
+- Ground-inlay rosette near the Core — carried again (needs terrain drape).
