@@ -100,16 +100,29 @@ fragment-to-void ratio, sparse starfield) still holds.
   void and report a false regression.
 - The debug overlay is now opt-in via the `-sunfoldDebug` launch argument and is
   **off** by default, so captures are clean. Do not re-enable it by default.
+- **The scene's exposure is one number.** `LightingRig.Tuning.exposureScale` multiplies
+  key, fill, rim and the IBL together; the individual intensities are the art
+  direction and their ratios should stay as they are. Reach for this rather than
+  the post-process `exposure`, which moves emitters and lit surfaces alike — the
+  gap between them is what makes anything look like it is glowing.
+- **Bloom begins at `threshold - softKnee`, not at `threshold`.** Both were wrong
+  for three sessions because only the threshold was being read. If the ground
+  blooms, check the knee first.
+- **`bloomIntensity` above 1 is correct here**, not a taste dial. A Gaussian blur
+  conserves energy, so a small emitter's halo peak falls as `1/σ²`, and
+  `RealityView` exposes no HDR path to carry the headroom instead.
+- **`rotate` loses the first call after a launch.** It returns success and nothing
+  turns, because the scene is still building. Send `Portrait` then `LandscapeLeft`,
+  or you capture an empty void and report a regression that is not there.
 
-## Baseline weaknesses as of build 42
+## Where the frame actually stands
 
-Measured from the rendered frame, not guessed:
+Measured from the rendered frame, not guessed. Textures, IBL, shadows, the
+post-process, exposure, bloom and soft stars all landed across CP-01…CP-03 —
+`PROJECT_STATE.md` has the numbers. What is still missing:
 
-- No shadows anywhere. `DirectionalLightComponent` is created without a `Shadow`.
-- No image-based lighting; ambient is a single flat fill light.
-- No textures of any kind. Every material is a flat `baseColor` tint with a scalar
-  roughness. No normal, roughness, AO or emissive maps.
-- Custom meshes emit no UV coordinates, so texturing needs UV generation first.
-- No post-processing: no bloom, tonemap or vignette, despite a luminous faction.
+- **The habitable surface is one flat facet with no relief.** The largest gap.
+- No HUD chrome beyond the resource rail — no minimap, command grid, selection
+  portraits or health bars.
 - No animation. Units slide; nothing has an idle, walk or work cycle.
-- The habitable surface is one flat facet with no relief.
+- The void carries no nebula, and the celestial body does not appear in frame.

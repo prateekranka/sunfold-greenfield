@@ -18,16 +18,16 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-02 — Kill the magenta · **closed** |
-| **Closed** | 2026-07-27 |
-| **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero Swift warnings. |
-| **Renders** | 🟢 Clean. No missing materials — 64,490 magenta samples → **0**. |
-| **Current frame** | `Docs/QA/AAA/cp02-magenta-fixed.png` |
+| **Last checkpoint** | CP-03 — Make the light read · **closed** |
+| **Closed** | 2026-07-28 |
+| **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero new warnings. |
+| **Renders** | 🟢 Clean. Exposure on target, bloom emitter-selective, stars soft. |
+| **Current frame** | `Docs/QA/AAA/cp03-light-reads.png` |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
 | **Current direction** | Finish the AAA visual push toward concept 01. G2 gameplay is parked. |
-| **Uncommitted work** | Large. One commit (`05c68b8`) sits behind ~a full day of source changes. |
-| **Next checkpoint** | CP-03 — close the remaining gap to concept 01 (stars, bloom, terrain relief, HUD chrome). |
+| **Uncommitted work** | None. `af84c47` is the current head of `visual/aaa-uplift-cp02`. |
+| **Next checkpoint** | CP-04 — terrain relief. The habitable surface is still one flat facet. |
 
 ---
 
@@ -131,11 +131,22 @@ rock outcrops, dark-stalked plants. Units are recognisable figures carrying fact
 The transport is a proper vessel with a gold spar. The ground carries a mottled sand texture
 with gold seam lines, and the Core casts a real shadow. Star fringing is gone.
 
-**Still short of concept 01.** Stars are flat white squares rather than soft points. No
-visible bloom on the turquoise glazing despite the post-process running. The terrain is
-still one flat facet with no relief. The second fragment reads as pasted-on rather than
-sitting in the same space. There is no HUD chrome beyond the resource rail — no minimap, no
-command grid, no selection portraits.
+**Fixed at CP-03.** Stars are soft points. The frame's exposure matches concept 01. Bloom
+selects emitters and the turquoise glazing carries a halo.
+
+**Still short of concept 01**, measured against `cp03-light-reads.png`:
+
+- **The terrain is one flat facet with no relief.** The largest remaining gap, and the next
+  checkpoint.
+- **No HUD chrome beyond the resource rail** — no minimap, no command grid, no selection
+  portraits, no health bars. Concept 01 has all five.
+- **The Core is a plain dome** where concept 01 has an ornate pavilion with a tented canopy
+  and a fine gold armature.
+- **Vegetation is spiky low-poly** against the concept's fine golden branching.
+- **The void is empty** — no nebula wash, and the celestial body does not appear in frame.
+  Concept 01 has both.
+- **The transport's dark spar** reads as a slab crossing the frame rather than a vessel part.
+- **The second fragment is clipped by the frame edge** and still reads as pasted on.
 
 The subsystems behind all of that:
 
@@ -168,9 +179,11 @@ The subsystems behind all of that:
   **Proof Pending**. The planned fix is to extract `Domain` + `Simulation` into a SwiftPM
   `SunfoldCore` package that `swift test` can run directly — which is the right
   architecture anyway, since it enforces the simulation/rendering split at module level.
-- **Almost nothing is committed.** A single commit sits behind a full day of work. A
-  checkpoint commit is advisable before any further large change.
 - `Sources/Audio/` and `Sources/Accessibility/` exist but are empty. They belong to G7.
+- **`rotate` loses the first call after a launch.** The app is still building its scene, the
+  call returns `{"orientation":"LandscapeLeft"}` and nothing turns. Send it twice — a
+  `Portrait` step then `LandscapeLeft` — or the capture is an empty void and reads as a
+  regression that is not there.
 
 ### Parked, not abandoned
 
@@ -184,6 +197,72 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+### CP-03 — Make the light read · 2026-07-28 · closed
+
+**Goal.** Stars as soft points rather than flat squares, and bloom that lands on the
+emitters instead of nowhere.
+
+**Found.** Three symptoms, one cause, all measured off `cp02-magenta-fixed.png` rather than
+estimated:
+
+- The post-process *was* running. The void backdrop is an unlit plane, and its blue channel
+  falls smoothly 6.9 → 4.6 from centre to corner — a gradient only a vignette can put on
+  unlit geometry. The run-02 premise that `install(into:)` is never called was wrong;
+  `WorldController.attach(to:)` calls it at line 66.
+- **The ground was overexposed by 36%.** Sunlit regolith measured a median **0.540** linear
+  against concept 01's **0.397**. That single fact caused all three visible defects: nothing
+  glowed, because emissive seams are authored independently of the lights and an over-bright
+  ground closes the gap they need (glazing 0.744 against sand 0.672); bloom was a flat haze,
+  because 15% of the frame — nearly all terrain — cleared the bright pass; and the frame read
+  chalky, because ACES desaturates what it rolls off (saturation 0.301 against 0.345).
+- **The bloom onset was at 0.32, not 0.58.** Contribution begins at `threshold - softKnee`,
+  so the 0.30 knee put the onset far below the ground regardless of the threshold.
+- **Stars were hard quads.** A 2-pixel cliff from void floor to full brightness, with heavy
+  red/cyan fringing on the straight edges. Bloom cannot fix this: a star covers so few pixels
+  that spreading its energy across a wide Gaussian leaves a halo far below visibility.
+
+**Done.**
+
+- `LightingRig.Tuning.exposureScale` — one multiplier over key, fill, rim and the IBL. The
+  individual intensities stay the art direction; this is the exposure. 0.67 is the solution
+  of the composite chain, inverted numerically, for a regolith median of 0.397. Scaling the
+  *lights* rather than the post-process `exposure` is the whole point: it moves lit surfaces
+  only, leaving unlit stars and emissive seams where they are.
+- `threshold` 0.58 → 0.62, `softKnee` 0.30 → 0.16, `bloomIntensity` 0.72 → 3.2. The
+  intensity is above 1 because a Gaussian blur conserves energy and these emitters are
+  small; `RealityView` exposes no HDR path, so the headroom an HDR source would carry has to
+  be supplied here.
+- Star quads carry per-quad UVs and a shared 64×64 radial mask used as an opacity texture.
+  `FlatMeshBuilder` derives UVs from world position and cannot express a per-quad 0…1
+  square, so the star mesh is assembled directly.
+
+**Verified.** Build green, zero errors, zero new warnings. Installed, launched, rotated,
+captured at full resolution as `Docs/QA/AAA/cp03-light-reads.png`.
+
+| measured | CP-02 | CP-03 | concept 01 |
+|---|---|---|---|
+| sunlit regolith, linear median | 0.540 | **0.397** | 0.397 |
+| lit-subject saturation | 0.301 | 0.361 | 0.345 |
+| frame over the bloom threshold | 8.34% | **0.56%** | 1.54% |
+| star edge, steepest single-pixel step | 0.62 | **0.12–0.16** | — |
+
+Bloom was isolated by rendering the frame twice, once at `bloomIntensity` 0 and once at the
+shipped value, and differencing. At 0.72 the contribution was correctly placed — 28× stronger
+next to an emitter than away from one, and at 10× amplification it outlines exactly the
+glazing, the gold finial, the crystal deposits and the stars — but +0.002 display luminance,
+half a code value out of 255. At 3.2 the ring around the glazing measures +0.0053 and 73,102
+pixels are lifted past 0.03, against 12,877 before.
+
+Changes confined to `Sources/Rendering`. `Simulation` and `Domain` import neither RealityKit
+nor UIKit; no ad-hoc randomness anywhere in `Sources/`. Committed as `af84c47`.
+
+**Cost — one lesson worth keeping.** The three defects looked independent and were logged as
+three separate items across two sessions. They were one number. Measuring the frame against
+the concept — rather than reading the code and reasoning about what it should produce — found
+that in one pass, and turned the fix into arithmetic: the predicted regolith median was
+0.397 and the rendered frame landed on 0.397. **Measure the frame before theorising about
+the renderer.**
 
 ### CP-02 — Kill the magenta · 2026-07-27 · closed
 
