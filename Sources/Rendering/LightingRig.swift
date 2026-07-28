@@ -56,6 +56,36 @@ enum LightingRig {
 
     struct Tuning {
 
+        // MARK: Exposure
+
+        /// One multiplier over every *light* in the rig — key, fill, rim and the
+        /// IBL together. The individual intensities below are the art direction
+        /// (their ratios are what model the form); this is the exposure.
+        ///
+        /// Measured, not chosen. At 1.0 the rendered frame's sunlit regolith sat
+        /// at a median **0.540 linear** luminance against concept 01's **0.397**,
+        /// i.e. the ground was 36% too bright. That single fact caused three
+        /// separate symptoms:
+        ///
+        /// 1. Nothing glowed. Emissive seams are authored independently of the
+        ///    lights, so an over-bright ground closes the gap the glow needs —
+        ///    the Core's turquoise glazing measured 0.744 linear against sand at
+        ///    0.672, a margin too small to read as light.
+        /// 2. Bloom became a flat haze. 15% of the frame cleared
+        ///    `SunfoldPostProcess.Tuning.threshold`, nearly all of it ground, so
+        ///    the bright pass returned the terrain rather than the emitters.
+        /// 3. The frame read chalky. ACES rolls off what it is given; feeding it
+        ///    an over-bright midtone desaturates it (measured mean saturation
+        ///    0.301 against the concept's 0.345).
+        ///
+        /// 0.67 is the solution of the actual composite chain — tonemap, grade,
+        /// saturation and vignette, inverted numerically — for a sunlit-regolith
+        /// median of 0.397. Lowering the lights rather than the post-process
+        /// `exposure` is deliberate: it moves lit surfaces *only*, leaving unlit
+        /// stars and emissive seams where they are, which is what opens the gap
+        /// between ground and glow instead of sliding the whole frame down.
+        var exposureScale: Float = 0.67
+
         // MARK: Key (warm, shadow-casting)
 
         /// Sunwoven Lumen: warm gold spill, not white.
@@ -183,7 +213,7 @@ enum LightingRig {
             makeDirectional(
                 named: "world.lighting.fill",
                 color: tuning.fillColor,
-                intensity: tuning.fillIntensity,
+                intensity: tuning.fillIntensity * tuning.exposureScale,
                 from: tuning.fillFrom
             )
         )
@@ -191,7 +221,7 @@ enum LightingRig {
             makeDirectional(
                 named: "world.lighting.rim",
                 color: tuning.rimColor,
-                intensity: tuning.rimIntensity,
+                intensity: tuning.rimIntensity * tuning.exposureScale,
                 from: tuning.rimFrom
             )
         )
@@ -199,9 +229,14 @@ enum LightingRig {
         if tuning.environmentEnabled, let resource = environmentResource(tuning) {
             let host = Entity()
             host.name = "world.lighting.environment"
+            // `intensityExponent` is a log2 dial, so the rig's linear exposure
+            // scale enters here as its logarithm. Scaling the exponent rather
+            // than the baked radiances keeps the environment image itself —
+            // and therefore its expensive cubemap convolution — cacheable.
             var ibl = ImageBasedLightComponent(
                 source: .single(resource),
                 intensityExponent: tuning.environmentIntensityExponent
+                    + log2(max(tuning.exposureScale, 1e-4))
             )
             // The host sits at identity under the world root, but say it out loud:
             // an inherited rotation would drag the whole sky around with the scene.
@@ -216,9 +251,11 @@ enum LightingRig {
         registerSystemIfNeeded()
 
         DebugLog.info(
-            "Lighting: key \(Int(tuning.keyIntensity)) lux"
+            "Lighting: key \(Int(tuning.keyIntensity * tuning.exposureScale)) lux"
+                + " (exposure \(tuning.exposureScale))"
                 + (tuning.shadowEnabled ? " +shadow(\(Int(tuning.shadowMaximumDistance))m)" : "")
-                + ", fill \(Int(tuning.fillIntensity)), rim \(Int(tuning.rimIntensity)), "
+                + ", fill \(Int(tuning.fillIntensity * tuning.exposureScale))"
+                + ", rim \(Int(tuning.rimIntensity * tuning.exposureScale)), "
                 + (environmentHost == nil ? "no IBL" : "procedural IBL")
         )
         return root
@@ -230,7 +267,7 @@ enum LightingRig {
 
         var light = DirectionalLightComponent(
             color: tuning.keyColor,
-            intensity: tuning.keyIntensity
+            intensity: tuning.keyIntensity * tuning.exposureScale
         )
         light.isRealWorldProxy = false
 

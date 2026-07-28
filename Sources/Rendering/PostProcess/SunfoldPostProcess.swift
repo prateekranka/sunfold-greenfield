@@ -43,16 +43,45 @@ struct SunfoldPostProcess: PostProcessEffect {
     struct Tuning: Sendable, Equatable {
         /// Linear luminance above which a pixel starts contributing to bloom.
         ///
-        /// Calibrated against the locked palette: a lit regolith facet lands
-        /// around 0.45–0.55 linear, the boosted Sunwoven glow seams around 0.72,
-        /// and a warm star at 0.90. 0.58 puts the seams and the stars clearly
-        /// over the line while leaving the ground with only a whisper of haze.
-        var threshold: Float = 0.58
+        /// Measured off the rendered frame, not estimated from the palette. The
+        /// previous value of 0.58 came with a note claiming lit regolith lands at
+        /// 0.45–0.55 linear; in the actual frame it landed at a **median 0.540
+        /// and a p95 of 0.672**, so the terrain — 15% of the whole frame — was
+        /// clearing the bar. A bright pass that returns the ground produces an
+        /// even haze, not a halo, which is exactly what the frame showed: no
+        /// visible glow anywhere despite the pass running correctly.
+        ///
+        /// With `LightingRig.Tuning.exposureScale` at 0.67 the ground drops to a
+        /// median 0.397 / p95 0.530, while emissive seams and unlit stars — which
+        /// do not scale with the lights — stay at 0.744 and 0.84. 0.62 sits in
+        /// the gap that opens up: above every lit surface, below every emitter.
+        var threshold: Float = 0.62
         /// Width of the quadratic knee below `threshold`. A hard cut pops as a
         /// seam crosses it during a camera pan; the knee fades it in.
-        var softKnee: Float = 0.30
+        ///
+        /// The knee is what actually sets where bloom begins — contribution
+        /// starts at `threshold - softKnee`, not at `threshold`. At the old 0.30
+        /// that onset was 0.32, far below the ground. 0.16 puts it at 0.46:
+        /// clear of the regolith median, still wide enough that a seam fades in
+        /// across a pan rather than popping.
+        var softKnee: Float = 0.16
         /// How much of the blurred bright pass is added back.
-        var bloomIntensity: Float = 0.72
+        ///
+        /// Above 1 on purpose. A Gaussian blur conserves energy, so the peak of
+        /// the halo it returns falls as `1/σ²` — and the emitters in this scene
+        /// are small. Measured by rendering the frame twice, once at 0.72 and
+        /// once at 0, and differencing: the pass was landing a mean lift of
+        /// **+0.002** display luminance in the ring around the Core's glazing.
+        /// Correctly placed (28× stronger next to an emitter than away from one)
+        /// and about ten times too faint to see — half a code value out of 255.
+        ///
+        /// The usual fix is an HDR source where an emitter is authored at 10× and
+        /// carries the energy itself. `RealityView` exposes no HDR path, so the
+        /// frame arrives clamped to 1.0 and the amplification has to happen here
+        /// instead. 3.2 is that missing headroom, not a taste dial. It costs the
+        /// ground nothing: with `threshold` above every lit surface, the lift far
+        /// from any emitter measures +0.00007.
+        var bloomIntensity: Float = 3.2
         /// Second blur round's stride multiplier. The two rounds together give a
         /// wide, soft halo for the cost of a narrow kernel.
         var wideBlurStride: Float = 2.6
