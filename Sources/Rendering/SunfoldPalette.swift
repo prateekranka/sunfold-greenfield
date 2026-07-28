@@ -18,8 +18,27 @@ enum SunfoldPalette {
 
     // MARK: - Sunwoven
 
-    static let sunwovenSurface = UIColor(red: 0.855, green: 0.800, blue: 0.678, alpha: 1)
-    static let sunwovenRock = UIColor(red: 0.612, green: 0.565, blue: 0.478, alpha: 1)
+    /// The warm stone family sits at **hue 34°**, not 40°.
+    ///
+    /// Measured off `cp05-hud-chrome.png` against concept 01, on hand-picked bare
+    /// ground in both: the concept reads rgb(0.776, 0.655, 0.506) — hue 33.0° —
+    /// and the build read rgb(0.757, 0.682, 0.506) — hue 42.2°. Red and blue
+    /// already matched to within 2%; the entire 9° error was **green**, and it
+    /// repeated on every lit surface in the frame (rim stone 41.8°, foliage
+    /// 40.3°, the near-white transport hull 41.1°) against 32–35° for the same
+    /// surfaces in the concept.
+    ///
+    /// One error on every surface is one cause, so the rotation is split between
+    /// the two things every surface shares: these albedos and
+    /// `LightingRig.Tuning.keyColor`. Neither is dragged far enough on its own to
+    /// stop reading as what it is — the sand stays sand, the sun stays a warm
+    /// gold spill — and the product lands where the concept is.
+    ///
+    /// Value and saturation were checked at the same time and are **not** wrong:
+    /// 0.757 against 0.776 and 0.332 against 0.348. CP-03's exposure calibration
+    /// holds. Do not reach for either.
+    static let sunwovenSurface = UIColor(red: 0.855, green: 0.778, blue: 0.678, alpha: 1)
+    static let sunwovenRock = UIColor(red: 0.612, green: 0.554, blue: 0.478, alpha: 1)
     static let sunwovenGold = UIColor(red: 0.855, green: 0.655, blue: 0.282, alpha: 1)
     static let sunwovenIvory = UIColor(red: 0.960, green: 0.933, blue: 0.878, alpha: 1)
     static let sunwovenTurquoise = UIColor(red: 0.294, green: 0.706, blue: 0.706, alpha: 1)

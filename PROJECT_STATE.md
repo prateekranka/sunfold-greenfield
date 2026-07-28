@@ -21,16 +21,79 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-05 — HUD chrome · **closed** |
+| **Last checkpoint** | CP-06 — density and palette · **closed** |
 | **Closed** | 2026-07-28 |
 | **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero new warnings. |
-| **Renders** | 🟢 Clean. Four of concept 01's five chrome surfaces are up and reading. |
-| **Current frame** | `Docs/QA/AAA/cp05-hud-chrome.png` |
+| **Renders** | 🟢 Clean. The island reads as planted ground at concept 01's hue. |
+| **Current frame** | `Docs/QA/AAA/cp06-density-palette.png` |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
 | **Current direction** | Finish the AAA visual push toward concept 01. G2 gameplay is parked. |
-| **Uncommitted work** | None. `visual/aaa-uplift-cp02` carries CP-05. |
-| **Next checkpoint** | CP-06 — the void. It is flat black; concept 01 has a nebula wash and a celestial body in frame. |
+| **Uncommitted work** | None. `visual/aaa-uplift-cp02` carries CP-06. |
+| **Next checkpoint** | CP-07 — the Core pavilion. See the ladder below. |
+
+---
+
+## The remaining visual ladder
+
+Reprioritized 2026-07-28 after measuring `cp05-hud-chrome.png` against concept 01 rather
+than working from the running gap list. **The direction is confirmed: the frame is the
+primary track and gameplay stays parked.** That is a decision, not a default — the trade it
+makes is recorded under "The imbalance this accepts" below.
+
+**Two assumptions the measurement killed.** The frame is *not* overexposed and the ground is
+*not* oversaturated — CP-03's calibration held, and neither value nor saturation was
+meaningfully off. Do not re-open either. What was actually wrong is recorded in CP-06's log
+entry below, along with the two numbers in the original reprioritization that did not survive
+re-measurement.
+
+Two gaps needed no number, both visible in a side-by-side crop: the concept's ground was
+**dense with vegetation** where ours was a large bare field — closed at CP-06 — and the Core
+is a **value inversion**: the concept's ivory-and-gold pavilion is the brightest object in
+frame, ours is a charcoal dome darker than the ground it stands on. That one is still open and
+is the next checkpoint.
+
+**CP-07 — The Core pavilion.** Largest single-object gap. Not only silhouette: a closed dark
+dome has to become a bright *tented* pavilion — separate ivory canopy panels radiating from a
+finial, gold armature, turquoise insets, a colonnade on an inlaid plinth. Expensive mesh work,
+which is why it sits behind the cheap win.
+
+**CP-08 — The void.** Nebula wash, the celestial body in frame, drifting debris. The bible
+allots the void 45–60% of the frame and it is currently flat black. Isolated, no gameplay
+coupling — the cheapest single checkpoint here if a quick win is wanted ahead of the Core.
+
+**CP-09 — Rim, deposits and plant mass.** Pale crystalline rim spurs; larger crystal clusters.
+Also the half of the planting gap CP-06 could not close: the island now carries *more* separate
+plantings than concept 01 does (146 against 132) at 62% of its coverage, so what is left is not
+count but **mass** — the concept's growth includes a few large branching masses where every one
+of ours is a medium spiky clump. That is a mesh problem, and scattering more copies of the same
+silhouette would read as a carpet rather than close it.
+
+**CP-10 — HUD parity.** Top-bar centre emblem and speed controls, the alert row, pinned group
+slots, selection portraits, health bars, and minimap fragment silhouettes rather than circles.
+
+**CP-11 — Transport and pier.** Kill the dark spar; add the docked gold pier.
+
+**Parked: animation.** The most expensive item on the list, and it needs per-unit activity
+state the simulation does not expose yet.
+
+### The imbalance this accepts
+
+Recorded so it is a known cost rather than a surprise. `Sources/Rendering` is **12,069 lines,
+77% of `Sources/`**. `Sources/Simulation` is 1,322 and `Sources/AI` is **empty**. Grepping the
+simulation for construction, production, combat, capture or victory returns nothing: the
+game's complete verb set is **select, move, gather**, which is why CP-05's command grid
+renders 8 of its 9 buttons disabled. G3–G7 are unwritten and there is currently no way to win
+or lose.
+
+The largest unquantified risk is separate from that and still open: **the 13 determinism tests
+in `Tests/DeterminismTests.swift` have never executed.** `xcodebuild test` is hook-blocked, so
+they have compiled and linked on every build while proving nothing, and every gate from G3 on
+assumes determinism holds. The fix is cheap and was verified viable during this
+reprioritization — `Sources/Domain` and `Sources/Simulation` import **only** `Foundation`,
+`Observation` and `simd`, which is the hard precondition for a SwiftPM extraction, and the
+host has Swift 6.3.3 with `swift test` **not** hook-blocked. Roughly one checkpoint whenever
+it is wanted.
 
 ---
 
@@ -145,15 +208,23 @@ deposits, decals — sits on that relief rather than on a datum plane.
 **Fixed at CP-05.** The frame now carries four of concept 01's five chrome surfaces: the
 resource rail, a live minimap, the selection panel and the command grid.
 
-**Still short of concept 01**, measured against `cp05-hud-chrome.png`:
+**Fixed at CP-06.** The island reads as planted ground rather than a bare field — 146 separate
+plantings against concept 01's 132 — at the concept's hue (32.7° against 33.0°) and without the
+pit lattice that was speckling the sand.
 
+**Still short of concept 01**, measured against `cp06-density-palette.png`:
+
+- **The Core is a plain dome** where concept 01 has an ornate pavilion with a tented canopy
+  and a fine gold armature — and it is *darker* than the ground it stands on where the
+  concept's is the brightest object in frame. The largest remaining gap, and the next
+  checkpoint.
 - **The void is empty** — flat black, no nebula wash, and the celestial body does not appear
-  in frame. Concept 01 has both. The largest remaining gap, and the next checkpoint.
+  in frame. Concept 01 has both.
+- **Vegetation is spiky low-poly** against the concept's fine golden branching. CP-06 closed
+  the count; the remaining coverage gap (0.167 against 0.271) is plant *mass*, which is a mesh
+  problem.
 - **No health bars.** The fifth chrome surface, and the only one CP-05 did not add — it
   belongs with combat, which is parked G2 work.
-- **The Core is a plain dome** where concept 01 has an ornate pavilion with a tented canopy
-  and a fine gold armature.
-- **Vegetation is spiky low-poly** against the concept's fine golden branching.
 - **The transport's dark spar** reads as a slab crossing the frame rather than a vessel part.
 - **The second fragment is clipped by the frame edge** and still reads as pasted on.
 
@@ -206,6 +277,86 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+### CP-06 — Density and palette · 2026-07-28 · closed
+
+**Goal.** Three things at once, all of them parameters on systems that already existed: raise
+planting density toward concept 01's, cut the sand speckle, and rotate the land hue off yellow.
+
+**Found — the hue was one number, and it was not in the ground.** Sampled on hand-picked bare
+ground in both frames, `cp05` read rgb(0.757, 0.682, 0.506) against the concept's
+rgb(0.776, 0.655, 0.506). Red and blue already agreed to within 2%; the whole 9° error was
+**green**. And it was not the ground's alone — every lit surface in the frame carried it:
+
+| | concept 01 | cp05 |
+|---|---|---|
+| bare ground | 33.0° | 42.2° |
+| rim stone | 34.6° | 41.8° |
+| foliage | 31.8° | 40.3° |
+| transport hull (near-white) | — | 41.1° |
+
+A hull whose albedo is all but neutral cannot be 8° off on its own account, so the error was in
+what lights it. The rotation went half into `LightingRig.Tuning.keyColor` (green 0.935 → 0.900)
+and half into the two Sunwoven albedos, plus the regolith's bleach highlight — so neither the
+sun nor the sand is dragged far enough on its own to stop reading as what it is.
+
+**Found — the speckle was periodic, not noisy.** `regolith`'s impact pits run 12 cells per 4 m
+tile, which is a pit every 33 cm, which at this camera is a dark dot every ~11 px: a polka-dot
+lattice, and the single thing that made the ground read as a prototype. The cell gate went
+0.62 → 0.76 (keeping the sparsest quarter), both colour amplitudes were halved, and the pit
+dimple went 0.42 → 0.22. The broad dune term — the variation concept 01 actually has — is
+untouched.
+
+**Found — density is capped by site spacing, not by candidate count.** The first render made
+this unmissable: nearly tripling the interior candidates moved planting coverage only
+0.057 → 0.088. A minimum separation enforced by sequential rejection *jams* — the reachable
+site count is about `0.55 · area / (π · spacing²)`, and past it every further candidate is
+refused however many are offered. The second pass moved the spacings instead (interior
+3.2 → 1.5 m, fringe 2.6 → 1.3 m) and raised cluster companions, which bypass `site` entirely.
+
+**Done.** `SunfoldPalette`, `LightingRig.Tuning`, the `regolith` recipe, and the scatter
+parameters in `TerrainDressing`. No new types, no new systems, no signature changes.
+
+**Verified.** Build green, zero errors, zero new warnings. Installed, launched, rotated,
+captured at full resolution as `Docs/QA/AAA/cp06-density-palette.png`.
+
+| measured | concept 01 | cp05 | cp06 |
+|---|---|---|---|
+| bare-ground hue | 33.0° | 42.2° | **32.7°** |
+| bare-ground saturation | 0.348 | 0.332 | **0.347** |
+| planting clumps on the home island | 132 | 86 | **146** |
+| planting coverage | 0.271 | 0.057 | **0.167** |
+| sunlit regolith, linear median | 0.410 | 0.432 | **0.396** |
+| frame over the bloom threshold | 1.54% | 0.60% | 0.61% |
+
+Clump counts are connected components of a planting mask normalised against *each frame's own*
+ground colour — an absolute threshold is unusable across a checkpoint that moved the exposure,
+because ACES desaturates what it brightens and the same prop lands on either side of a fixed
+cut. The speckle result is evidence by crop rather than by statistic; see below.
+
+**A regression this checkpoint caused and corrected.** Rotating hue toward red is a cut in
+green, and green carries 71% of luminance, so the palette work took sunlit regolith from 0.432
+to **0.377** linear — through CP-03's locked 0.397 and out the other side. Caught by measuring
+the first render rather than shipping it. `exposureScale` 0.67 → 0.72 puts it back at 0.396,
+and because a uniform scale over all four lights is hue-neutral, it costs none of the rotation.
+**Hue and exposure are separate dials on purpose; a hue change should expect to pay an exposure
+correction.**
+
+**Two numbers in the 2026-07-28 reprioritization did not survive re-measurement.** Recorded so
+they are not carried forward as fact:
+
+1. **"Land saturation 0.359 against 0.422 — slightly under."** On masked bare ground the build
+   measured *more* saturated than the concept (0.332 against 0.348 by spot sample, 0.328
+   against 0.239 by mask), not less. Nothing was done about saturation, and it landed at 0.347
+   against 0.348 anyway — carried there by the hue rotation, since cutting green at fixed red
+   widens the channel spread.
+2. **"Open-ground luma σ 40.6 against 20.1 — twice the local noise."** Local σ does not
+   reproduce that ratio under any mask tried, and it inverts depending on the mask: on the
+   automatic ground mask the build is noisier (7.0 against 5.5), on hand-picked patches the
+   *concept* is (8.8 against 11.9). σ is simply the wrong statistic here — it lumps the pit
+   lattice together with veining, cast shadow and broad mottling, and the two frames differ in
+   all of those. The defect was periodic, and the honest evidence for its removal is a
+   native-resolution crop of the same ground in both frames, not a variance number.
 
 ### CP-05 — HUD chrome · 2026-07-28 · closed
 

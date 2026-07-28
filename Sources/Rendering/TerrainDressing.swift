@@ -527,6 +527,16 @@ enum TerrainDressing {
 
         /// Accepts a cluster site only if it is on land, off every claimed
         /// circle, and not crowding an already-placed site.
+        ///
+        /// **This is what caps density, not the candidate count.** A minimum
+        /// separation applied by sequential rejection saturates: the reachable
+        /// site count is roughly `0.55 · area / (π · spacing²)`, and past that
+        /// every further candidate is refused no matter how many are offered.
+        /// CP-06's first render proved it — nearly tripling the candidates moved
+        /// planting coverage only 0.057 → 0.088 against concept 01's 0.271,
+        /// because the 3.2 m spacing had already jammed. The spacings below are
+        /// the dial; the candidate counts only need to be large enough to reach
+        /// the limit they set.
         func site(_ candidate: SIMD2<Float>, spacing: Float) -> Bool {
             guard rim.contains(candidate, margin: 0.93) else { return false }
             guard claimed.allSatisfy({ simd_distance($0.center, candidate) > $0.radius }) else {
@@ -584,7 +594,10 @@ enum TerrainDressing {
             guard let lead = kinds.first else { return }
             place(lead, at: center, vigour: vigour)
 
-            let companions = Int(vigour * 2.4 + random.unitFloat() * 1.6)
+            // Companions do not go through `site`, so unlike the lead they are
+            // not subject to the jamming limit — this is the one lever that
+            // thickens a thicket rather than adding another one.
+            let companions = Int(vigour * 4.3 + random.unitFloat() * 2.6)
             for index in 0..<companions {
                 let angle = random.float(in: 0...(2 * .pi))
                 let distance = spread * random.float(in: 0.42...1.15)
@@ -602,13 +615,17 @@ enum TerrainDressing {
             let roll = random.unitFloat()
             switch character {
             case .sunwoven, .neutral:
-                let treeChance: Float = character == .sunwoven ? 0.13 : 0.05
+                let treeChance: Float = character == .sunwoven ? 0.17 : 0.07
                 if roll < treeChance * (0.5 + vigour) {
                     // A grove: the tallest thing on the ground, and the only
                     // prop that gives the island a skyline.
                     return ([.paleTree, .paleTree, .scrubClump, .bladeTuft], 2.6)
                 }
-                if roll < 0.70 {
+                // Growth over rock, 0.70 → 0.79. Concept 01's home island is
+                // planted, not quarried: rock appears there in two deliberate
+                // outcrops and nowhere else, while the build scattered it evenly
+                // enough to compete with the foliage for the eye.
+                if roll < 0.79 {
                     return ([.scrubClump, .scrubClump, .bladeTuft, .bladeTuft], 1.9)
                 }
                 return ([.rockScatter, .rockScatter, .bladeTuft], 1.5)
@@ -627,7 +644,14 @@ enum TerrainDressing {
         // fringe is masked at a floor of 0.34 rather than at 0 — concept 01's
         // rim carries growth all the way round, it is only the *weight* of it
         // that varies.
-        let fringeSpacing: Float = 3.0
+        //
+        // Arc spacing 3.0 → 1.5 m at CP-06. What separated the build from the
+        // concept was never the *character* of the planting — the mask, the
+        // clusters and the four classes were all doing their job — it was that
+        // there was a third as much of it, so the island read as a bare field
+        // with decoration around the edge. Everything that shapes where growth
+        // goes is untouched; only how many candidates are offered to it changes.
+        let fringeSpacing: Float = 1.5
         let fringeCount = max(8, Int(2 * .pi * fragment.radius / fringeSpacing))
 
         for index in 0..<fringeCount {
@@ -638,16 +662,24 @@ enum TerrainDressing {
 
             let vigour = max(mask(candidate), 0.34)
             guard random.unitFloat() < vigour else { continue }
-            guard site(candidate, spacing: 2.6) else { continue }
+            guard site(candidate, spacing: 1.3) else { continue }
 
             let (classes, spread) = kinds(vigour: vigour)
             cluster(at: candidate, vigour: vigour, kinds: classes, spread: spread)
         }
 
-        // Interior: area-uniform candidates, hard-masked. Most are rejected,
-        // which is the point — the middle of concept 01's island is mostly open
-        // ground with two or three deliberate thickets standing in it.
-        let candidates = max(10, Int(fragment.radius * fragment.radius * 0.16))
+        // Interior: area-uniform candidates, hard-masked. Most are still
+        // rejected, which is the point — the middle of concept 01's island is
+        // thicketed rather than carpeted, and the open ground between the
+        // thickets is as deliberate as the planting.
+        //
+        // 0.16 → 0.85 per square metre at CP-06, to keep the 1.5 m spacing below
+        // supplied rather than starved. The `vigour²` gate stays: it is what
+        // makes growth clump, and softening it would fill the negative space the
+        // concept keeps. Density comes from the spacing; the distribution is
+        // unchanged, so this is more props in the same thickets, leaving the
+        // same ground bare.
+        let candidates = max(10, Int(fragment.radius * fragment.radius * 0.85))
         for _ in 0..<candidates {
             let angle = random.float(in: 0...(2 * .pi))
             let localRim = rim.radius(atAngle: angle)
@@ -656,7 +688,7 @@ enum TerrainDressing {
 
             let vigour = mask(candidate)
             guard random.unitFloat() < vigour * vigour else { continue }
-            guard site(candidate, spacing: 3.2) else { continue }
+            guard site(candidate, spacing: 1.5) else { continue }
 
             let (classes, spread) = kinds(vigour: vigour)
             cluster(at: candidate, vigour: vigour, kinds: classes, spread: spread)

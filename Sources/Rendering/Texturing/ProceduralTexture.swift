@@ -822,7 +822,10 @@ enum ProceduralTexture {
 
         let pale = rgb(SunfoldPalette.sunwovenSurface)
         let shade = rgb(SunfoldPalette.sunwovenRock)
-        let dust = SIMD3<Float>(0.925, 0.895, 0.820)
+        /// Sun-bleached crest. Green pulled 0.895 → 0.880 at CP-06 so the bleach
+        /// sits on the same 34° line as the stone family it lightens; left at
+        /// 0.895 it was a 43° highlight painted over a 34° ground.
+        let dust = SIMD3<Float>(0.925, 0.880, 0.820)
 
         let inverse = 1 / Float(size)
         for y in 0..<size {
@@ -835,16 +838,31 @@ enum ProceduralTexture {
                 let grain = ProceduralNoise.fbm(u, v, octaves: 3, cellsX: 32, cellsY: 32, salt: grainSalt)
 
                 // Impact pits: shallow bowls, sparse enough to read as events.
+                //
+                // They were not sparse. At 12 cells per 4 m tile a pit lands
+                // every ~33 cm, which at this camera is a dark dot every ~11 px
+                // — a regular polka-dot field, and the single thing that made
+                // the ground read as a prototype next to concept 01's ground.
+                // `0.62 → 0.76` on the cell gate keeps roughly the sparsest
+                // quarter of them, so a pit is an event again rather than a
+                // texture.
                 let pits = ProceduralNoise.cellular(u, v, cellsX: 12, cellsY: 12, salt: pitSalt)
                 let pitMask = 1 - ProceduralNoise.smoothstep(0.0, 0.30, pits.f1)
-                let pitDepth = pitMask * ProceduralNoise.smoothstep(0.62, 1.0, pits.cell)
+                let pitDepth = pitMask * ProceduralNoise.smoothstep(0.76, 1.0, pits.cell)
 
-                let h = max(0, min(1, dune * 0.62 + grain * 0.30 - pitDepth * 0.42))
+                let h = max(0, min(1, dune * 0.62 + grain * 0.30 - pitDepth * 0.22))
 
                 // Higher ground is sun-bleached; hollows collect darker grit.
+                //
+                // Both speckle terms are halved from CP-05. Open ground in the
+                // build carried a local luma σ of 7.0 against the concept's 5.5
+                // at matched apparent scale, and all of the excess was high
+                // frequency: fine grain lightening toward `dust`, pits darkening
+                // toward `shade`. The *broad* variation — the dune term below —
+                // is the part concept 01 actually has, and it is untouched.
                 var color = mix(shade, pale, ProceduralNoise.smoothstep(0.15, 0.72, h))
-                color = mix(color, dust, grain * 0.34)
-                color = mix(color, shade, pitDepth * 0.55)
+                color = mix(color, dust, grain * 0.17)
+                color = mix(color, shade, pitDepth * 0.26)
 
                 let index = y * size + x
                 height[index] = h

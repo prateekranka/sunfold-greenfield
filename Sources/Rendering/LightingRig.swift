@@ -84,12 +84,37 @@ enum LightingRig {
         /// `exposure` is deliberate: it moves lit surfaces *only*, leaving unlit
         /// stars and emissive seams where they are, which is what opens the gap
         /// between ground and glow instead of sliding the whole frame down.
-        var exposureScale: Float = 0.67
+        ///
+        /// **0.67 → 0.72 at CP-06, to hold that same 0.397.** A hue rotation
+        /// toward red is a cut in green, and green carries 71% of luminance, so
+        /// CP-06's palette work — key light, the two Sunwoven albedos, and
+        /// halving the regolith's bleach term — took the ground down to a
+        /// measured 0.377. Hue and exposure are separate controls precisely so
+        /// this is a one-line correction rather than a re-tune: a uniform scale
+        /// over all four lights leaves hue where CP-06 put it.
+        ///
+        /// 0.72 is `0.67 × (0.397/0.377)^(1/0.77)`, where 0.77 is the log-slope
+        /// of output luminance against this dial through the ACES chain, taken
+        /// from CP-03's own two measured points (1.0 → 0.540, 0.67 → 0.397).
+        var exposureScale: Float = 0.72
 
         // MARK: Key (warm, shadow-casting)
 
         /// Sunwoven Lumen: warm gold spill, not white.
-        var keyColor = UIColor(red: 1.00, green: 0.935, blue: 0.815, alpha: 1)
+        ///
+        /// Green pulled 0.935 → 0.900 at CP-06, which rotates the key from hue
+        /// 39° to 28°. Every lit surface in `cp05-hud-chrome.png` measured 40–42°
+        /// against 32–35° for the same surfaces in concept 01 — ground, rim,
+        /// foliage and the near-white transport hull alike. A hull whose albedo
+        /// is all but neutral cannot be 8° off on its own account, so the error
+        /// was in what lights it, and half the correction belongs here. (The
+        /// other half is in the Sunwoven albedos; see `SunfoldPalette`.)
+        ///
+        /// Only green moves. Red is already at 1.0 and blue sets the warmth
+        /// against the cool fill, so rotating on green alone leaves the ratio
+        /// that models the form untouched — and since HSV *value* on lit sand is
+        /// the red channel, the exposure CP-03 calibrated does not move either.
+        var keyColor = UIColor(red: 1.00, green: 0.900, blue: 0.815, alpha: 1)
         /// Lux. The old rig ran 2700 with no environment; with an IBL underneath
         /// the key can carry more of the contrast without crushing the fill side.
         var keyIntensity: Float = 3200

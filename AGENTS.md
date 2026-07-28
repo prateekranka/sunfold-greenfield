@@ -129,16 +129,45 @@ fragment-to-void ratio, sparse starfield) still holds.
 - **A `Spacer` inside a SwiftUI column that has no width of its own makes the
   whole column greedy.** A HUD panel built this way stretches the length of the
   frame instead of sitting in its corner. Pin the row's width.
+- **The warm family sits at hue 34°.** Measured on bare ground in concept 01
+  (33.0°) and matched in the build at CP-06 (32.7°). If a lit surface comes back
+  yellow, suspect `LightingRig.Tuning.keyColor` before any albedo — the error
+  appears on *every* lit surface at once, including near-white ones that have no
+  hue of their own to be wrong about.
+- **A hue rotation costs exposure.** Rotating toward red means cutting green, and
+  green is 71% of luminance. CP-06's rotation dropped sunlit regolith from 0.432
+  to 0.377 linear and needed `exposureScale` 0.67 → 0.72 to hold CP-03's 0.397.
+  A uniform scale over the lights is hue-neutral, so the two dials do not fight.
+- **Scatter density is capped by site spacing, not by candidate count.**
+  `TerrainDressing.addScatter` rejects a site that crowds an earlier one, and
+  sequential rejection jams at about `0.55 · area / (π · spacing²)`. Tripling the
+  candidates at CP-06 moved coverage 0.057 → 0.088; moving the spacing took it to
+  0.167. Cluster companions bypass `site` entirely and are the other lever.
+- **Do not judge a texture change by local σ.** It lumps the thing you changed in
+  with veining, cast shadow and broad mottling, and it inverted between masks at
+  CP-06 while the defect — a periodic dot lattice — was plain in a
+  native-resolution crop. Crop the same ground in both frames and look.
+- **Classify pixels against the frame's own ground, not an absolute threshold**,
+  whenever a measurement spans an exposure change. ACES desaturates what it
+  brightens, so a fixed saturation cut moves props across the boundary between
+  two frames that differ only in exposure.
 
 ## Where the frame actually stands
 
 Measured from the rendered frame, not guessed. Textures, IBL, shadows, the
-post-process, exposure, bloom, soft stars, terrain relief and the HUD chrome all
-landed across CP-01…CP-05 — `PROJECT_STATE.md` has the numbers. What is still
-missing:
+post-process, exposure, bloom, soft stars, terrain relief, the HUD chrome and the
+ground's planting and palette all landed across CP-01…CP-06 —
+`PROJECT_STATE.md` has the numbers. What is still missing:
 
+- **The Core is a dark dome.** Concept 01's is an ivory-and-gold pavilion and the
+  brightest object in frame; ours is darker than the ground it stands on. The
+  largest gap.
 - **The void is flat black.** No nebula wash, and the celestial body does not
-  appear in frame. Concept 01 has both. The largest gap.
+  appear in frame. Concept 01 has both.
+- Plant *mass*. CP-06 brought the island past concept 01's count of separate
+  plantings (146 against 132) at 62% of its coverage; the rest is that the
+  concept has a few large branching masses and every one of ours is a medium
+  spiky clump.
 - No animation. Units slide; nothing has an idle, walk or work cycle.
 - No health bars — the one chrome surface of concept 01's five that is still
   absent. It belongs with combat, which is parked G2 work.
