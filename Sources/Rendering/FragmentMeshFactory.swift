@@ -29,14 +29,24 @@ import simd
 ///    shader.
 ///
 /// # The datum rule
-/// Every entity in the game is placed at fragment-local `y = 0`
-/// (`EntityPresenter`), and `TerrainDressing` lays its decals at `y = 0.008` to
-/// `0.022`. Terrain relief therefore **never goes above zero**: `groundHeight`
-/// returns values in `-0.55 ... 0`, and it is pinned to exactly `0` across the
-/// compacted pan the Core and the opening buildings stand on. Nothing the
-/// simulation places can be buried by relief; the worst case is a decal in the
-/// outer field floating a few centimetres, which the dressing can remove
-/// entirely by sampling `groundHeight` itself.
+/// Terrain relief **never goes above zero**. `groundHeight` returns values in
+/// `-2.0 ... 0`, and it is pinned to exactly `0` across the compacted pan the
+/// Core and the opening buildings stand on, so nothing the simulation places can
+/// be buried by relief.
+///
+/// Everything that stands on the ground now samples that height rather than
+/// assuming the datum plane:
+///
+/// - `EntityPresenter` places units, buildings, deposits and the order marker
+///   through `TerrainSurface`, which resolves a world point to its fragment and
+///   samples here. Units re-sample every frame, because they walk.
+/// - `TerrainDressing` sets `FlatMeshBuilder.lift` on its builders: the ground
+///   decals drape per vertex, and each scattered prop translates rigidly by the
+///   height under its own footing.
+///
+/// Until CP-04 none of that was true — `groundHeight` had two callers, both in
+/// this file — and the relief amplitude had to stay under half a metre to keep
+/// the error invisible. That is why the terrain was flat.
 ///
 /// # Determinism
 /// The rim and the flank still draw from the fragment's own tagged
@@ -58,10 +68,34 @@ enum FragmentMeshFactory {
     static let sideCount = 96
 
     /// Concentric rings across the habitable top. With `sideCount` this is a
-    /// 96 x 14 height-field grid — ~2.6 k triangles per fragment, which is
+    /// 96 x 20 height-field grid — ~3.8 k triangles per fragment, which is
     /// nothing on the target device and is the resolution at which a 6 m swell
     /// and a 2 m trodden path both survive.
-    private static let ringCount = 14
+    ///
+    /// Raised from 14 with the relief amplitude. At 14 the rings were 1.7 m
+    /// apart on a home fragment against a 3.8 m micro-relief wavelength — barely
+    /// over two samples per cycle, which was invisible while the amplitude was
+    /// 7 cm and would have aliased into a visible crease pattern once it was not.
+    private static let ringCount = 24
+
+    /// How far the shipped triangles can sit above the height field they sample.
+    ///
+    /// The top is a grid: it samples `groundHeight` at its corners and stretches
+    /// flat triangles between them. Across a dip the chord runs *above* the curve
+    /// it approximates, so anything laid on the ground by sampling the continuous
+    /// function — a seam, a tone patch, the shore band — is underneath the mesh
+    /// and never drawn. This is that error, not a safety margin.
+    ///
+    /// For one sinusoid it is `A · (π · h / λ)² / 2`, summed over the field's two
+    /// terms at the widest grid spacing on a home fragment (1.57 m, set by
+    /// `sideCount` at the rim rather than by `ringCount`):
+    ///
+    /// - micro: `0.08 · (π · 1.57 / 3.77)² / 2` ≈ 0.068 m
+    /// - swell: `2.1 · (π · 1.57 / 17.6)² / 2` ≈ 0.082 m
+    ///
+    /// `TerrainDressing.Height` clears this. Raise it if either amplitude grows
+    /// or either cell count does, or ground decals start to vanish in patches.
+    static let chordError: Float = 0.155
 
     /// One texture tile every 4 m of rock.
     ///
@@ -376,16 +410,17 @@ enum FragmentMeshFactory {
     /// without perturbing a stream.
     ///
     /// The contract other renderers should rely on:
-    /// - the result is in `-0.55 ... 0`;
+    /// - the result is in `-2.0 ... 0`;
     /// - it is exactly `0` inside `panInner · radius` of the fragment centre, so
     ///   the Core and the opening buildings stand on true datum;
     /// - it falls off toward the rim, so ground meets the flank on a turn rather
     ///   than on a knife edge.
     ///
     /// Anything that wants to *sit* on the terrain — a decal, a prop, a unit —
-    /// should offset its Y by this value. Anything that does not will float by at
-    /// most half a metre in the outer field, which is the deliberate ceiling on
-    /// the amplitude here.
+    /// **must** offset its Y by this value. That is no longer advice: at this
+    /// amplitude something that skips it hangs a metre or more over open ground.
+    /// Work in world space through `TerrainSurface`; work in fragment-local space
+    /// through `FlatMeshBuilder.lift` or by calling this directly.
     static func groundHeight(local point: SIMD2<Float>, radius: Float) -> Float {
         let safeRadius = max(radius, 0.001)
         let distance = simd_length(point)
@@ -424,13 +459,45 @@ enum FragmentMeshFactory {
     }
 
     /// Amplitude of the broad ground swell.
-    private static let swellAmplitude: Float = 0.24
+    ///
+    /// The whole relief block below was authored at roughly a quarter of these
+    /// values, giving a total range of 0.55 m across a 24 m fragment — half a
+    /// percent of the diameter, which rendered as one flat facet. The cap was
+    /// not caution about the terrain; it was the datum rule, because nothing
+    /// outside this file sampled `groundHeight` and anything larger would have
+    /// floated every unit and prop over its own ground. `TerrainSurface` and
+    /// `FlatMeshBuilder.lift` removed that constraint, so the amplitude is now
+    /// set by what the land should look like.
+    ///
+    /// 3 noise cells across `radius * 2.2` puts the swell's wavelength near 18 m
+    /// on a home fragment — broad dunes the key light can grade across, rather
+    /// than a rumple.
+    ///
+    /// What matters to the frame is the *slope*, not the amplitude, and fbm is
+    /// far gentler than its amplitude suggests: three octaves rarely approach the
+    /// gradient a sinusoid of the same height would have. Rendered at 0.95 the
+    /// relief measured a low-frequency luminance swing of only ±0.07 against the
+    /// flat build — present, but not something you would call terrain. 2.1 is
+    /// that measurement scaled to the swing the concept's ground carries, and it
+    /// stays cheap for `chordError` because the error falls with the square of
+    /// the wavelength and this is the longest one in the field.
+    private static let swellAmplitude: Float = 2.1
     /// Amplitude of the fine relief riding on the swell.
-    private static let microAmplitude: Float = 0.07
+    ///
+    /// Deliberately much smaller than the swell, and bounded by `chordError`
+    /// rather than by taste: this term has the shortest wavelength in the field,
+    /// so it dominates the gap between the true surface and the triangles that
+    /// approximate it, and that gap is what ground decals have to be lifted over.
+    /// Tried at 0.16 first, which put the chord error at 0.18 m and swallowed
+    /// most of the gold seam network into the terrain.
+    ///
+    /// Fine grain is the texture's job. This is here only to stop the swell
+    /// reading as a smooth analytic surface.
+    private static let microAmplitude: Float = 0.08
     /// Depth of the worn ring around the settlement pan.
-    private static let dishDepth: Float = 0.11
+    private static let dishDepth: Float = 0.30
     /// How far the ground falls as it turns into the flank.
-    private static let rimFall: Float = 0.15
+    private static let rimFall: Float = 0.55
     /// Fraction of the nominal radius that is dead-flat datum.
     private static let panInner: Float = 0.17
     /// Where the worn ring is deepest.
@@ -861,12 +928,36 @@ struct FlatMeshBuilder {
     /// How surface points become UVs. See `MeshUVProjection`.
     let uvProjection: MeshUVProjection
 
+    /// Vertical displacement applied to every position as it is added, keyed on
+    /// that position's XZ. `nil` leaves geometry exactly where the caller put it.
+    ///
+    /// This is how anything built in fragment-local space comes to sit on the
+    /// terrain instead of on the datum plane, and it deliberately supports both
+    /// of the two answers that question has:
+    ///
+    /// - **Drape** — return the ground height at the sampled point, and a flat
+    ///   decal follows the swell it lies on. Correct for seams, tone patches and
+    ///   the shore band, which are ground.
+    /// - **Rigid** — ignore the argument and return one constant for the whole
+    ///   object, and it translates without shearing. Correct for a tree or a
+    ///   boulder, which stands *on* the ground; draping those would bend the
+    ///   trunk.
+    ///
+    /// Normals are computed after the displacement, from the positions that
+    /// actually ship, so a draped decal is lit by the slope it lies on.
+    var lift: ((SIMD2<Float>) -> Float)?
+
     init(uv projection: MeshUVProjection = .none) {
         self.uvProjection = projection
     }
 
     /// Whether anything survived the degeneracy check.
     var isEmpty: Bool { indices.isEmpty }
+
+    private func displaced(_ point: SIMD3<Float>) -> SIMD3<Float> {
+        guard let lift else { return point }
+        return SIMD3<Float>(point.x, point.y + lift(SIMD2(point.x, point.z)), point.z)
+    }
 
     /// Adds a triangle, correcting winding so the face points along `facing`.
     /// This removes any need to reason about vertex order at each call site.
@@ -876,6 +967,11 @@ struct FlatMeshBuilder {
         _ c: SIMD3<Float>,
         facing reference: SIMD3<Float>
     ) {
+        // Displace before anything else reads these points: the winding fix, the
+        // degeneracy check, the normal and the tangent frame must all describe
+        // the triangle that actually ships, not the one on the datum plane.
+        let a = displaced(a), b = displaced(b), c = displaced(c)
+
         var first = b, second = c
         var normal = simd_cross(first - a, second - a)
         let lengthSquared = simd_length_squared(normal)

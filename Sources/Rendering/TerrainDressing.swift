@@ -141,6 +141,19 @@ enum TerrainDressing {
         var seams = StructureBuilder(uv: groundUV)
         var props = Props(uv: propUV, groundUV: groundUV)
 
+        // The decal zones lie *on* the ground, so they drape: every vertex takes
+        // the terrain height under it and a seam bends over a swell rather than
+        // slicing through it. The props are handled separately, per instance, in
+        // `addScatter` — a tree translates onto the ground, it does not drape
+        // over it.
+        let drape: (SIMD2<Float>) -> Float = { [radius = fragment.radius] point in
+            FragmentMeshFactory.groundHeight(local: point, radius: radius)
+        }
+        shore.lift = drape
+        toneWarm.lift = drape
+        toneCool.lift = drape
+        seams.lift = drape
+
         addShoreBand(into: &shore, rim: rim)
         addTonePatches(
             warm: &toneWarm,
@@ -542,6 +555,17 @@ enum TerrainDressing {
                 tall: random.float(in: 0.80...1.30) * (0.86 + vigour * 0.28),
                 top: min(max(ladder - 3 + bias, Contact.drop), ladder - 1)
             )
+
+            // Rigid, not draped: one height for the whole prop, taken under its
+            // footing. Draping a trunk would shear it, and the flare each prop
+            // deliberately sinks below its own local zero is what hides the
+            // difference between its flat base and the ground's real slope.
+            let footing = FragmentMeshFactory.groundHeight(
+                local: center,
+                radius: fragment.radius
+            )
+            props.lift = { _ in footing }
+            defer { props.lift = nil }
 
             switch kind {
             case .paleTree: addPaleTree(into: &props, instance, random: &random)
@@ -1082,6 +1106,14 @@ enum TerrainDressing {
 
         var count: Int { steps.count }
 
+        /// See `FlatMeshBuilder.lift`. Applied to every rung, since one prop's
+        /// geometry is spread across several of them and all of it has to move
+        /// together.
+        var lift: ((SIMD2<Float>) -> Float)? {
+            get { steps.first?.lift }
+            set { for index in steps.indices { steps[index].lift = newValue } }
+        }
+
         /// Clamps into the ladder, so a `Contact` can be written without
         /// knowing how many rungs its class happens to have.
         private func clamp(_ step: Int) -> Int { min(max(step, 0), steps.count - 1) }
@@ -1180,6 +1212,20 @@ enum TerrainDressing {
             stone = Ladder(4, uv: uv)
             mineral = Ladder(3, uv: uv)
             dust = Ladder(2, uv: groundUV)
+        }
+
+        /// See `FlatMeshBuilder.lift`. Set once per scattered instance to the
+        /// ground height under that instance, so each prop translates onto the
+        /// terrain as a rigid body while the next one lands at its own height.
+        var lift: ((SIMD2<Float>) -> Float)? {
+            get { foliage.lift }
+            set {
+                foliage.lift = newValue
+                bark.lift = newValue
+                stone.lift = newValue
+                mineral.lift = newValue
+                dust.lift = newValue
+            }
         }
 
         var foliageSteps: Int { foliage.count }
@@ -1397,12 +1443,28 @@ enum TerrainDressing {
 
     /// Ground decoration stacks in a fixed order with visible gaps, so nothing
     /// ever z-fights: surface, tone, shore, dust, seams, then selection feedback
-    /// at 0.03 and the order marker at 0.04, both owned by `EntityPresenter`.
+    /// and the order marker, both owned by `EntityPresenter`.
+    ///
+    /// The whole stack sits on `FragmentMeshFactory.chordError`, and that is the
+    /// load-bearing part. These were 0.008…0.022 while the terrain was flat, when
+    /// clearing the surface meant clearing zero. On real relief the mesh's flat
+    /// triangles ride *above* the height field across every dip, by up to
+    /// `chordError` — so a decal that drapes on the continuous function at 0.022
+    /// spends most of its length buried. That is what happened on the first CP-04
+    /// render: the gold seam network came back thin and broken.
+    ///
+    /// `dust` is the exception, and takes a third of the clearance. Contact rings
+    /// are emitted inside a prop's own dispatch, so they ride that prop's rigid
+    /// lift and are measured from a footing that is exact *at that point* — the
+    /// chord error is zero where the prop stands and only grows across the metre
+    /// or so the ring spans. Giving them the full clearance would float a collar
+    /// of dust around every trunk; giving them none, as the first CP-04 render
+    /// did, buries half of each ring and the props lose their contact shadow.
     private enum Height {
-        static let tone: Float = 0.008
-        static let shore: Float = 0.016
-        static let dust: Float = 0.019
-        static let seam: Float = 0.022
+        static let tone = FragmentMeshFactory.chordError + 0.005
+        static let shore = FragmentMeshFactory.chordError + 0.013
+        static let seam = FragmentMeshFactory.chordError + 0.025
+        static let dust = FragmentMeshFactory.chordError / 3 + 0.008
     }
 
     private static func point(_ angle: Float, _ radius: Float, y: Float) -> SIMD3<Float> {

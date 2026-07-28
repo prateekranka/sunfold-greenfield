@@ -74,7 +74,10 @@ final class EntityPresenter {
             // A unit aboard a transport is cargo: hide it rather than leaving it
             // standing on the void where its hull used to be.
             entity.isEnabled = !unit.isAboard
-            entity.position = [unit.position.x, 0, unit.position.y]
+            // Sampled every frame, not once: a unit walks across the relief, so
+            // its footing changes as it moves. The simulation's position stays
+            // planar — this only decides where that position is drawn.
+            entity.position = TerrainSurface.standing(at: unit.position, in: simulation.map)
             entity.orientation = simd_quatf(angle: walk.facing, axis: [0, 1, 0])
             applyPose(walk.pose, to: entity, id: id)
             syncCargo(unit, on: entity, id: id)
@@ -228,7 +231,7 @@ final class EntityPresenter {
         for (id, building) in simulation.buildings where buildingEntities[id] == nil {
             let entity = makeBuildingEntity(for: building, id: id)
             entity.name = "building.\(building.kind.rawValue).\(id.raw)"
-            entity.position = [building.position.x, 0, building.position.y]
+            entity.position = TerrainSurface.standing(at: building.position, in: simulation.map)
             buildingEntities[id] = entity
             root.addChild(entity)
         }
@@ -271,7 +274,7 @@ final class EntityPresenter {
             case .provisions: entity = DepositMeshes.provisions(seed: entitySeed)
             }
             entity.name = "deposit.\(deposit.kind.rawValue).\(id.raw)"
-            entity.position = [deposit.position.x, 0, deposit.position.y]
+            entity.position = TerrainSurface.standing(at: deposit.position, in: simulation.map)
             depositEntities[id] = entity
             root.addChild(entity)
         }
@@ -304,7 +307,7 @@ final class EntityPresenter {
         let age = Float(max(simulation.elapsed - marker.issuedAt, 0))
         let pulse = 1 + min(age, 0.6) * 1.1
         entity.isEnabled = true
-        entity.position = [marker.position.x, 0.04, marker.position.y]
+        entity.position = TerrainSurface.standing(at: marker.position, in: simulation.map, lift: 0.04)
         entity.scale = [pulse, 1, pulse]
     }
 

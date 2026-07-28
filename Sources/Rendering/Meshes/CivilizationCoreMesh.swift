@@ -546,6 +546,13 @@ struct StructureBuilder {
         self.flat = FlatMeshBuilder(uv: projection)
     }
 
+    /// See `FlatMeshBuilder.lift`. Set it to sit this builder's output on the
+    /// terrain rather than on the datum plane.
+    var lift: ((SIMD2<Float>) -> Float)? {
+        get { flat.lift }
+        set { flat.lift = newValue }
+    }
+
     /// Adds a triangle facing away from `reference`, exactly as
     /// `FlatMeshBuilder` does, and counts it.
     mutating func addTriangle(
