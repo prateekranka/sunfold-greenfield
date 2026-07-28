@@ -21,18 +21,16 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-10 + CP-11 — HUD parity + transport pier · **closed** |
+| **Last checkpoint** | CP-14 — AoE land cut by void water · **closed** |
 | **Closed** | 2026-07-28 |
-| **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero new warnings. |
-| **Renders** | 🟢 Clean. Full top chrome; gold pier at dock; no dark spar. |
-| **Current frame** | `Docs/QA/AAA/cp10-hud.png` / `Docs/QA/AAA/cp11-pier.png` (same try1 capture) · selection `cp10-hud-selection.png` |
+| **Build** | 🟢 Green. `** BUILD SUCCEEDED **`. |
+| **Renders** | 🟢 Clean. One continent; rivers/lakes/inlets as starfield void; void floor tracks cone. Land **75–80%** of playable bounds. |
+| **Current frame** | `Docs/QA/AAA/cp14-map1-riverlands.png` · `cp14-map2-basin.png` · `cp14-map3-fjords.png` · coverage spot-check `coverage-riverlands-spotcheck.png` |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
-| **Current direction** | Finish the AAA visual push toward concept 01. G2 gameplay is parked. |
-| **Uncommitted work** | On `visual/aaa-uplift-cp02` — CP-10 + CP-11 closed locally; CP-08/09 pushed as `c105715`. |
-| **Next checkpoint** | Animation (parked) or ground-inlay rosette if free; otherwise G2 gameplay. |
-
----
+| **Current direction** | AoE-style maps closed (coverage retuned to 75–80%). Animation / G2 gameplay still parked. |
+| **Uncommitted work** | On `visual/aaa-uplift-cp02` — CP-14 + land-coverage retune locally; **do not commit** until asked. |
+| **Next checkpoint** | Animation (parked) or G2 gameplay. |
 
 ---
 
@@ -65,8 +63,33 @@ pinned group slots, selection portraits + life meters, minimap fragment silhouet
 **CP-11 — Transport and pier.** · **closed.** Dark spar gone (unwoven causeway field suppressed);
 docked gold pier on the sunwoven hull.
 
-**Parked: animation.** The most expensive item on the list, and it needs per-unit activity
-state the simulation does not expose yet.
+**CP-12 — Mostly-land maps + leftovers + neutral terrain.** · **closed.** Two mostly-land
+layouts; shared land palette; rosette / pier / rim / speed wired. *(Superseded on composition
+by CP-13 — blob pair replaced with contiguous landmasses.)*
+
+**CP-13 — Contiguous land maps.** · **closed.** `coastland` / `isthmus` replace
+`continental` / `crescent`; overlapping plates; coastal docks; opening camera on interior land.
+*(Superseded on composition by CP-14 — one continent cut by void water.)*
+
+**CP-14 — AoE land cut by void water.** · **closed.** `riverlands` / `basin` / `fjords`.
+Authored coasts + carved void bodies; minimap contours the land field; void floor under
+channels; causeway decks only across water.
+
+**Parked: animation.** Needs per-unit activity state the simulation does not expose yet.
+**Parked: control groups.** Slots remain chrome only.
+
+### Decisions that override earlier docs
+
+- **Composition (2026-07-28, CP-14):** playable maps are **one continent cut by void
+  water** (space substitutes for rivers, lakes, inlets). CP-13's overlapping-plate
+  silhouette is superseded — it still read as discs on the minimap. Land covers
+  **75–80% of the playable map** (`WorldMap.bounds`); the bible's older 40–55%
+  land / 45–60% void ratio remains historical concept-screen guidance only.
+- **Fairness (2026-07-28, CP-14):** only civilization Cores need equal distance from
+  the Dominion. Maps need not be mirrored or symmetrical — organic asymmetry is fine.
+- **Neutral land (2026-07-28):** fragments are never color-coded by civilization. Shared
+  `landSurface` / `landRock`; minimap land fill is neutral. Faction identity stays on units,
+  buildings, HUD, and Core livery.
 
 ### The imbalance this accepts
 
@@ -139,11 +162,12 @@ Compile check (isolated per agent, parallel-safe):
 Full log lands at `build-agents/<name>.log`; the app bundle at
 `build-agents/<name>/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app`.
 
-Never run `xcodebuild`, `xcrun`, `simctl` or `launchctl` directly — a `PreToolUse` hook
-blocks the first two and redirects to an unlicensed FlowDeck, and touching CoreSimulator by
-hand has already cost this project one wasted agent cycle.
+Do **not** use Flowdeck / FlowDeck / `flowdeck` (banned). Prefer
+`./scripts/agent-build.sh` for compile checks. Touching CoreSimulator by hand has
+already cost this project one wasted agent cycle.
 
 Install, launch and screenshot go through **argent MCP only**, against simulator
+
 `A59055F8-1354-4936-97B8-7033DF90B0BB` ("Sunfold Cycle 1 iPad Air 13", iPadOS 26.5),
 bundle id `com.sunfold.greenfield`.
 
@@ -211,16 +235,11 @@ tree-scale crowns.
 **Fixed at CP-10 / CP-11.** Full top chrome (emblem, speed, alerts, groups, life on
 selection); dark spar gone; gold pier at the dock.
 
-**Still short of concept 01**, measured against recent frames:
+**Still short of concept 01 / parked after CP-12:**
 
-- **Minimap irregularity is mild** — rim reach is only ~10%, so silhouettes are polygons but
-  still near-circular at 192 pt.
-- **The second fragment is clipped by the frame edge** and still reads as pasted on.
-- **Pier lattice is blockier** than concept 01's ornate gold dock — readable gold at the rim,
-  not a perfect match.
-- **Speed controls and group slots are chrome only** — no simulation clock or control-group
-  wiring yet.
-- **Ground-inlay rosette** near the Core still carried (terrain drape).
+- **Control-group slots** — chrome only; no group wiring.
+- **Animation** — parked; needs per-unit activity state.
+- Pier / rim are closer but not a pixel-perfect concept match.
 
 The subsystems behind all of that:
 
@@ -271,6 +290,153 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+### CP-14 — AoE land cut by void water · 2026-07-28 · closed
+
+**Goal.** Replace CP-13's overlapping-disc silhouettes with Age of Empires–style
+continents where **space is water**: rivers, lakes, and inlets carved from one land
+field. Three variants. Cores equidistant from Dominion; everything else free to be
+asymmetric.
+
+**Verified frames.**
+
+| frame | proves |
+|---|---|
+| `Docs/QA/AAA/cp14-map1-riverlands.png` | River channels + tarns as black void; organic minimap; inland lake |
+| `Docs/QA/AAA/cp14-map2-basin.png` | Great lakes / arms; void under dock; causeway spans water only |
+| `Docs/QA/AAA/cp14-map3-fjords.png` | Deep inlets as starfield; causeway decks over black channel (not plate rock) |
+
+**Map design.**
+
+| | riverlands (default) | basin | fjords |
+|---|---|---|---|
+| kind | branching rivers + tarns | great lakes + arms | long sounds / inlets |
+| select | default / `-sunfoldMap riverlands` | `-sunfoldMap basin` | `-sunfoldMap fjords` |
+| aliases | `coastland`, `continental`, `map1` | `isthmus`, `crescent`, `map2` | `fjord`, `inlets`, `map3` |
+| fairness | Cores equal reach from Dominion | same | same |
+| symmetry | organic / asymmetric OK | same | same |
+
+**Contract.** `WorldMap.contains` / `region` read an authored land field
+(`LandShape` lobes + `VoidBody` carve + `LandErosion`), not disc unions. Mesh drops
+drowned cells, walls banks, and caps channels with an unlit void floor that tracks
+the flank cone so rock never pokes through near the rim. Minimap contours the field
+(`LandContour`). Causeway spars span only the wet stretch of a dock-to-dock line.
+
+**Observed.**
+
+| piece | observed |
+|---|---|
+| Minimap | One organic landmass with interior void — not seven stroked circles. Basin reads best; fjords still peninsula-heavy (inherent to deep sounds). |
+| 3D carve | Channels and lakes are starfield black. Pre-fix frames showed cracked plate underside; void floor + cone-tracking drop closed that. |
+| Causeways | Decks appear only across water crossings; no slab lying across dry ground. |
+| Fairness | Core centres share one radius about the Dominion; coasts / water / expansions free. |
+| Land coverage | Tuned to **75–80% of playable `bounds`** (seed `20260726`, step 1.5): riverlands **75.2%**, basin **78.9%**, fjords **76.1%**. Metric + floor asserted in `DeterminismTests` / `Tools/mappreview`. |
+
+**Cost.** `LandShape.swift`, `LandContour.swift`, rewritten `WorldMap` layouts,
+`FragmentMeshFactory` (water mask / banks / void floor), `WorldScene` water-crossing
+causeways, `Minimap` / dressing / movement / populator / DeterminismTests, AGENTS /
+bible / gauntlet / PROJECT_STATE. Launch-arg map switch remains the capture path
+(rebuild default per variant — args hook-blocked).
+
+---
+
+### CP-13 — Contiguous land maps · 2026-07-28 · closed
+
+**Goal.** Replace CP-12's separate land-blob pair with two contiguous landmasses (continuous
+coast / continent silhouettes from map-kind refs — not AoE art style). Void only as a thin
+edge ocean. Keep neutral terrain and Sunfold rendering language.
+
+**Verified frames.**
+
+| frame | proves |
+|---|---|
+| `Docs/QA/AAA/cp13-map1-coastland.png` | Map 1 contiguous interior land; ivory Core; minimap one landmass |
+| `Docs/QA/AAA/cp13-map2-isthmus.png` | Map 2 contiguous land; different elongated minimap silhouette |
+
+**Map design.**
+
+| | coastland (default) | isthmus |
+|---|---|---|
+| kind | compact coastal continent | crescent-continent / land-bridge |
+| fragments | 7 overlapping plates | 7 overlapping plates |
+| home radius | 52 | 50 |
+| expansion / dominion / neutrals | 38 / 40 / 30 | 34 / 34 / 26 |
+| home centers | ±(52, 18) | ±(36, 38) |
+| contiguity | one connected component (gap ≤ 0 edges) | same |
+| fairness | 180° half-turn | 180° half-turn |
+| select | default / `-sunfoldMap coastland` | `-sunfoldMap isthmus` |
+| aliases | `continental`, `map1`, `1` | `crescent`, `map2`, `2` |
+
+**Gameplay topology.** Region IDs still gate movement / deposits — units cannot walk onto
+another plate without a region change. Transport-first home→expansion stays
+(`wovenByOutpostOf` + void lanes). Docks sit on the **outer coast** via a deterministic void
+finder (centerline docks would land inside overlapping neighbors). Always-open 3D causeway
+spars are suppressed when plates already overlap (land *is* the crossing); minimap still
+marks the logical spine.
+
+**Observed.**
+
+| piece | observed |
+|---|---|
+| Contiguous land | Opening frustum is wall-to-wall sand — no floating disk rim. Minimap shows one merged landmass, not separate islands. |
+| Map pair | Coastland reads compact; isthmus reads more elongated / diagonal on the minimap. |
+| Neutral land | Held from CP-12 — shared warm sand, no faction-tinted terrain. |
+| Core | Ivory Sunwoven pavilion centered in opening frame on both maps. |
+
+**Cost.** `WorldMap.swift` (new IDs + layouts + coastal `dockPoint` + contiguity helper),
+`WorldScene` (skip spar over overlaps), `DeterminismTests` (contiguous replaces non-overlap),
+App / tuning comments, AGENTS / bible / gauntlet / PROJECT_STATE.
+
+---
+
+### CP-12 — Mostly-land maps + visual leftovers + neutral terrain · 2026-07-28 · closed
+
+**Goal.** Invert void-heavy composition to mostly land; author a second map; close doable
+visual leftovers; stop painting land by civilization.
+
+**Verified frames.**
+
+| frame | proves |
+|---|---|
+| `Docs/QA/AAA/cp12-map1-continental.png` | Map 1 mostly land; neutral sand; rosette; pier; HUD |
+| `Docs/QA/AAA/cp12-map2-crescent.png` | Map 2 mostly land; different minimap silhouette; same land palette |
+| `Docs/QA/AAA/cp12-visual-ladder.png` | Same capture as map1 — leftovers in one frame |
+| `Docs/QA/AAA/cp12-pier-lattice.png` | Pier lattice reference (same map1 capture) |
+
+**Map design.**
+
+| | continental (default) | crescent |
+|---|---|---|
+| fragments | 7 | 7 |
+| home radius | 32 | 28 |
+| expansion | 20 | 18 |
+| dominion | 16 | 16 |
+| neutrals | 12 | 12 |
+| home centers | ±(66, 20) | ±(48, 32) |
+| fairness | 180° half-turn | 180° half-turn |
+| select | default / `-sunfoldMap continental` | `-sunfoldMap crescent` |
+
+Both keep transport-only first home→expansion crossing (`wovenByOutpostOf`) and always-open
+spine to Dominion. Camera default zoom 64 so a home nearly fills the opening vertical extent.
+
+**Observed.**
+
+| piece | observed |
+|---|---|
+| Mostly land | Opening view is land-dominant; void is a thin rim + peek of neighbor plates. Minimap shows packed plates, not sparse islands in a sea of void. |
+| Neutral land | All fragments share warm sand; Gravemark home is not slate-blue. Minimap land fill is one beige for every plate. |
+| Rosette | Gold plaza glow / inlay ring around the Core, draped on the settlement pan. |
+| Pier | Lattice boards + slender posts readable at the dock (less of a solid gold wedge). |
+| Rim / minimap | Stronger rim reach (~12–20%+ spurs); silhouettes less circular. |
+| Speed chrome | Pause / 1× / 2× / 3× wired to `isPaused` + `timeScale`. |
+| Groups / animation | Left parked (no control-group model; no sim activity state for honest anim). |
+
+**Cost.** `WorldMap.swift` (MapID + two layouts), `SkirmishSimulation` / App / RootView (map
+select), `SunfoldPalette` + TerrainDressing + Minimap (neutral land), TransportMesh (pier),
+FragmentMeshFactory (rim), TopBar (speed), SkirmishTuning (zoom 64), DeterminismTests (both
+maps), AGENTS / bible note / gauntlet workbench.
+
+---
 
 ### CP-11 — Transport and pier · 2026-07-28 · closed
 

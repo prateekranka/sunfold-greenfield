@@ -45,27 +45,30 @@ enum MovementSystem {
         let travel = min(unit.kind.speed * Float(deltaTime), distance)
         let proposed = unit.position + heading * travel
 
-        unit.position = legalPosition(proposed, for: unit, map: map)
+        unit.position = legalPosition(proposed, from: unit.position, for: unit, map: map)
         if case .idle = unit.activity { unit.activity = .moving }
     }
 
     /// Keeps land units on land. A transport is free to sit in the void.
+    ///
+    /// The clamp walks back along the move rather than projecting toward the plate
+    /// centre. Projection was correct while a plate was a disc and the only void
+    /// was outside it; with rivers on the map the point "radius − margin from the
+    /// centre" can be in the channel, or on its far bank — so a unit ordered into
+    /// the water would have been teleported across it.
     private static func legalPosition(
         _ proposed: WorldPoint,
+        from current: WorldPoint,
         for unit: Unit,
         map: WorldMap
     ) -> WorldPoint {
         guard !unit.kind.travelsVoid, let region = unit.region else { return proposed }
-        guard !map.contains(proposed, in: region) else { return proposed }
-
-        // Project back onto the rim rather than refusing to move, so a unit
-        // ordered past the edge slides along it instead of freezing.
-        let fragment = map.fragment(region)
-        let outward = proposed - fragment.center
-        let length = simd_length(outward)
-        guard length > 0.0001 else { return proposed }
-        let margin = unit.kind.footprintRadius
-        return fragment.center + (outward / length) * max(fragment.radius - margin, 0)
+        return map.clampToLand(
+            proposed,
+            from: current,
+            in: region,
+            margin: unit.kind.footprintRadius
+        )
     }
 
     /// Clamps an ordered destination to somewhere the unit may legally stand.
@@ -79,13 +82,12 @@ enum MovementSystem {
         if unit.kind.travelsVoid { return requested }
         guard let region = unit.region else { return nil }
 
-        if map.contains(requested, in: region) { return requested }
-
-        let fragment = map.fragment(region)
-        let outward = requested - fragment.center
-        let length = simd_length(outward)
-        guard length > 0.0001 else { return fragment.center }
         let margin = unit.kind.footprintRadius
-        return fragment.center + (outward / length) * max(fragment.radius - margin, 0)
+        if map.isStandable(requested, in: region, margin: margin) { return requested }
+
+        // Resolve a tap in the void — or in a river — to the last legal point on
+        // the way to it, so the order reads as "walk as far as you can toward
+        // that" rather than being dropped or answered somewhere unrelated.
+        return map.clampToLand(requested, from: unit.position, in: region, margin: margin)
     }
 }

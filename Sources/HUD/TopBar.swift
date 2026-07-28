@@ -2,14 +2,15 @@ import SwiftUI
 
 /// The full top chrome: economy left, faction emblem centre, speed right.
 ///
-/// Concept 01 hangs this as one continuous bar from the bezel. The centre
-/// emblem is the identity mark; the speed cluster is chrome only until a
-/// clock control exists — buttons are present and labelled so the layout
-/// matches the bar, but they do not advance simulation time.
+/// Concept 01 hangs this as one continuous bar from the bezel. Speed tiles drive
+/// the presentation clock (`timeScale` / pause) — the fixed 20 Hz step is
+/// unchanged; only how many steps a wall-clock frame buys moves.
 struct TopBar: View {
-    let stock: ResourcePool
-    let population: (used: Int, cap: Int)
-    let age: Age
+    @Bindable var simulation: SkirmishSimulation
+
+    private var stock: ResourcePool { simulation.stock(for: .sunwoven) }
+    private var population: (used: Int, cap: Int) { simulation.population(for: .sunwoven) }
+    private var age: Age { simulation.age(for: .sunwoven) }
 
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
@@ -39,16 +40,45 @@ struct TopBar: View {
 
     private var speedCluster: some View {
         HStack(spacing: 5) {
-            HUDIconTile(glyph: .pause, size: 34, name: "Pause")
-            HUDIconTile(glyph: .play, size: 34, isPrimary: true, name: "Normal speed")
-            HUDIconTile(glyph: .speed2, size: 34, name: "Double speed")
-            HUDIconTile(glyph: .speed3, size: 34, name: "Triple speed")
+            HUDIconTile(
+                glyph: .pause,
+                size: 34,
+                isPrimary: simulation.isPaused,
+                name: "Pause",
+                action: { simulation.setPaused(true) }
+            )
+            HUDIconTile(
+                glyph: .play,
+                size: 34,
+                isPrimary: !simulation.isPaused && abs(simulation.timeScale - 1) < 0.01,
+                name: "Normal speed",
+                action: { setSpeed(1) }
+            )
+            HUDIconTile(
+                glyph: .speed2,
+                size: 34,
+                isPrimary: !simulation.isPaused && abs(simulation.timeScale - 2) < 0.01,
+                name: "Double speed",
+                action: { setSpeed(2) }
+            )
+            HUDIconTile(
+                glyph: .speed3,
+                size: 34,
+                isPrimary: !simulation.isPaused && abs(simulation.timeScale - 3) < 0.01,
+                name: "Triple speed",
+                action: { setSpeed(3) }
+            )
         }
         .hudPanel(
             cut: 10,
             corners: .bottom,
             padding: EdgeInsets(top: 6, leading: 7, bottom: 6, trailing: 7)
         )
+    }
+
+    private func setSpeed(_ scale: Double) {
+        simulation.setPaused(false)
+        simulation.timeScale = scale
     }
 }
 

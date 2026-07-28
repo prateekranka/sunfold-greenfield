@@ -107,6 +107,7 @@ enum TerrainDressing {
     /// left hanging over the void, no seam cut off in mid-air.
     static func build(
         fragment: Fragment,
+        map: WorldMap,
         rimRadii: [Float],
         seed: UInt64,
         keepClear: [KeepClear]
@@ -115,7 +116,12 @@ enum TerrainDressing {
 
         let character = character(of: fragment.id)
         let colors = SunfoldPalette.fragmentColors(for: fragment.id)
-        let rim = RimProfile(radii: rimRadii, fallback: fragment.radius)
+        // A shore margin as well as the waterline itself: a tree whose trunk is
+        // exactly on the bank still has half its crown over the channel, and the
+        // bank wall is the one place on the plate where that is unmistakable.
+        let rim = RimProfile(radii: rimRadii, fallback: fragment.radius) { local in
+            map.waterDepth(at: fragment.center + local) > -1.6
+        }
 
         // Local-space keep-clear, so the scatter never has to think in world space.
         let claimed: [KeepClear] = keepClear.map {
@@ -170,6 +176,16 @@ enum TerrainDressing {
             seed: seed &+ salt(fragment.id),
             random: &random
         )
+
+        // Gold ground-inlay around the Core — concept 01's plaza rosette. Home
+        // fragments only; draped through the same height field as other decals
+        // so it rides the settlement pan instead of floating as a flat disc.
+        var rosette = StructureBuilder(uv: groundUV)
+        rosette.lift = drape
+        if fragment.id.isHome {
+            addCoreRosette(into: &rosette, random: &random)
+        }
+
         addScatter(
             into: &props,
             fragment: fragment,
@@ -206,6 +222,11 @@ enum TerrainDressing {
                 StructureMaterial.matte(shade(colors.surface, 0.962), surface: .regolithGround)
             ),
             StructureZone("seam", seams, seamMaterial(character: character, surface: colors.surface)),
+            StructureZone(
+                "rosette",
+                rosette,
+                StructureMaterial.glow(SunfoldPalette.sunwovenGold, opacity: 0.38)
+            ),
         ]
         zones.append(contentsOf: props.zones(character: character, colors: colors))
 
@@ -225,6 +246,69 @@ enum TerrainDressing {
             "Terrain dressing '\(fragment.id.rawValue)': \(total) triangles across \(root.children.count) zones."
         )
         return root
+    }
+
+    // MARK: - Core plaza rosette
+
+    /// A gold inlay ring with petal lobes around the Civilization Core.
+    ///
+    /// Placed in fragment-local space at the origin (the Core sits on
+    /// `fragment.center`). Clearance sits on `Height.rosette` so the drape
+    /// clears `FragmentMeshFactory.chordError` across the settlement pan.
+    private static func addCoreRosette(
+        into builder: inout StructureBuilder,
+        random: inout DeterministicRandom
+    ) {
+        let up = SIMD3<Float>(0, 1, 0)
+        let petals = 8
+        let phase = random.float(in: 0...(Float.pi / Float(petals)))
+        let inner: Float = 5.55
+        let outer: Float = 8.85
+        let mid: Float = 7.05
+        let y = Height.rosette
+
+        // Outer annulus.
+        let outerRing = StructureGeometry.ring(sides: petals * 4, radius: outer, y: y, phase: phase)
+        let midRing = StructureGeometry.ring(sides: petals * 4, radius: mid, y: y, phase: phase)
+        let innerRing = StructureGeometry.ring(sides: petals * 4, radius: inner, y: y, phase: phase)
+        for index in outerRing.indices {
+            let next = (index + 1) % outerRing.count
+            builder.addQuad(midRing[index], outerRing[index], outerRing[next], midRing[next], facing: up)
+            builder.addQuad(innerRing[index], midRing[index], midRing[next], innerRing[next], facing: up)
+        }
+
+        // Petal lobes between the mid and outer rings — soft diamonds, not spikes.
+        for petal in 0..<petals {
+            let a0 = phase + Float(petal) / Float(petals) * 2 * .pi
+            let a1 = phase + Float(petal + 1) / Float(petals) * 2 * .pi
+            let midAngle = (a0 + a1) * 0.5
+            let tipR = outer + random.float(in: 0.35...0.75)
+            let tip = point(midAngle, tipR, y: y)
+            let left = point(a0, mid + 0.15, y: y)
+            let right = point(a1, mid + 0.15, y: y)
+            let root = point(midAngle, mid - 0.35, y: y)
+            builder.addTriangle(root, left, tip, facing: up)
+            builder.addTriangle(root, tip, right, facing: up)
+        }
+
+        // Thin radial spokes from the plinth kerb out to mid — plaza geometry.
+        for spoke in 0..<petals {
+            let angle = phase + (Float(spoke) + 0.5) / Float(petals) * 2 * .pi
+            let halfWidth: Float = 0.11
+            let along = SIMD2<Float>(cos(angle), sin(angle))
+            let side = SIMD2<Float>(-along.y, along.x) * halfWidth
+            let a = SIMD2<Float>(along.x * (inner + 0.08), along.y * (inner + 0.08)) + side
+            let b = SIMD2<Float>(along.x * (inner + 0.08), along.y * (inner + 0.08)) - side
+            let c = SIMD2<Float>(along.x * (mid - 0.1), along.y * (mid - 0.1)) - side
+            let d = SIMD2<Float>(along.x * (mid - 0.1), along.y * (mid - 0.1)) + side
+            builder.addQuad(
+                [a.x, y + 0.001, a.y],
+                [b.x, y + 0.001, b.y],
+                [c.x, y + 0.001, c.y],
+                [d.x, y + 0.001, d.y],
+                facing: up
+            )
+        }
     }
 
     // MARK: - Shore band
@@ -311,12 +395,8 @@ enum TerrainDressing {
         random: inout DeterministicRandom
     ) {
         switch character {
-        case .sunwoven:
+        case .planted:
             addLattice(into: &builder, fragment: fragment, rim: rim, seed: seed)
-        case .gravemark:
-            addFractures(into: &builder, fragment: fragment, rim: rim, count: 6, random: &random)
-        case .neutral:
-            addFractures(into: &builder, fragment: fragment, rim: rim, count: 4, random: &random)
         }
     }
 
@@ -612,33 +692,22 @@ enum TerrainDressing {
             }
         }
 
-        /// The classes a site of this character produces, lead first.
+        /// Shared planted mix for every fragment. Land is civilization-
+        /// independent (CP-12); faction identity is not carried by ground props.
         func kinds(vigour: Float) -> ([PropClass], Float) {
             let roll = random.unitFloat()
-            switch character {
-            case .sunwoven, .neutral:
-                let treeChance: Float = character == .sunwoven ? 0.17 : 0.07
-                if roll < treeChance * (0.5 + vigour) {
-                    // A grove: the tallest thing on the ground, and the only
-                    // prop that gives the island a skyline.
-                    return ([.paleTree, .paleTree, .scrubClump, .bladeTuft], 2.6)
-                }
-                // Growth over rock, 0.70 → 0.79. Concept 01's home island is
-                // planted, not quarried: rock appears there in two deliberate
-                // outcrops and nowhere else, while the build scattered it evenly
-                // enough to compete with the foliage for the eye.
-                if roll < 0.79 {
-                    return ([.scrubClump, .scrubClump, .bladeTuft, .bladeTuft], 1.9)
-                }
-                return ([.rockScatter, .rockScatter, .bladeTuft], 1.5)
-            case .gravemark:
-                // Gravemark ground grows nothing. Its fringe is rubble and cold
-                // mineral, which is the identity contrast doing the work.
-                if roll < 0.24 {
-                    return ([.mineralSpikes, .rockScatter], 1.4)
-                }
-                return ([.rockScatter, .rockScatter, .rockScatter], 1.7)
+            let treeChance: Float = 0.14
+            if roll < treeChance * (0.5 + vigour) {
+                return ([.paleTree, .paleTree, .scrubClump, .bladeTuft], 2.6)
             }
+            if roll < 0.79 {
+                return ([.scrubClump, .scrubClump, .bladeTuft, .bladeTuft], 1.9)
+            }
+            // Occasional mineral accent — rock variety, not a faction paint.
+            if roll < 0.88 {
+                return ([.rockScatter, .rockScatter, .bladeTuft], 1.5)
+            }
+            return ([.mineralSpikes, .rockScatter], 1.4)
         }
 
         // Fringe: walk the rim at a fixed arc spacing so density is independent
@@ -696,16 +765,9 @@ enum TerrainDressing {
             cluster(at: candidate, vigour: vigour, kinds: classes, spread: spread)
         }
 
-        // Canopy pass: a few large branching masses. CP-06 already matched the
-        // concept's *count*; what remained was silhouette mass. Draws append
-        // after the fringe/interior loops so those prop positions stay put.
-        //
-        // Critical: do **not** jam against the scrub `sites` list. Fringe/interior
-        // already pack at 1.3–1.5 m, so a 4.2 m check against every scrub site
-        // rejects nearly every canopy candidate (try2: planting stayed a carpet
-        // of medium clumps). Canopy only keeps clear of claimed ground, the rim,
-        // and other canopy trunks.
-        if character == .sunwoven || character == .neutral {
+        // Canopy pass: a few large branching masses on every fragment. Land is
+        // civilization-independent — the planted silhouette is shared.
+        do {
             var canopySites: [SIMD2<Float>] = []
             // Rare tree-scale masses — concept 01 carries a handful, not a grove
             // that buries the Core (try3 overshot with 4.0 m spacing).
@@ -1505,7 +1567,11 @@ enum TerrainDressing {
                     named: "mineral",
                     surface: .rawMatter,
                     tints: TerrainDressing.ladderTints(
-                        body: SunfoldPalette.gravemarkMineral,
+                        body: StructureMaterial.blend(
+                            SunfoldPalette.neutralRock,
+                            SunfoldPalette.landRock,
+                            0.40
+                        ),
                         soil: soil,
                         count: mineral.count,
                         floorMix: 0.40,
@@ -1574,8 +1640,10 @@ enum TerrainDressing {
 
     // MARK: - Identity
 
+    /// Dressing style for land. One shared planted look — never faction-keyed
+    /// (user constraint 2026-07-28). The enum remains so call sites stay typed.
     private enum Character {
-        case sunwoven, gravemark, neutral
+        case planted
     }
 
     /// A stable per-region offset, so two fragments of the same size never get
@@ -1586,26 +1654,16 @@ enum TerrainDressing {
     }
 
     private static func character(of region: RegionID) -> Character {
-        switch region {
-        case .sunwovenHome, .sunwovenExpansion: .sunwoven
-        case .gravemarkHome, .gravemarkExpansion: .gravemark
-        case .dominion, .neutralOutcropNorth, .neutralOutcropSouth: .neutral
-        }
+        _ = region
+        return .planted
     }
 
     private static func seamMaterial(character: Character, surface: UIColor) -> any RealityKit.Material {
-        switch character {
-        case .sunwoven:
-            // Woven light, not paint: this is the one place ground is allowed to
-            // emit, and it is the Sunwoven identity mark.
-            StructureMaterial.glow(SunfoldPalette.sunwovenGold, opacity: 0.34)
-        case .gravemark:
-            StructureMaterial.glow(SunfoldPalette.gravemarkMineral, opacity: 0.30)
-        case .neutral:
-            // Stone cracks are not lit. A matte darker tone keeps neutral ground
-            // legibly *unclaimed* by either side.
-            StructureMaterial.matte(shade(surface, 0.76), surface: .regolithGround)
-        }
+        _ = character
+        _ = surface
+        // Quiet gold weave on every fragment — concept 01's ground language,
+        // shared rather than faction-painted.
+        return StructureMaterial.glow(SunfoldPalette.sunwovenGold, opacity: 0.34)
     }
 
     /// Foliage is straw, not metal. Full-strength `sunwovenGold` came back from
@@ -1613,22 +1671,16 @@ enum TerrainDressing {
     /// competing with the Core's own gold ribbing, which must stay the brightest
     /// warm note on the fragment.
     private static func growthColor(character: Character) -> UIColor {
-        switch character {
-        case .sunwoven: blend(SunfoldPalette.sunwovenGold, SunfoldPalette.sunwovenIvory, 0.38)
-        case .gravemark: shade(SunfoldPalette.gravemarkSurface, 1.12)
-        case .neutral: blend(SunfoldPalette.neutralSurface, SunfoldPalette.sunwovenGold, 0.22)
-        }
+        _ = character
+        return blend(SunfoldPalette.sunwovenGold, SunfoldPalette.sunwovenIvory, 0.38)
     }
 
     /// Concept 01's trees are *pale* — near-bone trunks that read lighter than
     /// the soil, which is what separates them from the amber foliage they carry
     /// and from the grey rock beside them. Value separation, not hue.
     private static func barkColor(character: Character) -> UIColor {
-        switch character {
-        case .sunwoven: blend(SunfoldPalette.sunwovenIvory, SunfoldPalette.sunwovenSurface, 0.26)
-        case .gravemark: blend(SunfoldPalette.gravemarkSurface, SunfoldPalette.sunwovenIvory, 0.24)
-        case .neutral: blend(SunfoldPalette.dominionStone, SunfoldPalette.sunwovenIvory, 0.34)
-        }
+        _ = character
+        return blend(SunfoldPalette.sunwovenIvory, SunfoldPalette.landSurface, 0.26)
     }
 
     private static func blend(_ from: UIColor, _ to: UIColor, _ amount: CGFloat) -> UIColor {
@@ -1664,6 +1716,9 @@ enum TerrainDressing {
         static let tone = FragmentMeshFactory.chordError + 0.005
         static let shore = FragmentMeshFactory.chordError + 0.013
         static let seam = FragmentMeshFactory.chordError + 0.025
+        /// Plaza inlay sits between tone and seams so it reads as set into the
+        /// pan without fighting the gold lattice above it.
+        static let rosette = FragmentMeshFactory.chordError + 0.019
         static let dust = FragmentMeshFactory.chordError / 3 + 0.008
     }
 
@@ -1688,6 +1743,24 @@ extension TerrainDressing.Instance {
 struct RimProfile {
     let radii: [Float]
     let fallback: Float
+    /// Where the map's water is, in the same fragment-local space as `radii`.
+    ///
+    /// Carried here rather than checked at each of the five call sites because
+    /// every one of them already asks this type "is this point on land?". A
+    /// rivermouth is a place a prop must not stand for exactly the same reason
+    /// the open void is, and a scatter that knows about one and not the other
+    /// grows a thicket in midstream.
+    var isSubmerged: (SIMD2<Float>) -> Bool = { _ in false }
+
+    init(
+        radii: [Float],
+        fallback: Float,
+        isSubmerged: @escaping (SIMD2<Float>) -> Bool = { _ in false }
+    ) {
+        self.radii = radii
+        self.fallback = fallback
+        self.isSubmerged = isSubmerged
+    }
 
     func radius(atAngle angle: Float) -> Float {
         guard radii.count >= 2 else { return fallback }
@@ -1705,6 +1778,7 @@ struct RimProfile {
 
     /// Whether a local point is on land, pulled in by `margin`.
     func contains(_ point: SIMD2<Float>, margin: Float) -> Bool {
+        guard !isSubmerged(point) else { return false }
         let distance = simd_length(point)
         guard distance > 1e-4 else { return true }
         return distance < radius(atAngle: atan2(point.y, point.x)) * margin

@@ -17,6 +17,8 @@ Shared continuity rules for the five gameplay concept screens. Abstracted from A
 
 **Fragment-to-void ratio:** Habitable land ~40–55% of frame; deep cosmic void ~45–60%. Never fill the frame with contiguous terrain.
 
+> **Playable-map override (2026-07-28):** the running game uses **one continent cut by void water** (space as rivers/lakes/inlets) — see `PROJECT_STATE.md` CP-14 (supersedes CP-13’s overlapping-plate pair and CP-12’s mostly-land blobs). Landmasses use a **shared neutral terrain palette**; do not color-code fragments by civilization.
+
 ---
 
 ## HUD Geometry (identical every screen)

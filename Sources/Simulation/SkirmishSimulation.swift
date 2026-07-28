@@ -10,6 +10,7 @@ final class SkirmishSimulation {
     let tuning: SkirmishTuning
     let map: WorldMap
     let seed: UInt64
+    let mapID: WorldMapID
 
     private(set) var clock: SimulationClock
     private(set) var stock: [Faction: ResourcePool]
@@ -22,13 +23,19 @@ final class SkirmishSimulation {
 
     private var allocator: EntityIDAllocator
 
-    /// Debug time scale. 1.0 is real time; never used in an evidence run.
+    /// Presentation clock scale. 1.0 is real time; the fixed 20 Hz step size is
+    /// unchanged — this only decides how many steps a wall-clock frame buys.
     var timeScale: Double = 1.0
 
-    init(seed: UInt64, tuning: SkirmishTuning = .baseline) {
+    init(
+        seed: UInt64,
+        mapID: WorldMapID = .default,
+        tuning: SkirmishTuning = .baseline
+    ) {
         self.seed = seed
+        self.mapID = mapID
         self.tuning = tuning
-        let map = WorldMap.proofMap(seed: seed)
+        let map = WorldMap.map(mapID, seed: seed)
         self.map = map
         self.clock = SimulationClock(tuning: tuning)
         self.stock = [

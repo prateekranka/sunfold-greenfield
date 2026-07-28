@@ -84,7 +84,15 @@ enum WorldPopulator {
             let spread = (Float(index) - Float(tuning.startingCitizens - 1) / 2) * 0.34
             let angle = baseAngle + spread + random.float(in: -0.06...0.06)
             let distance = BuildingKind.civilizationCore.footprintRadius + random.float(in: 3.0...6.5)
-            let position = fragment.center + WorldPoint(sin(angle), cos(angle)) * distance
+            let wanted = fragment.center + WorldPoint(sin(angle), cos(angle)) * distance
+            // The arc faces the expansion, which since CP-14 is the direction the
+            // water is in. Clamping keeps the opening line-up on the near bank.
+            let position = map.clampToLand(
+                wanted,
+                from: fragment.center,
+                in: region,
+                margin: UnitKind.citizen.footprintRadius
+            )
 
             let id = result.allocator.allocate()
             result.units[id] = Unit(
@@ -120,26 +128,34 @@ enum WorldPopulator {
         let plan = depositPlan(for: region)
         var random = DeterministicRandom.stream(seed: map.seed, tag: "deposits.\(region.rawValue)")
 
-        // Keep deposits off the Core footprint and off each other, and inside the
-        // rim so a gathering citizen never has to stand in the void.
+        // Keep deposits off the Core footprint and off each other, and on ground a
+        // gathering citizen can actually reach — which since CP-14 means clear of
+        // the map's rivers and lakes as well as inside the coast. `outerLimit` is
+        // measured per bearing off the authored outline; a fixed radius would put
+        // deposits in the void wherever the coast cuts in.
         let innerLimit = region.isHome ? BuildingKind.civilizationCore.footprintRadius + 6 : 3.0
-        let outerLimit = fragment.radius - 4.5
         var placed: [WorldPoint] = []
 
         for (index, kind) in plan.enumerated() {
             var position = fragment.center
             // A bounded search: spread deposits around the fragment by index, then
-            // jitter, retrying only if the pick lands on top of an earlier one.
-            for attempt in 0..<24 {
+            // jitter, retrying if the pick lands on water, off the plate, or on
+            // top of an earlier one.
+            for attempt in 0..<48 {
                 let sector = Float(index) / Float(plan.count) * 2 * .pi
                 let angle = sector + random.float(in: -0.5...0.5) + Float(attempt) * 0.31
+                let heading = WorldPoint(sin(angle), cos(angle))
+                let outerLimit = fragment.radius(toward: fragment.center + heading) - 4.5
                 let distance = random.float(in: innerLimit...max(innerLimit + 1, outerLimit))
-                let candidate = fragment.center + WorldPoint(sin(angle), cos(angle)) * distance
-                if placed.allSatisfy({ simd_distance($0, candidate) > 5.0 }) {
-                    position = candidate
-                    break
+                let candidate = fragment.center + heading * distance
+
+                // `workRadius` clearance, so a citizen can stand anywhere in the
+                // gathering ring without standing in a river.
+                guard map.isStandable(candidate, in: region, margin: Deposit.workRadius) else {
+                    continue
                 }
                 position = candidate
+                if placed.allSatisfy({ simd_distance($0, candidate) > 5.0 }) { break }
             }
             placed.append(position)
 

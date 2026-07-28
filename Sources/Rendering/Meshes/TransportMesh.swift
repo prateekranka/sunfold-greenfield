@@ -183,58 +183,81 @@ enum TransportMesh {
     }
 
     /// Lattice pier on the landward quarter — posts, deck boards, rail caps.
+    ///
+    /// CP-12: finer members so the dock reads as latticework rather than a
+    /// solid gold wedge bolted to the sheer.
     private static func addDockPier(into gold: inout StructureBuilder) {
-        // Deck plate from the port sheer toward the rim (aft-port).
-        let pierDeck: [SIMD3<Float>] = [
-            [-1.85, 1.05, -0.40],
-            [-1.85, 1.05, -3.60],
-            [-4.40, 0.12, -3.35],
-            [-4.40, 0.12, -0.65],
-        ]
-        gold.addSolid(
-            lower: pierDeck.map { $0 - [0, 0.12, 0] },
-            upper: pierDeck
-        )
+        let nearX: Float = -1.92
+        let farX: Float = -4.45
+        let zAft: Float = -0.45
+        let zFwd: Float = -3.55
 
-        // Posts along both long edges.
-        for (outer, z0, z1) in [
-            (Float(-1.95), Float(-0.55), Float(-3.40)),
-            (Float(-4.25), Float(-0.80), Float(-3.20)),
-        ] {
-            for t in [Float(0.12), 0.38, 0.62, 0.88] {
+        // Separate deck boards instead of one solid plate.
+        let boardCount = 7
+        for board in 0..<boardCount {
+            let t0 = Float(board) / Float(boardCount)
+            let t1 = Float(board + 1) / Float(boardCount)
+            let gap: Float = 0.04
+            let z0 = zAft + (zFwd - zAft) * t0 + gap * 0.5
+            let z1 = zAft + (zFwd - zAft) * t1 - gap * 0.5
+            guard z1 > z0 + 0.08 else { continue }
+            let yNear: Float = 1.06
+            let yFar: Float = 0.14
+            let deck: [SIMD3<Float>] = [
+                [nearX, yNear, z0],
+                [nearX, yNear, z1],
+                [farX, yFar, z1],
+                [farX, yFar, z0],
+            ]
+            gold.addSolid(
+                lower: deck.map { $0 - [0, 0.06, 0] },
+                upper: deck
+            )
+        }
+
+        // Slender posts along both long edges.
+        for (outer, z0, z1, yTop) in [
+            (nearX - 0.06, zAft - 0.08, zFwd + 0.08, Float(1.92)),
+            (farX + 0.08, zAft - 0.20, zFwd + 0.15, Float(1.02)),
+        ] as [(Float, Float, Float, Float)] {
+            for t in [Float(0.08), 0.26, 0.44, 0.62, 0.80, 0.94] {
                 let z = z0 + (z1 - z0) * t
-                let yTop: Float = outer < -3 ? 1.05 : 1.85
                 gold.addSolid(
                     lower: StructureGeometry.rectangle(
-                        width: 0.14, depth: 0.14, y: 0.02, center: [outer, z]
+                        width: 0.07, depth: 0.07, y: 0.02, center: [outer, z]
                     ),
                     upper: StructureGeometry.rectangle(
-                        width: 0.11, depth: 0.11, y: yTop, center: [outer, z]
+                        width: 0.055, depth: 0.055, y: yTop, center: [outer, z]
                     )
                 )
             }
         }
 
-        // Handrail caps.
+        // Handrail caps — thin ribbons.
         gold.addQuad(
-            [-2.00, 1.88, -0.50], [-2.00, 1.88, -3.45],
-            [-1.78, 1.88, -3.45], [-1.78, 1.88, -0.50],
+            [nearX - 0.12, 1.94, zAft - 0.05], [nearX - 0.12, 1.94, zFwd + 0.05],
+            [nearX + 0.04, 1.94, zFwd + 0.05], [nearX + 0.04, 1.94, zAft - 0.05],
             facing: [0, 1, 0]
         )
         gold.addQuad(
-            [-4.35, 1.08, -0.75], [-4.35, 1.08, -3.25],
-            [-4.12, 1.08, -3.25], [-4.12, 1.08, -0.75],
+            [farX - 0.04, 1.04, zAft - 0.15], [farX - 0.04, 1.04, zFwd + 0.10],
+            [farX + 0.10, 1.04, zFwd + 0.10], [farX + 0.10, 1.04, zAft - 0.15],
             facing: [0, 1, 0]
         )
 
-        // Cross-braces between the near and far post rows.
-        for t in [Float(0.25), 0.55, 0.80] {
-            let zNear = -0.55 + (-3.40 - -0.55) * t
-            let zFar = -0.80 + (-3.20 - -0.80) * t
+        // Cross-braces as thin X pairs between the post rows.
+        for t in [Float(0.18), 0.40, 0.62, 0.84] {
+            let zNear = zAft + (zFwd - zAft) * t
+            let zFar = (zAft - 0.15) + ((zFwd + 0.10) - (zAft - 0.15)) * t
             gold.addQuad(
-                [-2.00, 0.55, zNear], [-4.20, 0.35, zFar],
-                [-4.20, 0.48, zFar], [-2.00, 0.68, zNear],
-                facing: [0, 1, 0.15]
+                [nearX - 0.05, 0.72, zNear], [farX + 0.05, 0.42, zFar],
+                [farX + 0.05, 0.50, zFar], [nearX - 0.05, 0.80, zNear],
+                facing: [0, 1, 0.12]
+            )
+            gold.addQuad(
+                [nearX - 0.05, 0.48, zNear], [farX + 0.05, 0.68, zFar],
+                [farX + 0.05, 0.76, zFar], [nearX - 0.05, 0.56, zNear],
+                facing: [0, 1, -0.12]
             )
         }
     }

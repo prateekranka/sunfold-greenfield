@@ -21,11 +21,10 @@ Architecture rules that must not be broken:
    randomness comes from `DeterministicRandom` on a tagged per-subsystem stream.
    Adding a draw in one subsystem must not shift another's numbers.
 
-## Building — do not use bare xcodebuild or simctl
+## Building — use the agent build script; simulator via argent
 
-A `PreToolUse` hook in this environment blocks `xcodebuild build`, `xcodebuild test`
-and most `xcrun simctl` subcommands, routing them to FlowDeck. FlowDeck is installed
-but **unlicensed**, so it cannot run. The working paths are:
+Do **not** use Flowdeck / FlowDeck / `flowdeck` (CLI, skill, MCP, hooks, or workflows) —
+it is banned for all projects. Prefer the paths below.
 
 - **Compile check (parallel-safe, use this):**
   ```
@@ -38,7 +37,9 @@ but **unlicensed**, so it cannot run. The working paths are:
 - The resulting bundle is at
   `build-agents/<name>/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app`
 
-Never run `xcodebuild` directly and never run `xcrun simctl`.
+Prefer `./scripts/agent-build.sh` over bare `xcodebuild`. Prefer **argent MCP** over
+raw `xcrun simctl` for install / launch / screenshot.
+
 
 ## Running it on the simulator — argent MCP only
 
@@ -123,10 +124,10 @@ fragment-to-void ratio, sparse starfield) still holds.
   stretches flat triangles between its samples, so it rides *above* the height
   field across every dip; a decal placed on the function is under the mesh and
   vanishes. Recompute that constant if a relief amplitude or cell count changes.
-- **`WorldMap.bounds` is a camera limit, not the extent of the land.** It is
-  `[118, 86]` against a fragment field of `94 × 55`, deliberately, so the camera
-  can look past the edge. Anything fitting a view to the *world* must measure the
-  fragments; fitting to `bounds` leaves the theatre small and off-centre.
+- **`WorldMap.bounds` is the playable camera rectangle**, fitted to the land so
+  dry ground covers 75–80% of it (`landCoverage` / `Tools/mappreview`). The
+  minimap still measures the land contour itself (`LandContour.extent`), not
+  `bounds`.
 - **A `Spacer` inside a SwiftUI column that has no width of its own makes the
   whole column greedy.** A HUD panel built this way stretches the length of the
   frame instead of sitting in its corner. Pin the row's width.
@@ -193,9 +194,31 @@ ground's planting and palette, the Core pavilion, the void wash + celestial
 body + debris, rim crystals, lumen mass, tree-scale branching crowns, HUD
 parity (emblem / speed / alerts / groups / life / minimap silhouettes), and the
 docked gold pier (dark spar removed) all landed across CP-01…CP-11 —
-`PROJECT_STATE.md` has the numbers. What is still missing:
+`PROJECT_STATE.md` has the numbers.
 
-- Animation. Units slide; nothing has an idle, walk or work cycle.
-- Ground-inlay rosette near the Core — carried again (needs terrain drape).
-- Speed / group chrome is present but not wired to simulation controls.
-- Pier lattice is blockier than concept 01's ornate dock.
+**CP-14 durable facts:**
+
+- Playable maps are **one continent cut by void water** (supersedes CP-13's
+  overlapping-plate contiguous maps). Three layouts: `WorldMapID.riverlands`
+  (default), `.basin`, `.fjords`. Select with `-sunfoldMap riverlands|basin|fjords`
+  (aliases: `coastland`/`continental`→riverlands, `isthmus`/`crescent`→basin).
+- Land is an authored field (coast lobes + void bodies + erosion), not a union of
+  discs. Minimap contours that field. Mesh carves drowned cells and caps them with
+  an unlit void floor that tracks the flank cone near the rim.
+- **Land coverage target: 75–80% of the playable map** (`WorldMap.bounds`, sampled
+  by `landCoverage` / `Tools/mappreview`). Camera bounds are fitted to the land
+  envelope (retain ~97.5% of land cells) so empty AABB corners are not counted as
+  map. Rivers/lakes/inlets stay as readable void cuts (~2–4% inland water).
+- **Fairness:** only Core centres share equal distance from the Dominion. Maps may
+  be organic / asymmetric — no plate-position mirroring required.
+- **Land is civilization-independent.** `SunfoldPalette.landSurface` /
+  `landRock` for every fragment; minimap land fill is neutral. Faction identity stays
+  on units, buildings, HUD, Core livery.
+- Causeway spars draw only across a water crossing (dock-to-dock wet stretch), not
+  as a slab over dry ground.
+- Default camera zoom is 64; opening frustum sits on interior land.
+
+What is still missing / parked:
+
+- Animation. Units slide; needs per-unit activity state the sim does not expose.
+- Control-group slots are chrome only (no group wiring yet).

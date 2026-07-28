@@ -64,6 +64,23 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.sunfold.greenfield.tests
         GENERATE_INFOPLIST_FILE: YES
 
+  # Offline land-coverage harness. Domain-only so it builds on macOS without
+  # pulling RealityKit / SwiftUI. Tune WorldMap layouts against its numbers.
+  MapPreview:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Tools/mappreview
+      - path: Sources/Domain
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sunfold.greenfield.mappreview
+        MACOSX_DEPLOYMENT_TARGET: "15.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: "-"
+        GENERATE_INFOPLIST_FILE: YES
+
 schemes:
   SunfoldGreenfield:
     build:
@@ -78,3 +95,10 @@ schemes:
       config: Debug
       targets:
         - SunfoldGreenfieldTests
+
+  MapPreview:
+    build:
+      targets:
+        MapPreview: all
+    run:
+      config: Debug

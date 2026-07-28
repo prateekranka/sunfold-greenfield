@@ -63,6 +63,18 @@ enum SunfoldPalette {
     static let neutralRock = UIColor(red: 0.427, green: 0.416, blue: 0.400, alpha: 1)
     static let dominionStone = UIColor(red: 0.741, green: 0.729, blue: 0.702, alpha: 1)
 
+    // MARK: - Shared land (civilization-independent)
+
+    /// Habitable top for every fragment. Matches concept 01's warm regolith
+    /// (hue ~34°) — the same family as `sunwovenSurface`, kept as the locked
+    /// ground read rather than a faction paint.
+    ///
+    /// User constraint 2026-07-28: land is never color-coded by civilization.
+    /// Faction identity lives on units, buildings, HUD, and Core livery only.
+    static let landSurface = sunwovenSurface
+    /// Underside / cliff rock paired with `landSurface`.
+    static let landRock = sunwovenRock
+
     /// The colour that stands for each resource, wherever it appears — a carried
     /// load, a deposit's ground pool, the HUD rail. One source, so a player never
     /// has to learn the same resource twice.
@@ -75,18 +87,11 @@ enum SunfoldPalette {
         }
     }
 
-    /// Surface and rock colours for a fragment, by who holds it at match start.
+    /// Surface and rock for a fragment. Always the shared land palette —
+    /// ownership does not recolor the ground.
     static func fragmentColors(for region: RegionID) -> (surface: UIColor, rock: UIColor) {
-        switch region {
-        case .sunwovenHome, .sunwovenExpansion:
-            (sunwovenSurface, sunwovenRock)
-        case .gravemarkHome, .gravemarkExpansion:
-            (gravemarkSurface, gravemarkRock)
-        case .dominion:
-            (dominionStone, neutralRock)
-        case .neutralOutcropNorth, .neutralOutcropSouth:
-            (neutralSurface, neutralRock)
-        }
+        _ = region
+        return (landSurface, landRock)
     }
 
     // MARK: - SwiftUI bridges for the HUD

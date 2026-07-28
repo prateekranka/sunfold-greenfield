@@ -171,8 +171,6 @@ doing there.
 
 ### Capture limitation
 
-`xcrun simctl io screenshot` and `recordVideo` are both blocked in this
-environment by a global pre-tool hook that redirects to FlowDeck. Since FlowDeck
-was removed from this project by instruction, neither was used, and no timed
-burst or video capture exists for this gate. All evidence here is single frames
-via the argent bridge.
+Timed burst / video capture via `xcrun simctl io screenshot` / `recordVideo` was
+not used for this gate. Flowdeck is banned and must not be used as a substitute.
+All evidence here is single frames via the argent bridge.

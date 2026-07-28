@@ -14,7 +14,8 @@ import simd
 struct Minimap: View {
     let simulation: SkirmishSimulation
     let rig: CameraRig?
-    /// The viewing faction. Its things are turquoise, the opponent's copper.
+    /// The viewing faction. Its units/buildings are turquoise, the opponent's
+    /// copper. Landmasses themselves are never faction-tinted.
     var viewer: Faction = .sunwoven
 
     /// Width of the map well, in points. Sized so the smallest fragment — a
@@ -48,6 +49,18 @@ struct Minimap: View {
 
     // MARK: - Fit
 
+    /// The traced coastline, cached per map.
+    ///
+    /// Marching a 220-square grid is far too much to redo on every SwiftUI redraw
+    /// — and this view redraws whenever a unit moves — but the coastline only
+    /// changes when the map does. Keying the cache on identity and seed means a
+    /// map switch invalidates it and nothing else does.
+    private var contour: LandContour.Result {
+        Self.contourCache.value(for: simulation.map)
+    }
+
+    private static let contourCache = ContourCache()
+
     /// Half-extent of the **land**, which is not `WorldMap.bounds`.
     ///
     /// `bounds` is a camera limit and is deliberately wider than the rock, so a
@@ -56,13 +69,7 @@ struct Minimap: View {
     /// What the player reads here is where the ground is, so the ground is what
     /// the well is fitted to.
     private var landExtent: WorldPoint {
-        var extent = WorldPoint.zero
-        for id in RegionID.allCases {
-            let fragment = simulation.map.fragment(id)
-            extent.x = max(extent.x, abs(fragment.center.x) + fragment.radius)
-            extent.y = max(extent.y, abs(fragment.center.y) + fragment.radius)
-        }
-        return extent * Self.margin
+        contour.extent * Self.margin
     }
 
     /// The well takes the land's own aspect rather than a forced square. A
@@ -162,39 +169,35 @@ struct Minimap: View {
         }
     }
 
+    /// The landmass, as one filled shape with its lakes punched out of it.
+    ///
+    /// Every loop goes into a single `Path` and is filled once with the non-zero
+    /// rule. That is the whole trick: outer coasts and lake holes come out of
+    /// `LandContour` wound opposite ways, so the holes cancel and the coasts do
+    /// not, and — the part that matters here — **no edge is drawn inside the
+    /// land**. Drawing a plate at a time put a stroked circle across the middle of
+    /// the continent seven times over, which is what the theatre actually looked
+    /// like: overlapping circles.
     private func drawFragments(
         _ context: GraphicsContext,
         project: (WorldPoint) -> CGPoint
     ) {
-        for id in RegionID.allCases {
-            let fragment = simulation.map.fragment(id)
-            // Irregular silhouette matching the drawn rim — concept 01's map is
-            // island-shaped, and a circle reads as a placeholder.
-            let outline = FragmentMeshFactory.rimOutline(
-                fragment: fragment,
-                seed: simulation.map.seed,
-                samples: 28
-            )
-            guard let first = outline.first else { continue }
-            var land = Path()
+        var land = Path()
+        for loop in contour.loops {
+            guard let first = loop.first else { continue }
             land.move(to: project(first))
-            for point in outline.dropFirst() {
+            for point in loop.dropFirst() {
                 land.addLine(to: project(point))
             }
             land.closeSubpath()
-            context.fill(land, with: .color(fill(for: id)))
-            context.stroke(land, with: .color(HUDInk.edge.opacity(0.7)), lineWidth: 0.75)
         }
-    }
+        guard !land.isEmpty else { return }
 
-    /// A fragment is tinted by who holds it, so ownership is legible before any
-    /// unit is drawn on top. Neutral ground stays the ground's own colour.
-    private func fill(for id: RegionID) -> Color {
-        switch id.startingOwner {
-        case .some(let owner) where owner == viewer: HUDInk.friendly.opacity(0.42)
-        case .some: HUDInk.hostile.opacity(0.42)
-        case .none: Color(SunfoldPalette.neutralSurface).opacity(0.40)
-        }
+        // Landmasses share one neutral ground fill. Ownership is read from the
+        // buildings and units drawn on top — not from painting the rock itself
+        // friendly/hostile (user constraint 2026-07-28).
+        context.fill(land, with: .color(Color(SunfoldPalette.landSurface).opacity(0.48)))
+        context.stroke(land, with: .color(HUDInk.edge.opacity(0.7)), lineWidth: 0.75)
     }
 
     private func drawDeposits(_ context: GraphicsContext, project: (WorldPoint) -> CGPoint) {
@@ -282,5 +285,26 @@ struct Minimap: View {
 
         context.stroke(path, with: .color(HUDInk.text.opacity(0.85)), lineWidth: 1)
         context.fill(path, with: .color(.white.opacity(0.045)))
+    }
+}
+
+/// Holds the traced coastline for the map currently loaded.
+///
+/// One entry, not a dictionary: only one map is on screen at a time, and a cache
+/// that grows for the life of the process to hold maps nobody is looking at is a
+/// leak with extra steps.
+private final class ContourCache: @unchecked Sendable {
+    private let lock = NSLock()
+    private var key: (WorldMapID, UInt64)?
+    private var cached: LandContour.Result?
+
+    func value(for map: WorldMap) -> LandContour.Result {
+        lock.lock()
+        defer { lock.unlock() }
+        if let key, key == (map.id, map.seed), let cached { return cached }
+        let traced = LandContour.trace(map)
+        key = (map.id, map.seed)
+        cached = traced
+        return traced
     }
 }

@@ -161,6 +161,21 @@ enum FragmentMeshFactory {
         /// the geometry can take warm ivory crystal instead of cold rimStone —
         /// retinting a cold reference stays muted (CP-07).
         case crystal
+        /// The floor of a river, lake or inlet.
+        ///
+        /// A plate's underside is a closed cone down to an apex, so cutting water
+        /// out of the *top* opens a window onto the inside of that cone — and lit
+        /// rock is what you then see at the bottom of every lake. The map's whole
+        /// premise is that space is the water, so a lake showing rock is the one
+        /// place the render contradicts the fiction outright.
+        ///
+        /// Capping each channel with an unlit void-coloured floor is what closes
+        /// that. Cutting the hole through the cone as well would be the literal
+        /// answer and is not worth it: the cone converges on a single point, so a
+        /// through-hole is a genuine topology problem, and no camera angle this game
+        /// allows can see the difference between a hole and a floor the colour of
+        /// the thing behind it.
+        case abyss
     }
 
     struct Built {
@@ -177,23 +192,86 @@ enum FragmentMeshFactory {
     // MARK: - Build
 
     @MainActor
-    static func build(fragment: Fragment, seed: UInt64) -> Built {
+    static func build(fragment: Fragment, map: WorldMap, seed: UInt64) -> Built {
         var random = DeterministicRandom.stream(seed: seed, tag: "fragment.\(fragment.id.rawValue)")
 
         let angles = (0..<sideCount).map { Float($0) / Float(sideCount) * 2 * .pi }
         let (rimRadii, isSpur) = makeRim(fragment: fragment, random: &random)
+        let water = WaterMask(fragment: fragment, map: map, angles: angles, rimRadii: rimRadii)
 
-        let top = buildTop(fragment: fragment, angles: angles, rimRadii: rimRadii)
+        let top = buildTop(fragment: fragment, angles: angles, rimRadii: rimRadii, water: water)
         let underside = buildFlank(
             fragment: fragment,
             angles: angles,
             rimRadii: rimRadii,
             isSpur: isSpur,
+            water: water,
             seed: seed,
             random: &random
         )
 
         return Built(top: top, underside: underside, rimRadii: rimRadii)
+    }
+
+    // MARK: - Water
+
+    /// Which cells of the habitable grid a river, lake or inlet has taken away.
+    ///
+    /// The map's water is authored as a signed field, and the top is a polar grid,
+    /// so carving is a matter of asking the field about each cell and dropping the
+    /// ones that are under water. Everything else — the banks, the props that must
+    /// not stand in the channel, the minimap's coastline — reads the same field, so
+    /// the render cannot disagree with the rules about where the water is.
+    ///
+    /// Cells are classified by their **centroid**, not by their corners. Testing
+    /// corners forces a choice between a channel a cell wider than the legal water
+    /// (a unit standing on drawn void) and a cell narrower (a strip of drawn land
+    /// nobody may walk on). The centroid splits the error either way at half a cell
+    /// — about 0.7 m here, well inside the footprint margin `WorldMap.isStandable`
+    /// already applies, so a unit's feet stay dry regardless.
+    struct WaterMask {
+        /// `true` where the quad between rings `ring` and `ring + 1` is drowned.
+        private let drowned: [[Bool]]
+        let isEmpty: Bool
+
+        init(fragment: Fragment, map: WorldMap, angles: [Float], rimRadii: [Float]) {
+            guard !map.voidBodies.isEmpty else {
+                drowned = []
+                isEmpty = true
+                return
+            }
+            var table = [[Bool]](
+                repeating: [Bool](repeating: false, count: sideCount),
+                count: ringCount
+            )
+            var any = false
+            for ring in 0..<ringCount {
+                let inner = ringEase(ring), outer = ringEase(ring + 1)
+                for index in 0..<sideCount {
+                    let next = (index + 1) % sideCount
+                    let midRadius = (rimRadii[index] + rimRadii[next]) * 0.5 * (inner + outer) * 0.5
+                    let midAngle = angles[index] + (.pi / Float(sideCount))
+                    let local = SIMD2<Float>(cos(midAngle), sin(midAngle)) * midRadius
+                    if map.isSubmerged(fragment.center + local) {
+                        table[ring][index] = true
+                        any = true
+                    }
+                }
+            }
+            drowned = table
+            isEmpty = !any
+        }
+
+        func isDrowned(ring: Int, index: Int) -> Bool {
+            guard !drowned.isEmpty, ring >= 0, ring < drowned.count else { return false }
+            return drowned[ring][((index % sideCount) + sideCount) % sideCount]
+        }
+    }
+
+    /// Where ring `n` sits as a fraction of the rim radius. The ease pushes rings
+    /// outward, concentrating resolution where the rim fall and shore happen.
+    private static func ringEase(_ ring: Int) -> Float {
+        pow(Float(ring) / Float(ringCount), 0.88)
     }
 
     /// The fragment's drawn outline on the world plane — same rim the mesh used.
@@ -217,12 +295,20 @@ enum FragmentMeshFactory {
 
     /// The rim radius at every sample, plus which samples throw a hanging spur.
     ///
-    /// Rim jitter is strictly *outward*. `WorldMap.contains` treats the nominal
-    /// circle as land and `MovementSystem` lets a unit stand anywhere inside it,
-    /// so a rim drawn shorter than nominal puts a citizen legally on ground that
-    /// is not there. Growing outward keeps the drawn land a superset of the legal
-    /// land, and the craggy read comes from spurs pushing past the circle rather
-    /// than from bites taken out of it.
+    /// The base is the plate's **authored outline**, `Fragment.radius(atBearing:)`
+    /// — the same function `WorldMap.contains` uses. Before CP-14 the base was a
+    /// circle and everything interesting about the silhouette had to be smuggled
+    /// in as noise on top of it, which is why seven plates read as seven circles:
+    /// noise at a few per cent cannot make a bay, and the *legal* land was a disc
+    /// regardless of what was drawn. Now the shape is in the contract and this
+    /// only adds the erosion.
+    ///
+    /// Rim jitter stays strictly *outward*. A unit may stand anywhere inside the
+    /// authored outline, so a rim drawn shorter than authored puts a citizen
+    /// legally on ground that is not there. Growing outward keeps the drawn land a
+    /// superset of the legal land, and the craggy read comes from spurs pushing
+    /// past the outline rather than from bites taken out of it. Bites are water,
+    /// and water is carved from both at once by ``WaterMask``.
     ///
     /// Three octaves of wrapped noise rather than a per-vertex random reach: a
     /// per-vertex value at 96 samples is white noise and reads as a serrated
@@ -241,14 +327,21 @@ enum FragmentMeshFactory {
         radii.reserveCapacity(sideCount)
 
         for index in 0..<sideCount {
+            let angle = Float(index) / Float(sideCount) * 2 * .pi
             let turns = Float(index) / Float(sideCount) + phase
             let broad = wrappedNoise(turns, cells: 5, salt: Salt.rimBroad)
             let crag = wrappedNoise(turns, cells: 13, salt: Salt.rimCrag)
             let chew = wrappedNoise(turns, cells: 31, salt: Salt.rimChew)
-            // Sums to at most 1.0, so `reach` lands in 1.00 ... 1.105 — outward
-            // only, and never so far that the drawn land looks like a starfish.
-            let reach = 1 + 0.062 * broad + 0.028 * crag + 0.015 * chew
-            radii.append(fragment.radius * reach)
+            // Sums to at most 1.0, so `reach` lands in 1.00 ... 1.125 — outward
+            // only.
+            //
+            // CP-12 ran this at 0.12/0.055/0.030 because the rim noise was the
+            // *only* thing making a silhouette out of a circle, and it had to be
+            // loud enough to read at 192 pt on the minimap. That cost 22% of drawn
+            // land a player could see and never walk on. The outline is authored
+            // now, so this is back to being erosion on top of a shape.
+            let reach = 1 + 0.07 * broad + 0.035 * crag + 0.020 * chew
+            radii.append(fragment.radius(atBearing: angle) * reach)
         }
 
         // Spurs are the *torn* detail: a handful of longer points, each spanning
@@ -256,8 +349,8 @@ enum FragmentMeshFactory {
         // than the one-vertex needle a single sample produces at 96 sides.
         var index = 3
         while index < sideCount {
-            if random.unitFloat() < 0.62 {
-                let extra = random.float(in: 0.055...0.115) * fragment.radius
+            if random.unitFloat() < 0.68 {
+                let extra = random.float(in: 0.08...0.16) * fragment.radius
                 radii[index] += extra
                 radii[(index + sideCount - 1) % sideCount] += extra * 0.45
                 radii[(index + 1) % sideCount] += extra * 0.45
@@ -281,7 +374,8 @@ enum FragmentMeshFactory {
     private static func buildTop(
         fragment: Fragment,
         angles: [Float],
-        rimRadii: [Float]
+        rimRadii: [Float],
+        water: WaterMask
     ) -> MeshResource {
         let radius = fragment.radius
 
@@ -293,7 +387,7 @@ enum FragmentMeshFactory {
             count: ringCount + 1
         )
         for ring in 0...ringCount {
-            let t = pow(Float(ring) / Float(ringCount), 0.88)
+            let t = ringEase(ring)
             for index in 0..<sideCount {
                 let r = rimRadii[index] * t
                 let x = cos(angles[index]) * r
@@ -325,6 +419,7 @@ enum FragmentMeshFactory {
 
         for ring in 0..<ringCount {
             for index in 0..<sideCount {
+                guard !water.isDrowned(ring: ring, index: index) else { continue }
                 let next = (index + 1) % sideCount
                 if ring == 0 {
                     accumulate(0, index, 1, index, 1, next)
@@ -357,6 +452,9 @@ enum FragmentMeshFactory {
 
         for ring in 0..<ringCount {
             for index in 0..<sideCount {
+                // Water is a hole in the ground, so the ground simply is not built
+                // here. `buildFlank` walls whatever edge this leaves open.
+                guard !water.isDrowned(ring: ring, index: index) else { continue }
                 let next = (index + 1) % sideCount
 
                 if ring == 0 {
@@ -630,6 +728,7 @@ enum FragmentMeshFactory {
         angles: [Float],
         rimRadii: [Float],
         isSpur: [Bool],
+        water: WaterMask,
         seed: UInt64,
         random: inout DeterministicRandom
     ) -> MeshResource {
@@ -729,6 +828,24 @@ enum FragmentMeshFactory {
             builders[.crystal] = crystalBuilder
         }
 
+        // Banks. Without these a river is a hole you can see the starfield through
+        // from directly above and *nothing at all* from a low angle — the ground
+        // just stops, one triangle thick, and the plate looks torn rather than
+        // cut. The wall is what makes a channel read as having a near bank and a
+        // far one.
+        if !water.isEmpty, var bankBuilder = builders[.lip], var floorBuilder = builders[.abyss] {
+            addBanks(
+                into: &bankBuilder,
+                floor: &floorBuilder,
+                fragment: fragment,
+                angles: angles,
+                rimRadii: rimRadii,
+                water: water
+            )
+            builders[.lip] = bankBuilder
+            builders[.abyss] = floorBuilder
+        }
+
         let parts = CliffBand.allCases.compactMap { band -> MeshDescriptor? in
             builders[band]?.makeDescriptor(
                 named: "\(fragment.id.rawValue).under.\(band)",
@@ -736,6 +853,109 @@ enum FragmentMeshFactory {
             )
         }
         return assemble(parts, named: "\(fragment.id.rawValue).under")
+    }
+
+    /// How far a shoreline drops before the void takes over.
+    ///
+    /// Deep enough that the camera never sees under the lip at the shallowest
+    /// pitch the rig allows, shallow enough that a narrow channel does not read as
+    /// a slot canyon.
+    private static let bankDrop: Float = 4.5
+
+    /// Vertical walls around every drowned cell that borders dry ground.
+    ///
+    /// Each drowned cell offers its four edges; an edge is walled only where the
+    /// neighbour across it survived, which is exactly the waterline. Working from
+    /// the drowned side rather than the dry side means each boundary edge is
+    /// considered once, so no wall is ever built twice and z-fights itself.
+    private static func addBanks(
+        into builder: inout FlatMeshBuilder,
+        floor floorBuilder: inout FlatMeshBuilder,
+        fragment: Fragment,
+        angles: [Float],
+        rimRadii: [Float],
+        water: WaterMask
+    ) {
+        func vertex(ring: Int, index: Int) -> SIMD3<Float> {
+            let wrapped = ((index % sideCount) + sideCount) % sideCount
+            let r = rimRadii[wrapped] * ringEase(ring)
+            let x = cos(angles[wrapped]) * r
+            let z = sin(angles[wrapped]) * r
+            return [x, groundHeight(local: [x, z], radius: fragment.radius), z]
+        }
+
+        func wall(_ a: SIMD3<Float>, _ b: SIMD3<Float>) {
+            let lowerA = a - SIMD3<Float>(0, bankDrop, 0)
+            let lowerB = b - SIMD3<Float>(0, bankDrop, 0)
+            // Face the wall away from the water it encloses, which for a bank is
+            // the horizontal normal of the edge pointing at the dry side.
+            let along = b - a
+            var facing = SIMD3<Float>(along.z, 0, -along.x)
+            if simd_length_squared(facing) < 1e-8 { facing = [0, 0, 1] }
+            builder.addTriangle(a, lowerA, lowerB, facing: facing)
+            builder.addTriangle(a, lowerB, b, facing: facing)
+        }
+
+        /// How far below the surface the flank cone's own roof sits, at a radius
+        /// `t` of the rim — the shallowest the rock under the plate ever is there.
+        ///
+        /// The floor has to stay above this or the cone pokes through it. Near the
+        /// rim that roof is barely a metre down (`strata`'s first entry is 4.5% of
+        /// the plate depth at 97% of the radius), which is why a floor at a single
+        /// fixed drop worked in the middle of a lake and showed cracked rock at the
+        /// mouth of a channel — the one place a player is always looking, because
+        /// that is where the transports berth.
+        func coneRoof(_ t: Float) -> Float {
+            var upper = (scale: Float(1), depth: Float(0))
+            for stratum in strata {
+                let lower = (scale: stratum.scale.lowerBound, depth: stratum.depth.lowerBound)
+                if t >= lower.scale {
+                    let span = max(upper.scale - lower.scale, 0.0001)
+                    let blend = (upper.scale - t) / span
+                    return fragment.depth * (upper.depth + (lower.depth - upper.depth) * blend)
+                }
+                upper = lower
+            }
+            return fragment.depth
+        }
+
+        /// Caps a drowned cell with the void floor, as deep as the bank wall wants
+        /// and no deeper than the rock beneath allows.
+        func floor(_ ring: Int, _ index: Int) {
+            let t = ringEase(ring + 1)
+            let clearance: Float = 0.3
+            let drop = SIMD3<Float>(0, min(bankDrop + 0.35, max(coneRoof(t) - clearance, 0.8)), 0)
+            let a = vertex(ring: ring, index: index) - drop
+            let b = vertex(ring: ring, index: index + 1) - drop
+            let c = vertex(ring: ring + 1, index: index + 1) - drop
+            let d = vertex(ring: ring + 1, index: index) - drop
+            floorBuilder.addTriangle(a, c, b, facing: [0, 1, 0])
+            floorBuilder.addTriangle(a, d, c, facing: [0, 1, 0])
+        }
+
+        for ring in 0..<ringCount {
+            for index in 0..<sideCount {
+                guard water.isDrowned(ring: ring, index: index) else { continue }
+                let next = index + 1
+                floor(ring, index)
+
+                // Inward edge — the neighbour one ring closer to the centre.
+                if ring > 0, !water.isDrowned(ring: ring - 1, index: index) {
+                    wall(vertex(ring: ring, index: next), vertex(ring: ring, index: index))
+                }
+                // Outward edge.
+                if ring + 1 < ringCount, !water.isDrowned(ring: ring + 1, index: index) {
+                    wall(vertex(ring: ring + 1, index: index), vertex(ring: ring + 1, index: next))
+                }
+                // The two radial edges.
+                if !water.isDrowned(ring: ring, index: index - 1) {
+                    wall(vertex(ring: ring, index: index), vertex(ring: ring + 1, index: index))
+                }
+                if !water.isDrowned(ring: ring, index: next) {
+                    wall(vertex(ring: ring + 1, index: next), vertex(ring: ring, index: next))
+                }
+            }
+        }
     }
 
     /// Sharp rock hanging below the flank at the spur samples.
@@ -916,9 +1136,8 @@ enum FragmentMeshFactory {
     /// separation on a palette that stays exactly where the bible put it.
     @MainActor
     static func topMaterials(surface: UIColor, rock: UIColor) -> [any RealityKit.Material] {
-        // The soil's own cool: the fragment's rock, not an imported grey, so a
-        // Gravemark fragment darkens toward Gravemark stone and a Sunwoven one
-        // toward Sunwoven stone.
+        // Cool toward the fragment's own rock so value falls stay inside one
+        // shared land palette (civilization-independent since CP-12).
         let cool = StructureMaterial.blend(surface, rock, 0.30)
 
         // The array index is the material index emitted by the mesh descriptor;
@@ -1030,6 +1249,13 @@ enum FragmentMeshFactory {
                     roughness: 0.32,
                     emissiveIntensity: 1.1
                 )
+            case .abyss:
+                // Unlit, and the backdrop's own colour. Lit would defeat the whole
+                // purpose — a shaded floor picks up the key light and reads as a
+                // dry basin, which is exactly the rock the floor was added to hide.
+                // Unlit at `voidDeep` matches the space beyond the coast, so the
+                // eye reads a channel and the open void as the same substance.
+                UnlitMaterial(color: SunfoldPalette.voidDeep)
             }
         }
     }

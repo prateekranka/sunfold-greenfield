@@ -116,12 +116,10 @@ struct SkirmishTuning: Sendable {
     var cameraPitchDegrees: Float = 57
     /// Full vertical world extent visible at default zoom, in world units.
     ///
-    /// Measured against concept 01 rather than reasoned from a percentage: in the
-    /// approved frame the home fragment spans about 71% of the viewport width. At
-    /// 82 it spanned 41% — the diorama read as a distant model and citizens read
-    /// as specks. A 48 m fragment at 71% of a 4:3 viewport needs a 68 m horizontal
-    /// extent, so 51 vertical; 58 keeps a little breathing room around the rim.
-    var cameraDefaultZoom: Float = 58
+    /// Contiguous-land opening: homes are ~50–56 m radius so the default frustum
+    /// sits on interior land (rims off-screen). 64 keeps mid-settlement framing
+    /// without revealing the continent edge as a floating disk.
+    var cameraDefaultZoom: Float = 64
     /// Close enough to read a single citizen's silhouette and gait.
     var cameraMinZoom: Float = 34
     var cameraMaxZoom: Float = 165

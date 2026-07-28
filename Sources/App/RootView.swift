@@ -16,8 +16,12 @@ struct RootView: View {
     private static let showsDebugOverlay =
         ProcessInfo.processInfo.arguments.contains("-sunfoldDebug")
 
-    init(seed: UInt64) {
-        _controller = State(initialValue: WorldController(simulation: SkirmishSimulation(seed: seed)))
+    init(seed: UInt64, mapID: WorldMapID = .default) {
+        _controller = State(
+            initialValue: WorldController(
+                simulation: SkirmishSimulation(seed: seed, mapID: mapID)
+            )
+        )
     }
 
     private var simulation: SkirmishSimulation { controller.simulation }
@@ -50,11 +54,7 @@ struct RootView: View {
     private var topStrip: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top, spacing: 12) {
-                TopBar(
-                    stock: simulation.stock(for: .sunwoven),
-                    population: simulation.population(for: .sunwoven),
-                    age: simulation.age(for: .sunwoven)
-                )
+                TopBar(simulation: simulation)
                 if Self.showsDebugOverlay {
                     DebugOverlay(controller: controller, isExpanded: $isDebugExpanded)
                         .padding(.top, 4)
