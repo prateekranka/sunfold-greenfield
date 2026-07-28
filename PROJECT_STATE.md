@@ -21,16 +21,18 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-08 + CP-09 — void + rim/plant mass · **closed** |
+| **Last checkpoint** | CP-10 + CP-11 — HUD parity + transport pier · **closed** |
 | **Closed** | 2026-07-28 |
 | **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero new warnings. |
-| **Renders** | 🟢 Clean. Void wash + planet in frame; rim crystals, lumen mass, tree-scale crowns. |
-| **Current frame** | `Docs/QA/AAA/cp08-void.png` / `Docs/QA/AAA/cp09-rim-mass.png` (same try4 capture) |
+| **Renders** | 🟢 Clean. Full top chrome; gold pier at dock; no dark spar. |
+| **Current frame** | `Docs/QA/AAA/cp10-hud.png` / `Docs/QA/AAA/cp11-pier.png` (same try1 capture) · selection `cp10-hud-selection.png` |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
 | **Current direction** | Finish the AAA visual push toward concept 01. G2 gameplay is parked. |
-| **Uncommitted work** | On `visual/aaa-uplift-cp02` — CP-08 + CP-09 closed, not yet committed. |
-| **Next checkpoint** | CP-10 — HUD parity. |
+| **Uncommitted work** | On `visual/aaa-uplift-cp02` — CP-10 + CP-11 closed locally; CP-08/09 pushed as `c105715`. |
+| **Next checkpoint** | Animation (parked) or ground-inlay rosette if free; otherwise G2 gameplay. |
+
+---
 
 ---
 
@@ -57,10 +59,11 @@ frame against our charcoal dome darker than the ground it stood on. Closed at CP
 **CP-09 — Rim, deposits and plant mass.** · **closed.** Pale rim spurs, larger lumen clusters,
 tree-scale branching masses. Ground-inlay rosette near the Core still carried (terrain drape).
 
-**CP-10 — HUD parity.** Top-bar centre emblem and speed controls, the alert row, pinned group
-slots, selection portraits, health bars, and minimap fragment silhouettes rather than circles.
+**CP-10 — HUD parity.** · **closed.** Top-bar centre emblem and speed controls, alert row,
+pinned group slots, selection portraits + life meters, minimap fragment silhouettes.
 
-**CP-11 — Transport and pier.** Kill the dark spar; add the docked gold pier.
+**CP-11 — Transport and pier.** · **closed.** Dark spar gone (unwoven causeway field suppressed);
+docked gold pier on the sunwoven hull.
 
 **Parked: animation.** The most expensive item on the list, and it needs per-unit activity
 state the simulation does not expose yet.
@@ -202,17 +205,22 @@ pit lattice that was speckling the sand.
 concept 01's canopy-to-ground ratio (1.13 against 1.15) and Core box median (0.391 against
 0.394), with cold shadow down from 0.207 to 0.029.
 
-**Still short of concept 01**, measured against `cp07-core-pavilion.png`:
+**Fixed at CP-08 / CP-09.** Void wash + celestial body + debris; rim crystals, lumen mass,
+tree-scale crowns.
 
-- **The void is empty** — flat black, no nebula wash, and the celestial body does not appear
-  in frame. Concept 01 has both.
-- **Vegetation is spiky low-poly** against the concept's fine golden branching. CP-06 closed
-  the count; the remaining coverage gap (0.167 against 0.271) is plant *mass*, which is a mesh
-  problem.
-- **No health bars.** The fifth chrome surface, and the only one CP-05 did not add — it
-  belongs with combat, which is parked G2 work.
-- **The transport's dark spar** reads as a slab crossing the frame rather than a vessel part.
+**Fixed at CP-10 / CP-11.** Full top chrome (emblem, speed, alerts, groups, life on
+selection); dark spar gone; gold pier at the dock.
+
+**Still short of concept 01**, measured against recent frames:
+
+- **Minimap irregularity is mild** — rim reach is only ~10%, so silhouettes are polygons but
+  still near-circular at 192 pt.
 - **The second fragment is clipped by the frame edge** and still reads as pasted on.
+- **Pier lattice is blockier** than concept 01's ornate gold dock — readable gold at the rim,
+  not a perfect match.
+- **Speed controls and group slots are chrome only** — no simulation clock or control-group
+  wiring yet.
+- **Ground-inlay rosette** near the Core still carried (terrain drape).
 
 The subsystems behind all of that:
 
@@ -263,6 +271,44 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+### CP-11 — Transport and pier · 2026-07-28 · closed
+
+**Goal.** Kill the dark spar that read as a slab bolted to the docked transport; add the
+concept 01 gold pier at the rim dock.
+
+**Verified frame.** `Docs/QA/AAA/cp11-pier.png` (same capture as CP-10 try1).
+
+**Observed.**
+
+| piece | observed |
+|---|---|
+| Dark spar | Gone. The spar was the unwoven home→expansion causeway field sharing the transport's dock point — solid plane + rails suppressed when `!isAlwaysOpen`. Future route stays on the minimap as dashed intention. |
+| Gold pier | Lattice deck + posts + braces off the port sheer toward the rim; readable gold block at the dock in frame. |
+| Side ramp | Long ivory ramp replaced with a short boarding step so nothing else reads as a boom into the void. |
+
+**Cost.** `WorldScene.swift` (unwoven causeway early-return), `TransportMesh.swift` (pier +
+step). No simulation / stream changes.
+
+### CP-10 — HUD parity · 2026-07-28 · closed
+
+**Goal.** Close the chrome gap against concept 01: centre emblem and speed cluster, alert
+row, pinned group slots, selection portraits and life meters, minimap silhouettes.
+
+**Verified frames.** `Docs/QA/AAA/cp10-hud.png` · selection `Docs/QA/AAA/cp10-hud-selection.png`.
+
+**Observed.**
+
+| piece | observed |
+|---|---|
+| Top bar | Resource rail left, sunburst emblem centre, pause/1×/2×/3× cluster right. Speed tiles are chrome only (no clock control yet). |
+| Alert strip | Seed cue under the rail: "Light transport docked at home rim". |
+| Group rail | Three empty pinned slots on the left edge above the theatre. |
+| Selection + life | Core card shows portrait-less building inspect + green `600 / 600` life meter. Unit portrait row is wired for unit selections; combat HP remains visual-only (G2 parked). |
+| Minimap | Fragments drawn from `FragmentMeshFactory.rimOutline` (same rim stream replay) instead of ellipses. Irregularity is mild at map scale because rim reach is only ~10%. |
+
+**Cost.** New `Sources/HUD/TopBar.swift`; `RootView`, `SelectionPanel`, `Minimap`,
+`CommandGrid`, `FragmentMeshFactory.rimOutline`. HUD only + one pure outline helper.
 
 ### CP-09 — Rim, deposits and plant mass · 2026-07-28 · closed
 

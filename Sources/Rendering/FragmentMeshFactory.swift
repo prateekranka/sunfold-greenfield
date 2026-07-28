@@ -196,6 +196,23 @@ enum FragmentMeshFactory {
         return Built(top: top, underside: underside, rimRadii: rimRadii)
     }
 
+    /// The fragment's drawn outline on the world plane — same rim the mesh used.
+    ///
+    /// The minimap must show silhouettes, not circles. Re-running the fragment's
+    /// own stream reproduces the radii without touching any other subsystem's
+    /// draws: a fresh stream with the same seed and tag is a pure replay.
+    static func rimOutline(fragment: Fragment, seed: UInt64, samples: Int = 32) -> [WorldPoint] {
+        var random = DeterministicRandom.stream(seed: seed, tag: "fragment.\(fragment.id.rawValue)")
+        let (rimRadii, _) = makeRim(fragment: fragment, random: &random)
+        let count = max(8, min(samples, sideCount))
+        return (0..<count).map { sample in
+            let index = sample * sideCount / count
+            let angle = Float(index) / Float(sideCount) * 2 * .pi
+            let radius = rimRadii[index]
+            return fragment.center + WorldPoint(cos(angle) * radius, sin(angle) * radius)
+        }
+    }
+
     // MARK: - Silhouette
 
     /// The rim radius at every sample, plus which samples throw a hanging spur.

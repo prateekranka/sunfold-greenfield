@@ -190,12 +190,12 @@ fragment-to-void ratio, sparse starfield) still holds.
 Measured from the rendered frame, not guessed. Textures, IBL, shadows, the
 post-process, exposure, bloom, soft stars, terrain relief, the HUD chrome, the
 ground's planting and palette, the Core pavilion, the void wash + celestial
-body + debris, rim crystals, lumen mass, and tree-scale branching crowns all
-landed across CP-01…CP-09 — `PROJECT_STATE.md` has the numbers. What is still
-missing:
+body + debris, rim crystals, lumen mass, tree-scale branching crowns, HUD
+parity (emblem / speed / alerts / groups / life / minimap silhouettes), and the
+docked gold pier (dark spar removed) all landed across CP-01…CP-11 —
+`PROJECT_STATE.md` has the numbers. What is still missing:
 
-- HUD parity (CP-10): centre emblem, speed controls, alert row, portraits,
-  health bars, minimap silhouettes.
-- Transport / pier (CP-11).
-- No animation. Units slide; nothing has an idle, walk or work cycle.
+- Animation. Units slide; nothing has an idle, walk or work cycle.
 - Ground-inlay rosette near the Core — carried again (needs terrain drape).
+- Speed / group chrome is present but not wired to simulation controls.
+- Pier lattice is blockier than concept 01's ornate dock.

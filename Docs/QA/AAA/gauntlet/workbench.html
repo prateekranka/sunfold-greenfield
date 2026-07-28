@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Sunfold Gauntlet — CP-08 + CP-09</title>
+<title>Sunfold Gauntlet — CP-10 + CP-11</title>
 <style>
   :root { color-scheme: dark; --bg:#0b0c12; --panel:#141622; --ink:#e8e4d8; --mute:#8a8698; --gold:#c9a24a; --ok:#6fbf73; --bad:#d4676a; }
   * { box-sizing: border-box; }
@@ -27,64 +27,32 @@
 </head>
 <body>
 <header>
-  <h1>Sunfold Gauntlet Loop — CP-08 + CP-09</h1>
-  <p>Bar: <code>Docs/Concepts/01-sunwoven-foundation-opening.png</code> · Closed 2026-07-28 on try4 · Next: CP-10 HUD parity</p>
+  <h1>Sunfold Gauntlet Loop — CP-10 + CP-11</h1>
+  <p>Bar: <code>Docs/Concepts/01-sunwoven-foundation-opening.png</code> · Closed 2026-07-28 on try1 · Prior: CP-08/09</p>
 </header>
 <main>
   <section class="card">
     <h2>Wave status</h2>
     <table>
       <tr><th>Piece</th><th>Owner file</th><th>Status</th></tr>
-      <tr><td>CP-08 Nebula wash</td><td><code>StarfieldFactory.swift</code></td><td><span class="status closed">closed</span></td></tr>
-      <tr><td>CP-08 Celestial body</td><td><code>StarfieldFactory.swift</code></td><td><span class="status closed">closed</span></td></tr>
-      <tr><td>CP-08 Drifting debris</td><td><code>StarfieldFactory.swift</code></td><td><span class="status closed">closed</span></td></tr>
-      <tr><td>CP-09 Rim crystalline spurs</td><td><code>FragmentMeshFactory.swift</code></td><td><span class="status closed">closed</span></td></tr>
-      <tr><td>CP-09 Larger crystal deposits</td><td><code>DepositMeshes.swift</code></td><td><span class="status closed">closed</span></td></tr>
-      <tr><td>CP-09 Branching plant mass</td><td><code>TerrainDressing.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-10 Top emblem + speed</td><td><code>TopBar.swift</code> / <code>RootView.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-10 Alert + group rail</td><td><code>TopBar.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-10 Portraits + life</td><td><code>SelectionPanel.swift</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-10 Minimap silhouettes</td><td><code>Minimap.swift</code> / <code>FragmentMeshFactory.rimOutline</code></td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-11 Kill dark spar</td><td><code>WorldScene.swift</code> (unwoven causeway)</td><td><span class="status closed">closed</span></td></tr>
+      <tr><td>CP-11 Gold pier</td><td><code>TransportMesh.swift</code></td><td><span class="status closed">closed</span></td></tr>
     </table>
     <ul>
-      <li>try4 void-sides: floor luma 0.036 (concept 0.032), soft-void 0.362 (concept 0.338).</li>
-      <li>Celestial body in upper-right. Debris: angular mid-grey shards inside ±35 on the card.</li>
-      <li>Canopy uses a separate site list (scrub jam at 1.3 m was killing placement). Dialed to 7 m spacing so crowns do not bury the Core.</li>
-      <li>Verified frames: <code>../cp08-void.png</code> · <code>../cp09-rim-mass.png</code> (same capture).</li>
+      <li>Dark spar was the unwoven home→expansion causeway field sharing the transport dock — suppressed when <code>!isAlwaysOpen</code>.</li>
+      <li>Life meters are visual-only on selection (combat still parked G2).</li>
+      <li>Speed / group slots are chrome geometry only — not wired to clock or control groups.</li>
+      <li>Verified frames: <code>../cp10-hud.png</code> · <code>../cp11-pier.png</code> · selection <code>../cp10-hud-selection.png</code>.</li>
     </ul>
-  </section>
-
-  <section>
-    <h2 style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:0.08em;">Bar vs closed — void</h2>
-    <div class="row">
-      <div class="card">
-        <h2>Concept 01 — void top</h2>
-        <img src="bar-concept-void-top.png" alt="concept void" />
-        <p class="meta">Warm nebula wash + gas giant in upper field.</p>
-      </div>
-      <div class="card">
-        <h2>cp08 try4 — void top</h2>
-        <img src="try4-void-top.png" alt="cp08 void" />
-        <p class="meta">Wash + planet + debris shards. soft-void 0.362.</p>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <h2 style="color:var(--gold);font-size:13px;text-transform:uppercase;letter-spacing:0.08em;">Bar vs closed — island mass</h2>
-    <div class="row">
-      <div class="card">
-        <h2>Concept 01 — island</h2>
-        <img src="bar-concept-island.png" alt="concept island" />
-        <p class="meta">Pale rim detail, large crystal cluster, branching golden masses.</p>
-      </div>
-      <div class="card">
-        <h2>cp09 try4 — island</h2>
-        <img src="try4-island.png" alt="cp09 island" />
-        <p class="meta">Rim spurs, lumen cluster, tree-scale crowns clear of Core.</p>
-      </div>
-    </div>
   </section>
 
   <section class="card">
     <h2>Frames</h2>
-    <p class="meta">Closed on <code>Docs/QA/AAA/cp08-09-try4.png</code>, copied to <code>cp08-void.png</code> and <code>cp09-rim-mass.png</code>. Intermediate: try1b (nebula weak), try2 (void ok / canopy jammed), try3 (canopy overshot).</p>
+    <p class="meta">Closed on <code>Docs/QA/AAA/cp10-11-try1.png</code>, copied to <code>cp10-hud.png</code> and <code>cp11-pier.png</code>. Selection verify: <code>cp10-hud-selection.png</code> (Core · 600/600 life).</p>
   </section>
 </main>
 </body>

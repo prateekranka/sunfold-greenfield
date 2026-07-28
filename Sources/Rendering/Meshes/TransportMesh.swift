@@ -88,19 +88,21 @@ enum TransportMesh {
             upper: StructureGeometry.rectangle(width: 1.32, depth: 1.62, y: 2.52, center: [0, -1.60])
         )
 
-        // Side ramp, hinged at the starboard sheer and set down on the rim.
-        let rampTop: [SIMD3<Float>] = [
-            [1.78, 1.12, -1.90],
-            [1.78, 1.12, -0.26],
-            [3.66, 0.06, -0.26],
-            [3.66, 0.06, -1.90],
+        // Short starboard boarding step — not the long side ramp that used to
+        // read as a dark slab sticking into the void.
+        let stepTop: [SIMD3<Float>] = [
+            [1.70, 1.18, -1.10],
+            [1.70, 1.18, -0.20],
+            [2.35, 0.55, -0.20],
+            [2.35, 0.55, -1.10],
         ]
         ivory.addSolid(
-            lower: rampTop.map { $0 - [0, 0.13, 0] },
-            upper: rampTop
+            lower: stepTop.map { $0 - [0, 0.10, 0] },
+            upper: stepTop
         )
 
-        // Deck inlay and swept outrigger fins.
+        // Deck inlay. Outrigger fins stay close to the hull so they silhouette
+        // as craft detail rather than a boom.
         deck.addQuad(
             [-0.86, 2.02, 2.10], [0.86, 2.02, 2.10],
             [0.86, 2.02, -0.60], [-0.86, 2.02, -0.60],
@@ -108,24 +110,19 @@ enum TransportMesh {
         )
         for side in [Float(-1), Float(1)] {
             deck.addFin(
-                [side * 1.72, 0.78, -2.20],
-                [side * 1.72, 0.78, -4.55],
-                [side * 3.05, 0.48, -4.15],
-                extrude: [0, 0.16, 0]
+                [side * 1.72, 0.78, -2.40],
+                [side * 1.72, 0.78, -4.20],
+                [side * 2.35, 0.52, -3.90],
+                extrude: [0, 0.14, 0]
             )
         }
 
-        // Gold rub-rails, cabin ribbing, bow ornament and ramp rails.
+        // Gold rub-rails, cabin ribbing, bow ornament.
         for side in [Float(-1), Float(1)] {
             gold.addQuad(
                 [side * 1.98, 1.42, 2.55], [side * 1.98, 1.42, -4.20],
                 [side * 1.98, 1.62, -4.20], [side * 1.98, 1.62, 2.55],
                 facing: [side, 0.2, 0]
-            )
-            gold.addQuad(
-                [side * 1.80, 1.16, -1.88], [side * 1.80, 1.16, -0.28],
-                [side * 1.80, 1.34, -0.28], [side * 1.80, 1.34, -1.88],
-                facing: [side, 0.3, 0]
             )
         }
         for index in 0..<3 {
@@ -141,6 +138,12 @@ enum TransportMesh {
             apex: [0, random.float(in: 2.72...2.92), 4.62]
         )
 
+        // Docked gold pier — the concept 01 landing: a lattice walk from midships
+        // toward the rim. Bow faces the expansion void, so land is aft; the pier
+        // steps off the port sheer toward -Z and a little -X so it reads as a
+        // dock, not a spar into empty space.
+        addDockPier(into: &gold)
+
         // Turquoise trim: hull strips and the drive wash at the transom.
         for side in [Float(-1), Float(1)] {
             glow.addQuad(
@@ -155,8 +158,8 @@ enum TransportMesh {
             )
         }
         glow.addQuad(
-            [1.86, 1.08, -1.86], [3.58, 0.04, -1.86],
-            [3.58, 0.04, -1.62], [1.86, 1.08, -1.62],
+            [1.72, 1.10, -1.05], [2.28, 0.58, -1.05],
+            [2.28, 0.58, -0.85], [1.72, 1.10, -0.85],
             facing: [0, 1, 0]
         )
 
@@ -177,6 +180,63 @@ enum TransportMesh {
                 StructureZone("trim", glow, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.85)),
             ]
         )
+    }
+
+    /// Lattice pier on the landward quarter — posts, deck boards, rail caps.
+    private static func addDockPier(into gold: inout StructureBuilder) {
+        // Deck plate from the port sheer toward the rim (aft-port).
+        let pierDeck: [SIMD3<Float>] = [
+            [-1.85, 1.05, -0.40],
+            [-1.85, 1.05, -3.60],
+            [-4.40, 0.12, -3.35],
+            [-4.40, 0.12, -0.65],
+        ]
+        gold.addSolid(
+            lower: pierDeck.map { $0 - [0, 0.12, 0] },
+            upper: pierDeck
+        )
+
+        // Posts along both long edges.
+        for (outer, z0, z1) in [
+            (Float(-1.95), Float(-0.55), Float(-3.40)),
+            (Float(-4.25), Float(-0.80), Float(-3.20)),
+        ] {
+            for t in [Float(0.12), 0.38, 0.62, 0.88] {
+                let z = z0 + (z1 - z0) * t
+                let yTop: Float = outer < -3 ? 1.05 : 1.85
+                gold.addSolid(
+                    lower: StructureGeometry.rectangle(
+                        width: 0.14, depth: 0.14, y: 0.02, center: [outer, z]
+                    ),
+                    upper: StructureGeometry.rectangle(
+                        width: 0.11, depth: 0.11, y: yTop, center: [outer, z]
+                    )
+                )
+            }
+        }
+
+        // Handrail caps.
+        gold.addQuad(
+            [-2.00, 1.88, -0.50], [-2.00, 1.88, -3.45],
+            [-1.78, 1.88, -3.45], [-1.78, 1.88, -0.50],
+            facing: [0, 1, 0]
+        )
+        gold.addQuad(
+            [-4.35, 1.08, -0.75], [-4.35, 1.08, -3.25],
+            [-4.12, 1.08, -3.25], [-4.12, 1.08, -0.75],
+            facing: [0, 1, 0]
+        )
+
+        // Cross-braces between the near and far post rows.
+        for t in [Float(0.25), 0.55, 0.80] {
+            let zNear = -0.55 + (-3.40 - -0.55) * t
+            let zFar = -0.80 + (-3.20 - -0.80) * t
+            gold.addQuad(
+                [-2.00, 0.55, zNear], [-4.20, 0.35, zFar],
+                [-4.20, 0.48, zFar], [-2.00, 0.68, zNear],
+                facing: [0, 1, 0.15]
+            )
+        }
     }
 
     // MARK: - Gravemark

@@ -43,11 +43,12 @@ struct SelectionPanel: View {
     private func unitCard(_ unit: Unit) -> some View {
         card {
             title(unit.kind.displayName, trailing: unit.faction.displayName)
+            portraitRow([unit])
             activityRow(unit)
             if let cargo = unit.cargo { cargoRow(cargo) }
-            if unit.life < unit.kind.maxLife {
-                lifeRow(current: unit.life, maximum: unit.kind.maxLife)
-            }
+            // Always shown for a selection — combat is parked, but concept 01
+            // carries life on the card. Full life is still honest state.
+            lifeRow(current: unit.life, maximum: unit.kind.maxLife)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(unit.kind.displayName) selected. \(activityText(unit)).")
@@ -72,8 +73,12 @@ struct SelectionPanel: View {
             ? "\(units.count) \(counts[0].0.pluralName)"
             : "\(units.count) Selected"
 
+        let lifeSum = units.reduce(0.0) { $0 + $1.life }
+        let lifeMax = units.reduce(0.0) { $0 + $1.kind.maxLife }
+
         return card {
             title(heading, trailing: units[0].faction.displayName)
+            portraitRow(units)
             if !isUniform {
                 Text(counts.map { "\($0.1) \($0.0.pluralName)" }.joined(separator: " · "))
                     .font(.system(size: 12, weight: .medium))
@@ -86,6 +91,7 @@ struct SelectionPanel: View {
                     .joined(separator: " · ")
                 Text("Carrying \(summary)").hudLabel()
             }
+            lifeRow(current: lifeSum, maximum: lifeMax)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(units.count) units selected")
@@ -104,9 +110,7 @@ struct SelectionPanel: View {
                 Text("Building \(Int(building.constructionProgress * 100))%").hudLabel()
                 HUDMeter(fraction: building.constructionProgress, tint: SunfoldPalette.hudAccent)
             }
-            if building.life < building.kind.maxLife {
-                lifeRow(current: building.life, maximum: building.kind.maxLife)
-            }
+            lifeRow(current: building.life, maximum: building.kind.maxLife)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(building.kind.displayName) selected")
@@ -173,7 +177,52 @@ struct SelectionPanel: View {
     }
 
     private func lifeRow(current: Double, maximum: Double) -> some View {
-        HUDMeter(fraction: current / maximum, tint: Color(SunfoldPalette.sunwovenTurquoise))
+        let safeMax = max(maximum, 1)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                HUDGlyph(.life)
+                    .fill(HUDInk.life)
+                    .frame(width: 11, height: 11)
+                Text("\(Int(current.rounded())) / \(Int(safeMax.rounded()))")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(HUDInk.textDim)
+            }
+            HUDMeter(fraction: current / safeMax, tint: HUDInk.life, height: 4)
+        }
+    }
+
+    /// Concept 01's selection card is a row of portraits first, then the meter.
+    /// Cap the row so a marquee of twenty does not blow the panel width.
+    private func portraitRow(_ units: [Unit]) -> some View {
+        let shown = Array(units.prefix(8))
+        return HStack(spacing: 5) {
+            ForEach(shown, id: \.id.raw) { unit in
+                portraitTile(unit)
+            }
+            if units.count > shown.count {
+                Text("+\(units.count - shown.count)")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(HUDInk.textDim)
+                    .frame(width: HUDMetrics.portraitTile * 0.55, height: HUDMetrics.portraitTile)
+            }
+        }
+    }
+
+    private func portraitTile(_ unit: Unit) -> some View {
+        ZStack {
+            ChamferedRect(cut: 6)
+                .fill(HUDInk.well)
+            HUDGlyph(unit.kind.glyph)
+                .fill(HUDInk.accent)
+                .frame(width: 22, height: 22)
+        }
+        .frame(width: HUDMetrics.portraitTile, height: HUDMetrics.portraitTile)
+        .overlay {
+            ChamferedRect(cut: 6)
+                .stroke(HUDInk.edge, lineWidth: 1)
+        }
+        .accessibilityHidden(true)
     }
 
     // MARK: - Wording

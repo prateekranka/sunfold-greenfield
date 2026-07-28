@@ -142,13 +142,22 @@ enum WorldScene {
         let lit = causeway.isAlwaysOpen
         let deckWidth: Float = 6.0
 
+        // Unwoven home→expansion links share their dock point with the parked
+        // transport. Drawing a solid field there produced the "dark spar" that
+        // read as a slab bolted to the hull. Future routes stay on the minimap
+        // as dashed intention; the diorama only shows a causeway once it is
+        // walkable.
+        guard lit else {
+            return entity
+        }
+
         let field = Entity()
         field.name = "\(entity.name).field"
         field.components.set(
             ModelComponent(
                 mesh: .generatePlane(width: deckWidth, depth: span, cornerRadius: 2.4),
                 materials: [
-                    StructureMaterial.glow(SunfoldPalette.starCool, opacity: lit ? 0.16 : 0.06)
+                    StructureMaterial.glow(SunfoldPalette.starCool, opacity: 0.16)
                 ]
             )
         )
@@ -159,18 +168,8 @@ enum WorldScene {
         // place `StructureMaterial.glow`'s default emitter lift is wrong — the
         // lift normalises the brightest channel to full, so a dimmed gold and a
         // full gold come out of it as the same colour and an unwoven route would
-        // read as walkable. The unwoven rail therefore opts out of the lift
-        // entirely (`strength: 0, whiten: 0`) and renders the authored dim gold,
-        // whose linear luminance sits far below the bloom threshold. The woven
-        // rail keeps the full emitter treatment and is one of the things the
-        // bright pass is meant to find.
-        let railMaterial = lit
-            ? StructureMaterial.glow(SunfoldPalette.sunwovenGold)
-            : StructureMaterial.glow(
-                StructureMaterial.shade(SunfoldPalette.sunwovenGold, 0.30),
-                strength: 0,
-                whiten: 0
-            )
+        // read as walkable. Only woven routes reach this branch now.
+        let railMaterial = StructureMaterial.glow(SunfoldPalette.sunwovenGold)
 
         for side in [Float(-1), Float(1)] {
             let rail = Entity()

@@ -23,10 +23,15 @@ struct CommandGrid: View {
 
     private var selectedUnits: [EntityID] { Array(selection.selectedUnits) }
     private var hasUnits: Bool { !selectedUnits.isEmpty }
+    private var hasSelection: Bool {
+        hasUnits
+            || selection.selectedBuilding != nil
+            || selection.selectedDeposit != nil
+    }
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 7) {
-            Text(hasUnits ? "Orders" : "No selection").hudTitle()
+            Text(hasUnits ? "Orders" : (hasSelection ? "Inspect" : "No selection")).hudTitle()
             VStack(spacing: 5) {
                 ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
                     HStack(spacing: 5) {

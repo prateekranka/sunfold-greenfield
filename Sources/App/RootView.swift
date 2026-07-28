@@ -29,6 +29,12 @@ struct RootView: View {
 
             VStack(spacing: 0) {
                 topStrip
+                HStack(alignment: .top, spacing: 0) {
+                    GroupRail()
+                        .padding(.leading, 12)
+                        .padding(.top, 10)
+                    Spacer(minLength: 0)
+                }
                 Spacer(minLength: 0)
                 bottomStrip
             }
@@ -39,22 +45,25 @@ struct RootView: View {
         .persistentSystemOverlays(.hidden)
     }
 
-    /// The rail hangs from the top edge; the debug panel is inset from it so the
-    /// two never read as one piece of chrome.
+    /// Emblem and speed join the resource rail so the top edge matches concept 01.
+    /// Debug stays inset and opt-in so it never contaminates a capture.
     private var topStrip: some View {
-        HStack(alignment: .top, spacing: 12) {
-            ResourceRail(
-                stock: simulation.stock(for: .sunwoven),
-                population: simulation.population(for: .sunwoven),
-                age: simulation.age(for: .sunwoven)
-            )
-            Spacer(minLength: 0)
-            if Self.showsDebugOverlay {
-                DebugOverlay(controller: controller, isExpanded: $isDebugExpanded)
-                    .padding(.top, 12)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 12) {
+                TopBar(
+                    stock: simulation.stock(for: .sunwoven),
+                    population: simulation.population(for: .sunwoven),
+                    age: simulation.age(for: .sunwoven)
+                )
+                if Self.showsDebugOverlay {
+                    DebugOverlay(controller: controller, isExpanded: $isDebugExpanded)
+                        .padding(.top, 4)
+                }
             }
+            AlertStrip()
+                .padding(.leading, 4)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
     }
 
     /// Map at one thumb, commands at the other, and the selection between them.

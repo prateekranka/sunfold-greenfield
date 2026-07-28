@@ -135,7 +135,7 @@ struct Minimap: View {
         let scale = scale(for: size)
 
         drawCauseways(context, project: project)
-        drawFragments(context, project: project, scale: scale)
+        drawFragments(context, project: project)
         drawDeposits(context, project: project)
         drawBuildings(context, project: project)
         drawUnits(context, project: project)
@@ -164,20 +164,24 @@ struct Minimap: View {
 
     private func drawFragments(
         _ context: GraphicsContext,
-        project: (WorldPoint) -> CGPoint,
-        scale: CGFloat
+        project: (WorldPoint) -> CGPoint
     ) {
         for id in RegionID.allCases {
             let fragment = simulation.map.fragment(id)
-            let centre = project(fragment.center)
-            let radius = CGFloat(fragment.radius) * scale
-            let rect = CGRect(
-                x: centre.x - radius,
-                y: centre.y - radius,
-                width: radius * 2,
-                height: radius * 2
+            // Irregular silhouette matching the drawn rim — concept 01's map is
+            // island-shaped, and a circle reads as a placeholder.
+            let outline = FragmentMeshFactory.rimOutline(
+                fragment: fragment,
+                seed: simulation.map.seed,
+                samples: 28
             )
-            let land = Path(ellipseIn: rect)
+            guard let first = outline.first else { continue }
+            var land = Path()
+            land.move(to: project(first))
+            for point in outline.dropFirst() {
+                land.addLine(to: project(point))
+            }
+            land.closeSubpath()
             context.fill(land, with: .color(fill(for: id)))
             context.stroke(land, with: .color(HUDInk.edge.opacity(0.7)), lineWidth: 0.75)
         }
