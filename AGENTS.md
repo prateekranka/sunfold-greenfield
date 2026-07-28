@@ -114,15 +114,22 @@ fragment-to-void ratio, sparse starfield) still holds.
 - **`rotate` loses the first call after a launch.** It returns success and nothing
   turns, because the scene is still building. Send `Portrait` then `LandscapeLeft`,
   or you capture an empty void and report a regression that is not there.
+- **The ground is not flat, and nothing may assume it is.** Sample it — through
+  `TerrainSurface` in world space, or `FlatMeshBuilder.lift` / `groundHeight`
+  in fragment-local space. Relief runs to 2 m and is pinned to zero only across
+  the settlement pan.
+- **Ground decals must clear `FragmentMeshFactory.chordError`.** The terrain grid
+  stretches flat triangles between its samples, so it rides *above* the height
+  field across every dip; a decal placed on the function is under the mesh and
+  vanishes. Recompute that constant if a relief amplitude or cell count changes.
 
 ## Where the frame actually stands
 
 Measured from the rendered frame, not guessed. Textures, IBL, shadows, the
-post-process, exposure, bloom and soft stars all landed across CP-01…CP-03 —
-`PROJECT_STATE.md` has the numbers. What is still missing:
+post-process, exposure, bloom, soft stars and terrain relief all landed across
+CP-01…CP-04 — `PROJECT_STATE.md` has the numbers. What is still missing:
 
-- **The habitable surface is one flat facet with no relief.** The largest gap.
-- No HUD chrome beyond the resource rail — no minimap, command grid, selection
-  portraits or health bars.
+- **No HUD chrome beyond the resource rail** — no minimap, command grid,
+  selection portraits or health bars. The largest gap.
 - No animation. Units slide; nothing has an idle, walk or work cycle.
 - The void carries no nebula, and the celestial body does not appear in frame.

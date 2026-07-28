@@ -18,16 +18,16 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-03 — Make the light read · **closed** |
+| **Last checkpoint** | CP-04 — Terrain relief · **closed** |
 | **Closed** | 2026-07-28 |
 | **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero new warnings. |
-| **Renders** | 🟢 Clean. Exposure on target, bloom emitter-selective, stars soft. |
-| **Current frame** | `Docs/QA/AAA/cp03-light-reads.png` |
+| **Renders** | 🟢 Clean. Exposure on target, bloom emitter-selective, stars soft, ground has relief. |
+| **Current frame** | `Docs/QA/AAA/cp04-terrain-relief.png` |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
 | **Current direction** | Finish the AAA visual push toward concept 01. G2 gameplay is parked. |
-| **Uncommitted work** | None. `af84c47` is the current head of `visual/aaa-uplift-cp02`. |
-| **Next checkpoint** | CP-04 — terrain relief. The habitable surface is still one flat facet. |
+| **Uncommitted work** | None. `acfcf1b` is the current head of `visual/aaa-uplift-cp02`. |
+| **Next checkpoint** | CP-05 — HUD chrome. The rail is the only chrome in a frame whose target has five more. |
 
 ---
 
@@ -134,12 +134,14 @@ with gold seam lines, and the Core casts a real shadow. Star fringing is gone.
 **Fixed at CP-03.** Stars are soft points. The frame's exposure matches concept 01. Bloom
 selects emitters and the turquoise glazing carries a halo.
 
-**Still short of concept 01**, measured against `cp03-light-reads.png`:
+**Fixed at CP-04.** The ground has relief, and everything that stands on it — units, props,
+deposits, decals — sits on that relief rather than on a datum plane.
 
-- **The terrain is one flat facet with no relief.** The largest remaining gap, and the next
-  checkpoint.
+**Still short of concept 01**, measured against `cp04-terrain-relief.png`:
+
 - **No HUD chrome beyond the resource rail** — no minimap, no command grid, no selection
-  portraits, no health bars. Concept 01 has all five.
+  portraits, no health bars. Concept 01 has all five. The largest remaining gap, and the
+  next checkpoint.
 - **The Core is a plain dome** where concept 01 has an ornate pavilion with a tented canopy
   and a fine gold armature.
 - **Vegetation is spiky low-poly** against the concept's fine golden branching.
@@ -197,6 +199,56 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+### CP-04 — Terrain relief · 2026-07-28 · closed
+
+**Goal.** Make the habitable surface read as land rather than as a beige disc.
+
+**Found.** The top was never a flat facet — `FragmentMeshFactory` has built it as a radial
+height-field grid since G1. The relief was there and invisible, because its amplitude was
+capped at **0.55 m across a 24 m fragment**: half a percent of the diameter.
+
+The cap had nothing to do with how the land should look. `groundHeight` had exactly **two
+callers, both inside `FragmentMeshFactory` itself** — the top grid and the flank. Nothing
+else in the project knew where the ground was, so every unit, prop, deposit and decal was
+placed on the datum plane, and the file's own "datum rule" set the amplitude at the largest
+value that kept that error unnoticeable. The terrain was flat to hide a missing contract.
+
+**Done.**
+
+- **`TerrainSurface`** resolves a world point to its fragment and samples the height field.
+  `EntityPresenter` places units, buildings, deposits and the order marker through it; units
+  re-sample every frame, because they walk. Relief stays presentational — the simulation is
+  planar, and nothing here feeds back into it.
+- **`FlatMeshBuilder.lift`** displaces positions as they are added, ahead of the winding fix
+  and the normal, so a draped decal is lit by the slope it lies on. One hook expresses both
+  answers to "where is the ground": return the height at the sampled point and a decal
+  drapes; return a constant and a prop translates rigidly. `TerrainDressing` uses the first
+  for seams, tone patches and the shore band, and the second per scattered prop — draping a
+  trunk would shear it.
+- **Amplitude** raised across the block: swell 0.24 → 2.1, micro 0.07 → 0.08, dish
+  0.11 → 0.30, rim fall 0.15 → 0.55; range now `-2.0 … 0`. Rings 14 → 24.
+
+**Verified.** Build green, zero errors, zero new warnings. Installed, launched, rotated,
+captured as `Docs/QA/AAA/cp04-terrain-relief.png`. Units sit flat on the surface with no
+gap. CP-03's calibration held: sand median 0.400 linear against its 0.397, saturation 0.358,
+0.61% of frame over the bloom threshold.
+
+**Two things the render caught that reasoning had not.**
+
+1. **fbm is far gentler than its amplitude.** The swell went in at 0.95 and the rendered
+   relief measured a low-frequency luminance swing of only ±0.07 against the flat build —
+   present, but not something you would call terrain. A sinusoid of that height would have
+   given three times the slope; three octaves of fbm do not. 2.1 is that measurement scaled
+   to the swing the ground needs, and it lands at −0.094…+0.196.
+2. **A height-field grid sits *above* the function it samples.** The mesh stretches flat
+   triangles between its corners, so across every dip the chord runs above the curve.
+   Anything laid on the ground by sampling the continuous function is then underneath the
+   mesh and never drawn — the first CP-04 render came back with the gold seam network thin
+   and broken, at the old 0.022 m lift. `FragmentMeshFactory.chordError` (0.155 m) is that
+   gap, derived as `A · (π · h / λ)² / 2` summed over the field's two terms at the widest
+   grid spacing, and `TerrainDressing.Height` now sits on it. It is a property of the grid,
+   not a safety margin: it has to be recomputed if an amplitude or a cell count changes.
 
 ### CP-03 — Make the light read · 2026-07-28 · closed
 
