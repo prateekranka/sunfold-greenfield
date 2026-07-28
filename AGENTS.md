@@ -151,17 +151,35 @@ fragment-to-void ratio, sparse starfield) still holds.
   whenever a measurement spans an exposure change. ACES desaturates what it
   brightens, so a fixed saturation cut moves props across the boundary between
   two frames that differ only in exposure.
+- **A surface's value is mostly a question of what it points at.** Flattening the
+  Core's canopy droop from 36° to 20° under a 52° key moved its canopy-to-ground
+  ratio 0.64 → 0.90 at CP-07 — more than every albedo change put together. Reach
+  for the geometry before the albedo when something renders too dark.
+- **A metal in this scene is mostly black.** A conductor has no diffuse term and
+  what surrounds these buildings is a void with one warm lobe in it, so metal off
+  the key's mirror direction reflects empty space. `goldTrim`'s authored
+  `metallic: 0.85` is right for a glinting kerb and wrong for a frame of thin
+  members; `MaterialLibrary.material` takes a `metallic:` override for this.
+- **The lower hemisphere of the IBL is the fragment, not the void.** Below a
+  structure standing on the island is thousands of square metres of sunlit
+  regolith. `voidNadir`/`voidHorizon` are a ground bounce and are warm; a dark
+  cool floor there renders every shaded face navy (measured 0.207 of the Core box
+  at CP-06, 0.029 after). The void card and starfield are unlit and do not move
+  when these change — but everything lit does, so check the whole frame.
+- **Retinting cannot warm a surface whose `Spec.reference` is cold.** The retint
+  divides by that reference, so a warm tint over `.rimStone` (reference
+  `[0.482, 0.487, 0.505]`) comes back muted, not warm. Change the surface, not
+  the tint.
+- **A cone has no facet pointing at an overhead key**, so it renders as a dark
+  plug however bright its material is. Break it into facets or keep it short.
 
 ## Where the frame actually stands
 
 Measured from the rendered frame, not guessed. Textures, IBL, shadows, the
-post-process, exposure, bloom, soft stars, terrain relief, the HUD chrome and the
-ground's planting and palette all landed across CP-01…CP-06 —
-`PROJECT_STATE.md` has the numbers. What is still missing:
+post-process, exposure, bloom, soft stars, terrain relief, the HUD chrome, the
+ground's planting and palette, and the Core pavilion all landed across
+CP-01…CP-07 — `PROJECT_STATE.md` has the numbers. What is still missing:
 
-- **The Core is a dark dome.** Concept 01's is an ivory-and-gold pavilion and the
-  brightest object in frame; ours is darker than the ground it stands on. The
-  largest gap.
 - **The void is flat black.** No nebula wash, and the celestial body does not
   appear in frame. Concept 01 has both.
 - Plant *mass*. CP-06 brought the island past concept 01's count of separate

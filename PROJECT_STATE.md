@@ -21,16 +21,16 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-06 — density and palette · **closed** |
+| **Last checkpoint** | CP-07 — the Core pavilion · **closed** |
 | **Closed** | 2026-07-28 |
 | **Build** | 🟢 Green. `** BUILD SUCCEEDED **`, zero Swift errors, zero new warnings. |
-| **Renders** | 🟢 Clean. The island reads as planted ground at concept 01's hue. |
-| **Current frame** | `Docs/QA/AAA/cp06-density-palette.png` |
+| **Renders** | 🟢 Clean. The Core reads as a bright tented pavilion, on the concept's numbers. |
+| **Current frame** | `Docs/QA/AAA/cp07-core-pavilion.png` |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
 | **Current direction** | Finish the AAA visual push toward concept 01. G2 gameplay is parked. |
-| **Uncommitted work** | None. `visual/aaa-uplift-cp02` carries CP-06. |
-| **Next checkpoint** | CP-07 — the Core pavilion. See the ladder below. |
+| **Uncommitted work** | None. `visual/aaa-uplift-cp02` carries CP-07. |
+| **Next checkpoint** | CP-08 — the void. See the ladder below. |
 
 ---
 
@@ -49,14 +49,8 @@ re-measurement.
 
 Two gaps needed no number, both visible in a side-by-side crop: the concept's ground was
 **dense with vegetation** where ours was a large bare field — closed at CP-06 — and the Core
-is a **value inversion**: the concept's ivory-and-gold pavilion is the brightest object in
-frame, ours is a charcoal dome darker than the ground it stands on. That one is still open and
-is the next checkpoint.
-
-**CP-07 — The Core pavilion.** Largest single-object gap. Not only silhouette: a closed dark
-dome has to become a bright *tented* pavilion — separate ivory canopy panels radiating from a
-finial, gold armature, turquoise insets, a colonnade on an inlaid plinth. Expensive mesh work,
-which is why it sits behind the cheap win.
+was a **value inversion**, the concept's ivory-and-gold pavilion being the brightest object in
+frame against our charcoal dome darker than the ground it stood on. Closed at CP-07.
 
 **CP-08 — The void.** Nebula wash, the celestial body in frame, drifting debris. The bible
 allots the void 45–60% of the frame and it is currently flat black. Isolated, no gameplay
@@ -212,12 +206,12 @@ resource rail, a live minimap, the selection panel and the command grid.
 plantings against concept 01's 132 — at the concept's hue (32.7° against 33.0°) and without the
 pit lattice that was speckling the sand.
 
-**Still short of concept 01**, measured against `cp06-density-palette.png`:
+**Fixed at CP-07.** The Core is a tented pavilion and the brightest object in frame, matching
+concept 01's canopy-to-ground ratio (1.13 against 1.15) and Core box median (0.391 against
+0.394), with cold shadow down from 0.207 to 0.029.
 
-- **The Core is a plain dome** where concept 01 has an ornate pavilion with a tented canopy
-  and a fine gold armature — and it is *darker* than the ground it stands on where the
-  concept's is the brightest object in frame. The largest remaining gap, and the next
-  checkpoint.
+**Still short of concept 01**, measured against `cp07-core-pavilion.png`:
+
 - **The void is empty** — flat black, no nebula wash, and the celestial body does not appear
   in frame. Concept 01 has both.
 - **Vegetation is spiky low-poly** against the concept's fine golden branching. CP-06 closed
@@ -277,6 +271,78 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+### CP-07 — The Core pavilion · 2026-07-28 · closed
+
+**Goal.** Turn the closed dark dome into concept 01's tented pavilion: separate ivory canopy
+panels radiating from a finial, a gold armature, turquoise insets, a colonnade on an inlaid
+plinth. The largest single-object gap in the frame, and the only one that was a *value
+inversion* rather than a missing detail.
+
+**Measured, before and after.** Core box, its own ground patches, same boxes in every build
+frame. Six renders; the ones that moved a number are shown.
+
+| | concept 01 | cp06 | try 4 | try 5 | **cp07** |
+|---|---|---|---|---|---|
+| canopy / ground linear luma | 1.15 | 0.57 | 0.64 | 0.90 | **1.13** |
+| canopy luma median | 0.495 | 0.236 | 0.268 | 0.390 | **0.487** |
+| canopy pixel fraction of box | 0.328 | 0.206 | 0.270 | 0.330 | **0.355** |
+| Core box luma median | 0.394 | 0.162 | 0.277 | 0.346 | **0.391** |
+| cold (blue > red) shadow fraction | 0.020 | 0.207 | 0.094 | 0.056 | **0.029** |
+| ground luma median | 0.430 | 0.415 | 0.417 | 0.431 | **0.431** |
+| sunlit regolith median | 0.463 | 0.436 | 0.451 | 0.459 | **0.459** |
+| whole-frame lit median | 0.344 | 0.324 | — | — | **0.340** |
+
+The Core now measures as concept 01's Core on every metric that defined the gap, and CP-03's
+exposure calibration survived: the ground did not move except toward the concept.
+
+**What actually closed the value inversion — two thirds of it was geometry, not albedo.**
+A steep dome takes a 52° key at a graze along nearly all of its area. Petals drooping 36°
+were still doing that. Flattening the droop to 20° — one edit, three tip heights — moved
+`canopy / ground` from 0.64 to 0.90 on its own, more than every albedo change put together.
+Value on a curved surface is mostly a question of what the surface is *pointing at*.
+
+**Five things the renders taught, all of them paid for.**
+
+1. **A petal converging to a point with concave sides is a spike, not a petal.** The first
+   render grew a ring of thorns. The fix is geometric and specific: make the tip an *edge*
+   rather than a vertex, bow the sides *outward*, and keep the root wider than the run is
+   long. `StructureBuilder.addPetal` now takes `bulge` where it took a waist.
+2. **A metal in this scene is mostly black.** `goldTrim` carries an authored `metallic: 0.85`,
+   which is right for a glinting kerb and wrong for a whole armature of thin members: a
+   conductor has no diffuse term, and what surrounds this building is a void with one warm
+   lobe in it, so every batten off the mirror direction reflected empty space. The wheel,
+   architrave, ribs and masts all came back dark bronze against the concept's pale gold.
+   `MaterialLibrary.material` gained a `metallic:` override for this; the Core runs 0.30.
+3. **The lower hemisphere is not void — it is the fragment.** Half of every canopy fold
+   rendered navy because shaded faces were lit only by the cool fill over a near-black IBL
+   floor. Below a structure standing on this island is thousands of square metres of sunlit
+   regolith. Warming and raising `voidHorizon`/`voidNadir` to a real ground bounce, and
+   cutting `fillIntensity` 520 → 430, took cold shadow from 0.207 to 0.029. It is a **global**
+   change and was checked as one: the void card and starfield are unmoved to four decimals
+   (they are unlit), and lit objects elsewhere gained a uniform ~0.015 — which put the
+   whole-frame lit median at 0.340 against the concept's 0.344, closer than cp06's 0.324.
+4. **Retinting cannot warm a surface whose spec reference is cold.** The plinth carried a warm
+   tint over `.rimStone`, whose spec is authored around `[0.482, 0.487, 0.505]`; retinting
+   divides by that reference, so the result came back muted, not warm — a slate cobble drum
+   around the whole base, the largest cold mass left in the silhouette and squarely inside the
+   measurement box. Moving it to `.wovenIvory` was worth 0.045 of Core box median by itself.
+5. **A cone has no facet pointing at an overhead key.** The crown spire read as a brown plug
+   in the middle of the tented top at 1.7 m of run. Shortened under a metre so it sits down
+   in the petals, which is where the concept's finial rises from anyway.
+
+Masts also had to be raised above the canopy (their cords crossed the building's face at
+7.9 m) and taken from six to five — an odd count never lines two masts up on one axis.
+
+**Cut from scope, deliberately.** The ground inlay rosette. The terrain around the Core is not
+flat — the settlement pan eases from `panInner` to `panOuter` — so a flat apron beyond the
+plinth would float visibly. It belongs in `TerrainDressing`, which already drapes decals onto
+the height field correctly, and is carried to CP-09 with the other ground work.
+
+**Cost.** Three files, all under `Sources/Rendering`: `Meshes/CivilizationCoreMesh.swift` (the
+rewrite), `Texturing/MaterialLibrary.swift` (the `metallic:` override and its cache key), and
+`LightingRig.swift` (fill and the two hemisphere colours). Simulation and Domain untouched; no
+new randomness beyond the existing `core.sunwoven` stream.
 
 ### CP-06 — Density and palette · 2026-07-28 · closed
 

@@ -173,7 +173,12 @@ enum LightingRig {
         var fillColor = UIColor(red: 0.545, green: 0.675, blue: 0.975, alpha: 1)
         /// Pulled well down from the old 850. The environment supplies the ambient
         /// now; leaving the fill high flattens everything the key just modelled.
-        var fillIntensity: Float = 520
+        ///
+        /// 520 → 430 at CP-07. With a warm ground bounce in the environment, the
+        /// fill no longer has to be the only thing filling shadow — and since it
+        /// is the *cool* light in the rig, it was what made every shaded face
+        /// read blue rather than merely dark.
+        var fillIntensity: Float = 430
         var fillFrom = SIMD3<Float>(160, 90, 130)
 
         // MARK: Rim (grazing back light)
@@ -197,9 +202,20 @@ enum LightingRig {
         /// Linear radiance, not sRGB. The void colours stay well under 1.0; the key
         /// lobe deliberately goes far above it, because that ratio is the entire
         /// point of an HDR environment.
+        ///
+        /// **The lower hemisphere is not void — it is the fragment.** These three
+        /// are the environment a structure standing on the settlement pan
+        /// actually sees, and below its own horizon that is several thousand
+        /// square metres of sunlit regolith, not empty space. Authored as pure
+        /// void, every face turned away from the key was lit by the cool fill
+        /// alone and came back navy: measured on CP-07's third render, 9.1% of
+        /// the Core read as cold shadow against **0.2%** for the same building in
+        /// concept 01, whose shaded sides are warm because a real ground bounces.
+        ///
+        /// Zenith is untouched. Up genuinely is empty space.
         var voidZenith = SIMD3<Float>(0.016, 0.021, 0.068)
-        var voidHorizon = SIMD3<Float>(0.042, 0.036, 0.088)
-        var voidNadir = SIMD3<Float>(0.006, 0.007, 0.020)
+        var voidHorizon = SIMD3<Float>(0.430, 0.335, 0.225)
+        var voidNadir = SIMD3<Float>(0.380, 0.290, 0.190)
 
         /// Warm lobe, aimed to agree with the key light so the environment
         /// highlight and the specular highlight land on the same facets.

@@ -11,10 +11,11 @@ import simd
 /// The two Cores are authored to separate in a black-and-white thumbnail, which
 /// is the bible's real test of civilization identity:
 ///
-/// - **Sunwoven** — a tiered pavilion: stepped stone plinth, a gold colonnade
-///   with backlit fabric panels between its piers, an ivory upper drum, a
-///   pleated ribbed dome, and a finial spire, flanked by four banner masts. The
-///   read is *pavilion*: tall, woven, lit from within.
+/// - **Sunwoven** — a tented pavilion: stepped stone plinth, a gold colonnade
+///   with backlit fabric panels between its piers, two skirts of separate ivory
+///   canopy petals split by a wide gold wheel, a pleated crown cone and a finial
+///   spire, ringed by six banner masts slung with cords. The read is *pavilion*:
+///   tall, woven, open, and the brightest thing on the fragment.
 /// - **Gravemark** — four battered plated tiers stacked into a keep, ringed by
 ///   copper seams, with four angular corner pylons and a blunt central spire.
 ///   The read is *bunker*: heavy, terraced, planted.
@@ -57,24 +58,107 @@ enum CivilizationCoreMesh {
         var gold = StructureBuilder()
         var panel = StructureBuilder()
         var lantern = StructureBuilder()
+        var banner = StructureBuilder()
         // The drum wraps, so it gets a cylindrical unwrap rather than box
         // mapping: the weave then runs continuously around it instead of
         // restarting at every facet.
         var drum = StructureBuilder(
             uv: .cylindrical(metersPerTile: MaterialLibrary.metersPerTile, tilesAround: 5.5)
         )
-        // The dome is split into two builders on alternating gores. That split
-        // is the fix for "the dome is blown to near-pure white with no shading
-        // gradient": the two zones differ by ~19% in albedo, and the pleat below
-        // gives their facets genuinely different normals, so neighbouring panels
-        // can never resolve to one flat white shape.
-        let domeUV = MeshUVProjection.spherical(
-            tilesAround: 5,
-            tilesOver: 1.2,
-            center: [0, 8.6, 0]
-        )
-        var domeLight = StructureBuilder(uv: domeUV)
-        var domeDeep = StructureBuilder(uv: domeUV)
+        // The canopy takes face-plane projection. A spherical unwrap is right
+        // for one closed shell and wrong for two dozen separately slanted
+        // panels; face-plane has no stretch at any angle.
+        //
+        // Two builders on alternating petals, as the dome had on alternating
+        // gores, and for the same reason: a canopy that resolves to one flat
+        // value is the failure this splits to prevent. The albedo gap is now
+        // ~9% rather than the dome's 20%, because the petals differ in *normal*
+        // far more than the dome's gores ever did — a long petal and a short one
+        // droop at different angles, so the light does most of the separating
+        // and the albedo only has to finish it.
+        let canopyUV = MaterialLibrary.facePlanarUVProjection
+        var canopyLight = StructureBuilder(uv: canopyUV)
+        var canopyFold = StructureBuilder(uv: canopyUV)
+
+        /// A flat gold strip laid along a near-horizontal run.
+        ///
+        /// `addRib` cannot do this one. It derives its side vector from
+        /// `cross(along, radial)`, which collapses to nothing when the run *is*
+        /// radial — every batten on a canopy petal and every spoke on the wheel
+        /// would come out along the world X axis.
+        func batten(
+            from start: SIMD3<Float>,
+            to end: SIMD3<Float>,
+            halfWidth: Float,
+            taper: Float = 0.34
+        ) {
+            let along = StructureGeometry.direction(end - start, fallback: [1, 0, 0])
+            let side = StructureGeometry.direction(simd_cross([0, 1, 0], along), fallback: [1, 0, 0])
+            let lift = SIMD3<Float>(0, 0.035, 0)
+            gold.addQuad(
+                start - side * halfWidth + lift,
+                start + side * halfWidth + lift,
+                end + side * (halfWidth * taper) + lift,
+                end - side * (halfWidth * taper) + lift,
+                facing: [0, 1, 0]
+            )
+        }
+
+        /// One tier of the canopy: a petal per face of `root`, tips alternating
+        /// long and short.
+        ///
+        /// The alternation is the point. A ring of identical petals is still a
+        /// circle in silhouette, and a circle is what the old dome already was.
+        /// Long and short tips scallop the skirt, so the tier has an outline
+        /// that survives being 300 px tall.
+        func canopyTier(
+            root: [SIMD3<Float>],
+            longRadius: Float,
+            shortRadius: Float,
+            longY: Float,
+            shortY: Float,
+            spine: Float,
+            bulge: Float,
+            gap: Float,
+            tipWidth: Float
+        ) {
+            for index in root.indices {
+                let next = (index + 1) % root.count
+                let a = root[index], b = root[next]
+                // The gap between petals is what the tier behind shows through.
+                let rootLeft = a + (b - a) * gap
+                let rootRight = a + (b - a) * (1 - gap)
+
+                let long = index % 2 == 0
+                let middle = (a + b) * 0.5
+                let outward = StructureGeometry.direction([middle.x, 0, middle.z], fallback: [1, 0, 0])
+                let reach = long ? longRadius : shortRadius
+                let tipMid = SIMD3<Float>(outward.x * reach, long ? longY : shortY, outward.z * reach)
+
+                // A blunt tip, sized as a fraction of the root's own width, so a
+                // tier stays proportioned whatever radius it springs from.
+                let across = StructureGeometry.direction(rootLeft - rootRight, fallback: [1, 0, 0])
+                let half = simd_distance(rootLeft, rootRight) * 0.5 * tipWidth
+                let tipLeft = tipMid + across * half
+                let tipRight = tipMid - across * half
+
+                let ridge: SIMD3<Float>
+                if long {
+                    ridge = canopyLight.addPetal(
+                        rootLeft: rootLeft, rootRight: rootRight,
+                        tipLeft: tipLeft, tipRight: tipRight,
+                        spine: spine, bulge: bulge
+                    )
+                } else {
+                    ridge = canopyFold.addPetal(
+                        rootLeft: rootLeft, rootRight: rootRight,
+                        tipLeft: tipLeft, tipRight: tipRight,
+                        spine: spine * 0.78, bulge: bulge
+                    )
+                }
+                batten(from: ridge, to: tipMid, halfWidth: 0.085)
+            }
+        }
 
         // MARK: Stepped plinth
         //
@@ -105,11 +189,18 @@ enum CivilizationCoreMesh {
         // gold decking around the drum — the first hard value break above the
         // pale stone, and the thing that stops the plinth and the shell reading
         // as one continuous mass.
+        // The *edge* is gold; the deck it encloses is pale stone. Concept 01's
+        // gold is line work — kerbs, ribs, battens, an armature — and CP-07's
+        // second render showed what happens when a horizontal annulus this wide
+        // is handed to it: two brass discs stacked around the building, reading
+        // as mass rather than as trim.
         let kerbFoot = StructureGeometry.ring(sides: sides, radius: 4.22, y: 0.82, phase: phase)
         let kerbTop = StructureGeometry.ring(sides: sides, radius: 4.06, y: 1.14, phase: phase)
         let kerbTread = StructureGeometry.ring(sides: sides, radius: 3.38, y: 1.14, phase: phase)
+        let kerbLip = StructureGeometry.ring(sides: sides, radius: 3.94, y: 1.14, phase: phase)
         gold.addBand(lower: kerbFoot, upper: kerbTop, pivot: [0, 0.82, 0])
-        gold.addTread(outer: kerbTop, inner: kerbTread)
+        gold.addTread(outer: kerbTop, inner: kerbLip)
+        stone.addTread(outer: kerbLip, inner: kerbTread)
 
         // MARK: Colonnade
         //
@@ -144,83 +235,147 @@ enum CivilizationCoreMesh {
         // MARK: Architrave and cornice
         let architraveFoot = StructureGeometry.ring(sides: sides, radius: 4.58, y: 4.62, phase: phase)
         let architraveTop = StructureGeometry.ring(sides: sides, radius: 4.34, y: 5.18, phase: phase)
+        let corniceLip = StructureGeometry.ring(sides: sides, radius: 4.20, y: 5.18, phase: phase)
         let cornice = StructureGeometry.ring(sides: sides, radius: 3.66, y: 5.18, phase: phase)
         gold.addBand(lower: architraveFoot, upper: architraveTop, pivot: [0, 4.62, 0])
-        gold.addTread(outer: architraveTop, inner: cornice)
+        gold.addTread(outer: architraveTop, inner: corniceLip)
+        stone.addTread(outer: corniceLip, inner: cornice)
         // Closed from below as well: the cornice overhangs the colonnade by more
         // than half a metre and, at this camera pitch, its underside is visible
         // on the far side of the building.
         gold.addTread(outer: architraveFoot, inner: colonnadeTop, up: false)
 
-        // MARK: Upper drum
-        let upperFoot = StructureGeometry.ring(sides: sides, radius: 3.66, y: 5.18, phase: phase)
-        let upperTop = StructureGeometry.ring(sides: sides, radius: 3.44, y: 8.36, phase: phase)
-        drum.addSolid(lower: upperFoot, upper: upperTop, capTop: false)
+        // MARK: Lower canopy
+        //
+        // The first of the two skirts, springing straight off the cornice and
+        // overhanging the plinth. Its tips reach 5.78 m against a plinth of
+        // 5.40, so the canopy throws a scalloped shadow onto its own stonework —
+        // which is the cue that says *this thing has an eave* at any zoom.
+        //
+        // The droop is 22° from horizontal, and that number is doing more work
+        // than the silhouette. The key sits at 52° elevation, so a panel drooping
+        // 22° toward it takes the light at 13° off its normal against the ground's
+        // 38°: the sunward half of the canopy is brighter than the ground it
+        // stands on. The old dome had no such facet anywhere — its gores ran
+        // 55–70° from horizontal, took the key at a graze, and that, not the
+        // albedo, is why the Core read as a dark hole in a bright frame.
+        let lowerRoot = StructureGeometry.ring(sides: sides, radius: 3.52, y: 5.34, phase: phase)
+        canopyTier(
+            root: lowerRoot,
+            longRadius: 4.94, shortRadius: 4.52,
+            longY: 4.86, shortY: 5.00,
+            spine: 0.24, bulge: 0.16, gap: 0.02, tipWidth: 0.44
+        )
+
+        // MARK: Middle drum
+        //
+        // Seen *between* the petals rather than around them, so its turquoise
+        // insets read as glimpses into a lit interior instead of as windows in a
+        // wall. That is the relationship concept 01 has and the old Core did not:
+        // a closed shell can only ever put its glazing on the outside.
+        let midFoot = StructureGeometry.ring(sides: sides, radius: 3.44, y: 5.18, phase: phase)
+        let midTop = StructureGeometry.ring(sides: sides, radius: 3.16, y: 7.44, phase: phase)
+        drum.addSolid(lower: midFoot, upper: midTop, capTop: false)
         for index in 0..<sides {
             gold.addRib(
-                from: upperFoot[index], to: upperTop[index],
-                axis: .zero, halfWidth: 0.13, taper: 0.92, proud: 0.05
+                from: midFoot[index], to: midTop[index],
+                axis: .zero, halfWidth: 0.12, taper: 0.92, proud: 0.05
             )
         }
-        for face in stride(from: 0, to: sides, by: 2) {
+        // Panels on the *odd* faces, which are the ones a petal gap exposes.
+        for face in stride(from: 1, to: sides, by: 2) {
             panel.addFacePanel(
-                lower: upperFoot, upper: upperTop, face: face,
-                inset: 0.30, from: 0.12, to: 0.82, proud: 0.05
+                lower: midFoot, upper: midTop, face: face,
+                inset: 0.26, from: 0.14, to: 0.84, proud: 0.05
             )
         }
 
-        // MARK: Flared eave
-        let eaveFoot = StructureGeometry.ring(sides: sides, radius: 3.44, y: 8.36, phase: phase)
-        let eaveTop = StructureGeometry.pleatedRing(sides: sides, radius: 3.98, valley: 0.90, y: 8.82, phase: phase)
-        gold.addBand(lower: eaveFoot, upper: eaveTop, pivot: [0, 8.20, 0])
-
-        // MARK: Pleated dome
+        // MARK: Gold wheel
         //
-        // Fabric stretched over a frame, not a smooth shell: every odd meridian
-        // is pulled in to 90% radius, so the surface alternates between a raised
-        // fold and a sunken valley all the way to the crown. That pleat is what
-        // gives neighbouring facets different normals — the geometric half of the
-        // fix for a dome that used to resolve to one flat white blob.
-        let crownY = random.float(in: 12.30...12.60)
-        let domeRings = [
-            eaveTop,
-            StructureGeometry.pleatedRing(sides: sides, radius: 3.68, valley: 0.90, y: 9.96, phase: phase),
-            StructureGeometry.pleatedRing(sides: sides, radius: 2.92, valley: 0.91, y: 11.06, phase: phase),
-            StructureGeometry.pleatedRing(sides: sides, radius: 1.74, valley: 0.92, y: 11.96, phase: phase),
-            StructureGeometry.ring(sides: sides, radius: 0.76, y: crownY, phase: phase),
-        ]
-        for level in 0..<(domeRings.count - 1) {
-            let lower = domeRings[level]
-            let upper = domeRings[level + 1]
-            let pivot = SIMD3<Float>(0, (lower[0].y + upper[0].y) * 0.5 - 2.6, 0)
-            for index in 0..<sides {
-                let next = (index + 1) % sides
-                // Gore parity picks the zone. Alternating gores therefore differ
-                // in albedo as well as in normal.
-                if index % 2 == 0 {
-                    domeLight.addQuad(lower[index], lower[next], upper[next], upper[index], pivot: pivot)
-                } else {
-                    domeDeep.addQuad(lower[index], lower[next], upper[next], upper[index], pivot: pivot)
-                }
-            }
+        // The single element of concept 01's Core that reads at every zoom: a
+        // wide horizontal gold ring where the two skirts meet, with spokes
+        // running in to the crown. It is also the structural excuse for two
+        // separate tiers — without it they stack into one cone.
+        let wheelSides = 24
+        let wheelOuterLow = StructureGeometry.ring(sides: wheelSides, radius: 3.30, y: 7.36, phase: phase)
+        let wheelOuterHigh = StructureGeometry.ring(sides: wheelSides, radius: 3.30, y: 7.58, phase: phase)
+        let wheelInnerLow = StructureGeometry.ring(sides: wheelSides, radius: 2.92, y: 7.36, phase: phase)
+        let wheelInnerHigh = StructureGeometry.ring(sides: wheelSides, radius: 2.92, y: 7.58, phase: phase)
+        gold.addBand(lower: wheelOuterLow, upper: wheelOuterHigh, pivot: [0, 7.47, 0])
+        gold.addBand(lower: wheelInnerLow, upper: wheelInnerHigh, pivot: [0, 7.47, 0], outward: false)
+        gold.addTread(outer: wheelOuterHigh, inner: wheelInnerHigh)
+        gold.addTread(outer: wheelOuterLow, inner: wheelInnerLow, up: false)
+        for index in stride(from: 0, to: wheelSides, by: 2) {
+            let hub = StructureGeometry.direction(
+                [wheelInnerHigh[index].x, 0, wheelInnerHigh[index].z], fallback: [1, 0, 0]
+            ) * 1.94
+            batten(
+                from: wheelInnerHigh[index],
+                to: [hub.x, 7.58, hub.z],
+                halfWidth: 0.07
+            )
         }
-        // Gold ribs capping every raised fold, eave to crown.
-        for level in 0..<(domeRings.count - 1) {
-            for index in stride(from: 0, to: sides, by: 2) {
-                gold.addRib(
-                    from: domeRings[level][index], to: domeRings[level + 1][index],
-                    axis: .zero, halfWidth: 0.13, taper: 0.78, proud: 0.045
-                )
-            }
+
+        // MARK: Upper canopy
+        let upperRoot = StructureGeometry.ring(sides: sides, radius: 2.42, y: 7.98, phase: phase)
+        canopyTier(
+            root: upperRoot,
+            longRadius: 3.62, shortRadius: 3.30,
+            longY: 7.54, shortY: 7.64,
+            spine: 0.20, bulge: 0.13, gap: 0.025, tipWidth: 0.44
+        )
+
+        // MARK: Crown drum and crown rosette
+        //
+        // A third, small skirt rather than a bare cone. Every tier that is a ring
+        // of near-horizontal petals is a tier that takes the overhead key
+        // squarely; every tier that is a closed cone is one that does not, and
+        // CP-07's first render showed exactly that split — the petals came back
+        // white and the cone came back grey-lavender in the same frame.
+        let crownFoot = StructureGeometry.ring(sides: sides, radius: 2.10, y: 7.58, phase: phase)
+        let crownHead = StructureGeometry.ring(sides: sides, radius: 1.90, y: 9.02, phase: phase)
+        drum.addSolid(lower: crownFoot, upper: crownHead, capTop: false)
+        for face in stride(from: 0, to: sides, by: 2) {
+            lantern.addFacePanel(
+                lower: crownFoot, upper: crownHead, face: face,
+                inset: 0.32, from: 0.22, to: 0.78, proud: 0.05
+            )
         }
-        // The crown is capped. The previous Core left this ring open, and the
-        // hole read as a hard-edged black polygonal void at the apex.
-        gold.addCap(ring: domeRings[domeRings.count - 1], pivot: [0, crownY - 2, 0])
+
+        let crownRosette = StructureGeometry.ring(sides: sides, radius: 1.56, y: 9.44, phase: phase)
+        canopyTier(
+            root: crownRosette,
+            longRadius: 2.48, shortRadius: 2.26,
+            longY: 9.14, shortY: 9.22,
+            spine: 0.16, bulge: 0.10, gap: 0.03, tipWidth: 0.44
+        )
+
+        // MARK: Crown spire
+        //
+        // Slender *and* short on purpose. It is the one closed surface left on
+        // the building, so it is kept narrow enough that its dark side costs the
+        // silhouette nothing, and pleated so the lit side still breaks into
+        // facets. Shortened at CP-07's sixth render: at 1.7 m of run it stood
+        // clear above the crown rosette as a single unbroken cone, and a cone
+        // under an overhead key has no facet pointing at it — it read as a brown
+        // plug in the middle of the tented top. Under a metre it sits down in
+        // the petals, which is where the concept's finial rises from anyway.
+        let spireFoot = StructureGeometry.pleatedRing(sides: sides, radius: 0.92, valley: 0.86, y: 9.20, phase: phase)
+        let spireWaist = StructureGeometry.pleatedRing(sides: sides, radius: 0.50, valley: 0.88, y: 10.05, phase: phase)
+        let crownY = random.float(in: 10.85...11.10)
+        canopyLight.addBand(lower: spireFoot, upper: spireWaist, pivot: [0, 8.8, 0])
+        canopyLight.addFan(ring: spireWaist, apex: [0, crownY, 0], pivot: [0, 9.6, 0])
+        for index in stride(from: 0, to: sides, by: 2) {
+            gold.addRib(
+                from: spireFoot[index], to: spireWaist[index],
+                axis: .zero, halfWidth: 0.09, taper: 0.72, proud: 0.045
+            )
+        }
 
         // MARK: Finial
-        let finialFoot = StructureGeometry.ring(sides: 6, radius: 0.70, y: crownY - 0.06)
-        let finialNeck = StructureGeometry.ring(sides: 6, radius: 0.56, y: crownY + 0.86)
-        let finialCollar = StructureGeometry.ring(sides: 6, radius: 0.30, y: crownY + 1.28)
+        let finialFoot = StructureGeometry.ring(sides: 6, radius: 0.46, y: crownY - 0.26)
+        let finialNeck = StructureGeometry.ring(sides: 6, radius: 0.38, y: crownY + 0.66)
+        let finialCollar = StructureGeometry.ring(sides: 6, radius: 0.22, y: crownY + 1.06)
         gold.addSolid(lower: finialFoot, upper: finialNeck, capTop: false)
         gold.addSolid(lower: finialNeck, upper: finialCollar, capTop: false)
         gold.addSpire(base: finialCollar, apex: [0, random.float(in: 15.25...15.60), 0])
@@ -234,38 +389,71 @@ enum CivilizationCoreMesh {
             )
         }
 
-        // MARK: Banner masts
+        // MARK: Banner masts and cords
         //
-        // Four, outboard on the second plinth tread. They break the dome's
-        // rotational symmetry — which is what stops it reading as a bare
-        // hemisphere from directly above — and their pennants are the only
-        // moving-looking silhouette on an otherwise rigid building.
-        for index in 0..<4 {
-            let angle = phase + (Float(index) + 0.5) * .pi / 2
-            let base = SIMD2<Float>(cos(angle) * 4.76, sin(angle) * 4.76)
-            let topY = random.float(in: 6.35...6.85)
+        // Five, outboard on the plinth, and **taller than the canopy** — which is
+        // the whole reason they exist. CP-07's first render put their heads at
+        // 7.9 m, below the crown, and the cords then sagged straight across the
+        // building's face and read as wires strung over it. In concept 01 the
+        // masts are the tallest thing after the finial and their cords hang in
+        // clear air, so they frame the pavilion instead of crossing it.
+        //
+        // Five, not six: an odd count cannot line two masts up on one axis, so
+        // the ring never resolves into a pair of posts at any camera yaw.
+        let mastCount = 5
+        var mastHeads: [SIMD3<Float>] = []
+        for index in 0..<mastCount {
+            let angle = phase + (Float(index) + 0.5) * 2 * .pi / Float(mastCount)
+            let base = SIMD2<Float>(cos(angle) * 5.06, sin(angle) * 5.06)
+            let topY = random.float(in: 10.30...10.80)
 
-            let poleFoot = StructureGeometry.ring(sides: 4, radius: 0.17, y: 0.54, phase: angle + .pi / 4, center: base)
-            let poleTop = StructureGeometry.ring(sides: 4, radius: 0.11, y: topY, phase: angle + .pi / 4, center: base)
+            let poleFoot = StructureGeometry.ring(sides: 4, radius: 0.22, y: 0.54, phase: angle + .pi / 4, center: base)
+            let poleTop = StructureGeometry.ring(sides: 4, radius: 0.14, y: topY, phase: angle + .pi / 4, center: base)
             gold.addSolid(lower: poleFoot, upper: poleTop, capTop: false)
-            gold.addSpire(base: poleTop, apex: [base.x, topY + 0.62, base.y])
+            let head = SIMD3<Float>(base.x, topY + 0.62, base.y)
+            gold.addSpire(base: poleTop, apex: head)
+            mastHeads.append(head)
 
+            // A turquoise banner hanging off a crossarm. Matte, not luminous:
+            // concept 01's banners are dyed cloth taking the key like everything
+            // else, and an emissive one would put a second light source on the
+            // silhouette where the building wants exactly one.
             let radial = StructureGeometry.direction([base.x, 0, base.y])
             let tangent = simd_cross([0, 1, 0], radial)
-            let head = SIMD3<Float>(base.x, topY - 0.35, base.y)
-            let drop = random.float(in: 2.05...2.55)
-            // A crossarm, then a tapering pennant hanging off it.
+            let arm = SIMD3<Float>(base.x, topY - 0.34, base.y)
+            let drop = random.float(in: 2.55...3.10)
             gold.addRib(
-                from: head + [0, 0.10, 0], to: head + tangent * 1.22 + [0, 0.10, 0],
-                axis: .zero, halfWidth: 0.075, taper: 0.7, proud: 0.0
+                from: arm + [0, 0.10, 0], to: arm + tangent * 1.18 + [0, 0.10, 0],
+                axis: .zero, halfWidth: 0.07, taper: 0.7, proud: 0.0
             )
-            lantern.addQuad(
-                head,
-                head + tangent * 1.22,
-                head + tangent * 0.94 - [0, drop, 0],
-                head - [0, drop * 0.86, 0],
+            banner.addQuad(
+                arm,
+                arm + tangent * 1.18,
+                arm + tangent * 0.90 - [0, drop, 0],
+                arm - [0, drop * 0.86, 0],
                 facing: radial
             )
+        }
+
+        // Cords between adjacent mast heads, sagging on a parabola — near enough
+        // to a catenary at this sag ratio to be indistinguishable, and it costs
+        // no `cosh`. Five segments a span is where the curve stops reading as a
+        // polyline at full zoom.
+        for index in 0..<mastCount {
+            let from = mastHeads[index]
+            let to = mastHeads[(index + 1) % mastCount]
+            let segments = 5
+            let sag: Float = 0.92
+            var previous = from
+            for step in 1...segments {
+                let t = Float(step) / Float(segments)
+                var point = from + (to - from) * t
+                point.y -= sag * 4 * t * (1 - t)
+                // Untapered: a cord is one thickness end to end, and a tapered
+                // segment repeated five times reads as a string of beads.
+                batten(from: previous, to: point, halfWidth: 0.05, taper: 1.0)
+                previous = point
+            }
         }
 
         let core = StructureAssembly.entity(
@@ -273,11 +461,12 @@ enum CivilizationCoreMesh {
             zones: [
                 StructureZone("plinth", stone, plinthMaterial),
                 StructureZone("shell", drum, shellMaterial),
-                StructureZone("dome", domeLight, domePanelMaterial),
-                StructureZone("domefold", domeDeep, domeFoldMaterial),
-                StructureZone("gold", gold, MaterialLibrary.material(.goldTrim)),
-                StructureZone("panel", panel, MaterialLibrary.luminousSeam(SunfoldPalette.sunwovenTurquoise, intensity: 1.9)),
-                StructureZone("lantern", lantern, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.92)),
+                StructureZone("canopy", canopyLight, canopyPanelMaterial),
+                StructureZone("canopyfold", canopyFold, canopyFoldMaterial),
+                StructureZone("gold", gold, coreGoldMaterial),
+                StructureZone("banner", banner, bannerMaterial),
+                StructureZone("panel", panel, MaterialLibrary.luminousSeam(SunfoldPalette.sunwovenTurquoise, intensity: 1.15)),
+                StructureZone("lantern", lantern, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.78)),
             ]
         )
         core.addChild(
@@ -294,52 +483,114 @@ enum CivilizationCoreMesh {
 
     // MARK: Sunwoven materials
     //
-    // Every ivory surface on the Core is pulled well down from the palette's
-    // near-white 0.96: at 3200 lux of key plus the IBL, a 0.96 albedo shell
-    // clips before the tonemap ever sees it and the dome's form is destroyed.
-    // 0.74 keeps every facet inside the shoulder, so the pleat actually shades.
+    // **The Core must out-value the ground it stands on.** In concept 01 the
+    // canopy measures 1.15× the linear luminance of the surrounding regolith and
+    // is the brightest object in the frame. Measured on `cp06-density-palette`,
+    // the old dome came back at **0.57×** — darker than the ground, so the one
+    // building the eye is supposed to land on read as a hole in the frame.
+    //
+    // Two things caused that and both are fixed here. The geometry is the larger
+    // half: a steep dome takes an overhead key at a graze, and no albedo can
+    // undo that. The albedo is the rest — the ivories were pulled down to 0.75
+    // and 0.60 of the palette against a *ground albedo of 0.855*, which is to
+    // say the canopy was authored darker than sand and then lit worse.
+    //
+    // The old note here warned that 0.96 clips. It is still true and still the
+    // reason these sit below the palette rather than at it, but the headroom
+    // moved twice since it was written: CP-03 took `exposureScale` to 0.67 and
+    // CP-06 to 0.72. 0.90 is inside the shoulder at that exposure.
 
-    /// The dome's lit gores. ~0.72 luminance — the value the shell is authored
-    /// around, and the reference the fold zone is measured against.
-    private static var domePanelMaterial: PhysicallyBasedMaterial {
+    /// The canopy's long petals. The frame's brightest lit surface by design.
+    private static var canopyPanelMaterial: PhysicallyBasedMaterial {
         StructureMaterial.matte(
-            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.75),
-            // A multiplier on the recipe's 0.58–0.88 roughness map, so the dome
-            // lands near 0.35: a broad specular lobe that sweeps across the
-            // facets instead of a matte surface with no highlight at all.
+            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.90),
+            // A multiplier on the recipe's 0.58–0.88 roughness map, so the
+            // canopy lands near 0.35: a broad specular lobe that sweeps across
+            // the petals instead of a matte surface with no highlight at all.
             roughness: 0.45,
             surface: .wovenIvory
         )
     }
 
-    /// The dome's sunken gores, 20% darker than the lit ones. Alternating panels
-    /// therefore separate by more than the 15% the frame needs to read the pleat.
-    private static var domeFoldMaterial: PhysicallyBasedMaterial {
+    /// The canopy's short petals, ~9% darker. The old dome needed a 20% albedo
+    /// split to keep its gores apart because every gore at one height shared a
+    /// normal; separate petals at two different droops do not, so the light does
+    /// most of that work now and the albedo only finishes it.
+    private static var canopyFoldMaterial: PhysicallyBasedMaterial {
         StructureMaterial.matte(
-            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.60),
+            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.82),
             roughness: 0.52,
             surface: .wovenIvory
         )
     }
 
-    /// The vertical drums. A shade brighter than the dome because a vertical
-    /// face takes far less of an overhead key — the *rendered* values land
-    /// close, which is what keeps the building one material.
+    /// The vertical drums. Brighter still, because a vertical face takes far
+    /// less of an overhead key — the *rendered* values land close, which is what
+    /// keeps the building one material.
     private static var shellMaterial: PhysicallyBasedMaterial {
         StructureMaterial.matte(
-            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.82),
+            StructureMaterial.shade(SunfoldPalette.sunwovenIvory, 0.94),
             roughness: 0.62,
             surface: .wovenIvory
         )
     }
 
-    /// Fractured pale stone, deliberately darker than the regolith it stands on
-    /// so the plinth separates from the ground by value rather than by outline.
+    /// The armature: gold that is *lit* rather than mirrored.
+    ///
+    /// `goldTrim`'s authored 0.85 metalness is right for a glinting kerb and
+    /// wrong for a whole frame of thin members. A conductor has no diffuse
+    /// term — everything it shows is a reflection — and what surrounds this
+    /// building is a void with a single warm IBL lobe in it, so every batten
+    /// away from the key's mirror direction reflected empty space. Measured at
+    /// CP-07's first render: the wheel, the architrave, the ribs and the masts
+    /// all came back dark bronze to near-black against concept 01's pale gold.
+    ///
+    /// 0.30 keeps enough specular for it to read as metal and restores the
+    /// diffuse term that a scene lit by one hard key and almost no ambient
+    /// actually needs. The tint is pulled a third toward ivory for the same
+    /// reason the canopy was: this armature is a *bright* element in the
+    /// concept, not a dark outline around bright panels.
+    private static var coreGoldMaterial: PhysicallyBasedMaterial {
+        MaterialLibrary.material(
+            .goldTrim,
+            tint: StructureMaterial.blend(SunfoldPalette.sunwovenGold, SunfoldPalette.sunwovenIvory, 0.32),
+            roughness: 0.55,
+            metallic: 0.30
+        )
+    }
+
+    /// Dyed turquoise cloth. Deliberately *not* luminous: concept 01's banners
+    /// take the key like everything else, and an emissive one would put a second
+    /// light source on a silhouette that wants exactly one. Lifted toward ivory
+    /// because a banner hangs vertically, and a vertical face under a 52° key
+    /// keeps barely half of what it is given.
+    private static var bannerMaterial: PhysicallyBasedMaterial {
+        StructureMaterial.matte(
+            StructureMaterial.blend(SunfoldPalette.sunwovenTurquoise, SunfoldPalette.sunwovenIvory, 0.30),
+            roughness: 0.74,
+            surface: .wovenIvory
+        )
+    }
+
+    /// Pale inlaid pavement. It reads *warm* and close to the regolith's own
+    /// value — the plinth used to be pulled down to 0.80 to separate from the
+    /// ground by value, which is the opposite of concept 01, where the pavement
+    /// is as bright as the sand and the separation is done by the gold kerb.
+    /// Darkening it only helped the Core sink further into the frame.
+    ///
+    /// The *surface* is `.wovenIvory` rather than `.rimStone` for the same
+    /// reason. `.rimStone`'s spec is authored around a cool grey reference
+    /// (`[0.482, 0.487, 0.505]`), and retinting divides by that reference, so a
+    /// warm tint over it comes back muted rather than warm — measured at CP-07's
+    /// fifth render as a slate cobble drum wrapping the whole base of the
+    /// building, the largest cold mass left in the Core's silhouette. This is
+    /// dressed pavement in concept 01, not fractured rock, and the fine weave is
+    /// the closer read of it as well as the warmer one.
     private static var plinthMaterial: PhysicallyBasedMaterial {
         StructureMaterial.matte(
-            StructureMaterial.shade(SunfoldPalette.sunwovenSurface, 0.80),
-            roughness: 0.95,
-            surface: .rimStone
+            StructureMaterial.blend(SunfoldPalette.sunwovenSurface, SunfoldPalette.sunwovenIvory, 0.86),
+            roughness: 0.90,
+            surface: .wovenIvory
         )
     }
 
@@ -791,6 +1042,56 @@ struct StructureBuilder {
             corner(inset, top) + lift,
             facing: outward
         )
+    }
+
+    /// A canopy petal: a wide root narrowing to a point, with concave sides and
+    /// a raised centre fold. Returns the fold's root, so the caller can lay a
+    /// batten along the same ridge without re-deriving it.
+    ///
+    /// This is the shape that makes a tented pavilion read as *fabric over a
+    /// frame* rather than as a shell. A dome — however pleated — is one closed
+    /// surface, so at any given height every facet takes the key at the same
+    /// angle and the whole thing resolves toward one value. A ring of separate
+    /// petals does not: each has its own fold catching the light on one side and
+    /// turning away on the other, and the gaps between them let the tier behind
+    /// show through, which is most of what makes concept 01's Core look open.
+    ///
+    /// The tip is an **edge**, not a point, and `bulge` pushes the side edges
+    /// *outward*. Both were the other way round in CP-07's first two renders and
+    /// both were wrong: a petal that converges to a single vertex with concave
+    /// sides is a spike, and a ring of spikes reads as a sea urchin rather than
+    /// as a roof. Concept 01's panels are blunt-ended and slightly barrelled, and
+    /// they are **wider at the root than they are long** — that proportion is
+    /// what makes them tile into a canopy instead of bristling out of one.
+    @discardableResult
+    mutating func addPetal(
+        rootLeft: SIMD3<Float>,
+        rootRight: SIMD3<Float>,
+        tipLeft: SIMD3<Float>,
+        tipRight: SIMD3<Float>,
+        spine: Float,
+        bulge: Float,
+        axis: SIMD2<Float> = .zero
+    ) -> SIMD3<Float> {
+        let up = SIMD3<Float>(0, 1, 0)
+        let rootMid = (rootLeft + rootRight) * 0.5
+        let tipMid = (tipLeft + tipRight) * 0.5
+        let spineRoot = rootMid + up * spine
+        let midSpine = (spineRoot + tipMid) * 0.5 + up * spine * 0.42
+
+        let across = StructureGeometry.direction(rootLeft - rootRight, fallback: [1, 0, 0])
+        let midLeft = (rootLeft + tipLeft) * 0.5 + across * bulge
+        let midRight = (rootRight + tipRight) * 0.5 - across * bulge
+
+        // A petal is only ever seen from above at this camera pitch, so one
+        // reference below the axis gives every facet an up-and-outward normal
+        // without any per-face reasoning.
+        let pivot = SIMD3<Float>(axis.x, min(rootMid.y, tipMid.y) - 3.0, axis.y)
+        addQuad(rootLeft, spineRoot, midSpine, midLeft, pivot: pivot)
+        addQuad(spineRoot, rootRight, midRight, midSpine, pivot: pivot)
+        addQuad(midLeft, midSpine, tipMid, tipLeft, pivot: pivot)
+        addQuad(midSpine, midRight, tipRight, tipMid, pivot: pivot)
+        return spineRoot
     }
 
     /// A folded blade: two triangles meeting along a raised spine, so a frond or

@@ -306,24 +306,36 @@ enum MaterialLibrary {
     ///     intent (0.62 glossy mineral vs 0.98 dead rock) survives verbatim.
     ///   - emissiveIntensity: Overrides `Spec.emissiveIntensity`. Pass 0 to keep
     ///     a normally-luminous surface dark.
+    ///   - metallic: Overrides `Spec.metallic`. **A metal in this scene is
+    ///     mostly black.** A conductor has no diffuse term — everything it shows
+    ///     is a reflection — and what surrounds these structures is a void with
+    ///     one warm IBL lobe in it, so any facet not near the mirror direction
+    ///     of the key reflects empty space. Measured at CP-07: `goldTrim` at its
+    ///     authored 0.85 rendered the Core's entire armature as dark bronze,
+    ///     against concept 01's bright pale gold. Lower it wherever gold has to
+    ///     read as *lit metal* rather than as a mirror, and leave the spec alone
+    ///     where a hard specular glint is the point.
     @MainActor
     static func material(
         _ surface: Surface,
         tint: UIColor?,
         roughness: Float? = nil,
         emissiveIntensity: Float? = nil,
+        metallic: Float? = nil,
         size: Int = ProceduralTexture.defaultSize
     ) -> PhysicallyBasedMaterial {
         let spec = spec(for: surface)
         let requested = tint ?? spec.tint
         let roughnessScale = roughness ?? spec.roughnessScale
         let emissive = emissiveIntensity ?? spec.emissiveIntensity
+        let metalness = metallic ?? spec.metallic
 
         let key = Key(
             surface: surface,
             tint: quantise(requested),
             roughness: roughnessScale.bitPattern,
             emissive: emissive.bitPattern,
+            metallic: (metalness ?? -1).bitPattern,
             size: size
         )
         if let cached = cache[key] { return cached }
@@ -333,6 +345,7 @@ enum MaterialLibrary {
             requested: requested,
             roughnessScale: roughnessScale,
             emissiveIntensity: emissive,
+            metallic: metalness,
             size: size
         )
         cache[key] = built
@@ -406,6 +419,7 @@ enum MaterialLibrary {
         requested: UIColor,
         roughnessScale: Float,
         emissiveIntensity: Float,
+        metallic metalness: Float?,
         size: Int
     ) -> PhysicallyBasedMaterial {
         let maps = ProceduralTexture.maps(spec.recipe, size: size)
@@ -439,7 +453,7 @@ enum MaterialLibrary {
             material.roughness = .init(floatLiteral: clamp01(maps.fallbackRoughness * roughnessScale))
         }
 
-        if let metallic = spec.metallic {
+        if let metallic = metalness {
             material.metallic = .init(floatLiteral: clamp01(metallic))
         } else if let metallic = maps.metallic {
             material.metallic = .init(scale: 1, texture: ProceduralTexture.bind(metallic))
@@ -502,6 +516,7 @@ enum MaterialLibrary {
         var tint: UInt32
         var roughness: UInt32
         var emissive: UInt32
+        var metallic: UInt32
         var size: Int
     }
 
