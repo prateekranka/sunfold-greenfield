@@ -365,13 +365,9 @@ final class WorldController {
             if let id {
                 risingBuildings.insert(id)
                 selection.selectBuilding(id)
-                ghost.placeUntil = now + 0.45
-                ghost.isLegal = ConstructionPlacement.isLegal(
-                    kind: ghost.kind, at: ghost.position, in: simulation
-                )
                 FeedbackAudio.constructionPlaced()
                 DebugLog.info("Build ghost: founded \(ghost.kind.displayName) #\(id.raw)")
-                buildGhost = ghost
+                buildGhost = nil
                 return
             }
         }
