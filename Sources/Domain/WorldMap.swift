@@ -334,10 +334,11 @@ struct WorldMap: Sendable {
     /// **Riverlands.** A broad continent carrying a great void river system.
     ///
     /// Two rivers reach in from opposite outer edges along the seam between each
-    /// home and its expansion, each throwing a branch inland, and both die short
-    /// of the middle. What they leave between them is the Dominion: a neck of land
-    /// with water on both flanks, which is the one place an army can cross the map
-    /// on foot. Two tarns sit inland.
+    /// home and its expansion, each dying short of the middle so home plateaus
+    /// stay open for fights. What they leave between them is the Dominion: a neck
+    /// of land with water on both flanks, which is the one place an army can cross
+    /// the map on foot. Two tarns sit toward the outer flanks — not inland of the
+    /// Core fight grounds.
     ///
     /// An earlier cut ran the water all the way round the Dominion, making it an
     /// island in midstream. It was the better story and the worse picture — a
@@ -382,40 +383,37 @@ struct WorldMap: Sendable {
         ]
         let plate = table(plates)
 
-        // Rivers on the home→expansion seams, narrow enough to leave the land
-        // band intact, long enough that the Dominion neck is still the dry crossing.
+        // Rivers on the home→expansion seams. Inland reach is kept short so each
+        // home plateau keeps a contiguous fight ground near the Core; the
+        // Dominion neck remains the dry crossing. One inland tarn (not three)
+        // marks water without peppering the field with pocket voids.
         let sunRiver = strait(
             between: plate[.sunwovenHome]!, and: plate[.sunwovenExpansion]!,
-            head: 3.0, mouth: 6.5, inland: 16, seaward: 40, bow: -5, meander: 3.5,
-            wander: 1.5, wanderScale: 28, salt: LandNoise.salt(0x7A3C_11E5, seed: seed)
+            head: 2.6, mouth: 6.0, inland: 10, seaward: 40, bow: -5, meander: 3.0,
+            wander: 1.4, wanderScale: 28, salt: LandNoise.salt(0x7A3C_11E5, seed: seed)
         )
         let graveRiver = strait(
             between: plate[.gravemarkHome]!, and: plate[.gravemarkExpansion]!,
-            head: 3.2, mouth: 5.0, inland: 14, seaward: 36, bow: 4, meander: 2.0, meanderTurns: 2.0,
-            wander: 1.6, wanderScale: 22, salt: LandNoise.salt(0x35C8_02BF, seed: seed)
+            head: 2.8, mouth: 4.8, inland: 9, seaward: 36, bow: 4, meander: 1.8, meanderTurns: 2.0,
+            wander: 1.5, wanderScale: 22, salt: LandNoise.salt(0x35C8_02BF, seed: seed)
         )
         let tarn = VoidBody.basin(
-            at: [-40, 28], radius: 5.5,
-            outline: CoastProfile(lobes: [.init(2, 0.20, 1.10), .init(3, 0.10, 2.40)], fray: 0.07, frayScale: 9, salt: LandNoise.salt(0x4A11_9C05, seed: seed)),
-            wander: 1.0, wanderScale: 11, salt: LandNoise.salt(0x9B27_D410, seed: seed)
-        )
-        let mere = VoidBody.basin(
-            at: [-28, -18], radius: 4.5,
-            outline: CoastProfile(lobes: [.init(2, 0.18, 0.30), .init(5, 0.08, 1.90)], fray: 0.07, frayScale: 7, salt: LandNoise.salt(0xC073_51DA, seed: seed)),
-            wander: 0.9, wanderScale: 9, salt: LandNoise.salt(0x71B6_3E8C, seed: seed)
+            at: [-42, 30], radius: 4.5,
+            outline: CoastProfile(lobes: [.init(2, 0.18, 1.10), .init(3, 0.08, 2.40)], fray: 0.06, frayScale: 9, salt: LandNoise.salt(0x4A11_9C05, seed: seed)),
+            wander: 0.9, wanderScale: 11, salt: LandNoise.salt(0x9B27_D410, seed: seed)
         )
         let pool = VoidBody.basin(
-            at: [36, -14], radius: 6.5,
-            outline: CoastProfile(lobes: [.init(2, 0.22, 2.70), .init(3, 0.10, 0.80), .init(5, 0.05, 1.60)], fray: 0.07, frayScale: 8, salt: LandNoise.salt(0x2D5F_8B41, seed: seed)),
-            wander: 1.0, wanderScale: 13, salt: LandNoise.salt(0x2E74_C1B8, seed: seed)
+            at: [40, -18], radius: 5.0,
+            outline: CoastProfile(lobes: [.init(2, 0.20, 2.70), .init(3, 0.08, 0.80)], fray: 0.06, frayScale: 8, salt: LandNoise.salt(0x2D5F_8B41, seed: seed)),
+            wander: 0.9, wanderScale: 13, salt: LandNoise.salt(0x2E74_C1B8, seed: seed)
         )
 
         return assemble(
             id: .riverlands,
             seed: seed,
             authored: plates,
-            water: [sunRiver, graveRiver, tarn, mere, pool],
-            erosion: LandErosion(amplitude: 3.0, scale: 42, octaves: 2, bias: 16.0, salt: LandNoise.salt(0x6D2B_79F5, seed: seed))
+            water: [sunRiver, graveRiver, tarn, pool],
+            erosion: LandErosion(amplitude: 2.6, scale: 44, octaves: 2, bias: 16.5, salt: LandNoise.salt(0x6D2B_79F5, seed: seed))
         )
     }
 
@@ -456,43 +454,40 @@ struct WorldMap: Sendable {
         let plate = table(plates)
 
         let greatLake = VoidBody.basin(
-            at: [-30, 10], radius: 10,
+            at: [-32, 12], radius: 9.0,
             outline: CoastProfile(
-                lobes: [.init(2, 0.22, 0.65), .init(3, 0.12, 2.30), .init(5, 0.06, 1.10)],
-                fray: 0.06, frayScale: 13, salt: LandNoise.salt(0x5C90_2E37, seed: seed)
+                lobes: [.init(2, 0.20, 0.65), .init(3, 0.10, 2.30), .init(5, 0.05, 1.10)],
+                fray: 0.05, frayScale: 13, salt: LandNoise.salt(0x5C90_2E37, seed: seed)
             ),
-            wander: 1.3, wanderScale: 22, salt: LandNoise.salt(0x6E22_A18D, seed: seed)
+            wander: 1.2, wanderScale: 22, salt: LandNoise.salt(0x6E22_A18D, seed: seed)
         )
         let farLake = VoidBody.basin(
-            at: [28, -8], radius: 8.5,
+            at: [30, -10], radius: 7.5,
             outline: CoastProfile(
-                lobes: [.init(2, 0.24, 2.05), .init(3, 0.10, 0.70), .init(4, 0.07, 2.60)],
-                fray: 0.07, frayScale: 11, salt: LandNoise.salt(0xA6F4_1D82, seed: seed)
+                lobes: [.init(2, 0.22, 2.05), .init(3, 0.09, 0.70), .init(4, 0.06, 2.60)],
+                fray: 0.06, frayScale: 11, salt: LandNoise.salt(0xA6F4_1D82, seed: seed)
             ),
-            wander: 1.4, wanderScale: 19, salt: LandNoise.salt(0x0E83_66C1, seed: seed)
+            wander: 1.2, wanderScale: 19, salt: LandNoise.salt(0x0E83_66C1, seed: seed)
         )
+        // Arms stay seaward-biased — short inland so home plateaus are not
+        // sliced into fight corridors between lake and channel.
         let sunArm = strait(
             between: plate[.sunwovenHome]!, and: plate[.sunwovenExpansion]!,
-            head: 4.0, mouth: 7.5, inland: 10, seaward: 36, bow: 5, meander: 3.0,
-            wander: 1.5, wanderScale: 28, salt: LandNoise.salt(0x18AF_3C60, seed: seed)
+            head: 3.2, mouth: 7.0, inland: 6, seaward: 36, bow: 5, meander: 2.6,
+            wander: 1.4, wanderScale: 28, salt: LandNoise.salt(0x18AF_3C60, seed: seed)
         )
         let graveArm = strait(
             between: plate[.gravemarkHome]!, and: plate[.gravemarkExpansion]!,
-            head: 3.6, mouth: 8.0, inland: 12, seaward: 34, bow: -6, meander: 2.2, meanderTurns: 2.0,
-            wander: 1.5, wanderScale: 24, salt: LandNoise.salt(0x93D7_5A04, seed: seed)
-        )
-        let hollow = VoidBody.basin(
-            at: [-55, -28], radius: 5.0,
-            outline: CoastProfile(lobes: [.init(2, 0.20, 2.10), .init(3, 0.10, 0.50)], fray: 0.07, frayScale: 8, salt: LandNoise.salt(0x21A5_C7E9, seed: seed)),
-            wander: 0.9, wanderScale: 10, salt: LandNoise.salt(0xB4E0_2A79, seed: seed)
+            head: 3.0, mouth: 7.2, inland: 7, seaward: 34, bow: -6, meander: 2.0, meanderTurns: 2.0,
+            wander: 1.4, wanderScale: 24, salt: LandNoise.salt(0x93D7_5A04, seed: seed)
         )
 
         return assemble(
             id: .basin,
             seed: seed,
             authored: plates,
-            water: [greatLake, farLake, sunArm, graveArm, hollow],
-            erosion: LandErosion(amplitude: 2.5, scale: 38, octaves: 2, bias: 16.5, salt: LandNoise.salt(0x3F19_C24B, seed: seed))
+            water: [greatLake, farLake, sunArm, graveArm],
+            erosion: LandErosion(amplitude: 2.2, scale: 40, octaves: 2, bias: 16.8, salt: LandNoise.salt(0x3F19_C24B, seed: seed))
         )
     }
 
@@ -504,23 +499,23 @@ struct WorldMap: Sendable {
     /// the most irregular silhouette — and the most defensible interior.
     private static func fjords(seed: UInt64) -> WorldMap {
         let homeCoast = CoastProfile(
-            lobes: [.init(2, 0.12, 0.70), .init(3, 0.08, 2.40), .init(5, 0.04, 1.20)],
-            fray: 0.012, frayScale: 19, salt: LandNoise.salt(0x2C6D_B913, seed: seed)
+            lobes: [.init(2, 0.10, 0.70), .init(3, 0.06, 2.40), .init(5, 0.03, 1.20)],
+            fray: 0.01, frayScale: 19, salt: LandNoise.salt(0x2C6D_B913, seed: seed)
         )
         let expansionCoast = CoastProfile(
-            lobes: [.init(2, 0.11, 2.00), .init(3, 0.07, 0.80), .init(5, 0.04, 2.60)],
-            fray: 0.012, frayScale: 17, salt: LandNoise.salt(0x69F0_44C2, seed: seed)
+            lobes: [.init(2, 0.09, 2.00), .init(3, 0.06, 0.80), .init(5, 0.03, 2.60)],
+            fray: 0.01, frayScale: 17, salt: LandNoise.salt(0x69F0_44C2, seed: seed)
         )
         let outcropCoast = CoastProfile(
-            lobes: [.init(2, 0.12, 0.50), .init(3, 0.08, 1.80)],
-            fray: 0.015, frayScale: 13, salt: LandNoise.salt(0x3E51_A8D6, seed: seed)
+            lobes: [.init(2, 0.10, 0.50), .init(3, 0.06, 1.80)],
+            fray: 0.012, frayScale: 13, salt: LandNoise.salt(0x3E51_A8D6, seed: seed)
         )
 
         let plates = [
             Fragment(id: .sunwovenHome, center: core(bearing: 170, reach: 45), radius: 56, depth: 28, coast: homeCoast),
             Fragment(id: .gravemarkHome, center: core(bearing: -10, reach: 45), radius: 54, depth: 28, coast: homeCoast.halfTurned),
             Fragment(id: .dominion, center: [0, 0], radius: 50, depth: 22,
-                     coast: CoastProfile(lobes: [.init(2, 0.05, 1.20), .init(3, 0.03, 0.30), .init(5, 0.02, 2.40)], fray: 0.012, frayScale: 15, salt: LandNoise.salt(0x59A2_D704, seed: seed))),
+                     coast: CoastProfile(lobes: [.init(2, 0.05, 1.20), .init(3, 0.03, 0.30), .init(5, 0.02, 2.40)], fray: 0.01, frayScale: 15, salt: LandNoise.salt(0x59A2_D704, seed: seed))),
             Fragment(id: .sunwovenExpansion, center: [-14, -44], radius: 54, depth: 22, coast: expansionCoast),
             Fragment(id: .gravemarkExpansion, center: [16, 46], radius: 52, depth: 22, coast: expansionCoast.halfTurned),
             Fragment(id: .neutralOutcropNorth, center: [48, 48], radius: 46, depth: 18, coast: outcropCoast),
@@ -528,33 +523,30 @@ struct WorldMap: Sendable {
         ]
         let plate = table(plates)
 
+        // Two primary sounds keep the fjord read; a third inland bite was
+        // carving the Dominion approaches into peninsula corridors.
         let sunSound = strait(
             between: plate[.sunwovenHome]!, and: plate[.sunwovenExpansion]!,
-            head: 2.6, mouth: 6.0, inland: 22, seaward: 40, bow: -6, meander: 2.8,
-            wander: 1.2, wanderScale: 24, salt: LandNoise.salt(0x4477_1BE9, seed: seed)
+            head: 2.4, mouth: 5.6, inland: 14, seaward: 40, bow: -6, meander: 2.4,
+            wander: 1.1, wanderScale: 24, salt: LandNoise.salt(0x4477_1BE9, seed: seed)
         )
         let graveSound = strait(
             between: plate[.gravemarkHome]!, and: plate[.gravemarkExpansion]!,
-            head: 2.8, mouth: 5.0, inland: 14, seaward: 34, bow: 5, meander: 2.0, meanderTurns: 1.0,
-            wander: 1.3, wanderScale: 20, salt: LandNoise.salt(0xE60B_9317, seed: seed)
-        )
-        let blindFjord = strait(
-            between: plate[.dominion]!, and: plate[.gravemarkExpansion]!,
-            head: 2.2, mouth: 4.8, inland: 12, seaward: 30, bow: 6, meander: 2.0,
-            wander: 1.1, wanderScale: 20, salt: LandNoise.salt(0x7D2E_6C31, seed: seed)
+            head: 2.5, mouth: 4.8, inland: 10, seaward: 34, bow: 5, meander: 1.8, meanderTurns: 1.0,
+            wander: 1.2, wanderScale: 20, salt: LandNoise.salt(0xE60B_9317, seed: seed)
         )
         let outerBite = strait(
             between: plate[.sunwovenHome]!, and: plate[.neutralOutcropNorth]!,
-            head: 1.8, mouth: 4.5, inland: 12, seaward: 24, bow: -4, meander: 2.2,
-            wander: 1.0, wanderScale: 16, salt: LandNoise.salt(0x1D93_7F42, seed: seed)
+            head: 1.6, mouth: 4.0, inland: 8, seaward: 24, bow: -4, meander: 1.8,
+            wander: 0.9, wanderScale: 16, salt: LandNoise.salt(0x1D93_7F42, seed: seed)
         )
 
         return assemble(
             id: .fjords,
             seed: seed,
             authored: plates,
-            water: [sunSound, graveSound, blindFjord, outerBite],
-            erosion: LandErosion(amplitude: 4.0, scale: 30, octaves: 3, bias: 15.5, salt: LandNoise.salt(0x8C51_06AD, seed: seed))
+            water: [sunSound, graveSound, outerBite],
+            erosion: LandErosion(amplitude: 3.2, scale: 32, octaves: 2, bias: 16.0, salt: LandNoise.salt(0x8C51_06AD, seed: seed))
         )
     }
     /// Where a home plate's centre goes, given a bearing.
@@ -613,7 +605,9 @@ struct WorldMap: Sendable {
         )
         // Fit the camera box so land fills 75–80% of it: shrink the land AABB
         // just enough to drop the empty corners while retaining most land cells.
-        let bounds = draft.fittedPlayableBounds(retaining: 0.975, rim: 1.008, step: 2.5)
+        // Slightly larger rim than CP-14's 1.008: sparse inland water raised land
+        // fraction; the extra void margin keeps the camera band in 75–80%.
+        let bounds = draft.fittedPlayableBounds(retaining: 0.975, rim: 1.014, step: 2.5)
 
         // Transports own the first home→expansion crossing. On these maps that
         // is a river or a lake the player can see, not an abstract rule.

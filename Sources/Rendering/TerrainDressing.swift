@@ -60,8 +60,11 @@ enum TerrainDressing {
         var circles: [KeepClear] = []
 
         for building in simulation.buildings.values {
+            // Cores get a wide plaza keep-clear so the opening fight / staging
+            // ground stays open; other buildings keep a modest ring.
+            let pad: Float = building.kind == .civilizationCore ? 7.5 : 2.2
             circles.append(
-                KeepClear(center: building.position, radius: building.kind.footprintRadius + 2.2)
+                KeepClear(center: building.position, radius: building.kind.footprintRadius + pad)
             )
         }
         for unit in simulation.units.values {
@@ -71,9 +74,10 @@ enum TerrainDressing {
         }
         for deposit in simulation.deposits.values {
             // Wide enough that a citizen can stand anywhere in the work radius
-            // without a rock through their shins.
+            // without a rock through their shins — plus a little open apron so
+            // gather rings do not sit inside a thicket.
             circles.append(
-                KeepClear(center: deposit.position, radius: Deposit.workRadius + 1.4)
+                KeepClear(center: deposit.position, radius: Deposit.workRadius + 2.4)
             )
         }
 
@@ -592,10 +596,10 @@ enum TerrainDressing {
     ) {
         var sites: [SIMD2<Float>] = []
 
-        // The mask's feature size, in metres. Roughly a third of the fragment,
-        // so a 24 m home island carries three or four distinct thickets rather
-        // than one blanket or a pepper of noise.
-        let maskSpan = fragment.radius * 2.6
+        // The mask's feature size, in metres. Larger span + harder gate → fewer,
+        // more separated thickets with deliberate open fight ground between them
+        // (post-CP-14 sparse retune; CP-06 densified toward concept 01).
+        let maskSpan = fragment.radius * 3.2
         let maskSalt = UInt32(truncatingIfNeeded: seed >> 17) | 1
 
         /// The clumping field at a fragment-local point, in 0...1.
@@ -603,7 +607,7 @@ enum TerrainDressing {
             let u = point.x / maskSpan + 0.5
             let v = point.y / maskSpan + 0.5
             let raw = ProceduralNoise.fbm(u, v, octaves: 3, cellsX: 5, cellsY: 5, gain: 0.55, salt: maskSalt)
-            return ProceduralNoise.smoothstep(0.36, 0.66, raw)
+            return ProceduralNoise.smoothstep(0.46, 0.74, raw)
         }
 
         /// Accepts a cluster site only if it is on land, off every claimed
@@ -678,8 +682,9 @@ enum TerrainDressing {
 
             // Companions do not go through `site`, so unlike the lead they are
             // not subject to the jamming limit — this is the one lever that
-            // thickens a thicket rather than adding another one.
-            let companions = Int(vigour * 4.3 + random.unitFloat() * 2.6)
+            // thickens a thicket rather than adding another one. Kept lean so
+            // thickets read as accents, not carpets that choke fight space.
+            let companions = Int(vigour * 2.0 + random.unitFloat() * 1.2)
             for index in 0..<companions {
                 let angle = random.float(in: 0...(2 * .pi))
                 let distance = spread * random.float(in: 0.42...1.15)
@@ -696,70 +701,59 @@ enum TerrainDressing {
         /// independent (CP-12); faction identity is not carried by ground props.
         func kinds(vigour: Float) -> ([PropClass], Float) {
             let roll = random.unitFloat()
-            let treeChance: Float = 0.14
+            let treeChance: Float = 0.10
             if roll < treeChance * (0.5 + vigour) {
-                return ([.paleTree, .paleTree, .scrubClump, .bladeTuft], 2.6)
+                return ([.paleTree, .scrubClump, .bladeTuft], 2.4)
             }
-            if roll < 0.79 {
-                return ([.scrubClump, .scrubClump, .bladeTuft, .bladeTuft], 1.9)
+            if roll < 0.72 {
+                return ([.scrubClump, .bladeTuft, .bladeTuft], 1.7)
             }
             // Occasional mineral accent — rock variety, not a faction paint.
-            if roll < 0.88 {
-                return ([.rockScatter, .rockScatter, .bladeTuft], 1.5)
+            if roll < 0.86 {
+                return ([.rockScatter, .bladeTuft], 1.4)
             }
-            return ([.mineralSpikes, .rockScatter], 1.4)
+            return ([.mineralSpikes, .rockScatter], 1.3)
         }
 
         // Fringe: walk the rim at a fixed arc spacing so density is independent
-        // of how large the fragment is, then let the mask thin it out. The
-        // fringe is masked at a floor of 0.34 rather than at 0 — concept 01's
-        // rim carries growth all the way round, it is only the *weight* of it
-        // that varies.
+        // of how large the fragment is, then let the mask thin it out.
         //
-        // Arc spacing 3.0 → 1.5 m at CP-06. What separated the build from the
-        // concept was never the *character* of the planting — the mask, the
-        // clusters and the four classes were all doing their job — it was that
-        // there was a third as much of it, so the island read as a bare field
-        // with decoration around the edge. Everything that shapes where growth
-        // goes is untouched; only how many candidates are offered to it changes.
-        let fringeSpacing: Float = 1.5
+        // Post-CP-14 sparse retune: CP-06's 1.5 m arc packed the rim into a
+        // continuous hedge. ~3.0 m keeps a planted silhouette without boxing
+        // units into corridors of scrub.
+        let fringeSpacing: Float = 3.0
         let fringeCount = max(8, Int(2 * .pi * fragment.radius / fringeSpacing))
 
         for index in 0..<fringeCount {
             let angle = Float(index) / Float(fringeCount) * 2 * .pi + random.float(in: -0.09...0.09)
             let localRim = rim.radius(atAngle: angle)
-            let distance = localRim * random.float(in: 0.74...0.885)
+            let distance = localRim * random.float(in: 0.78...0.90)
             let candidate = SIMD2<Float>(cos(angle) * distance, sin(angle) * distance)
 
-            let vigour = max(mask(candidate), 0.34)
-            guard random.unitFloat() < vigour else { continue }
-            guard site(candidate, spacing: 1.3) else { continue }
+            let vigour = max(mask(candidate), 0.28)
+            guard random.unitFloat() < vigour * 0.72 else { continue }
+            guard site(candidate, spacing: 2.6) else { continue }
 
             let (classes, spread) = kinds(vigour: vigour)
             cluster(at: candidate, vigour: vigour, kinds: classes, spread: spread)
         }
 
         // Interior: area-uniform candidates, hard-masked. Most are still
-        // rejected, which is the point — the middle of concept 01's island is
-        // thicketed rather than carpeted, and the open ground between the
-        // thickets is as deliberate as the planting.
-        //
-        // 0.16 → 0.85 per square metre at CP-06, to keep the 1.5 m spacing below
-        // supplied rather than starved. The `vigour²` gate stays: it is what
-        // makes growth clump, and softening it would fill the negative space the
-        // concept keeps. Density comes from the spacing; the distribution is
-        // unchanged, so this is more props in the same thickets, leaving the
-        // same ground bare.
-        let candidates = max(10, Int(fragment.radius * fragment.radius * 0.85))
+        // rejected — open plateau between thickets is the fight ground.
+        // Spacing (not candidate count) caps density; ~3.0 m leaves room for
+        // unit formations that 1.5 m packing denied.
+        let candidates = max(10, Int(fragment.radius * fragment.radius * 0.38))
         for _ in 0..<candidates {
             let angle = random.float(in: 0...(2 * .pi))
             let localRim = rim.radius(atAngle: angle)
+            // Keep interior growth off the Core plaza band (inner ~40% of radius).
             let distance = sqrt(random.unitFloat()) * localRim * 0.78
+            guard distance > localRim * 0.38 else { continue }
             let candidate = SIMD2<Float>(cos(angle) * distance, sin(angle) * distance)
 
             let vigour = mask(candidate)
-            guard random.unitFloat() < vigour * vigour else { continue }
-            guard site(candidate, spacing: 1.5) else { continue }
+            guard random.unitFloat() < vigour * vigour * vigour else { continue }
+            guard site(candidate, spacing: 3.0) else { continue }
 
             let (classes, spread) = kinds(vigour: vigour)
             cluster(at: candidate, vigour: vigour, kinds: classes, spread: spread)
@@ -769,26 +763,25 @@ enum TerrainDressing {
         // civilization-independent — the planted silhouette is shared.
         do {
             var canopySites: [SIMD2<Float>] = []
-            // Rare tree-scale masses — concept 01 carries a handful, not a grove
-            // that buries the Core (try3 overshot with 4.0 m spacing).
-            let canopySpacing: Float = 7.0
-            let canopyCandidates = max(5, Int(fragment.radius * fragment.radius * 0.045))
+            // Sparse tree-scale accents — enough for silhouette, not a grove.
+            let canopySpacing: Float = 11.0
+            let canopyCandidates = max(4, Int(fragment.radius * fragment.radius * 0.022))
             for _ in 0..<canopyCandidates {
                 let angle = random.float(in: 0...(2 * .pi))
                 let localRim = rim.radius(atAngle: angle)
                 // Prefer mid-ring / fringe so crowns silhouette against void and
                 // stay clear of the Core's claimed circle.
-                let distance = localRim * random.float(in: 0.42...0.78)
+                let distance = localRim * random.float(in: 0.48...0.82)
                 let candidate = SIMD2<Float>(cos(angle) * distance, sin(angle) * distance)
 
                 let vigour = mask(candidate)
-                guard vigour > 0.24 else { continue }
-                guard random.unitFloat() < 0.55 + vigour * 0.25 else { continue }
+                guard vigour > 0.32 else { continue }
+                guard random.unitFloat() < 0.40 + vigour * 0.20 else { continue }
                 guard rim.contains(candidate, margin: 0.93) else { continue }
                 // Extra clearance past claimed radii so large crowns do not lean
                 // over the pavilion (try3).
                 guard claimed.allSatisfy({
-                    simd_distance($0.center, candidate) > $0.radius + 2.8
+                    simd_distance($0.center, candidate) > $0.radius + 3.5
                 }) else { continue }
                 guard canopySites.allSatisfy({ simd_distance($0, candidate) > canopySpacing }) else {
                     continue
@@ -796,9 +789,9 @@ enum TerrainDressing {
                 canopySites.append(candidate)
 
                 place(.branchingMass, at: candidate, vigour: max(vigour, 0.55))
-                if random.unitFloat() < 0.45 {
+                if random.unitFloat() < 0.28 {
                     let footAngle = random.float(in: 0...(2 * .pi))
-                    let footDist = random.float(in: 1.8...2.8)
+                    let footDist = random.float(in: 2.0...3.0)
                     place(
                         .scrubClump,
                         at: candidate + SIMD2<Float>(cos(footAngle), sin(footAngle)) * footDist,

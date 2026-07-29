@@ -145,6 +145,9 @@ fragment-to-void ratio, sparse starfield) still holds.
   sequential rejection jams at about `0.55 · area / (π · spacing²)`. Tripling the
   candidates at CP-06 moved coverage 0.057 → 0.088; moving the spacing took it to
   0.167. Cluster companions bypass `site` entirely and are the other lever.
+  Post-CP-14 sparse retune: interior/fringe site spacing is ~2.6–3.0 m (was
+  1.3–1.5 m) so plateaus keep open fight ground; companions and canopy are
+  thinned the same way.
 - **Do not judge a texture change by local σ.** It lumps the thing you changed in
   with veining, cast shadow and broad mottling, and it inverted between masks at
   CP-06 while the defect — a periodic dot lattice — was plain in a
@@ -181,10 +184,9 @@ fragment-to-void ratio, sparse starfield) still holds.
 - **Nebula wash needs authored opacity ~0.70** to survive ACES + the black plate
   into concept-range soft-void (~0.34). Quieter peaks read as flat black.
 - **A late scatter pass that jams against earlier `sites` will place nothing.**
-  Fringe/interior already pack at 1.3–1.5 m; a canopy check at 4 m against that
-  list rejects every candidate. Use a separate site list for rare large props,
-  and keep them clear of claimed ground by an extra margin so crowns do not bury
-  the Core.
+  Fringe/interior pack at ~2.6–3.0 m after the sparse retune; canopy still uses
+  its own site list. Keep large crowns clear of claimed ground by an extra margin
+  so they do not bury the Core.
 
 ## Where the frame actually stands
 

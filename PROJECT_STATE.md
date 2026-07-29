@@ -23,13 +23,13 @@ Rules for this file:
 |---|---|
 | **Last checkpoint** | CP-14 — AoE land cut by void water · **closed** |
 | **Closed** | 2026-07-28 |
-| **Build** | 🟢 Green. `** BUILD SUCCEEDED **`. |
-| **Renders** | 🟢 Clean. One continent; rivers/lakes/inlets as starfield void; void floor tracks cone. Land **75–80%** of playable bounds. |
-| **Current frame** | `Docs/QA/AAA/cp14-map1-riverlands.png` · `cp14-map2-basin.png` · `cp14-map3-fjords.png` · coverage spot-check `coverage-riverlands-spotcheck.png` |
+| **Build** | 🟢 Green. `** BUILD SUCCEEDED **`. DeterminismTests 19/19. |
+| **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
+| **Current frame** | `Docs/QA/AAA/sparse-map1-riverlands.png` · `sparse-map2-basin.png` · `sparse-map3-fjords.png` (before: `cp14-map1/2/3-*.png`) |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
-| **Current direction** | AoE-style maps closed (coverage retuned to 75–80%). Animation / G2 gameplay still parked. |
-| **Uncommitted work** | On `visual/aaa-uplift-cp02` — CP-14 + land-coverage retune locally; **do not commit** until asked. |
+| **Current direction** | Maps sparsened for fight space; animation / G2 gameplay still parked. |
+| **Uncommitted work** | On `visual/aaa-uplift-cp02` — CP-14 + coverage retune + **sparse fight-space retune**; **do not commit** until asked. |
 | **Next checkpoint** | Animation (parked) or G2 gameplay. |
 
 ---
@@ -302,15 +302,18 @@ asymmetric.
 
 | frame | proves |
 |---|---|
-| `Docs/QA/AAA/cp14-map1-riverlands.png` | River channels + tarns as black void; organic minimap; inland lake |
+| `Docs/QA/AAA/cp14-map1-riverlands.png` | Pre-sparse baseline: dense props + inland lake near Core |
 | `Docs/QA/AAA/cp14-map2-basin.png` | Great lakes / arms; void under dock; causeway spans water only |
 | `Docs/QA/AAA/cp14-map3-fjords.png` | Deep inlets as starfield; causeway decks over black channel (not plate rock) |
+| `Docs/QA/AAA/sparse-map1-riverlands.png` | Post-sparse: open Core plaza, thinned thickets, no near-Core tarn |
+| `Docs/QA/AAA/sparse-map2-basin.png` | Basin with open plateau fight space |
+| `Docs/QA/AAA/sparse-map3-fjords.png` | Fjords with open home plateau (blind inland sound removed) |
 
 **Map design.**
 
 | | riverlands (default) | basin | fjords |
 |---|---|---|---|
-| kind | branching rivers + tarns | great lakes + arms | long sounds / inlets |
+| kind | branching rivers + flank tarns | great lakes + arms | long sounds / inlets |
 | select | default / `-sunfoldMap riverlands` | `-sunfoldMap basin` | `-sunfoldMap fjords` |
 | aliases | `coastland`, `continental`, `map1` | `isthmus`, `crescent`, `map2` | `fjord`, `inlets`, `map3` |
 | fairness | Cores equal reach from Dominion | same | same |
@@ -330,13 +333,16 @@ the flank cone so rock never pokes through near the rim. Minimap contours the fi
 | 3D carve | Channels and lakes are starfield black. Pre-fix frames showed cracked plate underside; void floor + cone-tracking drop closed that. |
 | Causeways | Decks appear only across water crossings; no slab lying across dry ground. |
 | Fairness | Core centres share one radius about the Dominion; coasts / water / expansions free. |
-| Land coverage | Tuned to **75–80% of playable `bounds`** (seed `20260726`, step 1.5): riverlands **75.2%**, basin **78.9%**, fjords **76.1%**. Metric + floor asserted in `DeterminismTests` / `Tools/mappreview`. |
+| Land coverage | Still **75–80% of playable `bounds`** after sparse retune (seed `20260726`, step 1.5): riverlands **75.8%**, basin **79.4%**, fjords **77.6%**. Asserted in `DeterminismTests` / `Tools/mappreview`. |
+| Fight space | Post-CP-14 sparse retune: dressing site spacing ~2.6–3.0 m (was 1.3–1.5); Core plaza keep-clear +7.5 m; inland water shortened / pocket voids removed near cores. |
 
 **Cost.** `LandShape.swift`, `LandContour.swift`, rewritten `WorldMap` layouts,
 `FragmentMeshFactory` (water mask / banks / void floor), `WorldScene` water-crossing
 causeways, `Minimap` / dressing / movement / populator / DeterminismTests, AGENTS /
 bible / gauntlet / PROJECT_STATE. Launch-arg map switch remains the capture path
-(rebuild default per variant — args hook-blocked).
+(rebuild default per variant — args hook-blocked). Sparse follow-up also retuned
+`TerrainDressing` + inland water knobs; MapPreview entry renamed
+`Tools/mappreview/MapPreviewEntry.swift` (Swift `@main` vs `main.swift` conflict).
 
 ---
 
