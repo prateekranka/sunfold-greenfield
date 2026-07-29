@@ -38,7 +38,18 @@ struct RootView: View {
                         .padding(.leading, 12)
                         .padding(.top, 10)
                     Spacer(minLength: 0)
+                    if let ghost = controller.buildGhost {
+                        PlacementPanel(
+                            simulation: simulation,
+                            session: ghost,
+                            onCancel: { controller.cancelBuildGhost() }
+                        )
+                        .padding(.trailing, 16)
+                        .padding(.top, 8)
+                        .transition(.opacity.combined(with: .offset(y: -6)))
+                    }
                 }
+                .animation(.easeOut(duration: 0.18), value: controller.buildGhost != nil)
                 Spacer(minLength: 0)
                 bottomStrip
             }
@@ -78,9 +89,17 @@ struct RootView: View {
         HStack(alignment: .bottom, spacing: 14) {
             Minimap(simulation: simulation, rig: controller.rig)
             Spacer(minLength: 0)
-            SelectionPanel(simulation: simulation, selection: controller.selection)
+            SelectionPanel(
+                simulation: simulation,
+                selection: controller.selection,
+                controller: controller
+            )
             Spacer(minLength: 0)
-            CommandGrid(simulation: simulation, selection: controller.selection)
+            CommandGrid(
+                simulation: simulation,
+                selection: controller.selection,
+                controller: controller
+            )
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 16)

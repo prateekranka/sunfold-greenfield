@@ -115,6 +115,17 @@ struct ResourcePool: Sendable, Equatable {
         for kind in ResourceKind.allCases { result[kind] *= scalar }
         return result
     }
+
+    /// Compact cost line for HUD tiles, e.g. "70 Matter".
+    var costSummary: String {
+        ResourceKind.allCases
+            .compactMap { kind in
+                let amount = self[kind]
+                guard amount > 0 else { return nil }
+                return "\(Int(amount.rounded())) \(kind.displayName)"
+            }
+            .joined(separator: " · ")
+    }
 }
 
 /// The two ages in this slice. Ascension is explicitly out of scope.

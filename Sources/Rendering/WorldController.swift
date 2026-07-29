@@ -28,6 +28,13 @@ final class WorldController {
     /// lasso is in progress; the HUD draws it straight from here.
     private(set) var marquee: Marquee?
 
+    /// Live build ghost while placing a Farm / Extractor / Dwelling.
+    private(set) var buildGhost: ConstructionPlacement.Session?
+
+    /// Incomplete buildings that were still rising last frame — used to fire
+    /// completion feedback exactly once when progress crosses 1.
+    private var risingBuildings: Set<EntityID> = []
+
     struct Marquee: Equatable {
         var origin: SIMD2<Float>
         var current: SIMD2<Float>
@@ -99,15 +106,49 @@ final class WorldController {
 
         // Presentation is reconciled after the simulation has stepped, so a frame
         // never shows a mix of this tick's positions and last tick's entities.
+        if var ghost = buildGhost {
+            ghost.age += deltaTime
+            let footprintOK = ConstructionPlacement.isLegal(
+                kind: ghost.kind, at: ghost.position, in: simulation
+            )
+            let canPay = simulation.stock(for: .sunwoven)
+                .covers(simulation.tuning.cost(for: ghost.kind))
+            ghost.isLegal = footprintOK && canPay
+            buildGhost = ghost
+        }
+
+        let completed = detectConstructionCompletions()
         presenter?.sync(
             simulation: simulation,
             selection: selection,
             deltaTime: deltaTime,
-            reducedMotion: reducedMotion
+            reducedMotion: reducedMotion,
+            buildGhost: buildGhost,
+            completionFlashes: completed
         )
 
         let instantaneous = 1.0 / deltaTime
         smoothedFPS = smoothedFPS == 0 ? instantaneous : smoothedFPS * 0.9 + instantaneous * 0.1
+    }
+
+    /// Buildings that finished this frame (for one-shot visual + audio cue).
+    private func detectConstructionCompletions() -> Set<EntityID> {
+        var justFinished: Set<EntityID> = []
+        var stillRising: Set<EntityID> = []
+        for (id, building) in simulation.buildings {
+            if building.isComplete {
+                if risingBuildings.contains(id) {
+                    justFinished.insert(id)
+                }
+            } else {
+                stillRising.insert(id)
+            }
+        }
+        risingBuildings = stillRising
+        if !justFinished.isEmpty {
+            FeedbackAudio.constructionComplete()
+        }
+        return justFinished
     }
 
     // MARK: - Touch intents
@@ -118,6 +159,12 @@ final class WorldController {
     /// elsewhere with units selected moves them; tapping empty ground with nothing
     /// selected clears. Advanced orders wait until the basic loop is proven.
     func handleTap(atScreenPoint screenPoint: SIMD2<Float>, viewportSize: SIMD2<Float>) {
+        // PROTOTYPE (#11): tap cancels an active ghost without placing.
+        if buildGhost != nil {
+            cancelBuildGhost()
+            return
+        }
+
         guard let rig,
               let worldPoint = rig.worldPoint(fromScreen: screenPoint, viewportSize: viewportSize)
         else { return }
@@ -249,9 +296,119 @@ final class WorldController {
             .sorted { $0.raw < $1.raw }
     }
 
+    // MARK: - Construction placement (CP-G2a)
+
+    /// Starts a Soft ghost for `kind`. Prefers open home ground near the Core.
+    func beginBuildGhost(_ kind: BuildingKind) {
+        guard ConstructionPlacement.placeableKinds.contains(kind) else { return }
+        let home = simulation.map.fragment(.sunwovenHome).center
+        let candidates: [WorldPoint] = [
+            home + WorldPoint(14, 0),
+            home + WorldPoint(-14, 0),
+            home + WorldPoint(0, 14),
+            home + WorldPoint(0, -14),
+            home + WorldPoint(12, 12),
+            home + WorldPoint(-12, 12),
+            home + WorldPoint(16, -4),
+            currentFocus
+        ]
+        let start = candidates.first {
+            ConstructionPlacement.isLegal(kind: kind, at: $0, in: simulation)
+        } ?? candidates[0]
+        let footprintOK = ConstructionPlacement.isLegal(kind: kind, at: start, in: simulation)
+        let canPay = simulation.stock(for: .sunwoven)
+            .covers(simulation.tuning.cost(for: kind))
+        buildGhost = ConstructionPlacement.Session(
+            kind: kind,
+            position: start,
+            isLegal: footprintOK && canPay
+        )
+        DebugLog.info(
+            "Build ghost: began \(kind.displayName) legal=\(footprintOK && canPay)"
+        )
+    }
+
+    /// Moves the ghost under the finger. Returns true when ghost mode ate the pan
+    /// (camera must stay put).
+    @discardableResult
+    func moveBuildGhost(
+        atScreenPoint screenPoint: SIMD2<Float>,
+        viewportSize: SIMD2<Float>
+    ) -> Bool {
+        guard var ghost = buildGhost, let rig else { return false }
+        guard let world = rig.worldPoint(fromScreen: screenPoint, viewportSize: viewportSize)
+        else { return true }
+        ghost.position = world
+        let footprintOK = ConstructionPlacement.isLegal(
+            kind: ghost.kind, at: world, in: simulation
+        )
+        let canPay = simulation.stock(for: .sunwoven)
+            .covers(simulation.tuning.cost(for: ghost.kind))
+        ghost.isLegal = footprintOK && canPay
+        buildGhost = ghost
+        return true
+    }
+
+    /// Drag-release: place a real foundation if legal and affordable, else deny.
+    func endBuildGhostDrag() {
+        guard var ghost = buildGhost else { return }
+        let now = simulation.elapsed
+        let affordable = simulation.stock(for: .sunwoven)
+            .covers(simulation.tuning.cost(for: ghost.kind))
+        if ghost.isLegal && affordable {
+            let id = simulation.placeBuilding(
+                ghost.kind,
+                at: ghost.position,
+                for: .sunwoven,
+                preferredBuilders: Array(selection.selectedUnits)
+            )
+            if let id {
+                risingBuildings.insert(id)
+                selection.selectBuilding(id)
+                ghost.placeUntil = now + 0.45
+                ghost.isLegal = ConstructionPlacement.isLegal(
+                    kind: ghost.kind, at: ghost.position, in: simulation
+                )
+                FeedbackAudio.constructionPlaced()
+                DebugLog.info("Build ghost: founded \(ghost.kind.displayName) #\(id.raw)")
+                buildGhost = ghost
+                return
+            }
+        }
+        ghost.denyUntil = now + 0.35
+        FeedbackAudio.constructionDenied()
+        buildGhost = ghost
+    }
+
+    func cancelBuildGhost() {
+        guard buildGhost != nil else { return }
+        buildGhost = nil
+        DebugLog.info("Build ghost: cancelled")
+    }
+
+    /// Deselect cancels an active ghost with no charge (placement contract).
+    func clearSelection() {
+        cancelBuildGhost()
+        selection.clear()
+    }
+
+    /// Cancels an incomplete foundation and refunds a fraction of its cost.
+    @discardableResult
+    func cancelConstruction(_ buildingID: EntityID) -> Bool {
+        let ok = simulation.cancelConstruction(buildingID)
+        if ok {
+            risingBuildings.remove(buildingID)
+            if selection.selectedBuilding == buildingID {
+                selection.clear()
+            }
+        }
+        return ok
+    }
+
     // MARK: - Camera intents
 
     func pan(screenDelta: SIMD2<Float>, viewportHeight: Float) {
+        guard buildGhost == nil else { return }
         guard let rig else { return }
         rig.pan(by: rig.worldDelta(forScreenDelta: screenDelta, viewportHeight: viewportHeight))
     }

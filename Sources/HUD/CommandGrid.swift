@@ -10,16 +10,10 @@ import SwiftUI
 /// selection changes forces the player to re-find every button, and muscle
 /// memory for a command's *position* is most of what makes an RTS fast — so a
 /// command that does not apply is dimmed in place rather than removed.
-///
-/// **Honesty about what is wired.** G2 gameplay — construction, production,
-/// stances, rally points — is parked, so most of these have nothing to call yet
-/// and are rendered disabled. That is the truthful state, and it is also the
-/// correct one: an enabled button that silently does nothing is worse chrome
-/// than a dimmed one. `stop` is wired, because cancelling a move is expressible
-/// with the orders that do exist.
 struct CommandGrid: View {
     let simulation: SkirmishSimulation
     let selection: SelectionModel
+    var controller: WorldController?
 
     private var selectedUnits: [EntityID] { Array(selection.selectedUnits) }
     private var hasUnits: Bool { !selectedUnits.isEmpty }
@@ -47,22 +41,15 @@ struct CommandGrid: View {
 
     // MARK: - Layout
 
-    /// One cell of the card. `action` is nil for everything G2 has not built.
     private struct Cell {
         let glyph: HUDGlyph.Kind
         let name: String
         var isPrimary = false
+        var badge: String?
         var action: (() -> Void)?
     }
 
-    /// Built a row at a time rather than as one nested literal: nine
-    /// memberwise inits with defaulted arguments inside a `[[Cell]]` is more
-    /// than the type checker will spend, and it fails with "failed to produce
-    /// diagnostic for expression" rather than with anything about the card.
     private var rows: [[Cell]] {
-        // Annotated and wrapped rather than `hasUnits ? stop : nil`: inferring
-        // `(() -> Void)?` from a bare method reference against `nil` is the other
-        // half of the same type-checker cliff.
         let stopAction: (() -> Void)? = hasUnits ? { self.stop() } : nil
         let orders: [Cell] = [
             Cell(glyph: .move, name: "Move", isPrimary: hasUnits),
@@ -75,11 +62,24 @@ struct CommandGrid: View {
             Cell(glyph: .outpost, name: "Build Outpost")
         ]
         let structures: [Cell] = [
-            Cell(glyph: .farm, name: "Build Farm"),
-            Cell(glyph: .extractor, name: "Build Matter Extractor"),
-            Cell(glyph: .dwelling, name: "Build Dwelling")
+            buildCell(.farm, glyph: .farm),
+            buildCell(.matterExtractor, glyph: .extractor),
+            buildCell(.dwelling, glyph: .dwelling)
         ]
         return [orders, stances, structures]
+    }
+
+    private func buildCell(_ kind: BuildingKind, glyph: HUDGlyph.Kind) -> Cell {
+        let cost = simulation.tuning.cost(for: kind)
+        let canAfford = simulation.stock(for: .sunwoven).covers(cost)
+        let badge = cost.matter > 0 ? "\(Int(cost.matter.rounded()))" : nil
+        return Cell(
+            glyph: glyph,
+            name: "\(kind.displayName). \(kind.purpose). Costs \(cost.costSummary).",
+            isPrimary: canAfford && hasUnits,
+            badge: badge,
+            action: { self.controller?.beginBuildGhost(kind) }
+        )
     }
 
     private func tile(for cell: Cell) -> some View {
@@ -88,6 +88,7 @@ struct CommandGrid: View {
             size: HUDMetrics.commandTile,
             isEnabled: cell.action != nil,
             isPrimary: cell.isPrimary,
+            badge: cell.badge,
             name: cell.name,
             action: cell.action
         )
@@ -95,10 +96,6 @@ struct CommandGrid: View {
 
     // MARK: - Orders
 
-    /// Stop is a move to where the unit already stands. The simulation clears a
-    /// destination on arrival, so ordering a unit to its own position is exactly
-    /// "cancel what you were doing" without needing a second verb in the
-    /// simulation's vocabulary.
     private func stop() {
         for id in selectedUnits {
             guard let unit = simulation.unit(id) else { continue }

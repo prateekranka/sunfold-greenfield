@@ -27,6 +27,13 @@ final class EntityPresenter {
     private var selectionRings: [EntityID: Entity] = [:]
     private var orderMarker: Entity?
 
+    /// Soft build-ghost footprint entity (CP-G2a).
+    private var buildGhostEntity: Entity?
+    /// Progress rings for incomplete foundations.
+    private var constructionRings: [EntityID: Entity] = [:]
+    /// Brief gold flash entities when a building completes.
+    private var completionFlashes: [EntityID: (entity: Entity, until: Double)] = [:]
+
     /// The load a citizen is carrying, and which kind it is currently tinted for,
     /// so the material is only rebuilt when the resource actually changes.
     private var cargoPacks: [EntityID: Entity] = [:]
@@ -51,13 +58,18 @@ final class EntityPresenter {
         simulation: SkirmishSimulation,
         selection: SelectionModel,
         deltaTime: Double,
-        reducedMotion: Bool
+        reducedMotion: Bool,
+        buildGhost: ConstructionPlacement.Session? = nil,
+        completionFlashes justFinished: Set<EntityID> = []
     ) {
         syncBuildings(simulation)
         syncDeposits(simulation)
         syncUnits(simulation, deltaTime: deltaTime, reducedMotion: reducedMotion)
         syncSelection(simulation, selection)
         syncOrderMarker(simulation, selection)
+        syncConstructionProgress(simulation)
+        syncCompletionFlashes(justFinished, simulation: simulation, now: simulation.elapsed)
+        syncBuildGhost(buildGhost, map: simulation.map, now: simulation.elapsed)
     }
 
     // MARK: - Units
@@ -228,14 +240,127 @@ final class EntityPresenter {
     // MARK: - Buildings
 
     private func syncBuildings(_ simulation: SkirmishSimulation) {
-        for (id, building) in simulation.buildings where buildingEntities[id] == nil {
-            let entity = makeBuildingEntity(for: building, id: id)
-            entity.name = "building.\(building.kind.rawValue).\(id.raw)"
-            entity.position = TerrainSurface.standing(at: building.position, in: simulation.map)
-            buildingEntities[id] = entity
-            root.addChild(entity)
+        for (id, building) in simulation.buildings {
+            if buildingEntities[id] == nil {
+                let entity = makeBuildingEntity(for: building, id: id)
+                entity.name = "building.\(building.kind.rawValue).\(id.raw)"
+                entity.position = TerrainSurface.standing(at: building.position, in: simulation.map)
+                buildingEntities[id] = entity
+                root.addChild(entity)
+            }
+            guard let entity = buildingEntities[id] else { continue }
+            // Incomplete foundations read as rising out of the ground.
+            let progress = Float(building.constructionProgress)
+            let rise = 0.35 + 0.65 * progress
+            entity.scale = [rise, rise, rise]
+            entity.isEnabled = true
         }
-        removeStale(from: &buildingEntities, keeping: simulation.buildings.keys) { _ in }
+        removeStale(from: &buildingEntities, keeping: simulation.buildings.keys) { id in
+            constructionRings[id]?.removeFromParent()
+            constructionRings[id] = nil
+        }
+    }
+
+    private func syncConstructionProgress(_ simulation: SkirmishSimulation) {
+        for (id, building) in simulation.buildings {
+            guard !building.isComplete else {
+                constructionRings[id]?.isEnabled = false
+                continue
+            }
+            let progress = Float(building.constructionProgress)
+            let ring = constructionRings[id] ?? {
+                let created = makeConstructionRing(
+                    radius: max(building.kind.footprintRadius * 1.05, 2.4)
+                )
+                created.name = "feedback.construction.\(id.raw)"
+                root.addChild(created)
+                constructionRings[id] = created
+                return created
+            }()
+            ring.isEnabled = true
+            ring.position = TerrainSurface.standing(
+                at: building.position, in: simulation.map, lift: 0.12
+            )
+            // Arc fills as progress climbs; slight pulse so activity is felt.
+            let pulse = 1 + 0.04 * sin(Float(simulation.elapsed) * 6)
+            ring.scale = [pulse, 1, pulse]
+            if var model = ring.components[ModelComponent.self] {
+                let alpha = 0.35 + 0.45 * progress
+                var material = UnlitMaterial(
+                    color: SunfoldPalette.sunwovenGold.withAlphaComponent(CGFloat(alpha))
+                )
+                material.blending = .transparent(opacity: .init(floatLiteral: alpha))
+                model.materials = [material]
+                ring.components.set(model)
+            }
+        }
+        for id in constructionRings.keys where simulation.buildings[id] == nil
+            || simulation.buildings[id]?.isComplete == true {
+            constructionRings[id]?.removeFromParent()
+            constructionRings[id] = nil
+        }
+    }
+
+    private func syncCompletionFlashes(
+        _ justFinished: Set<EntityID>,
+        simulation: SkirmishSimulation,
+        now: Double
+    ) {
+        for id in justFinished {
+            guard let building = simulation.building(id) else { continue }
+            let flash = makeCompletionFlash(
+                radius: max(building.kind.footprintRadius * 1.3, 3.0)
+            )
+            flash.name = "feedback.complete.\(id.raw)"
+            flash.position = TerrainSurface.standing(
+                at: building.position, in: simulation.map, lift: 0.2
+            )
+            root.addChild(flash)
+            completionFlashes[id] = (flash, now + 0.85)
+        }
+
+        for (id, entry) in completionFlashes {
+            let age = Float(max(0, entry.until - now))
+            if age <= 0 {
+                entry.entity.removeFromParent()
+                completionFlashes[id] = nil
+                continue
+            }
+            let t = age / 0.85
+            let expand = 1.0 + (1.0 - t) * 0.55
+            entry.entity.scale = [expand, 1, expand]
+            if var model = entry.entity.components[ModelComponent.self] {
+                let alpha = 0.55 * t
+                var material = UnlitMaterial(
+                    color: SunfoldPalette.sunwovenGold.withAlphaComponent(CGFloat(alpha))
+                )
+                material.blending = .transparent(opacity: .init(floatLiteral: Float(alpha)))
+                model.materials = [material]
+                entry.entity.components.set(model)
+            }
+        }
+    }
+
+    private func makeConstructionRing(radius: Float) -> Entity {
+        let entity = Entity()
+        entity.components.set(
+            ModelComponent(
+                mesh: makeBuildGhostDiscMesh(radius: radius),
+                materials: [UnlitMaterial(color: .white)]
+            )
+        )
+        return entity
+    }
+
+    private func makeCompletionFlash(radius: Float) -> Entity {
+        let entity = Entity()
+        entity.components.set(
+            ModelComponent(
+                mesh: makeBuildGhostDiscMesh(radius: radius),
+                materials: [UnlitMaterial(color: .white)]
+            )
+        )
+        return entity
     }
 
     private func makeBuildingEntity(for building: Building, id: EntityID) -> Entity {
@@ -309,6 +434,138 @@ final class EntityPresenter {
         entity.isEnabled = true
         entity.position = TerrainSurface.standing(at: marker.position, in: simulation.map, lift: 0.04)
         entity.scale = [pulse, 1, pulse]
+    }
+
+    // MARK: - Build ghost (Soft, shipping)
+
+    private func syncBuildGhost(
+        _ session: ConstructionPlacement.Session?,
+        map: WorldMap,
+        now: Double
+    ) {
+        guard let session else {
+            buildGhostEntity?.isEnabled = false
+            return
+        }
+
+        let entity = buildGhostEntity ?? {
+            let created = Entity()
+            created.name = "placement.ghost"
+            root.addChild(created)
+            buildGhostEntity = created
+            return created
+        }()
+
+        let denying = now < session.denyUntil
+        let placing = now < session.placeUntil
+
+        // Soft palette — locked feel from #11, Sunfold colours.
+        let color: UIColor
+        if denying {
+            color = UIColor(red: 0.90, green: 0.32, blue: 0.26, alpha: 1)
+        } else if placing {
+            color = SunfoldPalette.sunwovenGold
+        } else if session.isLegal {
+            color = SunfoldPalette.sunwovenTurquoise
+        } else {
+            color = UIColor(red: 0.85, green: 0.35, blue: 0.28, alpha: 1)
+        }
+
+        let opacity: CGFloat = session.isLegal ? 0.70 : 0.65
+        var material = UnlitMaterial(color: color.withAlphaComponent(opacity))
+        material.blending = .transparent(opacity: .init(floatLiteral: Float(opacity)))
+
+        let shapeKey = session.kind.rawValue
+        if entity.name != "placement.ghost.\(shapeKey)" {
+            entity.name = "placement.ghost.\(shapeKey)"
+            if let half = ConstructionPlacement.halfExtents(for: session.kind) {
+                entity.components.set(
+                    ModelComponent(
+                        mesh: makeBuildGhostRectMesh(halfWidth: half.x, halfDepth: half.y),
+                        materials: [material]
+                    )
+                )
+            } else {
+                entity.components.set(
+                    ModelComponent(
+                        mesh: makeBuildGhostDiscMesh(radius: 1),
+                        materials: [material]
+                    )
+                )
+            }
+        } else if var model = entity.components[ModelComponent.self] {
+            model.materials = [material]
+            entity.components.set(model)
+        }
+
+        entity.isEnabled = true
+        entity.position = TerrainSurface.standing(at: session.position, in: map, lift: 0.35)
+        if ConstructionPlacement.halfExtents(for: session.kind) != nil {
+            entity.scale = [1, 1, 1]
+        } else {
+            let visualScale = max(session.kind.footprintRadius * 1.15, 2.2)
+            entity.scale = [visualScale, 1, visualScale]
+        }
+    }
+
+    private func makeBuildGhostDiscMesh(radius: Float) -> MeshResource {
+        var builder = FlatMeshBuilder()
+        let segments = 36
+        let up = SIMD3<Float>(0, 1, 0)
+        for index in 0..<segments {
+            let a = Float(index) / Float(segments) * 2 * .pi
+            let b = Float(index + 1) / Float(segments) * 2 * .pi
+            let outerA = SIMD3<Float>(cos(a) * radius, 0, sin(a) * radius)
+            let outerB = SIMD3<Float>(cos(b) * radius, 0, sin(b) * radius)
+            builder.addTriangle(.zero, outerA, outerB, facing: up)
+        }
+        let inner = radius * 0.82
+        for index in 0..<segments {
+            let a = Float(index) / Float(segments) * 2 * .pi
+            let b = Float(index + 1) / Float(segments) * 2 * .pi
+            let outerA = SIMD3<Float>(cos(a) * radius, 0.01, sin(a) * radius)
+            let outerB = SIMD3<Float>(cos(b) * radius, 0.01, sin(b) * radius)
+            let innerA = SIMD3<Float>(cos(a) * inner, 0.01, sin(a) * inner)
+            let innerB = SIMD3<Float>(cos(b) * inner, 0.01, sin(b) * inner)
+            builder.addTriangle(innerA, outerA, outerB, facing: up)
+            builder.addTriangle(innerA, outerB, innerB, facing: up)
+        }
+        return builder.makeMesh(named: "placement.ghost.disc")
+    }
+
+    private func makeBuildGhostRectMesh(halfWidth: Float, halfDepth: Float) -> MeshResource {
+        var builder = FlatMeshBuilder()
+        let up = SIMD3<Float>(0, 1, 0)
+        let hw = halfWidth
+        let hd = halfDepth
+        let corners = [
+            SIMD3<Float>(-hw, 0, -hd),
+            SIMD3<Float>( hw, 0, -hd),
+            SIMD3<Float>( hw, 0,  hd),
+            SIMD3<Float>(-hw, 0,  hd)
+        ]
+        builder.addTriangle(corners[0], corners[1], corners[2], facing: up)
+        builder.addTriangle(corners[0], corners[2], corners[3], facing: up)
+
+        let inset: Float = 0.82
+        let inner = [
+            SIMD3<Float>(-hw * inset, 0.01, -hd * inset),
+            SIMD3<Float>( hw * inset, 0.01, -hd * inset),
+            SIMD3<Float>( hw * inset, 0.01,  hd * inset),
+            SIMD3<Float>(-hw * inset, 0.01,  hd * inset)
+        ]
+        let outer = [
+            SIMD3<Float>(-hw, 0.01, -hd),
+            SIMD3<Float>( hw, 0.01, -hd),
+            SIMD3<Float>( hw, 0.01,  hd),
+            SIMD3<Float>(-hw, 0.01,  hd)
+        ]
+        for i in 0..<4 {
+            let j = (i + 1) % 4
+            builder.addTriangle(inner[i], outer[i], outer[j], facing: up)
+            builder.addTriangle(inner[i], outer[j], inner[j], facing: up)
+        }
+        return builder.makeMesh(named: "placement.ghost.rect")
     }
 
     // MARK: - Shared geometry

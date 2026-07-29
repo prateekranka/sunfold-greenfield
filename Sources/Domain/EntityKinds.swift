@@ -118,6 +118,19 @@ enum BuildingKind: String, CaseIterable, Sendable {
         }
     }
 
+    /// One-line purpose shown while placing or inspecting.
+    var purpose: String {
+        switch self {
+        case .civilizationCore: "Heart of the Hearth"
+        case .farm: "Grows Provisions for the Hearth"
+        case .matterExtractor: "Pulls Matter from nearby deposits"
+        case .dwelling: "Raises the population cap"
+        case .formationYard: "Trains Pathfinders and Vanguards"
+        case .expansionOutpost: "Claims an expansion fragment"
+        case .dawnLoom: "Channels the Voyager age"
+        }
+    }
+
     var maxLife: Double {
         switch self {
         case .civilizationCore: 600

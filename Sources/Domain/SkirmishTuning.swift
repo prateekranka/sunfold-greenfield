@@ -84,7 +84,8 @@ struct SkirmishTuning: Sendable {
     // MARK: - Production
 
     var maxQueueLength: Int = 10
-    /// Fraction of cost returned when a queued item is cancelled.
+    /// Fraction of cost returned when a queued train item or incomplete
+    /// foundation is cancelled.
     var cancelRefundFraction: Double = 0.75
 
     // MARK: - Victory
@@ -142,4 +143,28 @@ struct SkirmishTuning: Sendable {
     /// carries the same factor so hit-testing, formation spacing and the rim
     /// margin never disagree with what the player can see.
     var unitVisualScale: Float = 1.25
+
+    // MARK: - Building lookups
+
+    func cost(for kind: BuildingKind) -> ResourcePool {
+        switch kind {
+        case .farm: farmCost
+        case .matterExtractor: matterExtractorCost
+        case .dwelling: dwellingCost
+        case .formationYard: formationYardCost
+        case .expansionOutpost: expansionOutpostCost
+        case .civilizationCore, .dawnLoom: .zero
+        }
+    }
+
+    func buildTime(for kind: BuildingKind) -> Double {
+        switch kind {
+        case .farm: farmBuildTime
+        case .matterExtractor: matterExtractorBuildTime
+        case .dwelling: dwellingBuildTime
+        case .formationYard: formationYardBuildTime
+        case .expansionOutpost: expansionOutpostBuildTime
+        case .civilizationCore, .dawnLoom: 0
+        }
+    }
 }

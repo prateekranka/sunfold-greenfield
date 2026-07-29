@@ -23,7 +23,10 @@ struct SunfoldRealityView: View {
             await MaterialLibrary.preload()
             controller.attach(to: &content)
         }
-        .overlay(CameraGestureLayer(controller: controller))
+        .overlay(CameraGestureLayer(
+            controller: controller,
+            ghostActive: controller.buildGhost != nil
+        ))
         // Above the gesture layer and in the same coordinate space, so the lasso
         // is drawn exactly where the finger drew it.
         .overlay(MarqueeOverlay(rect: controller.marquee?.rect, hitCount: controller.marqueeHitCount))

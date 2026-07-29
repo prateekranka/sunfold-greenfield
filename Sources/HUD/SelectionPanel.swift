@@ -9,6 +9,7 @@ import SwiftUI
 struct SelectionPanel: View {
     let simulation: SkirmishSimulation
     let selection: SelectionModel
+    var controller: WorldController?
 
     var body: some View {
         Group {
@@ -98,22 +99,55 @@ struct SelectionPanel: View {
     }
 
     private func buildingCard(_ building: Building) -> some View {
-        card {
+        let builders = simulation.units.values.filter {
+            if case .constructing(building.id) = $0.activity { return true }
+            return false
+        }.count
+
+        return card {
             title(building.kind.displayName, trailing: building.faction.displayName)
+            Text(building.kind.purpose).hudLabel()
             if building.isComplete {
                 if building.kind.acceptsDropOff {
                     Text("Accepts deliveries").hudLabel()
+                } else if building.kind.populationGrant > 0 {
+                    Text("+\(building.kind.populationGrant) population").hudLabel()
                 } else {
                     Text("Complete").hudLabel()
                 }
             } else {
-                Text("Building \(Int(building.constructionProgress * 100))%").hudLabel()
+                Text("Constructing \(Int(building.constructionProgress * 100))%")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(SunfoldPalette.hudText)
                 HUDMeter(fraction: building.constructionProgress, tint: SunfoldPalette.hudAccent)
+                Text(builders == 0
+                     ? "Waiting for citizens"
+                     : "\(builders) citizen\(builders == 1 ? "" : "s") building")
+                    .hudLabel()
+                Button {
+                    controller?.cancelConstruction(building.id)
+                } label: {
+                    Text("Cancel · \(refundLabel(for: building.kind))")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(HUDInk.text)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(ChamferedRect(cut: 5).fill(HUDInk.well))
+                        .overlay(ChamferedRect(cut: 5).stroke(HUDInk.edge, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Cancel construction")
             }
             lifeRow(current: building.life, maximum: building.kind.maxLife)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(building.kind.displayName) selected")
+    }
+
+    private func refundLabel(for kind: BuildingKind) -> String {
+        let refund = simulation.tuning.cost(for: kind) * simulation.tuning.cancelRefundFraction
+        return "+\(Int(refund.matter.rounded())) Matter"
     }
 
     /// A node the player tapped with nothing selected. Answers the two questions
@@ -275,12 +309,27 @@ struct SelectionPanel: View {
     }
 
     private func title(_ text: String, trailing: String) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Text(text)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(SunfoldPalette.hudAccent)
             Spacer(minLength: 0)
             Text(trailing.uppercased()).hudLabel()
+            Button {
+                if let controller {
+                    controller.clearSelection()
+                } else {
+                    selection.clear()
+                }
+            } label: {
+                Text("✕")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(HUDInk.text)
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(HUDInk.well))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Deselect")
         }
     }
 }

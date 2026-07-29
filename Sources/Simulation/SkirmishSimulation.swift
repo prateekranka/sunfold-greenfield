@@ -140,6 +140,125 @@ final class SkirmishSimulation {
         if !escorts.isEmpty { orderMove(escorts, to: deposit.position) }
     }
 
+    /// Commits a foundation at `point`. Deducts cost, spawns an incomplete
+    /// building, and sends preferred (or nearest idle) citizens to construct.
+    /// Caller must already have validated footprint legality.
+    /// Returns the new building id, or nil when stock or region refuse.
+    @discardableResult
+    func placeBuilding(
+        _ kind: BuildingKind,
+        at point: WorldPoint,
+        for faction: Faction,
+        preferredBuilders: [EntityID] = []
+    ) -> EntityID? {
+        guard let region = map.region(at: point) else { return nil }
+
+        let cost = tuning.cost(for: kind)
+        guard stock(for: faction).covers(cost) else { return nil }
+
+        stock[faction, default: .zero] = stock(for: faction) - cost
+
+        let id = allocator.allocate()
+        buildings[id] = Building(
+            id: id,
+            faction: faction,
+            kind: kind,
+            position: point,
+            region: region,
+            constructionProgress: 0
+        )
+        assignBuilders(
+            to: id,
+            faction: faction,
+            preferred: preferredBuilders
+        )
+        DebugLog.info(
+            "Placed \(kind.displayName) #\(id.raw) at \(point)"
+        )
+        return id
+    }
+
+    /// Tears down an incomplete foundation and refunds a fraction of its cost.
+    /// Completed buildings cannot be cancelled this way.
+    @discardableResult
+    func cancelConstruction(_ buildingID: EntityID) -> Bool {
+        guard let building = buildings[buildingID], !building.isComplete else { return false }
+        let cost = tuning.cost(for: building.kind)
+        let refund = cost * tuning.cancelRefundFraction
+        stock[building.faction, default: .zero] = stock(for: building.faction) + refund
+
+        for id in units.keys.sorted(by: { $0.raw < $1.raw }) {
+            guard var unit = units[id] else { continue }
+            guard case .constructing(buildingID) = unit.activity else { continue }
+            unit.activity = .idle
+            unit.destination = nil
+            units[id] = unit
+        }
+
+        buildings[buildingID] = nil
+        DebugLog.info(
+            "Cancelled \(building.kind.displayName) #\(buildingID.raw); refunded \(refund.matter) Matter"
+        )
+        return true
+    }
+
+    /// Sends citizens to an incomplete building. Prefers the caller's selection,
+    /// then nearest idle gatherers of the same faction.
+    private func assignBuilders(
+        to buildingID: EntityID,
+        faction: Faction,
+        preferred: [EntityID]
+    ) {
+        guard let building = buildings[buildingID], !building.isComplete else { return }
+
+        var chosen: [EntityID] = []
+        for id in preferred.sorted(by: { $0.raw < $1.raw }) {
+            guard let unit = units[id], unit.faction == faction, unit.kind.canGather else { continue }
+            chosen.append(id)
+            if chosen.count >= 4 { break }
+        }
+
+        if chosen.isEmpty {
+            let idle = units.values
+                .filter {
+                    $0.faction == faction
+                        && $0.kind.canGather
+                        && !$0.isAboard
+                        && ($0.activity == .idle || isGathering($0))
+                }
+                .sorted {
+                    simd_distance($0.position, building.position)
+                        < simd_distance($1.position, building.position)
+                }
+            chosen = Array(idle.prefix(2).map(\.id))
+        }
+
+        for id in chosen {
+            guard var unit = units[id] else { continue }
+            unit.assignment = nil
+            unit.cargo = nil
+            unit.activity = .constructing(buildingID: buildingID)
+            let delta = unit.position - building.position
+            let length = simd_length(delta)
+            let approach = min(
+                building.kind.footprintRadius + 1.4,
+                ConstructionSystem.workRadius(for: building.kind) * 0.85
+            )
+            let offset: WorldPoint = length < 0.01
+                ? WorldPoint(approach, 0)
+                : (delta / length) * approach
+            unit.destination = MovementSystem.resolveDestination(
+                building.position + offset, for: unit, map: map
+            )
+            units[id] = unit
+        }
+    }
+
+    private func isGathering(_ unit: Unit) -> Bool {
+        if case .gathering = unit.activity { return true }
+        return false
+    }
+
     /// Clears any gather assignment. A move order is the player overriding the
     /// loop, so it must stop the loop — otherwise the citizen walks where it was
     /// told and then immediately turns around.
@@ -179,6 +298,13 @@ final class SkirmishSimulation {
             buildings: buildings,
             deposits: &deposits,
             stock: &stock,
+            map: map,
+            tuning: tuning,
+            deltaTime: seconds
+        )
+        ConstructionSystem.step(
+            units: &units,
+            buildings: &buildings,
             map: map,
             tuning: tuning,
             deltaTime: seconds

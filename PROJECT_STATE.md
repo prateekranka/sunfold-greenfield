@@ -17,20 +17,39 @@ Rules for this file:
 
 ---
 
+## In flight
+
+| | |
+|---|---|
+| **Checkpoint** | **CP-G2a — Construction** |
+| **Opened** | 2026-07-30 |
+| **Owner** | construction agent |
+| **Write scope (exact)** | Finish shipping Farm / Matter Extractor / Dwelling construction: promote Soft ghost out of prototype chrome; command-grid pick with cost + purpose; drag-ghost legal/illegal; place with cost on commit; citizens construct with linear multi-builder progress; cancel incomplete with `cancelRefundFraction` refund; construction progress readable in HUD/world; completion visual + audio feedback. Files limited to construction path: `Sources/Debug/BuildGhostPrototype.swift` (or its shipping successor), `Sources/Simulation/ConstructionSystem.swift`, construction hooks in `SkirmishSimulation` / `WorldController` / `EntityPresenter` / `CameraGestureLayer` / `CommandGrid` / `RootView` / `SelectionPanel` / `SkirmishTuning` / `EntityKinds` / `WorldEntities` as needed for cancel+purpose+feedback, plus minimal Audio stub for completion cue, and evidence under `Docs/QA/G2/`. |
+| **Do not touch** | Production (CP-G2b), objective/hints (CP-G2c), control groups / activity anim (CP-G2d), combat, transport boarding beyond preserving existing dirty `BoardingSystem` / boarding hooks, fog paint/minimap fog (explored treated as home land for G2a legality until a fog system exists), unrelated visual/map dirty work. |
+| **Preserved dirty work** | Leave all non-construction modified/untracked files intact (boarding, map/movement, TopBar, SelectionModel, DeterminismTests, research docs, etc.). |
+| **Pre-edit play** | Played `build-agents/transport-void/.../SunfoldGreenfield.app` on iPadOS 26.5 (`A59055F8-…`). Prototype chrome + proto command tiles live; Soft locked per #11. |
+| **Implemented** | Farm / Matter Extractor / Dwelling command tiles, purpose and cost copy, full-footprint placement checks, dedicated placement gestures, cost commit, citizen construction, progress presentation, cancellation refund, and completion feedback. Native iPadOS 26.5 captures are under `Docs/QA/G2/cp-g2a/`. |
+| **Independent review** | `REVIEW_REVISE`. The primary defect is the successful-placement state: the ghost remains on the new foundation and immediately reads `BLOCKED`. See `Docs/QA/G2/cp-g2a/read-only-kimi-review.md`. |
+| **Proof state** | The isolated staged source snapshot builds for the iPadOS 26.5 simulator; see `Docs/QA/G2/cp-g2a/staged-build-proof.md`. Rendered Farm flow is captured. Focused tests, all three building variants, cancel/deny states, audio, and Reduced Motion remain unproved. Do not call CP-G2a closed. |
+| **Resume here** | Fix the post-place ghost state first. Then prove the bounded interaction matrix on iPadOS 26.5 and request an independent re-review. Do not begin CP-G2b production yet. |
+
+---
+
 ## Status at a glance
 
 | | |
 |---|---|
 | **Last checkpoint** | CP-14 — AoE land cut by void water · **closed** |
+| **In flight** | **CP-G2a — Construction** (see above) |
 | **Closed** | 2026-07-28 |
-| **Build** | 🟢 Green. `** BUILD SUCCEEDED **`. DeterminismTests 19/19. |
+| **Build** | CP-G2a staged source snapshot: 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5. Focused CP-G2a tests: pending. |
 | **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
-| **Current frame** | `Docs/QA/AAA/sparse-map1-riverlands.png` · `sparse-map2-basin.png` · `sparse-map3-fjords.png` (before: `cp14-map1/2/3-*.png`) |
+| **Current frame** | CP-G2a: `Docs/QA/G2/cp-g2a/13-farm-founded-constructing.png` · `15-farm-complete-fullres.png`. Map baseline: `Docs/QA/AAA/sparse-map1-riverlands.png`. |
 | **Version** | 0.3.0 · build 42 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
-| **Current direction** | Maps sparsened for fight space; animation / G2 gameplay still parked. |
-| **Uncommitted work** | On `visual/aaa-uplift-cp02` — CP-14 + coverage retune + **sparse fight-space retune**; **do not commit** until asked. |
-| **Next checkpoint** | Animation (parked) or G2 gameplay. |
+| **Current direction** | Correct and prove CP-G2a construction. Animation and other G2 slices remain parked. |
+| **Commit boundary** | CP-G2a is isolated from the pre-existing map, movement, boarding, TopBar, SelectionModel, test, and research changes. Those changes remain local and dirty. |
+| **Next checkpoint** | CP-G2a correction and independent re-review. CP-G2b starts only after CP-G2a closes. |
 
 ---
 
