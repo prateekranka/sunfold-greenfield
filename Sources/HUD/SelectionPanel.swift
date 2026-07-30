@@ -147,7 +147,7 @@ struct SelectionPanel: View {
 
     private func refundLabel(for kind: BuildingKind) -> String {
         let refund = simulation.tuning.cost(for: kind) * simulation.tuning.cancelRefundFraction
-        return "+\(Int(refund.matter.rounded())) Matter"
+        return "+\(ResourcePool.displayAmount(refund.matter)) Matter"
     }
 
     /// A node the player tapped with nothing selected. Answers the two questions

@@ -106,6 +106,19 @@ final class SelectionModel {
         lastOrderMarker = OrderMarker(position: deposit.position, issuedAt: simulation.elapsed)
     }
 
+    /// Sends the selection to finish an incomplete foundation.
+    func orderConstruct(on buildingID: EntityID, in simulation: SkirmishSimulation) {
+        guard let building = simulation.building(buildingID), !building.isComplete else { return }
+        let mine = selectedUnits
+            .compactMap { simulation.unit($0) }
+            .filter { $0.faction == .sunwoven }
+            .map(\.id)
+        guard !mine.isEmpty else { return }
+
+        simulation.orderConstruct(mine, on: buildingID)
+        lastOrderMarker = OrderMarker(position: building.position, issuedAt: simulation.elapsed)
+    }
+
     func expireOrderMarker(after lifetime: Double, now: Double) {
         guard let marker = lastOrderMarker else { return }
         if now - marker.issuedAt > lifetime { lastOrderMarker = nil }

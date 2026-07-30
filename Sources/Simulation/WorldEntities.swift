@@ -64,6 +64,16 @@ struct Unit: Sendable, Identifiable {
         if case .aboard = activity { return true }
         return false
     }
+
+    var isBoarding: Bool {
+        if case .boarding = activity { return true }
+        return false
+    }
+
+    /// Citizens boarding or aboard a transport cannot be pulled into construction.
+    var canBeAssignedToConstruction: Bool {
+        kind.canGather && !isAboard && !isBoarding
+    }
 }
 
 /// A fixed structure.

@@ -140,6 +140,20 @@ final class SkirmishSimulation {
         if !escorts.isEmpty { orderMove(escorts, to: deposit.position) }
     }
 
+    /// Sends citizens to an incomplete foundation. Keeps builders already on the
+    /// job and fills remaining slots up to the per-site cap.
+    func orderConstruct(_ ids: [EntityID], on buildingID: EntityID) {
+        guard let building = buildings[buildingID], !building.isComplete else { return }
+        assignBuilders(
+            to: buildingID,
+            faction: building.faction,
+            preferred: ids
+        )
+    }
+
+    /// Maximum citizens that may work one foundation at once.
+    static let maxBuildersPerSite = 4
+
     /// Commits a foundation at `point`. Deducts cost, spawns an incomplete
     /// building, and sends preferred (or nearest idle) citizens to construct.
     /// Caller must already have validated footprint legality.
@@ -203,7 +217,8 @@ final class SkirmishSimulation {
     }
 
     /// Sends citizens to an incomplete building. Prefers the caller's selection,
-    /// then nearest idle gatherers of the same faction.
+    /// then nearest idle gatherers of the same faction. Existing builders stay
+    /// assigned until the foundation completes or is cancelled.
     private func assignBuilders(
         to buildingID: EntityID,
         faction: Faction,
@@ -211,47 +226,75 @@ final class SkirmishSimulation {
     ) {
         guard let building = buildings[buildingID], !building.isComplete else { return }
 
-        var chosen: [EntityID] = []
+        let alreadyAssigned = Set(units.values.compactMap { unit -> EntityID? in
+            if case .constructing(buildingID) = unit.activity { return unit.id }
+            return nil
+        })
+        var slots = max(0, Self.maxBuildersPerSite - alreadyAssigned.count)
+        guard slots > 0 else { return }
+
+        var toAssign: [EntityID] = []
         for id in preferred.sorted(by: { $0.raw < $1.raw }) {
-            guard let unit = units[id], unit.faction == faction, unit.kind.canGather else { continue }
-            chosen.append(id)
-            if chosen.count >= 4 { break }
+            guard slots > 0 else { break }
+            guard let unit = units[id],
+                  unit.faction == faction,
+                  unit.canBeAssignedToConstruction,
+                  !alreadyAssigned.contains(id)
+            else { continue }
+            toAssign.append(id)
+            slots -= 1
         }
 
-        if chosen.isEmpty {
+        if toAssign.isEmpty, preferred.isEmpty, slots > 0 {
             let idle = units.values
                 .filter {
                     $0.faction == faction
-                        && $0.kind.canGather
-                        && !$0.isAboard
+                        && $0.canBeAssignedToConstruction
+                        && !alreadyAssigned.contains($0.id)
                         && ($0.activity == .idle || isGathering($0))
                 }
                 .sorted {
                     simd_distance($0.position, building.position)
                         < simd_distance($1.position, building.position)
                 }
-            chosen = Array(idle.prefix(2).map(\.id))
+            toAssign = Array(idle.prefix(min(slots, 2)).map(\.id))
         }
 
-        for id in chosen {
-            guard var unit = units[id] else { continue }
-            unit.assignment = nil
-            unit.cargo = nil
-            unit.activity = .constructing(buildingID: buildingID)
-            let delta = unit.position - building.position
-            let length = simd_length(delta)
-            let approach = min(
-                building.kind.footprintRadius + 1.4,
-                ConstructionSystem.workRadius(for: building.kind) * 0.85
-            )
-            let offset: WorldPoint = length < 0.01
-                ? WorldPoint(approach, 0)
-                : (delta / length) * approach
-            unit.destination = MovementSystem.resolveDestination(
-                building.position + offset, for: unit, map: map
-            )
-            units[id] = unit
+        for id in toAssign {
+            sendToConstruction(id, buildingID: buildingID, building: building)
         }
+    }
+
+    /// Credits any carried load to stock, then walks the citizen to the site.
+    private func sendToConstruction(
+        _ id: EntityID,
+        buildingID: EntityID,
+        building: Building
+    ) {
+        guard var unit = units[id], unit.canBeAssignedToConstruction else { return }
+
+        if let cargo = unit.cargo {
+            var pool = stock[unit.faction] ?? .zero
+            pool[cargo.kind] += cargo.amount
+            stock[unit.faction] = pool
+            unit.cargo = nil
+        }
+
+        unit.assignment = nil
+        unit.activity = .constructing(buildingID: buildingID)
+        let delta = unit.position - building.position
+        let length = simd_length(delta)
+        let approach = min(
+            building.kind.footprintRadius + 1.4,
+            ConstructionSystem.workRadius(for: building.kind) * 0.85
+        )
+        let offset: WorldPoint = length < 0.01
+            ? WorldPoint(approach, 0)
+            : (delta / length) * approach
+        unit.destination = MovementSystem.resolveDestination(
+            building.position + offset, for: unit, map: map
+        )
+        units[id] = unit
     }
 
     private func isGathering(_ unit: Unit) -> Bool {
