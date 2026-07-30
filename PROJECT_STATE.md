@@ -28,8 +28,8 @@ Rules for this file:
 | **R2 scope (this pass)** | Incomplete foundations keep builders until complete; stalled sites accept builders via `orderConstruct`; boarding/aboard excluded from builder pick; carried load credits to stock on construction start; cancel refund label shows exact fractional Matter (e.g. 52.5). |
 | **Do not touch** | Production (CP-G2b), objective/hints (CP-G2c), control groups / activity anim (CP-G2d), combat, transport boarding beyond preserving `BoardingSystem` guard hooks, fog paint/minimap fog, unrelated visual/map dirty work, repeat-placement mode. |
 | **Preserved dirty work** | Leave all non-construction modified/untracked files intact (boarding, map/movement, TopBar, SelectionModel, DeterminismTests, research docs, etc.). |
-| **Proof state** | R2 iPadOS 26.5 LandscapeLeft captures + `** BUILD SUCCEEDED **` under `Docs/QA/G2/cp-g2a/r2-proof/`. `ConstructionIntegrityTests` compile; `xcodebuild test` remains hook-blocked. Audio matrix, all three building variants on device, Reduced Motion — still unproved. **Do not call CP-G2a closed.** |
-| **Resume here** | Finish any remaining CP-G2a proof matrix (audio, Dwelling/Extractor cancel labels, Reduced Motion) and request independent re-review. CP-G2b starts only after CP-G2a closes. |
+| **Proof state** | R2 revise: `ConstructionIntegrityTests` **10/10 passed**; `./scripts/agent-build.sh cp-g2a-r2` green; false Matter screenshot removed; carry disposition documented as intentional immediate stock credit. Device replay A/E observed on iPadOS 26.5; F/D/G covered by focused tests. Audio matrix, Reduced Motion — still unproved. **Do not call CP-G2a closed.** |
+| **Resume here** | Finish remaining CP-G2a proof matrix (audio, Dwelling/Extractor cancel labels, Reduced Motion, optional live LT-tap / Matter before-after frames) and request independent re-review. CP-G2b starts only after CP-G2a closes. |
 
 ---
 

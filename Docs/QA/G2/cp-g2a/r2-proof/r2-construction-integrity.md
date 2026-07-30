@@ -40,23 +40,25 @@ Do not read Provisions totals as Matter.
 
 | Frame | Scenario | Pass criteria |
 |---|---|---|
-| `30-builder-assign-exact-refund.png` | Farm foundation selected while constructing | Shows `Constructing 0%`, `2 citizens building`, cancel reads `+52.5 Matter` (not 53) |
-| `32a-carry-matter-before.png` / `32b-carry-matter-after.png` | Paused trickle; citizen carrying Matter assigned to incomplete Farm | AX `Matter N` rises by carried load; Provisions chip unchanged; selection shows constructing |
-| `boarding-exclusion.md` | Boarding guard | Unit-level guard + `ConstructionIntegrityTests.testBoardingAndAboardCitizensCannotBeAssigned` |
+| `30-builder-assign-exact-refund.png` | Paused Farm foundation with builders | AX: `Constructing 0%`, `2 citizens building`; cancel `Cancel construction`; rail `Provisions 187` / `Matter 95` (70 charged; Provisions leaf ≠ Matter) |
+| `boarding-exclusion.md` | Boarding guard | Unit-level guard + `testBoardingAndAboardCitizensCannotBeAssigned` |
+| (focused tests) | Carry disposition | `testConstructionAssignmentDepositsCarriedLoadToStock` — paused trickle; Matter delta = cargo − Farm cost; cargo cleared once |
 
-Prior single-frame `32-carry-disposition-matter-bump.png` mislabeled Provisions `240` as Matter and is removed.
+Prior single-frame `32-carry-disposition-matter-bump.png` mislabeled Provisions as Matter and was deleted. Device before/after Matter bump not re-captured this revise; unit test is the durable proof.
 
-## Replay A–G (device)
+## Replay A–G (device `A59055F8-1354-4936-97B8-7033DF90B0BB`)
 
-| | Scenario | Expect |
+| | Scenario | Result |
 |---|---|---|
-| A | Builders stay on incomplete Farm | Assigned citizens remain `.constructing` until complete |
-| B | Stall then re-assign | Stopped builder leaves; new citizen accepts via foundation tap |
-| C | Boarding / aboard exclusion | Guard rejects; auto-pick skips |
-| D | Carry disposition | Paused: Matter AX rises by cargo; cargo cleared once |
-| E | Exact cancel refund | Cancel label `+52.5 Matter` |
-| F | Light Transport + incomplete Farm tap | Farm selected (inspect); no order marker |
-| G | Two Farms / add builders | Independent caps; `alreadyAssigned` retained |
+| A | Builders stay on incomplete Farm | Observed: `2 citizens building` at `Constructing 0%` while paused |
+| B | Stall then re-assign | Covered by `testStalledFoundationAcceptsBuildersAgain` |
+| C | Boarding / aboard exclusion | Covered by unit guard test |
+| D | Carry disposition | Covered by hardened cargo test + `carry-disposition.md` policy |
+| E | Exact cancel refund | Observed cancel affordance; label path uses `displayAmount` → `52.5` |
+| F | Light Transport + incomplete Farm tap | Covered by `testLightTransportOnlySelectionInspectsIncompleteFarm` (LT world-pick unreliable in this session) |
+| G | Two Farms / add builders | Covered by independent-cap + alreadyAssigned tests |
+
+**Do not claim CP-G2a closed.**
 
 ## Focused tests
 

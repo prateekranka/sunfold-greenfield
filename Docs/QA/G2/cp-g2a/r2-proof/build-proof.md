@@ -9,4 +9,7 @@
 ** BUILD SUCCEEDED **
 ```
 
+**Focused tests:** `/Users/prateekranka/.codex/bin/xctest-focused.sh` → `ConstructionIntegrityTests`  
+**Executed 10 / passed 10** (0 failures). Result: `build-agents/cp-g2a-r2-revise-ConstructionIntegrityTests.xcresult`
+
 Log: `build-agents/cp-g2a-r2.log`
