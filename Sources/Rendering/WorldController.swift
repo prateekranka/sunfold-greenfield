@@ -187,7 +187,15 @@ final class WorldController {
 
         case .building(let id):
             lastTap = nil
-            selection.selectBuilding(id)
+            if let building = simulation.building(id),
+               !building.isComplete,
+               building.faction == .sunwoven
+            {
+                // Eligible citizens → assign; Light Transport / empty / boarding → inspect.
+                selection.respondToIncompleteFoundation(id, in: simulation)
+            } else {
+                selection.selectBuilding(id)
+            }
 
         case .deposit(let id):
             lastTap = nil
