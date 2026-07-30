@@ -142,9 +142,11 @@ final class SkirmishSimulation {
 
     /// Sends citizens to an incomplete foundation. Keeps builders already on the
     /// job and fills remaining slots up to the per-site cap.
-    func orderConstruct(_ ids: [EntityID], on buildingID: EntityID) {
-        guard let building = buildings[buildingID], !building.isComplete else { return }
-        assignBuilders(
+    /// Returns how many citizens were newly assigned this call.
+    @discardableResult
+    func orderConstruct(_ ids: [EntityID], on buildingID: EntityID) -> Int {
+        guard let building = buildings[buildingID], !building.isComplete else { return 0 }
+        return assignBuilders(
             to: buildingID,
             faction: building.faction,
             preferred: ids
@@ -219,19 +221,21 @@ final class SkirmishSimulation {
     /// Sends citizens to an incomplete building. Prefers the caller's selection,
     /// then nearest idle gatherers of the same faction. Existing builders stay
     /// assigned until the foundation completes or is cancelled.
+    /// Returns how many citizens were newly assigned.
+    @discardableResult
     private func assignBuilders(
         to buildingID: EntityID,
         faction: Faction,
         preferred: [EntityID]
-    ) {
-        guard let building = buildings[buildingID], !building.isComplete else { return }
+    ) -> Int {
+        guard let building = buildings[buildingID], !building.isComplete else { return 0 }
 
         let alreadyAssigned = Set(units.values.compactMap { unit -> EntityID? in
             if case .constructing(buildingID) = unit.activity { return unit.id }
             return nil
         })
         var slots = max(0, Self.maxBuildersPerSite - alreadyAssigned.count)
-        guard slots > 0 else { return }
+        guard slots > 0 else { return 0 }
 
         var toAssign: [EntityID] = []
         for id in preferred.sorted(by: { $0.raw < $1.raw }) {
@@ -263,9 +267,11 @@ final class SkirmishSimulation {
         for id in toAssign {
             sendToConstruction(id, buildingID: buildingID, building: building)
         }
+        return toAssign.count
     }
 
-    /// Credits any carried load to stock, then walks the citizen to the site.
+    /// G2a carry disposition: credit carried load to faction stock once, then
+    /// clear cargo. Construction is not a second drop-off — no duplicate credit.
     private func sendToConstruction(
         _ id: EntityID,
         buildingID: EntityID,

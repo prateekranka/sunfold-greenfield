@@ -189,10 +189,10 @@ final class WorldController {
             lastTap = nil
             if let building = simulation.building(id),
                !building.isComplete,
-               building.faction == .sunwoven,
-               !selection.selectedUnits.isEmpty
+               building.faction == .sunwoven
             {
-                selection.orderConstruct(on: id, in: simulation)
+                // Eligible citizens → assign; Light Transport / empty / boarding → inspect.
+                selection.respondToIncompleteFoundation(id, in: simulation)
             } else {
                 selection.selectBuilding(id)
             }

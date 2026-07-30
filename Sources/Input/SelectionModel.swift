@@ -106,7 +106,22 @@ final class SelectionModel {
         lastOrderMarker = OrderMarker(position: deposit.position, issuedAt: simulation.elapsed)
     }
 
-    /// Sends the selection to finish an incomplete foundation.
+    /// Incomplete friendly foundation tap: assign only when the selection has
+    /// citizens eligible for construction; otherwise inspect the foundation.
+    /// Never silent-no-op when the selection cannot build.
+    func respondToIncompleteFoundation(_ buildingID: EntityID, in simulation: SkirmishSimulation) {
+        let hasEligibleBuilder = selectedUnits.contains {
+            simulation.unit($0)?.canBeAssignedToConstruction == true
+        }
+        if hasEligibleBuilder {
+            orderConstruct(on: buildingID, in: simulation)
+        } else {
+            selectBuilding(buildingID)
+        }
+    }
+
+    /// Sends eligible selected citizens to finish an incomplete foundation.
+    /// Order-marker feedback is only shown when at least one builder was assigned.
     func orderConstruct(on buildingID: EntityID, in simulation: SkirmishSimulation) {
         guard let building = simulation.building(buildingID), !building.isComplete else { return }
         let mine = selectedUnits
@@ -115,8 +130,10 @@ final class SelectionModel {
             .map(\.id)
         guard !mine.isEmpty else { return }
 
-        simulation.orderConstruct(mine, on: buildingID)
-        lastOrderMarker = OrderMarker(position: building.position, issuedAt: simulation.elapsed)
+        let assigned = simulation.orderConstruct(mine, on: buildingID)
+        if assigned > 0 {
+            lastOrderMarker = OrderMarker(position: building.position, issuedAt: simulation.elapsed)
+        }
     }
 
     func expireOrderMarker(after lifetime: Double, now: Double) {
