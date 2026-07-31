@@ -99,6 +99,25 @@ channels; causeway decks only across water.
 
 ### Decisions that override earlier docs
 
+- **The feel bar (2026-07-31, BC-01) — human-authorised bar change.** The play-feel
+  reference moves from **Age of Empires IV** to **Age of Empires II: The Rise of Rome, in
+  space**. Full old-vs-new table, reason and consequences: `Docs/Gauntlet/00-PLAN.md`
+  §"Bar-change log" → BC-01. In one line: a broad roster of cheap readable units with an
+  explicit counter structure, a broad roster of buildings that each unlock something
+  concrete, tier progression that visibly changes what you can build, villager economy with
+  distinct resources and drop-off buildings, high-contrast readability, short build times, a
+  match that resolves. This is a statement about **game design, not art style** — the 3D
+  RealityKit renderer, the ~55–60° camera and concept 01 as the visual bar are unchanged, as
+  are both civilizations, the seed, landscape-only iPad and the roadmap's out-of-scope list.
+  The roster it demands is specified in `Docs/Design/` and no builder may invent content
+  outside it.
+- **Performance demoted (2026-07-31, BC-02) — human-authorised bar change.** B2 is a
+  **guardrail, not a blocking bar**. It never holds a gameplay checkpoint open. Routine perf
+  work is one cheap `-sunfoldPerf` regression smoke at checkpoint close; a >15% p99
+  regression is logged as a known issue, not fixed, unless the game became visibly
+  unplayable. Device perf, Instruments, thermal sustain and the quality A/B matrix are
+  deferred to end of project. **P0.3, P5, B2a and B2c are deferred — do not start them.**
+  P4 (`findEntity` caching) is the single exception. See BC-02 for the table and the reason.
 - **Composition (2026-07-28, CP-14):** playable maps are **one continent cut by void
   water** (space substitutes for rivers, lakes, inlets). CP-13's overlapping-plate
   silhouette is superseded — it still read as discs on the minimap. Land covers
@@ -148,8 +167,11 @@ accurate about G0/G2 gameplay but they predate the visual work and say nothing a
 ## What this project is
 
 A native iPadOS 26 real-time strategy game in Swift 6 + RealityKit, set in space and
-explicitly benchmarked against **Age of Empires IV**. Landscape-only iPad, an 8–10 minute
-skirmish, fully deterministic from seed `20260726`.
+explicitly benchmarked against **Age of Empires II: The Rise of Rome** for play-feel — the
+human's phrase is *"AoE 2 Rise of Rome, but in space."* (Changed 2026-07-31 from Age of
+Empires IV; the old and new bars sit side by side in `Docs/Gauntlet/00-PLAN.md`
+§"Bar-change log" → BC-01.) Landscape-only iPad, an 8–10 minute skirmish, fully
+deterministic from seed `20260726`. The visual bar is unchanged and remains concept 01.
 
 Five rules are locked and must never be broken:
 

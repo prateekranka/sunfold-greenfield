@@ -43,8 +43,15 @@ raw `xcrun simctl` for install / launch / screenshot.
 
 ## Running it on the simulator — argent MCP only
 
-Simulator UDID: `A59055F8-1354-4936-97B8-7033DF90B0BB`
-("Sunfold Cycle 1 iPad Air 13", iPadOS 26.5). Bundle id: `com.sunfold.greenfield`.
+Simulator UDID: `75898CE1-A691-4973-817A-973D4249A38F`
+("Sunfold Cycle 1 iPad Air 13", iPad Air 13-inch M2 / `iPad14,11`, iPadOS 26.5).
+Bundle id: `com.sunfold.greenfield`.
+
+**Simulator devices are not permanent.** They get erased, deleted and recreated, and a
+UDID hardcoded in a document goes stale silently. Before install/launch/screenshot,
+verify the device exists: `xcrun simctl list devices available | grep -i "Sunfold Cycle"`.
+Pass the iPad UDID explicitly on every call — do not rely on "first booted device";
+another project's iPhone may also be booted. Never touch a non-iPad simulator.
 
 Load the argent tools with ToolSearch first:
 
@@ -187,6 +194,17 @@ fragment-to-void ratio, sparse starfield) still holds.
   Fringe/interior pack at ~2.6–3.0 m after the sparse retune; canopy still uses
   its own site list. Keep large crowns clear of claimed ground by an extra margin
   so they do not bury the Core.
+- **Simulator devices are not permanent.** A UDID in this file can go stale when a
+  sim is erased or recreated. Verify with
+  `xcrun simctl list devices available | grep -i "Sunfold Cycle"` before trusting
+  it. Pass the iPad UDID explicitly — another project's iPhone may also be booted.
+- **The project iPad Air 13-inch (M2) is a standard 60 Hz panel, not ProMotion.**
+  The frame budget is 16.67 ms. Record `UIScreen.maximumFramesPerSecond` every
+  perf run; do not assume 120 Hz.
+- **Frame perf is opt-in via `-sunfoldPerf`.** Reports land in the app's Documents
+  directory as JSON and in os_log category `perf`. Zero cost when the flag is off.
+  `scripts/perf-capture.sh` defaults to the project iPad UDID and aborts if the
+  resolved target is not an iPad.
 
 ## Where the frame actually stands
 
