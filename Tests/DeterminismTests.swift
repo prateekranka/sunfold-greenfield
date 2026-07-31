@@ -1,6 +1,6 @@
 import XCTest
 import simd
-@testable import SunfoldGreenfield
+@testable import SunfoldCore
 
 /// Narrow tests for rules where a focused check is the cheapest proof.
 /// These do not stand in for playing the rendered build.
@@ -350,6 +350,15 @@ final class DeterminismTests: XCTestCase {
                 XCTAssertTrue(map.contains(staging, in: region), "\(id): boarding must stage on solid land.")
                 XCTAssertFalse(map.contains(dock, in: region), "\(id): hull must sit off the rim, in void.")
                 XCTAssertNil(map.region(at: dock), "\(id): a dock must not land inside another fragment.")
+                XCTAssertTrue(
+                    map.isNavigableVoid(dock, margin: 0.75),
+                    "\(id): dock must sit in navigable void, not on the beach."
+                )
+                XCTAssertLessThan(
+                    map.landField(at: dock),
+                    map.landField(at: staging),
+                    "\(id): dock must be deeper into void than the land staging point."
+                )
             }
         }
     }

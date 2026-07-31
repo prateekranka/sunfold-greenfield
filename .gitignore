@@ -3,6 +3,7 @@
 *.xcworkspace/
 
 # Build products
+.build/
 build/
 DerivedData/
 build-agents/
