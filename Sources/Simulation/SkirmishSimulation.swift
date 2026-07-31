@@ -21,6 +21,7 @@ final class SkirmishSimulation {
     private(set) var buildings: [EntityID: Building]
     private(set) var deposits: [EntityID: Deposit]
     private(set) var productionQueues: [EntityID: ProductionQueue] = [:]
+    private(set) var adversary: AdversaryState
 
     private var allocator: EntityIDAllocator
 
@@ -32,11 +33,13 @@ final class SkirmishSimulation {
         seed: UInt64,
         mapID: WorldMapID = .default,
         tuning: SkirmishTuning = .baseline,
-        perfDensity: Int? = nil
+        perfDensity: Int? = nil,
+        adversaryEnabled: Bool = true
     ) {
         self.seed = seed
         self.mapID = mapID
         self.tuning = tuning
+        self.adversary = AdversaryState(faction: .gravemark, isEnabled: adversaryEnabled)
         let map = WorldMap.map(mapID, seed: seed)
         self.map = map
         self.clock = SimulationClock(tuning: tuning)
@@ -89,6 +92,12 @@ final class SkirmishSimulation {
 
     func productionQueue(for buildingID: EntityID) -> ProductionQueue {
         productionQueues[buildingID] ?? ProductionQueue()
+    }
+
+    /// Canonical fingerprint of the whole world, per `05-RESOLUTIONS-R1.md` §6.13.
+    /// Two runs of one seed that agree here played the same match.
+    var worldHash: UInt64 {
+        WorldHash.value(tick: clock.tick, stock: stock, units: units, buildings: buildings)
     }
 
     /// Front-item progress as 0…1 for HUD readout.
@@ -428,6 +437,11 @@ final class SkirmishSimulation {
             stock[faction, default: .zero] = stock(for: faction) + tuning.coreTrickle * seconds
         }
 
+        // The adversary decides first, then spends the tick like everyone else.
+        // It reads end-of-previous-tick state and issues orders through the same
+        // entry points a tap reaches, so it can take no shortcut the player lacks.
+        stepAdversary()
+
         // Gathering decides where citizens want to be; movement then carries them
         // there. Running it first means a citizen that finishes a load this step
         // starts walking home in the same step rather than idling for one tick.
@@ -471,6 +485,59 @@ final class SkirmishSimulation {
         )
     }
 
+    // MARK: - Adversary
+
+    /// Runs the scheduled opponent and executes what it asked for.
+    ///
+    /// Planning and execution are separate on purpose: `Adversary.plan` receives
+    /// `stock` by value and cannot write to it, so every cost the adversary pays
+    /// is charged here, by the same methods the player's taps call.
+    private func stepAdversary() {
+        guard adversary.isEnabled else { return }
+
+        let intents = Adversary.plan(
+            Adversary.Inputs(
+                tick: clock.tick,
+                units: units,
+                buildings: buildings,
+                deposits: deposits,
+                queues: productionQueues,
+                stock: stock,
+                map: map,
+                tuning: tuning
+            ),
+            state: &adversary
+        )
+
+        for intent in intents {
+            switch intent {
+            case .gather(let unitID, let depositID):
+                orderGather([unitID], from: depositID)
+
+            case .train(let kind, let buildingID):
+                _ = enqueueUnit(kind, at: buildingID)
+
+            case .build(let kind, let point):
+                placeBuilding(kind, at: point, for: adversary.faction)
+
+            case .march(let unitID, let point):
+                order(unitID, moveTo: point)
+
+            case .setStance(let unitID, let stance):
+                setStance(unitID, to: stance)
+            }
+        }
+    }
+
+    /// Sets a unit's pursuit stance. Attack waves march aggressive so they
+    /// engage what they walk into instead of leashing to where they spawned.
+    func setStance(_ id: EntityID, to stance: CombatStance) {
+        guard var unit = units[id] else { return }
+        unit.stance = stance
+        unit.guardAnchor = nil
+        units[id] = unit
+    }
+
     /// Removes entities killed this tick and clears stale references elsewhere.
     private func applyCombatDeaths(_ result: CombatSystem.TickResult) {
         guard !result.deadUnits.isEmpty || !result.deadBuildings.isEmpty else { return }
@@ -501,6 +568,7 @@ final class SkirmishSimulation {
         for unitID in deadUnits.sorted(by: { $0.raw < $1.raw }) {
             units[unitID] = nil
         }
+        adversary.forget(deadUnits)
 
         for id in units.keys.sorted(by: { $0.raw < $1.raw }) {
             guard var unit = units[id] else { continue }

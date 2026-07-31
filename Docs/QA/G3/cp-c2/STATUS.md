@@ -1,6 +1,26 @@
-# CP-C2 — Combat core · IMPLEMENTED, NOT PLAY-VERIFIED · 2026-07-31
+# CP-C2 — Combat core · **CLOSED as CP-C2′** · 2026-07-31
 
-**This checkpoint is not closed and must not be recorded as shipped.**
+**Closed the same day, by the device pass folded into CP-C3, exactly as the
+"What unblocks it" section below predicted.** The missing evidence — a capture of
+HP falling and a unit dying — now exists:
+
+- `Docs/QA/G3/cp-c3/03-fight-crop.png` — a Gravemark Vanguard standing over a
+  Sunwoven citizen whose health bar is visibly part-drained, paused at 4:32.
+- `Docs/QA/G3/cp-c3/05-core-life-readout.png` — the selection panel reading
+  **Civilization Core · SUNWOVEN · 303 / 600**, paused at 5:16.
+- `Docs/QA/G3/cp-c3/07-player-wiped-pop-zero.png` — POP **0/10** and no Core.
+
+All of it with no player input: the adversary walked to the player and did it.
+`Docs/QA/G3/cp-c3/STATUS.md` is the full record.
+
+The original status is kept below unedited, because the judgement it records —
+refusing to close on a green build and a green test suite — is the reason the
+proof exists at all.
+
+---
+
+**(Original, 2026-07-31: this checkpoint is not closed and must not be recorded
+as shipped.)**
 
 ## What is proven
 

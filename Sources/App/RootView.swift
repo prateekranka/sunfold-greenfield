@@ -16,10 +16,21 @@ struct RootView: View {
     private static let showsDebugOverlay =
         ProcessInfo.processInfo.arguments.contains("-sunfoldDebug")
 
+    /// The Gravemark adversary runs by default — without it there is nobody on
+    /// the other side of the map. Pass `-sunfoldNoAdversary` to freeze it, which
+    /// is what a perf capture wants: a still opponent makes the frame times
+    /// comparable between runs.
+    private static let adversaryEnabled =
+        !ProcessInfo.processInfo.arguments.contains("-sunfoldNoAdversary")
+
     init(seed: UInt64, mapID: WorldMapID = .default) {
         _controller = State(
             initialValue: WorldController(
-                simulation: SkirmishSimulation(seed: seed, mapID: mapID)
+                simulation: SkirmishSimulation(
+                    seed: seed,
+                    mapID: mapID,
+                    adversaryEnabled: Self.adversaryEnabled
+                )
             )
         )
     }

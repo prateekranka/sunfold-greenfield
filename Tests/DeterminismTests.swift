@@ -469,9 +469,18 @@ final class DeterminismTests: XCTestCase {
 
     // MARK: - Economy accounting
 
+    /// The trickle rule, isolated.
+    ///
+    /// The adversary is frozen for this one deliberately. Since CP-C3 Gravemark
+    /// spends — it trains citizens from the first seconds — so a running
+    /// adversary makes the two balances differ for a reason that has nothing to
+    /// do with income. Spending is not a hidden grant, and the claim under test
+    /// here is the grant. `AdversaryTests.testTheAdversaryMatterLedgerCloses`
+    /// covers the other half: that what Gravemark holds while playing is exactly
+    /// what its own deposits and this same trickle paid for.
     @MainActor
     func testBothFactionsReceiveTheIdenticalCoreTrickle() {
-        let simulation = SkirmishSimulation(seed: 20_260_726)
+        let simulation = SkirmishSimulation(seed: 20_260_726, adversaryEnabled: false)
         let start = simulation.stock(for: .sunwoven)
         for _ in 0..<60 { simulation.update(deltaTime: 1.0 / 60.0) }
 

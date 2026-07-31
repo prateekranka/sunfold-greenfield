@@ -21,12 +21,20 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Checkpoint** | **CP-C2 — Combat core** |
+| **Checkpoint** | **CP-C4 — Victory and defeat** |
 | **Opened** | 2026-07-31 |
-| **Owner** | builder (`composer-2.5`), critic pending (`claude-opus-5-thinking-max`) |
-| **Why this one** | Production shipped, so the game can now build an army it has no use for. `Sources/Simulation` contains no `CombatSystem`: units have HP fields that never change, no attack order exists, nothing can die. Until this lands there is no military half of the game and no path to a match that ends. |
-| **Write scope (exact)** | New `Sources/Simulation/CombatSystem.swift` and `Tests/CombatTests.swift`; combat stats in `Sources/Domain/EntityKinds.swift`; attack state in `Sources/Simulation/WorldEntities.swift`; tick integration and `orderAttack` in `SkirmishSimulation.swift`; attack-order input in `SelectionModel.swift` / `WorldController.swift`; health bars in the existing HUD overlay path. |
-| **Spec** | `Docs/Design/03-COMBAT-MODEL.md`, overridden where they disagree by `Docs/Design/05-RESOLUTIONS-R1.md`. |
+| **Owner** | director |
+| **Why this one** | CP-C3 landed an opponent that walks over and kills the player at 5:59 — and nothing happens. The match keeps running over a corpse. This is the checkpoint that makes this a game rather than a build: the locked promise is two win paths and a match that resolves. |
+| **Write scope (exact)** | New `Sources/Simulation/VictorySystem.swift` and `Tests/VictoryTests.swift`; match state on `SkirmishSimulation`; a Dominion progress readout and an end-of-match overlay with restart in the existing HUD path. |
+| **Spec** | `Docs/Design/00-CONTENT-SPEC.md` §6, overridden where they disagree by `Docs/Design/05-RESOLUTIONS-R1.md` §3 (B10 — 45 s Dominion hold, milestones at 15/30, contested **decays at half rate** rather than pausing, timer per faction). |
+
+### CP-C2 / CP-C3 — CLOSED 2026-07-31
+
+CP-C2 combat was implemented and test-proven on 2026-07-31 but deliberately **not**
+closed, because no fight had ever been observed in play — Gravemark had no AI, so
+two hostile units never came into contact. CP-C3 built that adversary and the
+device pass folded into it closed CP-C2 as **CP-C2′** the same day. Both records:
+`Docs/QA/G3/cp-c2/STATUS.md` and `Docs/QA/G3/cp-c3/STATUS.md`.
 
 ### CP-G2a — CLOSED 2026-07-31 (historical block below kept for the record)
 
@@ -71,19 +79,19 @@ the director, not taken from the builder. Evidence: `Docs/QA/G2/p14/test-run.md`
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-C1 — Production · **shipped** 2026-07-31 (`a457011`) |
-| **In flight** | **CP-C2 — Combat core** (see above) |
-| **Shipped 2026-07-31** | CP-G2a closed · P14 test harness · CP-C1 production · CP-G3a2 traversal · CP-G2b-NAV navigation · P4 pose caching |
-| **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **31 tests pass** under `swift test`. |
+| **Last checkpoint** | CP-C3 — Adversary v0 · **shipped** 2026-07-31, closing CP-C2 as CP-C2′ |
+| **In flight** | **CP-C4 — Victory and defeat** (see above) |
+| **Shipped 2026-07-31** | CP-G2a closed · P14 test harness · CP-C1 production · CP-G3a2 traversal · CP-G2b-NAV navigation · P4 pose caching · CP-C2′ combat · CP-C3 adversary |
+| **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **49 tests pass** under `swift test`. |
 | **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
-| **Current frame** | `Docs/QA/G3/cp-c1/04-three-trained-spawned.png` — three Citizens trained from the Core, population 7 of 10. |
-| **Version** | 0.4.0 · build 43 |
+| **Current frame** | `Docs/QA/G3/cp-c3/05-core-life-readout.png` — the Sunwoven Core at **303 / 600** under attack by a Gravemark wave the player never provoked. |
+| **Version** | 0.5.0 · build 44 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress · G3 opened — none passed |
 | **Play-feel reference** | **Age of Empires 2 / Rise of Rome, in space** (BC-01, 2026-07-31). Was Age of Empires IV. |
-| **Current direction** | Gameplay and content breadth (Directive 2 + 3). Performance is a guardrail, not a bar. Remaining path to a playable match: combat → adversary → victory. |
-| **Can a match be won or lost?** | **No.** No combat, no adversary, no end condition. This is the honest headline. |
+| **Current direction** | Gameplay and content breadth (Directive 2 + 3). Performance is a guardrail, not a bar. Remaining path to a playable match: combat ✅ → adversary ✅ → victory. |
+| **Can a match be won or lost?** | **No — but you can now be wiped out.** Combat and an adversary both exist and were watched killing the player at 5:59. There is still no end condition: the match keeps running over the corpse. CP-C4 is the last piece. |
 | **Commit boundary** | Committed narrowly by explicit path. Other agents' dirty work (`Sources/Rendering/FramePacing.swift`, `Sources/Diagnostics/`, `scripts/`, `Docs/QA/Perf/`, app-icon and launch-gate files) left untouched and uncommitted. |
-| **Next checkpoint** | CP-C3 adversary v0, then CP-C4 victory and defeat. |
+| **Next checkpoint** | CP-C4 victory and defeat. |
 
 ---
 
@@ -365,6 +373,46 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+> The 2026-07-31 checkpoints (P14, CP-G2a, CP-C1, CP-G3a2, CP-G2b-NAV, P4) keep their
+> full records under `Docs/QA/` rather than here. The entry below follows that
+> practice: a summary and a pointer, not a duplicate.
+
+### CP-C3 — Adversary v0 · and CP-C2′ — Combat, observed · 2026-07-31 · closed
+
+**Goal.** Put somebody on the other side of the map, and use them to prove that
+combat happens — CP-C2 had refused to close on a green test suite alone.
+
+**What shipped.** `Sources/Simulation/Adversary.swift` — a deterministic schedule,
+not a planner: every decision is a pure function of tick and world state, with **no
+random draws at all**, so the tagged `adversary` stream is reserved and unused.
+`Sources/Simulation/WorldHash.swift` — the canonical FNV-1a world fingerprint
+R1 §6.13 asks for, which did not exist before and which the determinism bar is
+defined in terms of.
+
+**Observed.**
+
+| claim | evidence |
+|---|---|
+| Two no-input runs share one world hash at tick 12000 | `a9ee7bc2faeea255` both runs, event logs identical line for line |
+| First wave arrives inside the 3:30–4:30 bar | **4:27** (tick 5340) |
+| Combat happens in play, with no player input | first blood 4:30 · first kill 4:33 · Core destroyed 5:59 · POP 0/10 |
+| The adversary is granted nothing | `plan` takes `stock` by value; `testTheAdversaryMatterLedgerCloses` reconstructs the balance from first principles |
+
+Device evidence on `75898CE1-…` (iPad Air 13, iPadOS 26.5): seven landscape frames
+in `Docs/QA/G3/cp-c3/`, including the selection panel reading
+**Civilization Core · SUNWOVEN · 303 / 600** while it is being hit. That frame is
+what closed CP-C2 as **CP-C2′**.
+
+**Cost.** 39 → **49 tests**, 0 failures. Two schedule decisions the spec did not
+make (a second Formation Yard standing in for the unbuildable Lumen Spire; four
+Dwellings on a population rule) and five spec rows **dropped rather than fudged**
+because the units do not exist yet — all named in `Adversary.deferredFromSpec` and
+in the STATUS doc, per Directive 3.
+
+**Full records.** `Docs/QA/G3/cp-c3/STATUS.md` and `Docs/QA/G3/cp-c2/STATUS.md`,
+including a "What is not proven" section (the wave is not measured as beatable, and
+one unexplained camera jump is logged rather than guessed at).
 
 ### CP-14 — AoE land cut by void water · 2026-07-28 · closed
 

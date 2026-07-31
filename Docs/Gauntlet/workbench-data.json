@@ -1,37 +1,32 @@
 {
   "meta": {
-    "updated": "2026-07-31T20:34:34+05:30",
-    "version": "0.3.0",
-    "build": 42,
+    "updated": "2026-07-31T23:55:00+05:30",
+    "version": "0.5.0",
+    "build": 44,
     "branch": "visual/aaa-uplift-cp02",
     "wave": 2,
     "waveTitle": "Make it a game — production, combat, an opponent, a result"
   },
   "now": {
-    "piece": "CP-C3",
-    "title": "Adversary v0 — and the thing that makes combat verifiable",
-    "why": "Gravemark has a Core, buildings and units, and does nothing with any of them for the entire match. There is nothing to play against, no way to lose, and — discovered while trying to verify CP-C2 — no way to observe combat at all, because two hostile units never come into contact. A deterministic scheduled opponent (gather, train to 12, Formation Yard at 2:00, rising attack waves) is worth more than a clever one: a player can learn to beat it, and it replays identically so a test can trust it. It also closes CP-C2.",
-    "owner": "director — next builder not yet dispatched",
-    "model": "composer-2.5",
-    "started": "2026-07-31T21:30:00+05:30",
+    "piece": "CP-C4",
+    "title": "Victory and defeat — the match has to be able to end",
+    "why": "CP-C3 landed an opponent that walks over and destroys the player's Civilization Core at 5:59, and nothing happens: the match keeps running over the corpse, population 0 of 10, no result. The locked promise is two win paths and an 8-10 minute match, and nobody has ever played this to a result. Conquest and Dominion per 00-CONTENT-SPEC.md §6, overridden by 05-RESOLUTIONS-R1.md §3 (B10): 45 s hold, milestones at 15/30, contested decays at half the fill rate rather than pausing, timer per faction. This is the checkpoint that turns a build into a game, and it unblocks bar B5b.",
+    "owner": "director",
+    "model": "opus-5",
+    "started": "2026-07-31T23:55:00+05:30",
     "round": 0,
     "lastCriticVerdict": "n/a"
   },
   "next": [
     {
-      "piece": "CP-C4",
-      "title": "Victory and defeat",
-      "why": "The simulation still has no way to end. The locked promise is two win paths and an 8-10 minute match. Nobody has ever played this to a result."
-    },
-    {
-      "piece": "CP-C2′",
-      "title": "Close combat on device",
-      "why": "Combat is built and 39 tests pass, but no fight has been seen in play. Fold the device capture into CP-C3, where an attack wave arrives on its own. Do not close CP-C2 without a capture of HP falling and a unit dying."
-    },
-    {
       "piece": "CP-C5",
       "title": "Military roster breadth",
-      "why": "Directive 3. Six UnitKind cases exist; the spec calls for scout, infantry, ranged, mounted and siege lines with a real counter triangle. Worthless before combat is proven, essential immediately after."
+      "why": "Directive 3. Six UnitKind cases exist; the spec calls for scout, infantry, ranged, mounted and siege lines with a real counter triangle. Combat is now proven in play, so this is the immediate next thing — and it is what un-defers the five R1 §5 wave rows CP-C3 had to drop (Lancer, Bastion Walker, Lumen Spire, Stride Yard)."
+    },
+    {
+      "piece": "CP-C9",
+      "title": "Economy retune — home yields",
+      "why": "R1 §2 (B4/B5) raised home-fragment yields to 700 Matter and 550 Lumen because the building bill does not fit inside 420 and 300. WorldPopulator.startingYield is still on the old numbers, and CP-C3 measured the consequence: the Gravemark fragment is dug out by 10:00 and its waves stop escalating. Raising it changes the player's economy too, so it is its own checkpoint."
     }
   ],
   "bars": [
@@ -148,7 +143,7 @@
       "axis": "RTS depth",
       "bar": "Three unassisted playthroughs end in a win or a loss in 8–10 minutes",
       "target": "3 of 3",
-      "current": "Unreachable — the simulation has no victory or defeat condition",
+      "current": "Still unreachable, but for one reason instead of three. Combat exists and is observed, an opponent exists and attacks on schedule, and a match can now be LOST in substance — the player is wiped at 5:59. What is missing is the end condition itself, which is CP-C4.",
       "state": "fail",
       "evidence": "../../ROADMAP.md"
     },
@@ -157,20 +152,38 @@
       "axis": "Correctness",
       "bar": "DeterminismTests green under swift test, plus a byte-identical seeded replay",
       "target": "Green every checkpoint",
-      "current": "Never executed. ConstructionIntegrityTests does run — 10/10 on branch cursor/cp-g2a-r2-construction-integrity-a2b9 — so the tooling exists",
-      "state": "unmeasured",
-      "evidence": "../QA/G2/cp-g2a/staged-build-proof.md"
+      "current": "PASS — 49 tests green under swift test, and the seeded replay bar is now met by a real fingerprint: WorldHash (FNV-1a over quantised resources, life and positions in ascending EntityID order, per R1 §6.13) returns a9ee7bc2faeea255 at tick 12000 on two independent no-input runs from seed 20260726, with identical adversary event logs line for line.",
+      "state": "pass",
+      "evidence": "../QA/G3/cp-c3/STATUS.md and Tests/AdversaryTests.swift"
     }
   ],
   "log": [
     {
+      "id": "CP-C3",
+      "date": "2026-07-31",
+      "title": "Adversary v0 — somebody on the other side of the map, and the thing that closed CP-C2",
+      "changed": "New Sources/Simulation/Adversary.swift: a deterministic schedule, not a planner. Every decision is a pure function of the tick count and the world state, with no random draws at all — the tagged 'adversary' stream is reserved and deliberately unused, so a later planner cannot silently shift these numbers. It grows an economy toward twelve citizens on a 50/25/25 gather quota, commits Formation Yards at 2:00 and 4:00, houses itself on a population-headroom rule, and dispatches rising attack waves every 90 s from 4:00, routed via the Dominion centre because there is no pathfinder. New Sources/Simulation/WorldHash.swift: the canonical FNV-1a world fingerprint R1 §6.13 specifies and which nothing had implemented. SkirmishSimulation gained stepAdversary, setStance and a worldHash accessor; -sunfoldNoAdversary freezes the opponent. 49 tests pass, up from 39.",
+      "taught": "Two things. First, a schedule beats a planner at this stage, and the way to keep it honest is to refuse to fill the gaps: five rows of the R1 §5 wave table name units that do not exist yet, and every one was DROPPED rather than substituted, listed in Adversary.deferredFromSpec, so the wave that finally fields a Lancer is a visible change rather than a silent one. Where the schedule genuinely had to be extended it was extended by measurement and written down — a second Formation Yard because with one, wave 5 came out smaller than wave 4; four Dwellings because at three the adversary jammed at 34/34 population with 340 Matter in the bank. Second, a capture technique worth keeping: at 3x speed every tool round-trip costs about ten seconds of match time, which is how the first two device runs sailed past the fight and photographed the aftermath. What works is one run-sequence that waits on a STATE CHANGE and pauses in the same call — await-ui-element on the population label going from 'Population 4 of 10' to anything else, immediately followed by a tap on Pause. That froze the match on the tick of the first kill with no timing luck involved.",
+      "evidence": "Docs/QA/G3/cp-c3/STATUS.md — the bars table, the measured timeline, the deferred-spec table, and a 'What is not proven' section. World hash a9ee7bc2faeea255 identical on two no-input runs at tick 12000. First wave arrives 4:27, inside the 3:30–4:30 bar. Seven landscape captures on 75898CE1-… with no player input, including 03-fight-crop.png (a health bar draining next to the thing draining it) and 05-core-life-readout.png (Civilization Core · SUNWOVEN · 303 / 600).",
+      "verdict": "SHIPPED"
+    },
+    {
+      "id": "CP-C2′",
+      "date": "2026-07-31",
+      "title": "Combat, finally observed — CP-C2 closed on evidence, not on a green suite",
+      "changed": "No new combat code. CP-C2 shipped the system and then refused to close, because a green build and 39 green tests are not a player watching a unit die. The close is the device pass folded into CP-C3: an adversary wave walked into the player's settlement on its own and killed everything.",
+      "taught": "The refusal was worth what it cost. Held open for hours, CP-C2 closed the same day on three frames — first blood at 4:30, first kill at 4:33, the Core destroyed at 5:59, population 0 of 10 — with NO player input at any point. The original Docs/QA/G3/cp-c2/STATUS.md is kept unedited beneath the close, because the judgement it records is the reason the proof exists at all. The general rule this project keeps relearning: when the only available evidence is the shape of evidence that has lied before, do not close; name the checkpoint that would produce real evidence and fold the verification into it.",
+      "evidence": "Docs/QA/G3/cp-c2/STATUS.md (closed header over the untouched original) pointing at Docs/QA/G3/cp-c3/03-fight-crop.png, 05-core-life-readout.png and 07-player-wiped-pop-zero.png.",
+      "verdict": "SHIPPED"
+    },
+    {
       "id": "CP-C2",
       "date": "2026-07-31",
-      "title": "Combat core — built, tested, and deliberately NOT closed",
+      "title": "Combat core — built, tested, and deliberately NOT closed (closed later the same day as CP-C2′)",
       "changed": "New Sources/Simulation/CombatSystem.swift and Sources/Domain/CombatTypes.swift: armour-class damage with a minimum floor, integer-tick cooldowns on the fixed 20 Hz step, deterministic target acquisition tie-broken by EntityID, melee pathing into range, death that frees population, building destruction that cancels a production queue with a full refund. No randomness added, so no new tagged stream and no shift to any existing subsystem's numbers. Tapping a hostile with military units selected issues an attack order through the existing SelectionModel path. 39 tests pass, up from 31.",
       "taught": "The verification boundary, and it is the most useful thing in this entry. Combat compiles green, 39 tests pass, and the build installs and renders on the iPad — and none of that is a player watching a unit die. No fight can be staged, because the only hostiles are Gravemark's and Gravemark has no AI: nothing ever comes at you, so two hostile units never meet. This project has twice been misled by exactly this shape of evidence — a 10/10 test pass that never executed, and three sessions of green builds while a third of the map rendered magenta. So CP-C2 is committed and explicitly left open. Verification folds into CP-C3 adversary, where hostile units arrive on their own.",
       "evidence": "Docs/QA/G3/cp-c2/STATUS.md states exactly what is and is not proven. Build log build-agents/combat.log:1328. Landscape capture of the combat build running.",
-      "verdict": "IN FLIGHT — not shipped"
+      "verdict": "SHIPPED — closed as CP-C2′, see the entry above"
     },
     {
       "id": "CP-C1",
@@ -531,7 +544,7 @@
   ],
   "simLease": {
     "holder": "none — released",
-    "since": "2026-07-31T21:30:00+05:30",
+    "since": "2026-07-31T23:55:00+05:30",
     "queue": [],
     "device": "75898CE1-A691-4973-817A-973D4249A38F — Sunfold Cycle 1 iPad Air 13 (iOS 26.5)",
     "warning": "The UDID in AGENTS.md was dead and has been corrected to 75898CE1-…. A second device, CD369CF5-… 'BillBandit Test' iPhone 17 Pro, is booted and belongs to an unrelated project: never touch it. Two devices are booted, so pass the iPad UDID explicitly on every call. Also: argent's screenshot-after-gesture ignores the rotation parameter and returns a portrait-oriented frame of a landscape app — pass rotation LandscapeLeft on a standalone screenshot call when the orientation matters."

@@ -1,5 +1,67 @@
 # Changelog
 
+## 0.5.0 — 2026-07-31 — there is somebody on the other side
+
+The build where the map stops being empty. Gravemark now builds, trains and
+attacks on a fixed schedule, and it walked over and destroyed the player's
+Civilization Core at 5:59 while nobody touched the controls. Evidence in
+`Docs/QA/G3/cp-c3/`.
+
+That attack also closed **CP-C2 as CP-C2′**. Combat had been implemented and
+test-proven the same day but deliberately not shipped, because no fight had ever
+been *seen*: Gravemark had no AI, so two hostile units never met. There is now a
+capture of a health bar draining next to the thing draining it, and of the
+selection panel reading `Civilization Core · SUNWOVEN · 303 / 600`.
+
+### Added
+- `Adversary` — a scheduled opponent, not a planner. Every decision is a pure
+  function of the tick count and the world state, with **no random draws at
+  all**; the tagged `adversary` stream is reserved and deliberately unused, so
+  a later planner cannot silently shift the numbers recorded here. It grows an
+  economy toward twelve citizens, builds Formation Yards at 2:00 and 4:00,
+  houses itself on a population rule, and dispatches attack waves every 90 s
+  from 4:00. First wave arrives at **4:27**, inside the 3:30–4:30 bar.
+- Wave pathing without a pathfinder: waves route via the Dominion centre, the
+  map's only guaranteed contiguous spine, and hand off to their target with a
+  dot-product test.
+- `WorldHash` — the canonical FNV-1a world fingerprint that
+  `05-RESOLUTIONS-R1.md` §6.13 specifies and that nothing had implemented.
+  Quantises resources and life to hundredths and positions to millimetres, in
+  ascending entity order. Two no-input runs from seed `20260726` produce
+  `a9ee7bc2faeea255` at tick 12000, and identical event logs line for line.
+- `SkirmishSimulation.setStance` — the adversary sets its waves aggressive on
+  dispatch through the same path a player's tap would use.
+- `-sunfoldNoAdversary` launch argument to freeze the opponent for tests and
+  for economy work that wants a still map.
+- Ten tests, 39 → **49**. They cover the world hash, the build and wave
+  schedule, wave composition cell by cell against the spec table, arrival
+  timing, that the wave draws blood with no player input, and that the
+  adversary's Matter ledger closes.
+
+### Notes
+- **The adversary is granted nothing, and this is now enforced twice.**
+  Structurally, `Adversary.plan` receives the resource pools **by value** and
+  cannot write to them; everything it trains or builds is charged through the
+  same methods a player's tap reaches. Measurably,
+  `testTheAdversaryMatterLedgerCloses` reconstructs Gravemark's balance from
+  starting stock, trickle, and its own deposits, minus everything standing,
+  alive or queued, and asserts the books close to 0.5 units.
+- **Five rows of the R1 §5 wave table are dropped, not substituted.** Lancer,
+  Bastion Walker, Lumen Spire and Stride Yard do not exist in the roster yet,
+  and the Dawn Loom's research does not. Nothing was invented in Swift to fill
+  them (Directive 3); the drops are listed in `Adversary.deferredFromSpec` so
+  the wave that finally fields a Lancer is a visible change.
+- **Two schedule decisions the spec did not make**, both forced by measurement:
+  a second Formation Yard at 4:00 standing in for the unbuildable Lumen Spire
+  (with one Yard, wave 5 came out *smaller* than wave 4), and four Dwellings on
+  a population rule (at three the adversary jammed at 34/34 with 340 Matter in
+  the bank).
+- By 10:00 the Gravemark home fragment is dug out. That traces to R1 §2's
+  raised home yields not being implemented yet — a **CP-C9** dependency, since
+  raising them changes the player's economy too.
+- No performance smoke was taken. BC-02's checkpoint-close smoke is skipped
+  deliberately this cycle, not forgotten.
+
 ## 0.4.0 — 2026-07-31 — production exists
 
 The build where the game stopped being a fixed diorama. Evidence in
