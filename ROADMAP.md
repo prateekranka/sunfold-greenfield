@@ -34,9 +34,15 @@ loop with per-node work stations; the tactical HUD (resource rail, selection
 panel, load meter, deposit inspection); selection lasso and double-tap
 select-all-of-kind.
 
+Also done 2026-07-31: **construction** (place, pay, build, cancel with refund —
+CP-G2a, `Docs/QA/G2/cp-g2a/r3-resolution.md`) and **production** (per-building
+queue, cost on enqueue, cancel refund, population reservation — CP-C1,
+`Docs/QA/G3/cp-c1/`). Camera navigation is real: minimap tap and drag, Go to
+Core, Face north (CP-G2b-NAV). Land units can finally leave the region they
+spawned in (CP-G3a2) — until that fix no unit had ever crossed a region
+boundary, which quietly made G3, Conquest and Dominion all unreachable.
+
 Still open in this gate:
-- Construction — Farm, Matter Extractor, Dwelling: placement, cost, build progress.
-- Production — train a Citizen or Pathfinder from the Core, with a queue.
 - Objective rail and the 30 / 60 / 90-second hint ladder.
 - A timed first-time pass from boot to a completed building.
 - A deposit selection ring in the world; inspection currently updates the panel
