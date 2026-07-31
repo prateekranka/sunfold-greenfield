@@ -194,8 +194,15 @@ final class WorldController {
 
         switch WorldPicker.pick(at: worldPoint, in: simulation) {
         case .unit(let id):
+            if let unit = simulation.unit(id), unit.faction != .sunwoven {
+                lastTap = nil
+                if !selection.selectedUnits.isEmpty {
+                    selection.orderAttack(target: id, in: simulation)
+                }
+                return
+            }
             // Only the player's own units are commandable; tapping a Gravemark
-            // unit inspects it rather than selecting it as yours.
+            // unit with nothing selected is ignored.
             guard let unit = simulation.unit(id), unit.faction == .sunwoven else {
                 lastTap = nil
                 return
@@ -219,6 +226,13 @@ final class WorldController {
 
         case .building(let id):
             lastTap = nil
+            if let building = simulation.building(id),
+               building.faction != .sunwoven,
+               !selection.selectedUnits.isEmpty
+            {
+                selection.orderAttack(target: id, in: simulation)
+                return
+            }
             if let building = simulation.building(id),
                !building.isComplete,
                building.faction == .sunwoven

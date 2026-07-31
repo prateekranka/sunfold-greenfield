@@ -108,6 +108,9 @@ final class SkirmishSimulation {
         guard var unit = units[id] else { return }
         guard let destination = MovementSystem.resolveDestination(point, for: unit, map: map) else { return }
         unit.assignment = nil
+        unit.attackOrderTarget = nil
+        unit.attackTarget = nil
+        unit.guardAnchor = nil
         unit.destination = destination
         unit.activity = .moving
         units[id] = unit
@@ -173,7 +176,6 @@ final class SkirmishSimulation {
     /// Maximum citizens that may work one foundation at once.
     static let maxBuildersPerSite = 4
 
-    /// Sends selected land units to board a light transport.
     func orderBoard(_ ids: [EntityID], onto transportID: EntityID) {
         guard var transport = units[transportID],
               transport.kind == .lightTransport
@@ -201,6 +203,12 @@ final class SkirmishSimulation {
             units[id] = unit
             seats -= 1
         }
+    }
+
+    /// Orders military units to attack a hostile entity. Citizens may attack when
+    /// explicitly commanded; they never auto-acquire on their own.
+    func orderAttack(_ units: [EntityID], target: EntityID) {
+        CombatSystem.orderAttack(units, target: target, units: &self.units)
     }
 
     /// Commits a foundation at `point`. Deducts cost, spawns an incomplete
@@ -439,6 +447,13 @@ final class SkirmishSimulation {
             tuning: tuning,
             deltaTime: seconds
         )
+        MovementSystem.step(units: &units, map: map, deltaTime: seconds)
+        let combatResult = CombatSystem.step(
+            units: &units,
+            buildings: &buildings,
+            map: map
+        )
+        applyCombatDeaths(combatResult)
         ProductionSystem.step(
             queues: &productionQueues,
             units: &units,
@@ -454,6 +469,94 @@ final class SkirmishSimulation {
             tuning: tuning,
             deltaTime: seconds
         )
-        MovementSystem.step(units: &units, map: map, deltaTime: seconds)
+    }
+
+    /// Removes entities killed this tick and clears stale references elsewhere.
+    private func applyCombatDeaths(_ result: CombatSystem.TickResult) {
+        guard !result.deadUnits.isEmpty || !result.deadBuildings.isEmpty else { return }
+
+        var deadUnits = Set(result.deadUnits)
+        let deadBuildings = Set(result.deadBuildings)
+
+        for unitID in result.deadUnits {
+            if let transport = units[unitID], transport.kind == .lightTransport {
+                for passengerID in transport.carrying {
+                    deadUnits.insert(passengerID)
+                }
+            }
+        }
+
+        for buildingID in result.deadBuildings {
+            ProductionSystem.onBuildingDestroyed(
+                buildingID,
+                queues: &productionQueues,
+                buildings: buildings,
+                stock: &stock,
+                tuning: tuning
+            )
+            releaseBuilders(of: buildingID)
+            buildings[buildingID] = nil
+        }
+
+        for unitID in deadUnits.sorted(by: { $0.raw < $1.raw }) {
+            units[unitID] = nil
+        }
+
+        for id in units.keys.sorted(by: { $0.raw < $1.raw }) {
+            guard var unit = units[id] else { continue }
+
+            if let target = unit.attackTarget, deadUnits.contains(target) || deadBuildings.contains(target) {
+                unit.attackTarget = nil
+            }
+            if let ordered = unit.attackOrderTarget, deadUnits.contains(ordered) || deadBuildings.contains(ordered) {
+                unit.attackOrderTarget = nil
+            }
+
+            if case .boarding(let transportID) = unit.activity, deadUnits.contains(transportID) {
+                unit.activity = .idle
+                unit.boardingProgress = 0
+                unit.destination = nil
+            }
+            if case .aboard(let transportID) = unit.activity, deadUnits.contains(transportID) {
+                units[id] = nil
+                continue
+            }
+            if case .constructing(let buildingID) = unit.activity, deadBuildings.contains(buildingID) {
+                unit.activity = .idle
+                unit.destination = nil
+            }
+            if case .attacking(let targetID) = unit.activity,
+               deadUnits.contains(targetID) || deadBuildings.contains(targetID)
+            {
+                unit.activity = .idle
+                unit.attackTarget = nil
+            }
+
+            if unit.kind == .lightTransport {
+                unit.carrying.removeAll { deadUnits.contains($0) }
+            }
+
+            units[id] = unit
+        }
+
+        for id in buildings.keys.sorted(by: { $0.raw < $1.raw }) {
+            guard var building = buildings[id] else { continue }
+            if let target = building.attackTarget,
+               deadUnits.contains(target) || deadBuildings.contains(target)
+            {
+                building.attackTarget = nil
+                buildings[id] = building
+            }
+        }
+    }
+
+    private func releaseBuilders(of buildingID: EntityID) {
+        for id in units.keys.sorted(by: { $0.raw < $1.raw }) {
+            guard var unit = units[id] else { continue }
+            guard case .constructing(buildingID) = unit.activity else { continue }
+            unit.activity = .idle
+            unit.destination = nil
+            units[id] = unit
+        }
     }
 }

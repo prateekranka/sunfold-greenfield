@@ -178,6 +178,24 @@ final class SelectionModel {
         else { return false }
         return simulation.cancelProduction(at: buildingID)
     }
+
+    /// Issues an attack order when friendly units that can fight are selected.
+    func orderAttack(target: EntityID, in simulation: SkirmishSimulation) {
+        let attackers = selectedUnits
+            .compactMap { simulation.unit($0) }
+            .filter { $0.faction == .sunwoven && $0.kind.canAttack && !$0.isAboard }
+            .map(\.id)
+        guard !attackers.isEmpty else { return }
+
+        simulation.orderAttack(attackers, target: target)
+        if let point = attackTargetPosition(target, in: simulation) {
+            lastOrderMarker = OrderMarker(position: point, issuedAt: simulation.elapsed)
+        }
+    }
+
+    private func attackTargetPosition(_ target: EntityID, in simulation: SkirmishSimulation) -> WorldPoint? {
+        simulation.unit(target)?.position ?? simulation.building(target)?.position
+    }
 }
 
 /// Resolves a world-space tap to whatever the player most plausibly meant.

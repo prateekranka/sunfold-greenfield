@@ -71,13 +71,101 @@ enum UnitKind: String, CaseIterable, Sendable {
     var maxLife: Double {
         switch self {
         case .citizen: 40
-        case .pathfinder: 55
-        case .vanguard: 110
-        case .ranged: 70
+        case .pathfinder: 45
+        case .vanguard: 75
+        case .ranged: 50
         case .lightTransport: 140
         case .bastionWalker: 190
         }
     }
+
+    var armorClass: ArmorClass {
+        switch self {
+        case .citizen: .worker
+        case .pathfinder, .vanguard, .ranged: .infantry
+        case .bastionWalker: .siege
+        case .lightTransport: .hull
+        }
+    }
+
+    var meleeArmor: Int {
+        switch self {
+        case .citizen, .pathfinder, .ranged: 0
+        case .vanguard: 1
+        case .bastionWalker: 3
+        case .lightTransport: 2
+        }
+    }
+
+    var rangedArmor: Int {
+        switch self {
+        case .citizen, .pathfinder, .vanguard, .ranged: 0
+        case .bastionWalker: 4
+        case .lightTransport: 2
+        }
+    }
+
+    /// Metres. Always greater than weapons range for military units.
+    var sightRange: Float {
+        switch self {
+        case .citizen: 9
+        case .pathfinder: 20
+        case .vanguard: 11
+        case .ranged: 13
+        case .lightTransport: 14
+        case .bastionWalker: 10
+        }
+    }
+
+    /// Nil when the kind cannot attack (e.g. Light Transport).
+    var attackProfile: AttackProfile? {
+        switch self {
+        case .citizen:
+            AttackProfile(
+                damageType: .melee,
+                base: 3,
+                bonuses: [.building: 3],
+                range: 0.8,
+                cooldownTicks: 30
+            )
+        case .pathfinder:
+            AttackProfile(
+                damageType: .melee,
+                base: 4,
+                bonuses: [.worker: 5],
+                range: 0.9,
+                cooldownTicks: 26
+            )
+        case .vanguard:
+            AttackProfile(
+                damageType: .melee,
+                base: 7,
+                bonuses: [.mounted: 10],
+                range: 0.9,
+                cooldownTicks: 24
+            )
+        case .ranged:
+            AttackProfile(
+                damageType: .ranged,
+                base: 6,
+                bonuses: [.infantry: 4],
+                range: 9.0,
+                cooldownTicks: 28
+            )
+        case .bastionWalker:
+            AttackProfile(
+                damageType: .siege,
+                base: 20,
+                bonuses: [.building: 45],
+                range: 9.0,
+                cooldownTicks: 60
+            )
+        case .lightTransport:
+            nil
+        }
+    }
+
+    var canAttack: Bool { attackProfile != nil }
 
     /// Radius used for selection hit-testing, formation spacing and the margin a
     /// unit keeps from a fragment's rim.
@@ -176,6 +264,25 @@ enum BuildingKind: String, CaseIterable, Sendable {
         default: 0
         }
     }
+
+    var armorClass: ArmorClass { .building }
+
+    var meleeArmor: Int {
+        switch self {
+        case .farm: 0
+        default: 4
+        }
+    }
+
+    var rangedArmor: Int {
+        switch self {
+        case .farm: 0
+        default: 6
+        }
+    }
+
+    /// Armed structures only. None of the seven shipped kinds attack yet.
+    var attackProfile: AttackProfile? { nil }
 
     /// Which production this building offers, if any.
     var trains: [UnitKind] {

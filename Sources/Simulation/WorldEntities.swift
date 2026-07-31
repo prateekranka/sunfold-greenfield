@@ -46,6 +46,23 @@ struct Unit: Sendable, Identifiable {
     /// embark lerp; simulation owns the value.
     var boardingProgress: Double = 0
 
+    // MARK: - Combat
+
+    /// Player-issued attack target. Persists until cleared or the target dies.
+    var attackOrderTarget: EntityID?
+    /// Current strike target (explicit order or auto-acquired).
+    var attackTarget: EntityID?
+    var attackCooldownRemaining: Int = 0
+    var stance: CombatStance = .guardStance
+    /// Guard stance leash anchor — set when a target is first acquired.
+    var guardAnchor: WorldPoint?
+    /// Attackers that damaged this unit earlier in the current tick (for retaliation).
+    var attackersThisTick: [EntityID] = []
+    /// Most recent attacker still eligible for retaliation priority.
+    var lastDamagedBy: EntityID?
+    /// Set when HP reaches zero; removed at end of tick.
+    var isDead: Bool = false
+
     init(
         id: EntityID,
         faction: Faction,
@@ -90,6 +107,12 @@ struct Building: Sendable, Identifiable {
     var life: Double
     /// 0...1 while under construction; 1 once complete.
     var constructionProgress: Double
+
+    // MARK: - Combat (armed buildings)
+
+    var attackTarget: EntityID?
+    var attackCooldownRemaining: Int = 0
+    var isDead: Bool = false
 
     var isComplete: Bool { constructionProgress >= 1 }
 
