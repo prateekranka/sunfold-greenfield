@@ -338,6 +338,19 @@ The subsystems behind all of that:
 
 ### Known open defects and risks
 
+- **A clean checkout of this branch does not build, and has not since CP-C2.** Found
+  2026-07-31 while verifying the CP-C3 commit in a throwaway worktree. Two call sites are
+  **committed** while the files that define them are **untracked**:
+  `Sources/Rendering/WorldController.swift` calls `PerfHarness` / `PerfLaunchFlags` /
+  `SceneScaleSnapshot` (all in the untracked `Sources/Diagnostics/`, committed at `47b0c33`),
+  and `Sources/Simulation/SkirmishSimulation.swift` calls `BoardingSystem` (untracked
+  `Sources/Simulation/BoardingSystem.swift`, committed at or before `a457011`). Every local
+  build is green because the working tree has the files; anyone who clones gets four
+  `cannot find … in scope` errors. **Not fixed here on purpose** — both belong to other
+  agents' in-flight work, and committing them would be committing foreign changes. Whoever
+  owns the perf and boarding work should commit those files, or the call sites should come
+  back out. This is exactly the failure mode this project keeps hitting: the green build is
+  measuring the working tree, not the repository.
 - **`Docs/QA/AAA/round-1-foundation.png` is stale.** Captured at 15:34, *before* the
   chromatic-aberration fix at 15:45 that dropped `aberration` from 0.0022 to 0.0006. Do not
   cite its rainbow fringing as a current defect — that complaint is already fixed in source.
@@ -348,13 +361,14 @@ The subsystems behind all of that:
   build then spins for 180 s and *silently proceeds without running `xcodegen`*. This has
   already bitten once. The lock should carry its owner's pid and be reclaimed when that pid
   is gone, and a failed acquisition should be a loud error rather than a silent skip.
-- **The unit tests have never been executed.** `Tests/DeterminismTests.swift` holds 15 tests
-  covering seeded replay, fixed-step accounting, map symmetry, fragment separation, the
-  transport-only first crossing, dock/staging legality and equal Core trickle. They compile
-  and link on every build, but `xcodebuild test` is hook-blocked, so every result is
-  **Proof Pending**. The planned fix is to extract `Domain` + `Simulation` into a SwiftPM
-  `SunfoldCore` package that `swift test` can run directly — which is the right
-  architecture anyway, since it enforces the simulation/rendering split at module level.
+- ~~**The unit tests have never been executed.**~~ **Fixed under P14 on 2026-07-31.** The
+  planned SwiftPM extraction happened: a root `Package.swift` exposes `Domain` + `Simulation`
+  as `SunfoldCore`, and **49 tests run and pass under `swift test`** on the host in about a
+  minute, no simulator and no app host. The remaining wrinkle is that `Tests/` is *also*
+  globbed into the Xcode `SunfoldGreenfieldTests` target, which cannot resolve
+  `@testable import SunfoldCore` — so `xcodebuild` on the scheme fails on the test target in
+  a clean checkout while `agent-build.sh` (app target only) is green. **Run tests with
+  `swift test`, never with `xcodebuild test`.**
 - `Sources/Audio/` and `Sources/Accessibility/` exist but are empty. They belong to G7.
 - **`rotate` loses the first call after a launch.** The app is still building its scene, the
   call returns `{"orientation":"LandscapeLeft"}` and nothing turns. Send it twice — a
