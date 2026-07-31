@@ -62,8 +62,8 @@ enum UnitKind: String, CaseIterable, Sendable {
 
     var populationCost: Int {
         switch self {
-        case .citizen, .pathfinder: 1
-        case .vanguard, .ranged, .bastionWalker: 2
+        case .citizen, .pathfinder, .vanguard, .ranged: 1
+        case .bastionWalker: 3
         case .lightTransport: 0
         }
     }
@@ -171,7 +171,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
 
     var populationGrant: Int {
         switch self {
-        case .dwelling: 4
+        case .dwelling: 8
         case .expansionOutpost: 2
         default: 0
         }

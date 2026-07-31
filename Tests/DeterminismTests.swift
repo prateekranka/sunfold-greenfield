@@ -363,6 +363,110 @@ final class DeterminismTests: XCTestCase {
         }
     }
 
+    // MARK: - Cross-region land traversal
+
+    /// A citizen at the Sunwoven Core must be able to walk to the Dominion centre
+    /// over continuous dry land — region seams are labels, not walls.
+    func testLandUnitWalksFromHomeToDominionOverContinuousLand() {
+        let map = WorldMap.map(.riverlands, seed: 20_260_726)
+        let home = map.fragment(.sunwovenHome).center
+        let dominion = map.fragment(.dominion).center
+
+        let id = EntityID(raw: 1)
+        var unit = Unit(
+            id: id,
+            faction: .sunwoven,
+            kind: .citizen,
+            position: home,
+            region: .sunwovenHome
+        )
+        unit.destination = MovementSystem.resolveDestination(dominion, for: unit, map: map)
+        XCTAssertNotNil(unit.destination, "The Dominion centre must resolve as a legal destination.")
+        XCTAssertLessThan(
+            simd_distance(unit.destination!, dominion),
+            2,
+            "The resolved destination must lie at the Dominion centre, not clamp back home."
+        )
+
+        var units = [id: unit]
+        let stepDuration = 1.0 / 20.0
+        var previous = home
+        for _ in 0..<12_000 {
+            MovementSystem.step(units: &units, map: map, deltaTime: stepDuration)
+            guard let current = units[id] else { return XCTFail("Unit vanished.") }
+            XCTAssertTrue(
+                map.isLand(current.position),
+                "Every step must stay on dry land; unit entered void at \(current.position)."
+            )
+            let step = simd_distance(current.position, previous)
+            if current.destination != nil {
+                XCTAssertLessThanOrEqual(
+                    step,
+                    unit.kind.speed * Float(stepDuration) + 0.05,
+                    "A land unit must not tunnel across void in one step."
+                )
+            }
+            previous = current.position
+            if current.destination == nil { break }
+        }
+
+        let arrived = units[id]!
+        XCTAssertLessThan(
+            simd_distance(arrived.position, dominion),
+            MovementSystem.arrivalRadius + 2,
+            "The citizen must reach the Dominion centre over land."
+        )
+        XCTAssertEqual(arrived.region, RegionID.dominion, "Region must be derived from position at arrival.")
+    }
+
+    /// Void water still blocks land units — the home→expansion river cannot be
+    /// walked until the Outpost causeway is woven.
+    func testLandUnitCannotWalkAcrossVoidWater() {
+        let map = WorldMap.map(.riverlands, seed: 20_260_726)
+        let home = map.fragment(.sunwovenHome).center
+        let expansion = map.fragment(.sunwovenExpansion).center
+
+        let samples = 200
+        var submerged = 0
+        for index in 0...samples {
+            let point = home + (expansion - home) * (Float(index) / Float(samples))
+            if map.isSubmerged(point) { submerged += 1 }
+        }
+        XCTAssertGreaterThan(submerged, 8, "The straight home→expansion path must cross void.")
+
+        let id = EntityID(raw: 2)
+        var unit = Unit(
+            id: id,
+            faction: .sunwoven,
+            kind: .citizen,
+            position: home,
+            region: .sunwovenHome
+        )
+        unit.destination = MovementSystem.resolveDestination(expansion, for: unit, map: map)
+        XCTAssertNotNil(unit.destination)
+
+        var units = [id: unit]
+        let stepDuration = 1.0 / 20.0
+        for _ in 0..<8_000 {
+            MovementSystem.step(units: &units, map: map, deltaTime: stepDuration)
+            guard let current = units[id] else { return XCTFail("Unit vanished.") }
+            XCTAssertTrue(map.isLand(current.position), "Unit must never stand in void.")
+            if current.destination == nil { break }
+        }
+
+        let stopped = units[id]!
+        XCTAssertGreaterThan(
+            simd_distance(stopped.position, expansion),
+            30,
+            "A citizen ordered across the river must stop on the near bank, not reach the expansion."
+        )
+        XCTAssertNotEqual(
+            stopped.region,
+            RegionID.sunwovenExpansion,
+            "The citizen must remain on the home side of the void crossing."
+        )
+    }
+
     // MARK: - Economy accounting
 
     @MainActor

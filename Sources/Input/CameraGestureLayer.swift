@@ -186,6 +186,7 @@ struct CameraGestureLayer: UIViewRepresentable {
                     applyGhostGates(false)
                 } else {
                     controller.endBuildGhostDrag()
+                    applyGhostGates(controller.buildGhost != nil)
                 }
             case .cancelled, .failed:
                 break

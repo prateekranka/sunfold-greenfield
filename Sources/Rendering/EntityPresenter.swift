@@ -23,6 +23,19 @@ final class EntityPresenter {
     /// Authored rest height of each unit's torso, so bob is applied as an offset
     /// rather than overwriting the mesh's own proportions.
     private var torsoRestHeight: [EntityID: Float] = [:]
+    /// Limb entity refs resolved once at spawn — avoids seven string-keyed hierarchy
+    /// walks per unit per frame in `applyPose`.
+    private var unitRigRefs: [EntityID: UnitRigRefs] = [:]
+
+    private struct UnitRigRefs {
+        var legL: Entity?
+        var legR: Entity?
+        var legLRear: Entity?
+        var legRRear: Entity?
+        var armL: Entity?
+        var armR: Entity?
+        var torso: Entity?
+    }
 
     private var selectionRings: [EntityID: Entity] = [:]
     private var orderMarker: Entity?
@@ -51,6 +64,19 @@ final class EntityPresenter {
         self.unitScale = tuning.unitVisualScale
         self.cargoFullAt = tuning.carryCapacity
         root.name = "world.entities"
+    }
+
+    /// Dynamic entities the presenter owns (units, buildings, deposits, rings).
+    /// Static terrain and dressing live under `WorldScene` and are not counted.
+    var presentedEntityCount: Int {
+        unitEntities.count
+            + buildingEntities.count
+            + depositEntities.count
+            + selectionRings.count
+            + constructionRings.count
+            + completionFlashes.count
+            + (buildGhostEntity == nil ? 0 : 1)
+            + (orderMarker == nil ? 0 : 1)
     }
 
     /// Reconciles the scene with simulation state for this frame.
@@ -86,11 +112,31 @@ final class EntityPresenter {
             // A unit aboard a transport is cargo: hide it rather than leaving it
             // standing on the void where its hull used to be.
             entity.isEnabled = !unit.isAboard
+
             // Sampled every frame, not once: a unit walks across the relief, so
             // its footing changes as it moves. The simulation's position stays
             // planar — this only decides where that position is drawn.
-            entity.position = TerrainSurface.standing(at: unit.position, in: simulation.map)
-            entity.orientation = simd_quatf(angle: walk.facing, axis: [0, 1, 0])
+            var drawn = TerrainSurface.standing(at: unit.position, in: simulation.map)
+            // Climb onto the deck: rise and ease toward the hull while boarding.
+            if unit.isBoarding, unit.boardingProgress > 0,
+               case .boarding(let transportID) = unit.activity,
+               let transport = simulation.unit(transportID) {
+                let t = Float(unit.boardingProgress)
+                let ease = t * t * (3 - 2 * t)
+                let deck = TerrainSurface.standing(
+                    at: transport.position, in: simulation.map, lift: 1.35
+                )
+                drawn = drawn + (deck - drawn) * ease
+                drawn.y += 0.55 * ease
+            }
+            entity.position = drawn
+
+            // Transport hull is authored with bow at +Z; unit locomotion treats
+            // forward as −Z. Flip π so the craft sails bow-first.
+            let yaw = unit.kind == .lightTransport
+                ? walk.facing + Float.pi
+                : walk.facing
+            entity.orientation = simd_quatf(angle: yaw, axis: [0, 1, 0])
             applyPose(walk.pose, to: entity, id: id)
             syncCargo(unit, on: entity, id: id)
         }
@@ -98,6 +144,7 @@ final class EntityPresenter {
         removeStale(from: &unitEntities, keeping: simulation.units.keys) { id in
             self.locomotion[id] = nil
             self.torsoRestHeight[id] = nil
+            self.unitRigRefs[id] = nil
             self.selectionRings[id] = nil
             self.cargoPacks[id] = nil
             self.cargoKinds[id] = nil
@@ -119,9 +166,7 @@ final class EntityPresenter {
 
         entity.name = "unit.\(unit.kind.rawValue).\(id.raw)"
         entity.scale = .init(repeating: unitScale)
-        if let torso = entity.findEntity(named: UnitMeshes.Part.torso) {
-            torsoRestHeight[id] = torso.position.y
-        }
+        cacheRigRefs(for: entity, id: id)
 
         // The ring is a child, so it inherits the unit's scale. Dividing it out
         // here lands the ring at the world radius the picker actually uses —
@@ -140,22 +185,41 @@ final class EntityPresenter {
         return entity
     }
 
+    /// Resolves rig part entities once when a unit is spawned.
+    private func cacheRigRefs(for entity: Entity, id: EntityID) {
+        let refs = UnitRigRefs(
+            legL: entity.findEntity(named: UnitMeshes.Part.legL),
+            legR: entity.findEntity(named: UnitMeshes.Part.legR),
+            legLRear: entity.findEntity(named: UnitMeshes.Part.legLRear),
+            legRRear: entity.findEntity(named: UnitMeshes.Part.legRRear),
+            armL: entity.findEntity(named: UnitMeshes.Part.armL),
+            armR: entity.findEntity(named: UnitMeshes.Part.armR),
+            torso: entity.findEntity(named: UnitMeshes.Part.torso)
+        )
+        unitRigRefs[id] = refs
+        if let torso = refs.torso {
+            torsoRestHeight[id] = torso.position.y
+        }
+    }
+
     /// Applies the gait rig. Rotations are used exactly as the locomotion layer
     /// publishes them — it already accounts for the sign convention that a
     /// positive turn about +X swings a hanging limb forward.
     private func applyPose(_ pose: LimbPose, to entity: Entity, id: EntityID) {
-        func rotate(_ name: String, _ pitch: Float) {
-            entity.findEntity(named: name)?.orientation = simd_quatf(angle: pitch, axis: [1, 0, 0])
+        guard let refs = unitRigRefs[id] else { return }
+
+        func rotate(_ part: Entity?, _ pitch: Float) {
+            part?.orientation = simd_quatf(angle: pitch, axis: [1, 0, 0])
         }
 
-        rotate(UnitMeshes.Part.legL, pose.legLeftPitch)
-        rotate(UnitMeshes.Part.legR, pose.legRightPitch)
-        rotate(UnitMeshes.Part.legLRear, pose.rearLegLeftPitch)
-        rotate(UnitMeshes.Part.legRRear, pose.rearLegRightPitch)
-        rotate(UnitMeshes.Part.armL, pose.armLeftPitch)
-        rotate(UnitMeshes.Part.armR, pose.armRightPitch)
+        rotate(refs.legL, pose.legLeftPitch)
+        rotate(refs.legR, pose.legRightPitch)
+        rotate(refs.legLRear, pose.rearLegLeftPitch)
+        rotate(refs.legRRear, pose.rearLegRightPitch)
+        rotate(refs.armL, pose.armLeftPitch)
+        rotate(refs.armR, pose.armRightPitch)
 
-        guard let torso = entity.findEntity(named: UnitMeshes.Part.torso) else { return }
+        guard let torso = refs.torso else { return }
         torso.orientation = simd_quatf(angle: pose.torsoPitch, axis: [1, 0, 0])
             * simd_quatf(angle: pose.torsoYaw, axis: [0, 1, 0])
         if let rest = torsoRestHeight[id] {
@@ -218,7 +282,7 @@ final class EntityPresenter {
         pack.name = "unit.cargo"
         // Ride the torso, so the pack inherits the walk bob and lean rather than
         // floating along at a fixed height beside the citizen.
-        let host = entity.findEntity(named: UnitMeshes.Part.torso) ?? entity
+        let host = unitRigRefs[id]?.torso ?? entity
         host.addChild(pack)
         pack.position = [0, 0.42, 0.24]
         cargoPacks[id] = pack

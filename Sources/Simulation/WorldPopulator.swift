@@ -38,7 +38,7 @@ enum WorldPopulator {
         }
     }
 
-    static func populate(map: WorldMap, tuning: SkirmishTuning) -> Result {
+    static func populate(map: WorldMap, tuning: SkirmishTuning, perfDensity: Int? = nil) -> Result {
         var result = Result(allocator: EntityIDAllocator())
 
         for faction in Faction.allCases {
@@ -48,6 +48,10 @@ enum WorldPopulator {
 
         for region in RegionID.allCases {
             placeDeposits(region: region, map: map, into: &result)
+        }
+
+        if let target = perfDensity, result.units.count < target {
+            inflateToDensity(target, map: map, into: &result)
         }
 
         return result
@@ -105,14 +109,15 @@ enum WorldPopulator {
             )
         }
 
-        // The transport waits at the rim dock facing this side's expansion.
+        // The transport waits in the coastal channel facing the expansion —
+        // bow aligned with locomotion's heading convention (not atan2(x,y)).
         let transportID = result.allocator.allocate()
         result.units[transportID] = Unit(
             id: transportID,
             faction: faction,
             kind: .lightTransport,
             position: map.dockPoint(on: region, facing: expansion),
-            facing: baseAngle,
+            facing: LocomotionMath.heading(of: outward),
             region: nil  // A hull sits in the void, not on land.
         )
     }
@@ -167,6 +172,59 @@ enum WorldPopulator {
                 region: region,
                 remaining: startingYield(for: kind)
             )
+        }
+    }
+
+    // MARK: - Perf density
+
+    /// Spawns additional citizens until `units.count` reaches `target`. Used only
+    /// when `-sunfoldDensity N` is passed at launch; draws from a tagged RNG
+    /// stream that does not shift gameplay randomness when the flag is absent.
+    private static func inflateToDensity(
+        _ target: Int,
+        map: WorldMap,
+        into result: inout Result
+    ) {
+        var random = DeterministicRandom.stream(seed: map.seed, tag: "perf.density")
+        var factionIndex = 0
+
+        while result.units.count < target {
+            let faction = Faction.allCases[factionIndex % Faction.allCases.count]
+            factionIndex += 1
+            let region: RegionID = faction == .sunwoven ? .sunwovenHome : .gravemarkHome
+            let fragment = map.fragment(region)
+            let expansion: RegionID = faction == .sunwoven ? .sunwovenExpansion : .gravemarkExpansion
+            let outward = simd_normalize(map.fragment(expansion).center - fragment.center)
+
+            var placed = false
+            for attempt in 0..<64 {
+                let angle = random.float(in: 0...(2 * .pi)) + Float(attempt) * 0.17
+                let distance = random.float(in: 6...min(fragment.radius * 0.75, 42))
+                let heading = WorldPoint(sin(angle), cos(angle))
+                let wanted = fragment.center + heading * distance
+                let position = map.clampToLand(
+                    wanted,
+                    from: fragment.center,
+                    in: region,
+                    margin: UnitKind.citizen.footprintRadius
+                )
+                guard map.isStandable(
+                    position, in: region, margin: UnitKind.citizen.footprintRadius
+                ) else { continue }
+
+                let id = result.allocator.allocate()
+                result.units[id] = Unit(
+                    id: id,
+                    faction: faction,
+                    kind: .citizen,
+                    position: position,
+                    facing: LocomotionMath.heading(of: outward),
+                    region: region
+                )
+                placed = true
+                break
+            }
+            if !placed { break }
         }
     }
 }

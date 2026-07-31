@@ -1,5 +1,6 @@
 import SwiftUI
 import simd
+import UIKit
 
 /// The whole battlefield at a glance: every fragment, the routes between them,
 /// what stands on them, and where the camera is looking.
@@ -20,13 +21,26 @@ struct Minimap: View {
 
     /// Width of the map well, in points. Sized so the smallest fragment — a
     /// 9 m outcrop — still lands on more than a single pixel.
-    private static let width: CGFloat = 192
+    private static let baseWidth: CGFloat = 192
+    private static let expandedWidth: CGFloat = 320
 
     /// Breathing room around the outermost rock, as a fraction of the land's
     /// own half-extent. Without it the far outcrops are cut in half by the well.
     private static let margin: Float = 1.07
 
+    /// Toggled by "Expand map" for the rest of the session.
+    @State private var isExpanded = false
+
+    private var wellWidth: CGFloat {
+        isExpanded ? Self.expandedWidth : Self.baseWidth
+    }
+
     var body: some View {
+        // Read rig state in the body so the Canvas redraws when the camera moves.
+        let rigFocus = rig?.focus
+        let rigYaw = rig?.yaw
+        let rigZoom = rig?.zoom
+
         VStack(alignment: .leading, spacing: 7) {
             // Width-pinned to the map. A `Spacer` in a column that has no width
             // of its own makes the whole column greedy, and the panel stretches
@@ -34,13 +48,21 @@ struct Minimap: View {
             HStack(spacing: 6) {
                 Text("Theatre").hudTitle()
                 Spacer(minLength: 0)
-                Text(compassReading).hudLabel()
+                Text(compassReading(yaw: rigYaw)).hudLabel()
             }
-            .frame(width: Self.width)
+            .frame(width: wellWidth)
             Canvas(rendersAsynchronously: false) { context, size in
-                draw(into: context, size: size)
+                draw(
+                    into: context,
+                    size: size,
+                    rigFocus: rigFocus,
+                    rigYaw: rigYaw,
+                    rigZoom: rigZoom
+                )
             }
             .frame(width: wellSize.width, height: wellSize.height)
+            .contentShape(Rectangle())
+            .gesture(minimapNavigationGesture)
             .hudWell()
             tools
         }
@@ -78,10 +100,10 @@ struct Minimap: View {
     private var wellSize: CGSize {
         let extent = landExtent
         guard extent.x > 0, extent.y > 0 else {
-            return CGSize(width: Self.width, height: Self.width)
+            return CGSize(width: wellWidth, height: wellWidth)
         }
-        let height = Self.width * CGFloat(extent.y / extent.x)
-        return CGSize(width: Self.width, height: height.rounded())
+        let height = wellWidth * CGFloat(extent.y / extent.x)
+        return CGSize(width: wellWidth, height: height.rounded())
     }
 
     // MARK: - Tools
@@ -90,23 +112,72 @@ struct Minimap: View {
     /// player learns one control and gets four.
     private var tools: some View {
         HStack(spacing: 5) {
-            HUDIconTile(glyph: .compass, size: HUDMetrics.toolTile, name: "Face north")
-            HUDIconTile(glyph: .coreMark, size: HUDMetrics.toolTile, name: "Go to Core")
-            HUDIconTile(glyph: .pin, size: HUDMetrics.toolTile, name: "Place marker")
-            HUDIconTile(glyph: .expand, size: HUDMetrics.toolTile, name: "Expand map")
+            HUDIconTile(
+                glyph: .compass,
+                size: HUDMetrics.toolTile,
+                name: "Face north",
+                action: faceNorth
+            )
+            HUDIconTile(
+                glyph: .coreMark,
+                size: HUDMetrics.toolTile,
+                name: "Go to Core",
+                action: goToCore
+            )
+            HUDIconTile(
+                glyph: .pin,
+                size: HUDMetrics.toolTile,
+                isEnabled: false,
+                name: "Place marker unavailable"
+            )
+            HUDIconTile(
+                glyph: .expand,
+                size: HUDMetrics.toolTile,
+                name: isExpanded ? "Collapse map" : "Expand map",
+                action: { isExpanded.toggle() }
+            )
         }
     }
 
-    private var compassReading: String {
-        guard let rig else { return "N" }
+    private func compassReading(yaw: Float?) -> String {
+        guard let yaw else { return "N" }
         // Yaw is measured about +Y with north at -Z, and the rig turns the world
         // under a fixed camera, so the heading the player is facing is the
         // negation of the rig's yaw.
-        let degrees = (-rig.yaw * 180 / .pi).truncatingRemainder(dividingBy: 360)
+        let degrees = (-yaw * 180 / .pi).truncatingRemainder(dividingBy: 360)
         let wrapped = degrees < 0 ? degrees + 360 : degrees
         let points = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
         let index = Int((wrapped / 45).rounded()) % points.count
         return "\(points[index]) · \(Int(wrapped.rounded()))°"
+    }
+
+    // MARK: - Navigation
+
+    /// Tap-to-jump and drag-to-scrub share one gesture: `minimumDistance` of zero
+    /// fires on first contact and keeps updating while the finger moves.
+    private var minimapNavigationGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                focusCamera(at: value.location)
+            }
+    }
+
+    private func focusCamera(at location: CGPoint) {
+        guard let rig else { return }
+        rig.setFocus(unproject(location, in: wellSize))
+    }
+
+    private func faceNorth() {
+        rig?.returnNorth()
+    }
+
+    private func goToCore() {
+        guard let rig,
+              let core = simulation.buildings.values.first(where: {
+                  $0.kind == .civilizationCore && $0.faction == viewer
+              })
+        else { return }
+        rig.setFocus(core.position)
     }
 
     // MARK: - Drawing
@@ -128,16 +199,43 @@ struct Minimap: View {
     }
 
     private func projector(size: CGSize) -> (WorldPoint) -> CGPoint {
-        let scale = scale(for: size)
-        return { point in
-            CGPoint(
-                x: size.width / 2 + CGFloat(point.x) * scale,
-                y: size.height / 2 + CGFloat(point.y) * scale
-            )
-        }
+        mapTransform(for: size).project
     }
 
-    private func draw(into context: GraphicsContext, size: CGSize) {
+    /// The exact inverse of `projector`. One `scale(for:)` feeds both directions
+    /// so hit-testing and drawing can never drift apart.
+    private func unproject(_ point: CGPoint, in size: CGSize) -> WorldPoint {
+        mapTransform(for: size).unproject(point)
+    }
+
+    private func mapTransform(for size: CGSize) -> (
+        project: (WorldPoint) -> CGPoint,
+        unproject: (CGPoint) -> WorldPoint
+    ) {
+        let scale = scale(for: size)
+        return (
+            project: { world in
+                CGPoint(
+                    x: size.width / 2 + CGFloat(world.x) * scale,
+                    y: size.height / 2 + CGFloat(world.y) * scale
+                )
+            },
+            unproject: { screen in
+                WorldPoint(
+                    Float((screen.x - size.width / 2) / scale),
+                    Float((screen.y - size.height / 2) / scale)
+                )
+            }
+        )
+    }
+
+    private func draw(
+        into context: GraphicsContext,
+        size: CGSize,
+        rigFocus: WorldPoint?,
+        rigYaw: Float?,
+        rigZoom: Float?
+    ) {
         let project = projector(size: size)
         let scale = scale(for: size)
 
@@ -146,7 +244,14 @@ struct Minimap: View {
         drawDeposits(context, project: project)
         drawBuildings(context, project: project)
         drawUnits(context, project: project)
-        drawViewport(context, project: project, scale: scale)
+        drawViewport(
+            context,
+            project: project,
+            scale: scale,
+            focus: rigFocus,
+            yaw: rigYaw,
+            zoom: rigZoom
+        )
     }
 
     /// Routes first and underneath: they are context for the fragments, not
@@ -255,30 +360,39 @@ struct Minimap: View {
     private func drawViewport(
         _ context: GraphicsContext,
         project: (WorldPoint) -> CGPoint,
-        scale: CGFloat
+        scale: CGFloat,
+        focus: WorldPoint?,
+        yaw: Float?,
+        zoom: Float?
     ) {
-        guard let rig else { return }
+        guard let focus, let yaw, let zoom else { return }
 
-        let halfHeight = rig.zoom / 2
+        let halfHeight = zoom / 2
         // The on-screen vertical extent is `zoom` metres, but the ground it
         // covers runs back by `zoom / sin(pitch)` because the camera looks along
         // a slope rather than straight down.
         let pitch = simulation.tuning.cameraPitchDegrees * .pi / 180
         let halfDepth = halfHeight / max(sin(pitch), 0.001)
-        let halfWidth = halfHeight * Float(4.0 / 3.0)
+        // Match the panel aspect (landscape width / height), not a hardcoded 4:3.
+        // 13-inch Air is 1.333; 11-inch A16 is 1.439 — a fixed ratio mis-draws
+        // the viewport on every non-Air device.
+        let screenBounds = UIScreen.main.bounds
+        let panelAspect = Float(max(screenBounds.width, screenBounds.height)
+            / min(screenBounds.width, screenBounds.height))
+        let halfWidth = halfHeight * panelAspect
 
         let corners: [SIMD2<Float>] = [
             [-halfWidth, -halfDepth], [halfWidth, -halfDepth],
             [halfWidth, halfDepth], [-halfWidth, halfDepth]
         ]
-        let cosine = cos(rig.yaw), sine = sin(rig.yaw)
+        let cosine = cos(yaw), sine = sin(yaw)
         var path = Path()
         for (index, corner) in corners.enumerated() {
             let rotated = SIMD2<Float>(
                 corner.x * cosine - corner.y * sine,
                 corner.x * sine + corner.y * cosine
             )
-            let point = project(rig.focus + rotated)
+            let point = project(focus + rotated)
             if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
         }
         path.closeSubpath()

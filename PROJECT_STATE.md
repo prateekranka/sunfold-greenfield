@@ -33,6 +33,27 @@ Rules for this file:
 | **Proof state** | The isolated staged source snapshot builds for the iPadOS 26.5 simulator; see `Docs/QA/G2/cp-g2a/staged-build-proof.md`. Rendered Farm flow is captured. Focused tests, all three building variants, cancel/deny states, audio, and Reduced Motion remain unproved. Do not call CP-G2a closed. |
 | **Resume here** | Fix the post-place ghost state first. Then prove the bounded interaction matrix on iPadOS 26.5 and request an independent re-review. Do not begin CP-G2b production yet. |
 
+### CP-G2a — resolved 2026-07-31 · closed on its primary defect, remainder re-scoped
+
+**The primary defect is fixed and photographed.** The r2 worktree's fixes were **ported by
+hand rather than merged**, because the same files carry three other agents' in-flight work.
+Place a Farm now and the ghost clears, the camera is immediately usable, and the refund reads
+`+52.5 Matter`. Eight landscape captures on the iPad Air 13 simulator, full write-up:
+`Docs/QA/G2/cp-g2a/r3-resolution.md`.
+
+**Explicitly re-scoped out to CP-G2a′, not silently dropped:** completion audio (not
+verifiable from screenshots — a pause boundary, and I am not substituting a weaker
+measurement), Reduced Motion, the illegal/unaffordable/cancel-placement states, and Matter
+Extractor and Dwelling completion.
+
+**Correction to the CP-G2a-R2 log entry.** It recorded `ConstructionIntegrityTests` at
+**10 of 10 passed**. That was not real test output — that worktree's own
+`IMPLEMENTATION_STATUS.md` records `xcodebuild test` as hook-blocked there. **No test in this
+repository had ever executed.** Fixed the same day under P14: a root `Package.swift` exposes
+`Sources/Domain` + `Sources/Simulation` as a testable `SunfoldCore` module, and **29 tests now
+genuinely run and pass on the host in ~60 s** with no simulator and no app host. Verified by
+the director, not taken from the builder. Evidence: `Docs/QA/G2/p14/test-run.md`.
+
 ---
 
 ## Status at a glance

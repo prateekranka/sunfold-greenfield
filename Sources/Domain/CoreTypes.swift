@@ -122,9 +122,22 @@ struct ResourcePool: Sendable, Equatable {
             .compactMap { kind in
                 let amount = self[kind]
                 guard amount > 0 else { return nil }
-                return "\(Int(amount.rounded())) \(kind.displayName)"
+                return "\(Self.displayAmount(amount)) \(kind.displayName)"
             }
             .joined(separator: " · ")
+    }
+
+    /// HUD-safe amount text that preserves fractional refunds (e.g. 52.5 Matter).
+    static func displayAmount(_ value: Double) -> String {
+        let nearest = value.rounded()
+        if abs(value - nearest) < 1e-6 {
+            return String(Int(nearest))
+        }
+        let oneDecimal = (value * 10).rounded() / 10
+        if abs(value - oneDecimal) < 1e-6 {
+            return String(format: "%.1f", oneDecimal)
+        }
+        return String(format: "%.2f", value)
     }
 }
 

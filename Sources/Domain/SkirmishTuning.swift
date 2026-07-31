@@ -12,7 +12,7 @@ struct SkirmishTuning: Sendable {
 
     var startingResources = ResourcePool(provisions: 180, matter: 160, lumen: 40, aether: 0)
     var startingCitizens: Int = 4
-    var startingPopulationCap: Int = 8
+    var startingPopulationCap: Int = 10
 
     // MARK: - Simulation
 
@@ -39,20 +39,9 @@ struct SkirmishTuning: Sendable {
     // MARK: - Units
 
     var citizenCost = ResourcePool(provisions: 50)
-    var citizenBuildTime: Double = 14
-    var citizenPopulation: Int = 1
-
-    var pathfinderCost = ResourcePool(provisions: 60, lumen: 25)
-    var pathfinderBuildTime: Double = 18
-    var pathfinderPopulation: Int = 1
-
-    var vanguardCost = ResourcePool(provisions: 70, matter: 45)
-    var vanguardBuildTime: Double = 22
-    var vanguardPopulation: Int = 2
-
-    var rangedCost = ResourcePool(provisions: 65, lumen: 35)
-    var rangedBuildTime: Double = 22
-    var rangedPopulation: Int = 2
+    var pathfinderCost = ResourcePool(provisions: 35, lumen: 10)
+    var vanguardCost = ResourcePool(provisions: 45, matter: 20)
+    var rangedCost = ResourcePool(provisions: 35, lumen: 30)
 
     var transportCapacity: Int = 4
 
@@ -66,7 +55,6 @@ struct SkirmishTuning: Sendable {
 
     var dwellingCost = ResourcePool(matter: 80)
     var dwellingBuildTime: Double = 15
-    var dwellingPopulationGrant: Int = 4
 
     var formationYardCost = ResourcePool(matter: 110, lumen: 40)
     var formationYardBuildTime: Double = 18
@@ -74,6 +62,9 @@ struct SkirmishTuning: Sendable {
     var expansionOutpostCost = ResourcePool(matter: 100, lumen: 30)
     var expansionOutpostBuildTime: Double = 20
     var expansionOutpostPopulationGrant: Int = 2
+
+    var dawnLoomCost = ResourcePool(matter: 130, lumen: 50)
+    var dawnLoomBuildTime: Double = 26
 
     // MARK: - Age up
 
@@ -153,7 +144,8 @@ struct SkirmishTuning: Sendable {
         case .dwelling: dwellingCost
         case .formationYard: formationYardCost
         case .expansionOutpost: expansionOutpostCost
-        case .civilizationCore, .dawnLoom: .zero
+        case .dawnLoom: dawnLoomCost
+        case .civilizationCore: .zero
         }
     }
 
@@ -164,7 +156,31 @@ struct SkirmishTuning: Sendable {
         case .dwelling: dwellingBuildTime
         case .formationYard: formationYardBuildTime
         case .expansionOutpost: expansionOutpostBuildTime
-        case .civilizationCore, .dawnLoom: 0
+        case .dawnLoom: dawnLoomBuildTime
+        case .civilizationCore: 0
+        }
+    }
+
+    // MARK: - Unit lookups
+
+    func cost(for kind: UnitKind) -> ResourcePool {
+        switch kind {
+        case .citizen: citizenCost
+        case .pathfinder: pathfinderCost
+        case .vanguard: vanguardCost
+        case .ranged: rangedCost
+        case .lightTransport, .bastionWalker: .zero
+        }
+    }
+
+    /// Build duration in fixed 20 Hz simulation ticks.
+    func buildTimeTicks(for kind: UnitKind) -> Int {
+        switch kind {
+        case .citizen: 280
+        case .pathfinder: 220
+        case .vanguard: 260
+        case .ranged: 300
+        case .lightTransport, .bastionWalker: 0
         }
     }
 }

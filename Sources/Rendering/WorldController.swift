@@ -85,6 +85,8 @@ final class WorldController {
 
         content.add(root)
 
+        PerfHarness.shared.markSceneAttached()
+
         updateSubscription = content.subscribe(to: SceneEvents.Update.self) { [weak self] event in
             // SceneEvents.Update is delivered on the main actor by RealityKit.
             MainActor.assumeIsolated {
@@ -95,9 +97,12 @@ final class WorldController {
 
     private func onRenderFrame(deltaTime: TimeInterval) {
         guard deltaTime > 0 else { return }
+
+        let simStart = CFAbsoluteTimeGetCurrent()
         // The simulation consumes real time through a fixed-step accumulator, so
         // frame rate changes never change game outcomes.
         simulation.update(deltaTime: deltaTime)
+        let simEnd = CFAbsoluteTimeGetCurrent()
 
         // Selection is player-side state pointing at simulation entities, so it
         // must be reconciled every frame rather than trusted to stay valid.
@@ -126,6 +131,24 @@ final class WorldController {
             buildGhost: buildGhost,
             completionFlashes: completed
         )
+        let presEnd = CFAbsoluteTimeGetCurrent()
+
+        if PerfLaunchFlags.isEnabled {
+            PerfHarness.shared.recordFrame(
+                deltaTime: deltaTime,
+                simulationSeconds: simEnd - simStart,
+                presentationSeconds: presEnd - simEnd,
+                sceneScale: SceneScaleSnapshot(
+                    simulationUnits: simulation.units.count,
+                    simulationBuildings: simulation.buildings.count,
+                    simulationDeposits: simulation.deposits.count,
+                    presentedEntities: presenter?.presentedEntityCount ?? 0,
+                    simulationTick: simulation.tick,
+                    mapID: simulation.mapID.rawValue,
+                    cameraZoom: currentZoom
+                )
+            )
+        }
 
         let instantaneous = 1.0 / deltaTime
         smoothedFPS = smoothedFPS == 0 ? instantaneous : smoothedFPS * 0.9 + instantaneous * 0.1
@@ -177,6 +200,15 @@ final class WorldController {
                 lastTap = nil
                 return
             }
+            // Citizens selected + tap transport = board (the logistics verb).
+            if unit.kind == .lightTransport,
+               selection.selectedUnits.contains(where: {
+                   simulation.unit($0)?.kind.canGather == true
+               }) {
+                lastTap = nil
+                selection.orderBoard(onto: id, in: simulation)
+                return
+            }
             if isDoubleTap(on: id, at: screenPoint) {
                 selectAllVisible(ofKind: unit.kind, viewportSize: viewportSize)
                 lastTap = nil
@@ -187,7 +219,15 @@ final class WorldController {
 
         case .building(let id):
             lastTap = nil
-            selection.selectBuilding(id)
+            if let building = simulation.building(id),
+               !building.isComplete,
+               building.faction == .sunwoven
+            {
+                // Eligible citizens → assign; Light Transport / empty / boarding → inspect.
+                selection.respondToIncompleteFoundation(id, in: simulation)
+            } else {
+                selection.selectBuilding(id)
+            }
 
         case .deposit(let id):
             lastTap = nil
@@ -365,13 +405,9 @@ final class WorldController {
             if let id {
                 risingBuildings.insert(id)
                 selection.selectBuilding(id)
-                ghost.placeUntil = now + 0.45
-                ghost.isLegal = ConstructionPlacement.isLegal(
-                    kind: ghost.kind, at: ghost.position, in: simulation
-                )
                 FeedbackAudio.constructionPlaced()
                 DebugLog.info("Build ghost: founded \(ghost.kind.displayName) #\(id.raw)")
-                buildGhost = ghost
+                buildGhost = nil
                 return
             }
         }

@@ -20,6 +20,7 @@ final class SkirmishSimulation {
     private(set) var units: [EntityID: Unit]
     private(set) var buildings: [EntityID: Building]
     private(set) var deposits: [EntityID: Deposit]
+    private(set) var productionQueues: [EntityID: ProductionQueue] = [:]
 
     private var allocator: EntityIDAllocator
 
@@ -30,7 +31,8 @@ final class SkirmishSimulation {
     init(
         seed: UInt64,
         mapID: WorldMapID = .default,
-        tuning: SkirmishTuning = .baseline
+        tuning: SkirmishTuning = .baseline,
+        perfDensity: Int? = nil
     ) {
         self.seed = seed
         self.mapID = mapID
@@ -44,7 +46,9 @@ final class SkirmishSimulation {
         ]
         self.age = [.sunwoven: .foundation, .gravemark: .foundation]
 
-        let populated = WorldPopulator.populate(map: map, tuning: tuning)
+        let populated = WorldPopulator.populate(
+            map: map, tuning: tuning, perfDensity: perfDensity
+        )
         self.units = populated.units
         self.buildings = populated.buildings
         self.deposits = populated.deposits
@@ -72,14 +76,27 @@ final class SkirmishSimulation {
     func deposit(_ id: EntityID) -> Deposit? { deposits[id] }
 
     /// Population in use versus the cap granted by Dwellings and Outposts.
+    /// Queued units count toward used population because cost is charged on enqueue.
     func population(for faction: Faction) -> (used: Int, cap: Int) {
-        let used = units.values
-            .filter { $0.faction == faction }
-            .reduce(0) { $0 + $1.kind.populationCost }
-        let granted = buildings.values
-            .filter { $0.faction == faction && $0.isComplete }
-            .reduce(0) { $0 + $1.kind.populationGrant }
-        return (used, min(tuning.startingPopulationCap + granted, 200))
+        ProductionSystem.populationCommitment(
+            faction: faction,
+            units: units,
+            queues: productionQueues,
+            buildings: buildings,
+            tuning: tuning
+        )
+    }
+
+    func productionQueue(for buildingID: EntityID) -> ProductionQueue {
+        productionQueues[buildingID] ?? ProductionQueue()
+    }
+
+    /// Front-item progress as 0…1 for HUD readout.
+    func productionProgress(for buildingID: EntityID) -> Double {
+        guard let front = productionQueues[buildingID]?.front else { return 0 }
+        let total = tuning.buildTimeTicks(for: front.kind)
+        guard total > 0 else { return 0 }
+        return Double(front.progressTicks) / Double(total)
     }
 
     // MARK: - Orders
@@ -140,6 +157,52 @@ final class SkirmishSimulation {
         if !escorts.isEmpty { orderMove(escorts, to: deposit.position) }
     }
 
+    /// Sends citizens to an incomplete foundation. Keeps builders already on the
+    /// job and fills remaining slots up to the per-site cap.
+    /// Returns how many citizens were newly assigned this call.
+    @discardableResult
+    func orderConstruct(_ ids: [EntityID], on buildingID: EntityID) -> Int {
+        guard let building = buildings[buildingID], !building.isComplete else { return 0 }
+        return assignBuilders(
+            to: buildingID,
+            faction: building.faction,
+            preferred: ids
+        )
+    }
+
+    /// Maximum citizens that may work one foundation at once.
+    static let maxBuildersPerSite = 4
+
+    /// Sends selected land units to board a light transport.
+    func orderBoard(_ ids: [EntityID], onto transportID: EntityID) {
+        guard var transport = units[transportID],
+              transport.kind == .lightTransport
+        else { return }
+
+        var seats = tuning.transportCapacity - transport.carrying.count
+        guard seats > 0 else { return }
+
+        for id in ids.sorted(by: { $0.raw < $1.raw }) {
+            guard seats > 0 else { break }
+            guard var unit = units[id] else { continue }
+            guard unit.faction == transport.faction,
+                  unit.kind.canGather,
+                  !unit.isAboard,
+                  !unit.isBoarding
+            else { continue }
+
+            unit.assignment = nil
+            unit.boardingProgress = 0
+            unit.activity = .boarding(transportID: transportID)
+            // First leg: walk toward the hull; land clamping stops at the bank.
+            unit.destination = MovementSystem.resolveDestination(
+                transport.position, for: unit, map: map
+            )
+            units[id] = unit
+            seats -= 1
+        }
+    }
+
     /// Commits a foundation at `point`. Deducts cost, spawns an incomplete
     /// building, and sends preferred (or nearest idle) citizens to construct.
     /// Caller must already have validated footprint legality.
@@ -195,6 +258,14 @@ final class SkirmishSimulation {
             units[id] = unit
         }
 
+        ProductionSystem.onBuildingDestroyed(
+            buildingID,
+            queues: &productionQueues,
+            buildings: buildings,
+            stock: &stock,
+            tuning: tuning
+        )
+
         buildings[buildingID] = nil
         DebugLog.info(
             "Cancelled \(building.kind.displayName) #\(buildingID.raw); refunded \(refund.matter) Matter"
@@ -202,56 +273,115 @@ final class SkirmishSimulation {
         return true
     }
 
+    // MARK: - Production
+
+    @discardableResult
+    func enqueueUnit(_ kind: UnitKind, at buildingID: EntityID) -> Result<Void, ProductionEnqueueFailure> {
+        ProductionSystem.enqueue(
+            kind,
+            at: buildingID,
+            queues: &productionQueues,
+            buildings: buildings,
+            stock: &stock,
+            units: units,
+            tuning: tuning
+        )
+    }
+
+    @discardableResult
+    func cancelProduction(at buildingID: EntityID) -> Bool {
+        ProductionSystem.cancelFront(
+            at: buildingID,
+            queues: &productionQueues,
+            buildings: buildings,
+            stock: &stock,
+            tuning: tuning
+        )
+    }
+
     /// Sends citizens to an incomplete building. Prefers the caller's selection,
-    /// then nearest idle gatherers of the same faction.
+    /// then nearest idle gatherers of the same faction. Existing builders stay
+    /// assigned until the foundation completes or is cancelled.
+    /// Returns how many citizens were newly assigned.
+    @discardableResult
     private func assignBuilders(
         to buildingID: EntityID,
         faction: Faction,
         preferred: [EntityID]
-    ) {
-        guard let building = buildings[buildingID], !building.isComplete else { return }
+    ) -> Int {
+        guard let building = buildings[buildingID], !building.isComplete else { return 0 }
 
-        var chosen: [EntityID] = []
+        let alreadyAssigned = Set(units.values.compactMap { unit -> EntityID? in
+            if case .constructing(buildingID) = unit.activity { return unit.id }
+            return nil
+        })
+        var slots = max(0, Self.maxBuildersPerSite - alreadyAssigned.count)
+        guard slots > 0 else { return 0 }
+
+        var toAssign: [EntityID] = []
         for id in preferred.sorted(by: { $0.raw < $1.raw }) {
-            guard let unit = units[id], unit.faction == faction, unit.kind.canGather else { continue }
-            chosen.append(id)
-            if chosen.count >= 4 { break }
+            guard slots > 0 else { break }
+            guard let unit = units[id],
+                  unit.faction == faction,
+                  unit.canBeAssignedToConstruction,
+                  !alreadyAssigned.contains(id)
+            else { continue }
+            toAssign.append(id)
+            slots -= 1
         }
 
-        if chosen.isEmpty {
+        if toAssign.isEmpty, preferred.isEmpty, slots > 0 {
             let idle = units.values
                 .filter {
                     $0.faction == faction
-                        && $0.kind.canGather
-                        && !$0.isAboard
+                        && $0.canBeAssignedToConstruction
+                        && !alreadyAssigned.contains($0.id)
                         && ($0.activity == .idle || isGathering($0))
                 }
                 .sorted {
                     simd_distance($0.position, building.position)
                         < simd_distance($1.position, building.position)
                 }
-            chosen = Array(idle.prefix(2).map(\.id))
+            toAssign = Array(idle.prefix(min(slots, 2)).map(\.id))
         }
 
-        for id in chosen {
-            guard var unit = units[id] else { continue }
-            unit.assignment = nil
-            unit.cargo = nil
-            unit.activity = .constructing(buildingID: buildingID)
-            let delta = unit.position - building.position
-            let length = simd_length(delta)
-            let approach = min(
-                building.kind.footprintRadius + 1.4,
-                ConstructionSystem.workRadius(for: building.kind) * 0.85
-            )
-            let offset: WorldPoint = length < 0.01
-                ? WorldPoint(approach, 0)
-                : (delta / length) * approach
-            unit.destination = MovementSystem.resolveDestination(
-                building.position + offset, for: unit, map: map
-            )
-            units[id] = unit
+        for id in toAssign {
+            sendToConstruction(id, buildingID: buildingID, building: building)
         }
+        return toAssign.count
+    }
+
+    /// G2a carry disposition: credit carried load to faction stock once, then
+    /// clear cargo. Construction is not a second drop-off — no duplicate credit.
+    private func sendToConstruction(
+        _ id: EntityID,
+        buildingID: EntityID,
+        building: Building
+    ) {
+        guard var unit = units[id], unit.canBeAssignedToConstruction else { return }
+
+        if let cargo = unit.cargo {
+            var pool = stock[unit.faction] ?? .zero
+            pool[cargo.kind] += cargo.amount
+            stock[unit.faction] = pool
+            unit.cargo = nil
+        }
+
+        unit.assignment = nil
+        unit.activity = .constructing(buildingID: buildingID)
+        let delta = unit.position - building.position
+        let length = simd_length(delta)
+        let approach = min(
+            building.kind.footprintRadius + 1.4,
+            ConstructionSystem.workRadius(for: building.kind) * 0.85
+        )
+        let offset: WorldPoint = length < 0.01
+            ? WorldPoint(approach, 0)
+            : (delta / length) * approach
+        unit.destination = MovementSystem.resolveDestination(
+            building.position + offset, for: unit, map: map
+        )
+        units[id] = unit
     }
 
     private func isGathering(_ unit: Unit) -> Bool {
@@ -305,6 +435,21 @@ final class SkirmishSimulation {
         ConstructionSystem.step(
             units: &units,
             buildings: &buildings,
+            map: map,
+            tuning: tuning,
+            deltaTime: seconds
+        )
+        ProductionSystem.step(
+            queues: &productionQueues,
+            units: &units,
+            buildings: buildings,
+            stock: &stock,
+            map: map,
+            tuning: tuning,
+            allocator: &allocator
+        )
+        BoardingSystem.step(
+            units: &units,
             map: map,
             tuning: tuning,
             deltaTime: seconds

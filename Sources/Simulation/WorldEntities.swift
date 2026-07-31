@@ -42,6 +42,9 @@ struct Unit: Sendable, Identifiable {
     /// across the round trip is what makes gathering a *loop* rather than a
     /// single errand the player has to re-issue after every delivery.
     var assignment: EntityID?
+    /// 0…1 while climbing onto a transport. Presentation reads this for the
+    /// embark lerp; simulation owns the value.
+    var boardingProgress: Double = 0
 
     init(
         id: EntityID,
@@ -63,6 +66,16 @@ struct Unit: Sendable, Identifiable {
     var isAboard: Bool {
         if case .aboard = activity { return true }
         return false
+    }
+
+    var isBoarding: Bool {
+        if case .boarding = activity { return true }
+        return false
+    }
+
+    /// Citizens boarding or aboard a transport cannot be pulled into construction.
+    var canBeAssignedToConstruction: Bool {
+        kind.canGather && !isAboard && !isBoarding
     }
 }
 

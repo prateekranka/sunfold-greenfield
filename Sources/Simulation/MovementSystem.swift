@@ -4,8 +4,8 @@ import simd
 /// Advances unit positions. Pure and deterministic: same state plus same step
 /// duration always yields the same result, with no dependence on frame timing.
 ///
-/// Land legality lives here rather than in the renderer, so a unit can never be
-/// shown standing somewhere the rules consider void.
+/// Land units stay on land; light transports stay in navigable void (rivers,
+/// lakes, open channel). Neither may cross into the other's domain.
 enum MovementSystem {
 
     /// How close counts as arrived. Larger than a single step's travel so a unit
@@ -36,6 +36,7 @@ enum MovementSystem {
 
         guard distance > arrivalRadius else {
             unit.position = destination
+            unit.region = map.region(at: destination)
             unit.destination = nil
             if case .moving = unit.activity { unit.activity = .idle }
             return
@@ -46,27 +47,23 @@ enum MovementSystem {
         let proposed = unit.position + heading * travel
 
         unit.position = legalPosition(proposed, from: unit.position, for: unit, map: map)
+        unit.region = map.region(at: unit.position)
         if case .idle = unit.activity { unit.activity = .moving }
     }
 
-    /// Keeps land units on land. A transport is free to sit in the void.
-    ///
-    /// The clamp walks back along the move rather than projecting toward the plate
-    /// centre. Projection was correct while a plate was a disc and the only void
-    /// was outside it; with rivers on the map the point "radius − margin from the
-    /// centre" can be in the channel, or on its far bank — so a unit ordered into
-    /// the water would have been teleported across it.
+    /// Land units clamp to standable land anywhere; transports clamp to navigable void.
     private static func legalPosition(
         _ proposed: WorldPoint,
         from current: WorldPoint,
         for unit: Unit,
         map: WorldMap
     ) -> WorldPoint {
-        guard !unit.kind.travelsVoid, let region = unit.region else { return proposed }
+        if unit.kind.travelsVoid {
+            return map.clampToVoid(proposed, from: current)
+        }
         return map.clampToLand(
             proposed,
             from: current,
-            in: region,
             margin: unit.kind.footprintRadius
         )
     }
@@ -79,15 +76,18 @@ enum MovementSystem {
         for unit: Unit,
         map: WorldMap
     ) -> WorldPoint? {
-        if unit.kind.travelsVoid { return requested }
-        guard let region = unit.region else { return nil }
+        if unit.kind.travelsVoid {
+            if map.isNavigableVoid(requested) { return requested }
+            return map.clampToVoid(requested, from: unit.position)
+        }
+        guard !unit.isAboard else { return nil }
 
         let margin = unit.kind.footprintRadius
-        if map.isStandable(requested, in: region, margin: margin) { return requested }
+        if map.isStandable(requested, margin: margin) { return requested }
 
         // Resolve a tap in the void — or in a river — to the last legal point on
         // the way to it, so the order reads as "walk as far as you can toward
         // that" rather than being dropped or answered somewhere unrelated.
-        return map.clampToLand(requested, from: unit.position, in: region, margin: margin)
+        return map.clampToLand(requested, from: unit.position, margin: margin)
     }
 }

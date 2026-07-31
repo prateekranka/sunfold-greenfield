@@ -942,9 +942,66 @@ struct WorldMap: Sendable {
         return contains(point, in: id) ? point : source.center
     }
 
-    /// Where the hull waits: in the water on `id`'s side of the crossing.
+    /// Where the hull waits: as deep in the near-side channel as the crossing
+    /// allows, so an ~11 m craft does not beach on the bank.
     func dockPoint(on id: RegionID, facing target: RegionID) -> WorldPoint {
-        crossing(from: id, toward: target).water
+        let pair = crossing(from: id, toward: target)
+        var heading = fragment(target).center - fragment(id).center
+        let length = simd_length(heading)
+        heading = length > 0.0001 ? heading / length : WorldPoint(1, 0)
+
+        var berth = pair.water
+        var best = berth
+        var bestDepth = landField(at: berth)
+        // Prefer the deepest navigable void on this side of the channel before
+        // the far bank. Clearance target is half a hull length when the river
+        // is wide enough; otherwise the deepest available point wins.
+        let clearance: Float = 6.5
+        for _ in 0..<48 {
+            let depth = landField(at: berth)
+            if depth < bestDepth {
+                bestDepth = depth
+                best = berth
+            }
+            if depth <= -clearance { break }
+            let next = berth + heading * 0.5
+            if isLand(next) { break }
+            berth = next
+        }
+        return best
+    }
+
+    /// True when a transport may occupy `point`. Requires clear void (rivers,
+    /// lakes, or open channel) — not dry land and not a thin coastal fringe.
+    func isNavigableVoid(_ point: WorldPoint, margin: Float = 0.75) -> Bool {
+        landField(at: point) < -margin
+    }
+
+    /// The nearest navigable void point to `proposed`, approached from `from`.
+    /// Transports ordered onto land stop at the last legal water along the path.
+    func clampToVoid(
+        _ proposed: WorldPoint,
+        from current: WorldPoint,
+        margin: Float = 0.75
+    ) -> WorldPoint {
+        if isNavigableVoid(proposed, margin: margin) { return proposed }
+        if !isNavigableVoid(current, margin: margin) {
+            // Already illegal — hold still rather than invent a berth.
+            return current
+        }
+
+        var low: Float = 0
+        var high: Float = 1
+        for _ in 0..<14 {
+            let mid = (low + high) * 0.5
+            let sample = current + (proposed - current) * mid
+            if isNavigableVoid(sample, margin: margin) {
+                low = mid
+            } else {
+                high = mid
+            }
+        }
+        return current + (proposed - current) * low
     }
 
     // MARK: - Legality
@@ -986,5 +1043,37 @@ struct WorldMap: Sendable {
         guard contains(point, in: region) else { return false }
         guard margin > 0 else { return true }
         return waterDepth(at: point) < -margin
+    }
+
+    /// Whether a land unit of `margin` footprint fits at `point` on any dry ground.
+    ///
+    /// Region ownership is not a movement constraint — only land and void are.
+    /// Callers that need a territorial label use ``region(at:)`` after placement.
+    func isStandable(_ point: WorldPoint, margin: Float) -> Bool {
+        guard isLand(point) else { return false }
+        guard margin > 0 else { return true }
+        return waterDepth(at: point) < -margin
+    }
+
+    /// The nearest point to `proposed` that a land unit may occupy on any dry
+    /// ground, approached from `from`.
+    ///
+    /// Retreating along the attempted move prevents tunnelling across a void
+    /// channel: the clamp can only ever land somewhere the unit could have walked.
+    func clampToLand(
+        _ proposed: WorldPoint,
+        from: WorldPoint,
+        margin: Float
+    ) -> WorldPoint {
+        if isStandable(proposed, margin: margin) { return proposed }
+
+        var good = from
+        var bad = proposed
+        guard isStandable(good, margin: margin) else { return from }
+        for _ in 0..<8 {
+            let middle = (good + bad) * 0.5
+            if isStandable(middle, margin: margin) { good = middle } else { bad = middle }
+        }
+        return good
     }
 }

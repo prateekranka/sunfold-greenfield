@@ -1,6 +1,6 @@
 {
   "meta": {
-    "updated": "2026-07-31T20:25:36+05:30",
+    "updated": "2026-07-31T20:34:34+05:30",
     "version": "0.3.0",
     "build": 42,
     "branch": "visual/aaa-uplift-cp02",
@@ -15,8 +15,8 @@
     "model": "composer-2.5",
     "started": "2026-07-31T20:25:36+05:30",
     "round": 1,
-    "lastCriticVerdict": null,
-    "biggestGap": "No production of any kind. The verb set is select, move, gather, build three of seven buildings."
+    "lastCriticVerdict": "REVISE — content spec, review 01. 16 blocking defects, all resolved in Docs/Design/05-RESOLUTIONS-R1.md.",
+    "biggestGap": "Units could not leave the region they spawned in. Unit.region is set at spawn and never updated while MovementSystem clamps to it, so Conquest, Dominion and the Aether gate were all unreachable. Fix in flight as CP-G3a2."
   },
   "next": [
     {
@@ -164,6 +164,22 @@
     }
   ],
   "log": [
+    {
+      "id": "REVIEW-01",
+      "date": "2026-07-31",
+      "title": "Content spec critique — REVISE, and the finding that reordered the plan",
+      "changed": "Nothing in the game. A fresh critic on claude-opus-5-thinking-max reviewed the five Docs/Design files against the real code and compiled two throwaway probes — an economy probe running the real SkirmishSimulation at 20 Hz, and a combat probe implementing the spec's own damage model — so every number in the review was measured rather than estimated.",
+      "taught": "The largest finding was not a balance number. Unit.region is assigned at spawn and never updated, while MovementSystem clamps every land unit to its own region — so no unit has ever been able to leave the region it spawned in. A citizen ordered to the Dominion moved 21.7 m of an 816 m budget over continuous dry land and stopped at the seam. Conquest, Dominion and the Aether age gate were all unreachable for that one reason, and three serial checkpoints would each have passed their own bar before anyone noticed. I verified it myself before acting on it. Beyond that: the damage formula as written gave every archer the siege unit's +45 vs building; two files disagreed about the armour class of four of nine units in a way that inverted five matchups; the home fragment was 342 Matter short of its own building list; real gather income measured 39-59% of the book rate the costs were priced against; and three Warding Posts left a Bastion Walker at 190 of 190 HP because a damage bonus cannot answer a range deficit.",
+      "next": "Traversal shipped as CP-G3a2, then re-author the spec against 05-RESOLUTIONS-R1 and run a second critic round before any roster content is built.",
+      "proof": {
+        "version": "0.3.0",
+        "build": 42,
+        "play": "Docs/Design/REVIEW-01-content-spec.md + 05-RESOLUTIONS-R1.md",
+        "status": "local"
+      },
+      "before": null,
+      "after": null
+    },
     {
       "id": "DESIGN-01",
       "date": "2026-07-31",
