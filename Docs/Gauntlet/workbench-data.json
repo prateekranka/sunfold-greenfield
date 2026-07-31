@@ -8,30 +8,30 @@
     "waveTitle": "Make it a game — production, combat, an opponent, a result"
   },
   "now": {
-    "piece": "CP-C2",
-    "title": "Combat core — nothing in this game can fight",
-    "why": "Production shipped, so the game can now build an army it has no use for. Sources/Simulation contains no CombatSystem: units have HP fields that never change, there is no attack order, no damage and no death. Until this exists there is no military half of the game, no reason for the counter triangle in the roster spec, and no path to a match that ends. This is the last piece before an adversary and a victory condition become buildable.",
-    "owner": "builder",
+    "piece": "CP-C3",
+    "title": "Adversary v0 — and the thing that makes combat verifiable",
+    "why": "Gravemark has a Core, buildings and units, and does nothing with any of them for the entire match. There is nothing to play against, no way to lose, and — discovered while trying to verify CP-C2 — no way to observe combat at all, because two hostile units never come into contact. A deterministic scheduled opponent (gather, train to 12, Formation Yard at 2:00, rising attack waves) is worth more than a clever one: a player can learn to beat it, and it replays identically so a test can trust it. It also closes CP-C2.",
+    "owner": "director — next builder not yet dispatched",
     "model": "composer-2.5",
-    "started": "2026-07-31T20:45:00+05:30",
-    "round": 1,
-    "lastCriticVerdict": "n/a — first round"
+    "started": "2026-07-31T21:30:00+05:30",
+    "round": 0,
+    "lastCriticVerdict": "n/a"
   },
   "next": [
     {
-      "piece": "CP-C3",
-      "title": "Adversary v0",
-      "why": "No AI of any kind exists in Sources/. Gravemark stands still for the entire match, so there is nothing to play against and no way to lose. A deterministic scheduled opponent — gather, train to 12, Formation Yard at 2:00, rising attack waves — is worth more than a clever one, because a player can learn to beat it and because it replays identically for testing."
-    },
-    {
       "piece": "CP-C4",
       "title": "Victory and defeat",
-      "why": "The simulation has no way to end. The locked promise is two win paths and an 8-10 minute match. Right now a session runs forever with no result, which means the core loop has never once been played to completion by anyone."
+      "why": "The simulation still has no way to end. The locked promise is two win paths and an 8-10 minute match. Nobody has ever played this to a result."
+    },
+    {
+      "piece": "CP-C2′",
+      "title": "Close combat on device",
+      "why": "Combat is built and 39 tests pass, but no fight has been seen in play. Fold the device capture into CP-C3, where an attack wave arrives on its own. Do not close CP-C2 without a capture of HP falling and a unit dying."
     },
     {
       "piece": "CP-C5",
       "title": "Military roster breadth",
-      "why": "Directive 3. Six UnitKind cases exist; the spec calls for a scout, infantry, ranged, mounted and siege line per faction with a real counter triangle. Breadth is worthless before combat exists and essential immediately after."
+      "why": "Directive 3. Six UnitKind cases exist; the spec calls for scout, infantry, ranged, mounted and siege lines with a real counter triangle. Worthless before combat is proven, essential immediately after."
     }
   ],
   "bars": [
@@ -163,6 +163,15 @@
     }
   ],
   "log": [
+    {
+      "id": "CP-C2",
+      "date": "2026-07-31",
+      "title": "Combat core — built, tested, and deliberately NOT closed",
+      "changed": "New Sources/Simulation/CombatSystem.swift and Sources/Domain/CombatTypes.swift: armour-class damage with a minimum floor, integer-tick cooldowns on the fixed 20 Hz step, deterministic target acquisition tie-broken by EntityID, melee pathing into range, death that frees population, building destruction that cancels a production queue with a full refund. No randomness added, so no new tagged stream and no shift to any existing subsystem's numbers. Tapping a hostile with military units selected issues an attack order through the existing SelectionModel path. 39 tests pass, up from 31.",
+      "taught": "The verification boundary, and it is the most useful thing in this entry. Combat compiles green, 39 tests pass, and the build installs and renders on the iPad — and none of that is a player watching a unit die. No fight can be staged, because the only hostiles are Gravemark's and Gravemark has no AI: nothing ever comes at you, so two hostile units never meet. This project has twice been misled by exactly this shape of evidence — a 10/10 test pass that never executed, and three sessions of green builds while a third of the map rendered magenta. So CP-C2 is committed and explicitly left open. Verification folds into CP-C3 adversary, where hostile units arrive on their own.",
+      "evidence": "Docs/QA/G3/cp-c2/STATUS.md states exactly what is and is not proven. Build log build-agents/combat.log:1328. Landscape capture of the combat build running.",
+      "verdict": "IN FLIGHT — not shipped"
+    },
     {
       "id": "CP-C1",
       "date": "2026-07-31",
@@ -521,10 +530,10 @@
     }
   ],
   "simLease": {
-    "holder": "director",
-    "since": "2026-07-31T20:11:35+05:30",
+    "holder": "none — released",
+    "since": "2026-07-31T21:30:00+05:30",
     "queue": [],
-    "device": "75898CE1-A691-4973-817A-973D4249A38F — Sunfold Cycle 1 iPad Air 13 (iPad Air 13-inch M2, iPad14,11, iOS 26.5)",
-    "warning": "The UDID in AGENTS.md (A59055F8-…) is DEAD — always pass 75898CE1-… explicitly. A second device, CD369CF5-… 'BillBandit Test' iPhone 17 Pro, is booted and belongs to an unrelated project: never touch it. Because two devices are booted, pass the iPad UDID on every call rather than relying on a default."
+    "device": "75898CE1-A691-4973-817A-973D4249A38F — Sunfold Cycle 1 iPad Air 13 (iOS 26.5)",
+    "warning": "The UDID in AGENTS.md was dead and has been corrected to 75898CE1-…. A second device, CD369CF5-… 'BillBandit Test' iPhone 17 Pro, is booted and belongs to an unrelated project: never touch it. Two devices are booted, so pass the iPad UDID explicitly on every call. Also: argent's screenshot-after-gesture ignores the rotation parameter and returns a portrait-oriented frame of a landscape app — pass rotation LandscapeLeft on a standalone screenshot call when the orientation matters."
   }
 }
