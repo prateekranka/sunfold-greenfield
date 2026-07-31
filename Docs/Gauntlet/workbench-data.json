@@ -8,31 +8,30 @@
     "waveTitle": "Make it a game — production, combat, an opponent, a result"
   },
   "now": {
-    "piece": "CP-G3a",
-    "title": "Production — you cannot train a single unit",
-    "why": "Played the build on device today and selected the Civilization Core: the command card did not change and there is no Train tile anywhere. Confirmed in source — SkirmishSimulation has no enqueue, no queue, no train. BuildingKind.trains exists and declares what each building makes; nothing reads it. SkirmishTuning.maxQueueLength and cancelRefundFraction exist; nothing reads either. Population is frozen at 4/8 for the whole match, which makes the Dwelling pointless and the Formation Yard unreachable. This is more basic than combat and it outranks everything else in the queue.",
+    "piece": "CP-C2",
+    "title": "Combat core — nothing in this game can fight",
+    "why": "Production shipped, so the game can now build an army it has no use for. Sources/Simulation contains no CombatSystem: units have HP fields that never change, there is no attack order, no damage and no death. Until this exists there is no military half of the game, no reason for the counter triangle in the roster spec, and no path to a match that ends. This is the last piece before an adversary and a victory condition become buildable.",
     "owner": "builder",
     "model": "composer-2.5",
-    "started": "2026-07-31T20:25:36+05:30",
+    "started": "2026-07-31T20:45:00+05:30",
     "round": 1,
-    "lastCriticVerdict": "REVISE — content spec, review 01. 16 blocking defects, all resolved in Docs/Design/05-RESOLUTIONS-R1.md.",
-    "biggestGap": "Units could not leave the region they spawned in. Unit.region is set at spawn and never updated while MovementSystem clamps to it, so Conquest, Dominion and the Aether gate were all unreachable. Fix in flight as CP-G3a2."
+    "lastCriticVerdict": "n/a — first round"
   },
   "next": [
     {
-      "piece": "CP-G3b",
-      "title": "Combat core",
-      "why": "Sources/Simulation contains no CombatSystem. Units cannot attack, cannot take damage and cannot die, so the entire military half of an RTS is absent. Spec: Docs/Design/03-COMBAT-MODEL.md — deterministic, no damage variance, no miss chance, resolved in ascending EntityID order on the fixed 20 Hz tick."
-    },
-    {
-      "piece": "CP-G3d",
+      "piece": "CP-C3",
       "title": "Adversary v0",
-      "why": "No AI of any kind exists in Sources/. Gravemark stands still for the entire match, so there is nothing to play against and no way to lose. A deterministic scheduled opponent — gather, train to 12, Formation Yard at 2:00, rising attack waves — is worth more than a clever one, because a player can learn to beat it."
+      "why": "No AI of any kind exists in Sources/. Gravemark stands still for the entire match, so there is nothing to play against and no way to lose. A deterministic scheduled opponent — gather, train to 12, Formation Yard at 2:00, rising attack waves — is worth more than a clever one, because a player can learn to beat it and because it replays identically for testing."
     },
     {
-      "piece": "CP-G3e",
+      "piece": "CP-C4",
       "title": "Victory and defeat",
-      "why": "The simulation has no way to end. The locked promise is two win paths in an 8-10 minute match: Conquest by destroying the enemy Core, and Dominion by holding the central Spire, with the hold requirement escalating at 8:00 and 10:00 so a match always resolves. Until this ships the honest answer to 'can a match be won or lost' is no."
+      "why": "The simulation has no way to end. The locked promise is two win paths and an 8-10 minute match. Right now a session runs forever with no result, which means the core loop has never once been played to completion by anyone."
+    },
+    {
+      "piece": "CP-C5",
+      "title": "Military roster breadth",
+      "why": "Directive 3. Six UnitKind cases exist; the spec calls for a scout, infantry, ranged, mounted and siege line per faction with a real counter triangle. Breadth is worthless before combat exists and essential immediately after."
     }
   ],
   "bars": [
@@ -164,6 +163,42 @@
     }
   ],
   "log": [
+    {
+      "id": "CP-C1",
+      "date": "2026-07-31",
+      "title": "Production — the game can now make a unit",
+      "changed": "New Sources/Simulation/ProductionSystem.swift: per-building FIFO queue, cost charged on enqueue, progress counted in integer ticks on the fixed 20 Hz step, deterministic ring spawn resolved through WorldMap, 100%/75% cancel refund split. Queued units reserve population so the cap cannot be overshot by queueing. CommandGrid became selection-aware — a production building offers what it trains with a live cost badge, a Citizen offers the build menu — and every unavailable tile now states its own reason instead of being silently dark. Formation Yard, Expansion Outpost and Dawn Loom got build tiles. Population cap 8 to 10, Dwelling grant 4 to 8.",
+      "taught": "Three things existed in the domain that nothing could reach. BuildingKind.trains declared what every building makes and no code read it. SkirmishTuning.maxQueueLength and cancelRefundFraction were both dead. Formation Yard, Expansion Outpost and Dawn Loom were BuildingKind cases with no build tile, and because Dawn Loom gates the Voyager age, the second age was unreachable in a shipped build. A declared-but-unwired constant is worse than a missing one: it reads as done in the source and is invisible on device. The dimmed-tile-with-a-reason pattern is the fix that generalises — the refusal on device reads \"Citizen. Needs 4.11 Provisions.\", an exact live number, so the player is never guessing why a button is dark.",
+      "evidence": "Docs/QA/G3/cp-c1/ — 6 landscape captures: Core selected with Train tile, pop 4/10 to 5/10 to 7/10 across three queued Citizens, all three spawned, the refusal tile, and the six-entry Citizen build menu.",
+      "verdict": "SHIPPED"
+    },
+    {
+      "id": "CP-G3a2",
+      "date": "2026-07-31",
+      "title": "Cross-region traversal — the structural gap the critic found",
+      "changed": "MovementSystem no longer clamps a land unit to the region it spawned in. Unit.region becomes a derived label rather than a movement constraint. Land is land; water still needs a boat. BoardingSystem widened so military units can ride a transport, and disembark restores the derived region. Two new determinism tests prove a land unit walks from the home region into the Dominion over continuous ground, and still cannot cross void water.",
+      "taught": "This was not on any plan. The content-spec critic found it by compiling a probe against the real simulation rather than reading the code, and it invalidated three separate designs at once: Conquest needs you to reach the enemy base, Dominion needs you to hold remote nodes, and the Aether gate needs you to reach it. All three were specified against a simulation that physically could not deliver a unit to another region. The lesson is about the review method, not the bug — a critic who runs the code finds things a critic who reads it cannot.",
+      "evidence": "Tests/DeterminismTests.swift — two new tests, part of the 31 passing under `swift test`.",
+      "verdict": "SHIPPED"
+    },
+    {
+      "id": "CP-G2b-NAV",
+      "date": "2026-07-31",
+      "title": "Camera navigation — the minimap was a picture",
+      "changed": "Minimap tap-to-jump and drag-to-scrub. Face north, Go to Core and Expand map wired to real actions. Place marker is dimmed and labelled rather than left as a live-looking tile for a feature that does not exist.",
+      "taught": "Found by playing, not by reading. The minimap had no gesture recogniser of any kind and its four tool tiles had no actions, so drag-pan was the only way to move the camera on a map that takes ten seconds to cross. Nothing in the code was broken — the code was absent, and the HUD looked complete enough that four separate reviews had walked past it. An honest dimmed tile beats a dead live one.",
+      "evidence": "Docs/QA/G2/cp-g2b-nav/ — camera panned to the map rim, then one tap on Go to Core returns to the Core.",
+      "verdict": "SHIPPED"
+    },
+    {
+      "id": "P4",
+      "date": "2026-07-31",
+      "title": "Pose caching — the one authorised perf change",
+      "changed": "EntityPresenter caches the seven per-unit findEntity(named:) limb lookups at spawn instead of walking the RealityKit entity hierarchy every frame for every unit.",
+      "taught": "Directive 2 demoted performance to a guardrail and named this the single exception, because it is invisible, zero-visual-risk and buys headroom for the larger unit counts a bigger roster implies. Timeboxed to one checkpoint and closed in one. Recording it here so no later agent reopens it as a perf programme.",
+      "evidence": "Compiles green; 31 tests pass. No perf claim is made — none was measured, and per BC-02 none was required.",
+      "verdict": "SHIPPED"
+    },
     {
       "id": "REVIEW-01",
       "date": "2026-07-31",
@@ -486,10 +521,10 @@
     }
   ],
   "simLease": {
-    "holder": "director-g2a-verify",
+    "holder": "director",
     "since": "2026-07-31T20:11:35+05:30",
     "queue": [],
     "device": "75898CE1-A691-4973-817A-973D4249A38F — Sunfold Cycle 1 iPad Air 13 (iPad Air 13-inch M2, iPad14,11, iOS 26.5)",
-    "warning": "Previous holder was perf-agent (stale since 16:55). Director claimed the lease at CP-G2a verification. The UDID in AGENTS.md (A59055F8-…) is DEAD — always pass 75898CE1-… explicitly."
+    "warning": "The UDID in AGENTS.md (A59055F8-…) is DEAD — always pass 75898CE1-… explicitly. A second device, CD369CF5-… 'BillBandit Test' iPhone 17 Pro, is booted and belongs to an unrelated project: never touch it. Because two devices are booted, pass the iPad UDID on every call rather than relying on a default."
   }
 }

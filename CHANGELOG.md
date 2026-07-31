@@ -1,5 +1,56 @@
 # Changelog
 
+## 0.4.0 — 2026-07-31 — production exists
+
+The build where the game stopped being a fixed diorama. Evidence in
+`Docs/QA/G3/cp-c1/`, `Docs/QA/G2/cp-g2b-nav/`, `Docs/QA/G2/p14/`.
+
+The design reference changed: play-feel is now benchmarked against **Age of
+Empires 2 / Rise of Rome, in space**, not Age of Empires IV. Recorded as
+BC-01 in `Docs/Gauntlet/00-PLAN.md` with the old bar and the new bar side by
+side. Performance is demoted from a blocking bar to a guardrail (BC-02).
+
+### Added
+- `ProductionSystem` — per-building FIFO queue, cost charged on enqueue,
+  progress on the fixed 20 Hz tick in integer ticks so the frame rate cannot
+  shift a spawn, deterministic ring spawn resolved through `WorldMap`, and a
+  100% / 75% cancel refund split. Queued units reserve population, so the cap
+  cannot be overshot by queueing. Before this the game had no way to train a
+  unit at all: population sat at 4/8 for the entire match.
+- A selection-aware command grid. Selecting a production building offers what
+  it trains with a live cost badge; selecting a Citizen offers the build menu.
+  **Every unavailable tile states its own reason** — "Needs 4.11 Provisions",
+  "Population 10 of 10" — rather than being silently dark.
+- Build tiles for Formation Yard, Expansion Outpost and Dawn Loom. All three
+  already existed as `BuildingKind` cases with no way to reach them, which
+  also made the Voyager age unreachable.
+- Minimap navigation: tap to jump, drag to scrub. Face north, Go to Core and
+  Expand map are wired. Place marker is dimmed and labelled rather than left
+  as live-looking decoration for a feature that does not exist.
+- A SwiftPM package at the repository root exposing `Sources/Domain` and
+  `Sources/Simulation` as `SunfoldCore`, so `swift test` runs the simulation
+  tests on the host in seconds. 31 tests pass.
+- `Docs/Design/` — the content design specification: unit roster, building
+  roster, combat model, tier progression, victory conditions, faction split.
+  Critic-reviewed; all sixteen blocking defects answered in `05-RESOLUTIONS-R1.md`.
+
+### Fixed
+- **Land units can now leave the region they spawned in.** `Unit.region` was
+  assigned at spawn and never updated while `MovementSystem` clamped every
+  land unit to it. No land unit had ever been able to walk to another region,
+  which made Conquest, Dominion and the Aether gate all unreachable — the
+  single largest structural gap in the game. Land is now land; water still
+  needs a boat.
+- The build ghost no longer survives a successful placement. It used to stay
+  on the foundation it had just created, read `BLOCKED` in red, and hold the
+  camera hostage because gesture gates were never released (CP-G2a).
+- Refunds display fractionally — 52.5 Matter reads as `52.5`, not `53`.
+- Population cap 8 to 10; Dwelling grant 4 to 8.
+
+### Performance
+- `EntityPresenter` caches the seven per-unit `findEntity(named:)` limb lookups
+  at spawn rather than walking the entity hierarchy every frame (P4).
+
 ## 0.3.0 — 2026-07-27 — G2 in progress
 
 The first slice that is played rather than watched. Evidence in `Docs/QA/G2/`.

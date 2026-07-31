@@ -21,7 +21,18 @@ Rules for this file:
 
 | | |
 |---|---|
-| **Checkpoint** | **CP-G2a — Construction** |
+| **Checkpoint** | **CP-C2 — Combat core** |
+| **Opened** | 2026-07-31 |
+| **Owner** | builder (`composer-2.5`), critic pending (`claude-opus-5-thinking-max`) |
+| **Why this one** | Production shipped, so the game can now build an army it has no use for. `Sources/Simulation` contains no `CombatSystem`: units have HP fields that never change, no attack order exists, nothing can die. Until this lands there is no military half of the game and no path to a match that ends. |
+| **Write scope (exact)** | New `Sources/Simulation/CombatSystem.swift` and `Tests/CombatTests.swift`; combat stats in `Sources/Domain/EntityKinds.swift`; attack state in `Sources/Simulation/WorldEntities.swift`; tick integration and `orderAttack` in `SkirmishSimulation.swift`; attack-order input in `SelectionModel.swift` / `WorldController.swift`; health bars in the existing HUD overlay path. |
+| **Spec** | `Docs/Design/03-COMBAT-MODEL.md`, overridden where they disagree by `Docs/Design/05-RESOLUTIONS-R1.md`. |
+
+### CP-G2a — CLOSED 2026-07-31 (historical block below kept for the record)
+
+| | |
+|---|---|
+| **Checkpoint** | CP-G2a — Construction |
 | **Opened** | 2026-07-30 |
 | **Owner** | construction agent |
 | **Write scope (exact)** | Finish shipping Farm / Matter Extractor / Dwelling construction: promote Soft ghost out of prototype chrome; command-grid pick with cost + purpose; drag-ghost legal/illegal; place with cost on commit; citizens construct with linear multi-builder progress; cancel incomplete with `cancelRefundFraction` refund; construction progress readable in HUD/world; completion visual + audio feedback. Files limited to construction path: `Sources/Debug/BuildGhostPrototype.swift` (or its shipping successor), `Sources/Simulation/ConstructionSystem.swift`, construction hooks in `SkirmishSimulation` / `WorldController` / `EntityPresenter` / `CameraGestureLayer` / `CommandGrid` / `RootView` / `SelectionPanel` / `SkirmishTuning` / `EntityKinds` / `WorldEntities` as needed for cancel+purpose+feedback, plus minimal Audio stub for completion cue, and evidence under `Docs/QA/G2/`. |
@@ -60,17 +71,19 @@ the director, not taken from the builder. Evidence: `Docs/QA/G2/p14/test-run.md`
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-14 — AoE land cut by void water · **closed** |
-| **In flight** | **CP-G2a — Construction** (see above) |
-| **Closed** | 2026-07-28 |
-| **Build** | CP-G2a staged source snapshot: 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5. Focused CP-G2a tests: pending. |
+| **Last checkpoint** | CP-C1 — Production · **shipped** 2026-07-31 (`a457011`) |
+| **In flight** | **CP-C2 — Combat core** (see above) |
+| **Shipped 2026-07-31** | CP-G2a closed · P14 test harness · CP-C1 production · CP-G3a2 traversal · CP-G2b-NAV navigation · P4 pose caching |
+| **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **31 tests pass** under `swift test`. |
 | **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
-| **Current frame** | CP-G2a: `Docs/QA/G2/cp-g2a/13-farm-founded-constructing.png` · `15-farm-complete-fullres.png`. Map baseline: `Docs/QA/AAA/sparse-map1-riverlands.png`. |
-| **Version** | 0.3.0 · build 42 |
-| **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
-| **Current direction** | Correct and prove CP-G2a construction. Animation and other G2 slices remain parked. |
-| **Commit boundary** | CP-G2a is isolated from the pre-existing map, movement, boarding, TopBar, SelectionModel, test, and research changes. Those changes remain local and dirty. |
-| **Next checkpoint** | CP-G2a correction and independent re-review. CP-G2b starts only after CP-G2a closes. |
+| **Current frame** | `Docs/QA/G3/cp-c1/04-three-trained-spawned.png` — three Citizens trained from the Core, population 7 of 10. |
+| **Version** | 0.4.0 · build 43 |
+| **Gates** | G0 complete · G1 in progress · G2 in progress · G3 opened — none passed |
+| **Play-feel reference** | **Age of Empires 2 / Rise of Rome, in space** (BC-01, 2026-07-31). Was Age of Empires IV. |
+| **Current direction** | Gameplay and content breadth (Directive 2 + 3). Performance is a guardrail, not a bar. Remaining path to a playable match: combat → adversary → victory. |
+| **Can a match be won or lost?** | **No.** No combat, no adversary, no end condition. This is the honest headline. |
+| **Commit boundary** | Committed narrowly by explicit path. Other agents' dirty work (`Sources/Rendering/FramePacing.swift`, `Sources/Diagnostics/`, `scripts/`, `Docs/QA/Perf/`, app-icon and launch-gate files) left untouched and uncommitted. |
+| **Next checkpoint** | CP-C3 adversary v0, then CP-C4 victory and defeat. |
 
 ---
 
