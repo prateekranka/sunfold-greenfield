@@ -1,5 +1,78 @@
 # Changelog
 
+## 0.6.0 — 2026-08-01 — the match can end
+
+The build where this stops being a simulation you watch and becomes a game you
+can win or lose. Two win paths, a match that genuinely stops when one of them
+fires, and a Play Again that rewinds it. All of it was played on the iPad, not
+inferred from tests. Evidence in `Docs/QA/G3/cp-c4/`.
+
+At 0.5.0 the opponent destroyed the player's Core at 5:59 and the match kept
+running over the corpse at population 0 of 10. It now says **DEFEAT · CONQUEST ·
+"Sunwoven's Civilization Core was destroyed."** and stops.
+
+### Added
+- **Conquest.** Destroy the enemy Civilization Core. Mirrored as defeat when
+  yours falls. Structural calamity beats fire once each at 75% / 50% / 25% on
+  the way down.
+- **Dominion.** Hold the Spire for 45 s continuous. Per `05-RESOLUTIONS-R1.md`
+  §3 (B10) rather than `00-CONTENT-SPEC.md` §5 where they disagree: an enemy in
+  the ring **decays** the holder's timer at half the fill rate instead of pausing
+  it. A pause rule deadlocks forever if both sides keep one unit standing there,
+  which is exactly what two schedules would do, and a deadlock breaks the "no
+  draw state, no hard timer" promise. Timers are per faction, not a tug-of-war.
+- **The Dominion Spire** — the fifteenth building and the only one nobody builds.
+  Neutral, pre-placed at the contested fragment's centre, indestructible by rule.
+  `Building.faction` is now `Faction?`; `nil` is neutral.
+- **The escalation ladder.** The hold requirement shortens 45 s → 30 s (7:00) →
+  20 s (9:00) as a pure function of the clock, so a stalemate becomes a fight
+  over one piece of ground rather than a timeout. Visible in the rail.
+- **`ObjectiveRail`**, replacing `AlertStrip`. Match clock, both Dominion timers,
+  both Core meters, a live alert line, and resign. The strip it replaces printed
+  "Light transport docked at home rim" for an entire match whatever happened.
+- **`MatchOverlay`** — verdict, the win path named honestly, elapsed time and
+  Play Again. It dims rather than hides: where the fight ended is information.
+- **Resign**, as two taps on the rail. The spec puts it in a pause menu; there is
+  no pause menu, and leaving `resign()` unreachable would have made it dead code.
+  It reports **RESIGNATION**, not a Conquest that never happened.
+- **Play Again** — `SkirmishSimulation.restart()` rebuilds the world in place
+  from the same seed, and the renderer drops the selection, any half-placed ghost
+  and the rising-building set, all of which name entities that no longer exist.
+- Health bars on damaged units and buildings, so a Core being chewed on is
+  legible without selecting it.
+- Twenty-three tests, 49 → **72**.
+
+### Fixed
+- **Three of the six buildings could not be placed at all.** 0.4.0 gave the
+  Formation Yard, Expansion Outpost and Dawn Loom command tiles — lit, priced and
+  tappable — while `ConstructionPlacement.placeableKinds` still listed only the
+  three construction-checkpoint kinds, so `beginBuildGhost` bounced off it in
+  silence. The Formation Yard is the only building that trains a military unit,
+  so the player could reach **neither** win path. Found on device while trying to
+  build the Yard that trains the Vanguard that captures the Spire. Two rules now
+  hold the line: everything with a price is placeable, and nothing free is.
+- The Dominion fragment's deposits are pushed outside the Spire's footprint plus
+  a citizen's working ring. A Matter node could sit *inside* the objective, which
+  turned the one piece of ground the match is fought over into a mine.
+
+### Notes
+- **The CP-C3 determinism bar is restated, not weakened.** Tick 12000 is now
+  unreachable — the untouched player is wiped at tick 7192 and a finished
+  simulation refuses to step — so two no-input runs must stop on the **same
+  tick** with the **same outcome** and the **same hash**. The fingerprint moved
+  from `a9ee7bc2faeea255` to **`4645f2d24d31018c`** because the world changed:
+  the Spire is folded into the hash and the Dominion deposits moved.
+- **`canCaptureDominion` is its own list, not `isMilitary`.** The two are
+  identical today, and that is the trap: `isMilitary` answers a combat question
+  and would silently answer a victory question the next time a unit is added.
+- **The 8–10 minute promise is not met yet by any observed match.** The no-input
+  match resolves at 5:59; the played Conquest took 15:55. The ladder shortens the
+  Dominion requirement and does nothing about walking an army across the map and
+  chewing through 600 HP. A pacing question for CP-C5 / CP-C9.
+- **The contest rule has never been seen in play.** Decay-at-half-rate and the
+  no-deadlock property are test-proven only — the adversary sends every wave at
+  the player's Core and never walks into the ring.
+
 ## 0.5.0 — 2026-07-31 — there is somebody on the other side
 
 The build where the map stops being empty. Gravemark now builds, trains and

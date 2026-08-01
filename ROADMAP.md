@@ -69,10 +69,20 @@ and Vanguard, and show stable formation motion.
 
 ### G5 — Two complete win paths
 
-Dominion control with contest pause and 15/30/45-second milestones, ending in an
+Dominion control with **contest decay** and 15/30/45-second milestones, ending in an
 in-world transformation before the overlay. Conquest with Core damage thresholds
 at 75/50/25% and a structural calamity before the overlay. Restart and Play Again
 reset every deterministic system. Compare against concepts 03 and 04.
+
+> **"Contest pause" was superseded** by `Docs/Design/05-RESOLUTIONS-R1.md` §3 (B10.3):
+> an enemy in the ring drains the holder's timer at half the fill rate. A pause
+> deadlocks forever if both sides keep one unit standing there.
+>
+> **CP-C4 (2026-08-01) landed the rules, not the gate.** Both win paths, the
+> milestones, the 75/50/25 beats, the terminal state and Play Again all ship and
+> were played on device. Still owed to G5: the **in-world transformation** before
+> the Dominion overlay and the **structural calamity** before the Conquest one —
+> today both are an alert line and a falling Core meter, not an event in the world.
 
 ### G6 — Natural 8–10 minute calibration
 

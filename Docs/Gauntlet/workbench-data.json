@@ -1,19 +1,19 @@
 {
   "meta": {
-    "updated": "2026-07-31T23:55:00+05:30",
-    "version": "0.5.0",
-    "build": 44,
+    "updated": "2026-08-01T06:20:00+05:30",
+    "version": "0.6.0",
+    "build": 45,
     "branch": "visual/aaa-uplift-cp02",
     "wave": 2,
     "waveTitle": "Make it a game — production, combat, an opponent, a result"
   },
   "now": {
-    "piece": "CP-C4",
-    "title": "Victory and defeat — the match has to be able to end",
-    "why": "CP-C3 landed an opponent that walks over and destroys the player's Civilization Core at 5:59, and nothing happens: the match keeps running over the corpse, population 0 of 10, no result. The locked promise is two win paths and an 8-10 minute match, and nobody has ever played this to a result. Conquest and Dominion per 00-CONTENT-SPEC.md §6, overridden by 05-RESOLUTIONS-R1.md §3 (B10): 45 s hold, milestones at 15/30, contested decays at half the fill rate rather than pausing, timer per faction. This is the checkpoint that turns a build into a game, and it unblocks bar B5b.",
+    "piece": "HUMAN PAUSE",
+    "title": "CP-C4 closed — show the human before opening CP-C5",
+    "why": "CP-C4 shipped at 3f63da9 on 2026-08-01: two win paths, a match that genuinely stops when one fires, and a Play Again that rewinds it — all four played on the iPad. A stranger can now win or lose this, which is the first time that has been true, and the session brief makes that a stop-and-report boundary rather than a hand-off into CP-C5 roster breadth. Two things the human should weigh before the next piece: no observed match landed inside the 8–10 minute promise (5:59 no-input, 15:55 played Conquest), and the contest rule is test-proven only because the adversary never walks into the ring. Both are pacing/behaviour questions that could reorder CP-C5 and CP-C9.",
     "owner": "director",
     "model": "opus-5",
-    "started": "2026-07-31T23:55:00+05:30",
+    "started": "2026-08-01T06:20:00+05:30",
     "round": 0,
     "lastCriticVerdict": "n/a"
   },
@@ -143,9 +143,9 @@
       "axis": "RTS depth",
       "bar": "Three unassisted playthroughs end in a win or a loss in 8–10 minutes",
       "target": "3 of 3",
-      "current": "Still unreachable, but for one reason instead of three. Combat exists and is observed, an opponent exists and attacks on schedule, and a match can now be LOST in substance — the player is wiped at 5:59. What is missing is the end condition itself, which is CP-C4.",
+      "current": "Unblocked but not met. The end condition now exists and both paths were played to a result on device (Dominion 3:55, Conquest 15:55, defeat 5:59) — so a playthrough CAN end in a win or a loss, which was the blocker. What fails is the window: no observed match landed inside 8-10 minutes, and there have been no three unassisted playthroughs. A pacing question for CP-C5/CP-C9, not a victory-rules one.",
       "state": "fail",
-      "evidence": "../../ROADMAP.md"
+      "evidence": "../QA/G3/cp-c4/STATUS.md"
     },
     {
       "id": "B6",
@@ -158,6 +158,15 @@
     }
   ],
   "log": [
+    {
+      "id": "CP-C4",
+      "date": "2026-08-01",
+      "title": "Victory and defeat — the match can end, and a stranger can win or lose it",
+      "changed": "New Sources/Simulation/VictorySystem.swift and Sources/Domain/VictoryTypes.swift: Conquest and Dominion, judged after every other system inside the same tick so a Core that falls to this tick's combat ends the match on this tick, with Conquest tested before Dominion in Faction.allCases order because two conditions can come true together and a coin flip there would be a determinism hole. SkirmishSimulation refuses to step once MatchOutcome is set, and gained restart() to rebuild the world in place from the same seed. Dominion follows 05-RESOLUTIONS-R1.md §3 (B10) over 00-CONTENT-SPEC.md §5 where they disagree: contested DECAYS at half the fill rate rather than pausing, because a pause rule deadlocks forever if both sides keep one unit in the ring and a deadlock breaks the 'no draw state, no hard timer' promise. The hold requirement shortens 45s -> 30s (7:00) -> 20s (9:00) as a pure function of the clock. New Dominion Spire BuildingKind: neutral, pre-placed, indestructible; Building.faction became Faction? rather than gaining a .neutral case, so the compiler asks the ownership question at every site instead of a third faction flowing into every Faction.allCases loop and giving an objective a treasury. New HUD: ObjectiveRail (replacing AlertStrip, which printed one seeded sentence for an entire match) and MatchOverlay with Play Again. canCaptureDominion is its own list rather than isMilitary per B10.2.",
+      "observed": "Played on 75898CE1 (iPad Air 13, iPadOS 26.5). VICTORY by Dominion at 3:55 with the rail at 45s/45s; VICTORY by Conquest at 15:55; DEFEAT by Conquest at 5:59 — the same wipe CP-C3 could only watch run over the corpse; DEFEAT by Resignation, named as itself rather than as a Conquest that never happened. The escalation ladder is visible on device (rail reads 0s/20s at 15:55). The world really stops: the match clock held at 0:21 across two accessibility reads seven seconds apart with the overlay up. Play Again returns the clock to 0:01, POP to 4/10 and stock to 180/160/40 with nothing left over. 49 -> 72 tests, 0 failures.",
+      "cost": "One real defect found on the way and fixed here: the Formation Yard, Expansion Outpost and Dawn Loom had carried command tiles since CP-C1 while ConstructionPlacement.placeableKinds still listed only the three CP-G2a kinds, so beginBuildGhost bounced off the list in silence and all three tiles did nothing. The Formation Yard is the only building that trains a military unit, so the player could reach NEITHER win path; two tests now assert that everything with a price is placeable and nothing free is. The CP-C3 determinism bar is restated rather than weakened — tick 12000 is unreachable now the match ends at tick 7192, so two no-input runs must stop on the same tick with the same outcome and the same hash, which moved from a9ee7bc2faeea255 to 4645f2d24d31018c because the Spire joined the world hash and the Dominion deposits were pushed outside its footprint. Not proven: the 8-10 minute promise (no observed match landed in it), the contest rule in play (the adversary never enters the ring), and CP-C3's camera jump remains unexplained — CP-C4 moves the camera only on restart. No -sunfoldPerf smoke, deliberately, as at CP-C3.",
+      "evidence": "../QA/G3/cp-c4/STATUS.md"
+    },
     {
       "id": "CP-C3",
       "date": "2026-07-31",
@@ -544,9 +553,9 @@
   ],
   "simLease": {
     "holder": "none — released",
-    "since": "2026-07-31T23:55:00+05:30",
+    "since": "2026-08-01T06:20:00+05:30",
     "queue": [],
     "device": "75898CE1-A691-4973-817A-973D4249A38F — Sunfold Cycle 1 iPad Air 13 (iOS 26.5)",
-    "warning": "The UDID in AGENTS.md was dead and has been corrected to 75898CE1-…. A second device, CD369CF5-… 'BillBandit Test' iPhone 17 Pro, is booted and belongs to an unrelated project: never touch it. Two devices are booted, so pass the iPad UDID explicitly on every call. Also: argent's screenshot-after-gesture ignores the rotation parameter and returns a portrait-oriented frame of a landscape app — pass rotation LandscapeLeft on a standalone screenshot call when the orientation matters."
+    "warning": "Pass the iPad UDID 75898CE1-A691-4973-817A-973D4249A38F explicitly on every call; another project's iPhone (CD369CF5) may also be booted and must never be touched. argent's screenshot-after-gesture ignores the rotation parameter and returns a portrait-oriented frame of a landscape app — pass rotation LandscapeLeft on a standalone screenshot call when orientation matters. Confirmed again at CP-C4 close: rotate Portrait then LandscapeLeft after launch, and wait >= 12 s before judging a frame."
   }
 }

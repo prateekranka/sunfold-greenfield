@@ -1,6 +1,6 @@
 # Version
 
-**0.5.0** — build 44
+**0.6.0** — build 45
 
 | Field | Value |
 |---|---|

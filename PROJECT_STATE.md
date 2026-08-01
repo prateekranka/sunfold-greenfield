@@ -19,14 +19,15 @@ Rules for this file:
 
 ## In flight
 
-| | |
-|---|---|
-| **Checkpoint** | **CP-C4 — Victory and defeat** |
-| **Opened** | 2026-07-31 |
-| **Owner** | director |
-| **Why this one** | CP-C3 landed an opponent that walks over and kills the player at 5:59 — and nothing happens. The match keeps running over a corpse. This is the checkpoint that makes this a game rather than a build: the locked promise is two win paths and a match that resolves. |
-| **Write scope (exact)** | New `Sources/Simulation/VictorySystem.swift` and `Tests/VictoryTests.swift`; match state on `SkirmishSimulation`; a Dominion progress readout and an end-of-match overlay with restart in the existing HUD path. |
-| **Spec** | `Docs/Design/00-CONTENT-SPEC.md` §6, overridden where they disagree by `Docs/Design/05-RESOLUTIONS-R1.md` §3 (B10 — 45 s Dominion hold, milestones at 15/30, contested **decays at half rate** rather than pausing, timer per faction). |
+**Nothing.** CP-C4 closed 2026-08-01 at `3f63da9`. The next piece — **CP-C5,
+military roster breadth** — is a human-pause boundary and has **not** been opened:
+the session brief says show the human once a stranger can win or lose a match.
+
+### CP-C4 — CLOSED 2026-08-01
+
+Victory and defeat shipped. Two win paths, a terminal state that stops the world,
+and Play Again — all four played on the iPad. Log entry below;
+full record in `Docs/QA/G3/cp-c4/STATUS.md`.
 
 ### CP-C2 / CP-C3 — CLOSED 2026-07-31
 
@@ -79,19 +80,20 @@ the director, not taken from the builder. Evidence: `Docs/QA/G2/p14/test-run.md`
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-C3 — Adversary v0 · **shipped** 2026-07-31, closing CP-C2 as CP-C2′ |
-| **In flight** | **CP-C4 — Victory and defeat** (see above) |
+| **Last checkpoint** | CP-C4 — Victory and defeat · **shipped** 2026-08-01 (`3f63da9`) |
+| **In flight** | **Nothing.** CP-C5 roster breadth is next and is a human-pause boundary — not opened. |
 | **Shipped 2026-07-31** | CP-G2a closed · P14 test harness · CP-C1 production · CP-G3a2 traversal · CP-G2b-NAV navigation · P4 pose caching · CP-C2′ combat · CP-C3 adversary |
-| **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **49 tests pass** under `swift test`. |
+| **Shipped 2026-08-01** | CP-C4 victory and defeat |
+| **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **72 tests pass** under `swift test`. |
 | **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
-| **Current frame** | `Docs/QA/G3/cp-c3/05-core-life-readout.png` — the Sunwoven Core at **303 / 600** under attack by a Gravemark wave the player never provoked. |
-| **Version** | 0.5.0 · build 44 |
+| **Current frame** | `Docs/QA/G3/cp-c4/02-victory-by-dominion.png` — **VICTORY · DOMINION** at 3:55, the rail reading `45s / 45s`. The first frame in this project of a match that a player won. |
+| **Version** | 0.6.0 · build 45 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress · G3 opened — none passed |
 | **Play-feel reference** | **Age of Empires 2 / Rise of Rome, in space** (BC-01, 2026-07-31). Was Age of Empires IV. |
-| **Current direction** | Gameplay and content breadth (Directive 2 + 3). Performance is a guardrail, not a bar. Remaining path to a playable match: combat ✅ → adversary ✅ → victory. |
-| **Can a match be won or lost?** | **No — but you can now be wiped out.** Combat and an adversary both exist and were watched killing the player at 5:59. There is still no end condition: the match keeps running over the corpse. CP-C4 is the last piece. |
-| **Commit boundary** | Committed narrowly by explicit path. Other agents' dirty work (`Sources/Rendering/FramePacing.swift`, `Sources/Diagnostics/`, `scripts/`, `Docs/QA/Perf/`, app-icon and launch-gate files) left untouched and uncommitted. |
-| **Next checkpoint** | CP-C4 victory and defeat. |
+| **Current direction** | Gameplay and content breadth (Directive 2 + 3). Performance is a guardrail, not a bar. The path to a playable match is complete: combat ✅ → adversary ✅ → victory ✅. Breadth and pacing are what remain. |
+| **Can a match be won or lost?** | **Yes.** Both paths were played to a result on the iPad and photographed: Dominion at 3:55, Conquest at 15:55, defeat by Conquest at 5:59, defeat by resignation, and Play Again back to 0:01. A finished match genuinely stops stepping. **What it is not yet:** inside the 8–10 minute promise (nothing observed landed in that window), and the contest rule has never been exercised in play. |
+| **Commit boundary** | Committed narrowly by explicit path. Other agents' dirty work (`Sources/Rendering/FramePacing.swift`, `Sources/Diagnostics/`, `Sources/Simulation/BoardingSystem.swift`, `scripts/`, `Docs/QA/Perf/`, `Docs/QA/Launch/`, app-icon and launch-gate files) left untouched and uncommitted. At CP-C4 `RootView.swift` carried both CP-C4 work and a perf overlay, so its index entry was staged surgically rather than committing the whole file. |
+| **Next checkpoint** | CP-C5 military roster breadth — **paused for the human** by the session brief. Then CP-C9 economy retune. |
 
 ---
 
@@ -350,7 +352,11 @@ The subsystems behind all of that:
   agents' in-flight work, and committing them would be committing foreign changes. Whoever
   owns the perf and boarding work should commit those files, or the call sites should come
   back out. This is exactly the failure mode this project keeps hitting: the green build is
-  measuring the working tree, not the repository.
+  measuring the working tree, not the repository. **CP-C4 deliberately did not deepen it**
+  (2026-08-01): `Sources/App/RootView.swift` was staged surgically so the commit carries
+  `MatchOverlay` / `ObjectiveRail` but *not* the working tree's `PerfOverlay` block or
+  `perfDensity` pass-through, and `SunfoldRealityView.swift`'s `.sunfoldFramePacing()` hook
+  was left out entirely. That exact committed file set was built green before committing.
 - **`Docs/QA/AAA/round-1-foundation.png` is stale.** Captured at 15:34, *before* the
   chromatic-aberration fix at 15:45 that dropped `aberration` from 0.0022 to 0.0006. Do not
   cite its rainbow fringing as a current defect — that complaint is already fixed in source.
@@ -363,7 +369,7 @@ The subsystems behind all of that:
   is gone, and a failed acquisition should be a loud error rather than a silent skip.
 - ~~**The unit tests have never been executed.**~~ **Fixed under P14 on 2026-07-31.** The
   planned SwiftPM extraction happened: a root `Package.swift` exposes `Domain` + `Simulation`
-  as `SunfoldCore`, and **49 tests run and pass under `swift test`** on the host in about a
+  as `SunfoldCore`, and **72 tests run and pass under `swift test`** (49 at CP-C3) on the host in about a
   minute, no simulator and no app host. The remaining wrinkle is that `Tests/` is *also*
   globbed into the Xcode `SunfoldGreenfieldTests` target, which cannot resolve
   `@testable import SunfoldCore` — so `xcodebuild` on the scheme fails on the test target in
@@ -391,6 +397,46 @@ Newest first. Each entry records what changed, what was observed, and what it co
 > The 2026-07-31 checkpoints (P14, CP-G2a, CP-C1, CP-G3a2, CP-G2b-NAV, P4) keep their
 > full records under `Docs/QA/` rather than here. The entry below follows that
 > practice: a summary and a pointer, not a duplicate.
+
+### CP-C4 — Victory and defeat · 2026-08-01 · closed
+
+**Goal.** Make the match able to end. CP-C3 left an opponent that destroyed the
+player's Core at 5:59 while the simulation kept running over the corpse.
+
+**What shipped.** `Sources/Simulation/VictorySystem.swift` — Conquest and Dominion,
+judged after every other system on the same tick, so a Core that falls to this
+tick's combat ends the match on this tick. `MatchOverlay` and `ObjectiveRail` in
+the HUD, `restart()` on `SkirmishSimulation`, and the Dominion Spire as the
+fifteenth `BuildingKind` — neutral, indestructible, owned by nobody.
+
+**Observed.** Played on `75898CE1-…` (iPad Air 13, iPadOS 26.5).
+
+| claim | evidence |
+|---|---|
+| A player can win by Dominion | **VICTORY · DOMINION** at 3:55, rail at `45s / 45s` |
+| A player can win by Conquest | **VICTORY · CONQUEST** at 15:55 |
+| A player can lose, and be told why | **DEFEAT · CONQUEST** at 5:59; **DEFEAT · RESIGNATION** named as itself |
+| The hold requirement escalates | rail reads `0s / 20s` at 15:55 |
+| A finished match stops stepping | clock held at **0:21** across two accessibility reads seven seconds apart |
+| Play Again rewinds the world | clock **0:01**, POP **4/10**, stock back to 180 / 160 / 40 |
+
+**Cost.** 49 → **72 tests**, 0 failures (20 new `VictoryTests`). The CP-C3
+determinism fingerprint is restated rather than weakened: tick 12000 is
+unreachable now that the match ends at tick 7192, so the bar is that two no-input
+runs stop on the same tick with the same outcome and the same hash — which moved
+to `4645f2d24d31018c` because the Spire joined the world and the Dominion deposits
+moved out of its footprint.
+
+**One real defect found on the way.** The Formation Yard, Expansion Outpost and
+Dawn Loom had command tiles since CP-C1 but were missing from
+`ConstructionPlacement.placeableKinds`, so all three did nothing when tapped. The
+Formation Yard is the only building that trains a military unit — the player could
+reach **neither** win path. Fixed, with two tests holding the line.
+
+**Full record.** `Docs/QA/G3/cp-c4/STATUS.md`, including a "What is not proven"
+section: the 8–10 minute promise is met by no observed match (5:59 and 15:55), the
+contest rule has never been exercised in play, and CP-C3's unexplained camera jump
+is still unexplained — CP-C4 moves the camera only on restart.
 
 ### CP-C3 — Adversary v0 · and CP-C2′ — Combat, observed · 2026-07-31 · closed
 
