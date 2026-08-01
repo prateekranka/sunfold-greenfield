@@ -1,23 +1,34 @@
 {
   "meta": {
-    "updated": "2026-08-01T09:45:00+05:30",
-    "version": "0.6.0",
-    "build": 45,
+    "updated": "2026-08-01T17:28:23+05:30",
+    "version": "0.6.1",
+    "build": 46,
     "branch": "visual/aaa-uplift-cp02",
     "wave": 2,
     "waveTitle": "Make it a game — production, combat, an opponent, a result"
   },
   "now": {
-    "piece": "CP-C9",
-    "title": "Economy retune — home yields",
-    "why": "Not yet opened. CP-C5 closed 2026-08-01 and left two economy items pointing straight here. R1 §2 (B4/B5) raised home-fragment yields to 700 Matter and 550 Lumen because the building bill does not fit inside 420 and 300; WorldPopulator.startingYield is still on the old numbers, and CP-C3 measured the consequence — the Gravemark fragment is dug out by 10:00 and its waves stop escalating. CP-C5 added a second reason: the Dwelling is still 80 Matter / 15 s against the design's 55 / 14, and the CP-C5 device pass ran its whole economy on the Core trickle alone (0.10 Lumen/s), which made a 165-Lumen opening take most of forty minutes of match time. Raising yields changes the player's economy too, so it is its own checkpoint.",
+    "piece": "CP-C6",
+    "title": "Age progression — Voyager",
+    "why": "CP-C9 is shipped. Continue the documented content order with Voyager research, the Dawn Loom gate, and the Aether path that requires leaving home. Keep CP-C9's home-only yields and nine-minute evidence closed unless new measurements reopen the question.",
     "owner": "unassigned",
     "model": "unassigned",
     "started": null,
     "round": 0,
     "lastCriticVerdict": "n/a"
   },
-  "next": [],
+  "next": [
+    {
+      "piece": "CP-C7",
+      "title": "Tier-2 military",
+      "why": "Close the counter graph with Lancer, Bastion Walker, Warding Post, and the Tier-2 combat proof after age progression."
+    },
+    {
+      "piece": "CP-C8",
+      "title": "Uniques and faction identity",
+      "why": "Apply the approved faction modifiers and make Sunwoven and Gravemark visibly different after the shared economy proof."
+    }
+  ],
   "bars": [
     {
       "id": "B1a",
@@ -132,28 +143,44 @@
       "axis": "RTS depth",
       "bar": "Three unassisted playthroughs end in a win or a loss in 8–10 minutes",
       "target": "3 of 3",
-      "current": "Unblocked but not met. The end condition now exists and both paths were played to a result on device (Dominion 3:55, Conquest 15:55, defeat 5:59) — so a playthrough CAN end in a win or a loss, which was the blocker. What fails is the window: no observed match landed inside 8-10 minutes, and there have been no three unassisted playthroughs. A pacing question for CP-C5/CP-C9, not a victory-rules one.",
+      "current": "Still not met as a three-playthrough device bar. CP-C9's adversary-off economy-ceiling run reaches 42/42 population with four Dwellings at 9:00 and records 0.000 s of no-choice stall, but the full 9:00 arc was not hand-played to completion. The deterministic harness reproduced the arc twice with byte-identical sample and denial CSVs. The remaining gap is live play, not the measured economy.",
       "state": "fail",
-      "evidence": "../QA/G3/cp-c4/STATUS.md"
+      "evidence": "../QA/G3/cp-c9/STATUS.md"
     },
     {
       "id": "B6",
       "axis": "Correctness",
       "bar": "DeterminismTests green under swift test, plus a byte-identical seeded replay",
       "target": "Green every checkpoint",
-      "current": "PASS — 49 tests green under swift test, and the seeded replay bar is now met by a real fingerprint: WorldHash (FNV-1a over quantised resources, life and positions in ascending EntityID order, per R1 §6.13) returns a9ee7bc2faeea255 at tick 12000 on two independent no-input runs from seed 20260726, with identical adversary event logs line for line.",
+      "current": "PASS — 99 tests, 2 skipped, 0 failures under swift test; the two skipped tests are opt-in long-run harness tests. The gated long run passes 4 tests with 0 failures. Two independent full long runs produce byte-identical sample and denial CSVs, and regenerating the SVG from the same CSV is byte-identical.",
       "state": "pass",
-      "evidence": "../QA/G3/cp-c3/STATUS.md and Tests/AdversaryTests.swift"
+      "evidence": "../QA/G3/cp-c9/STATUS.md"
     }
   ],
   "log": [
+    {
+      "id": "CP-C9",
+      "date": "2026-08-01",
+      "title": "Economy tuning — the economy pays for the game",
+      "changed": "Home deposits are region-aware: 700 Matter and 550 Lumen at home, with off-home values preserved at 420 Matter and 300 Lumen. The Dwelling is 55 Matter / 14 s with the existing +8 population grant. Deposit placement and every deterministic draw remain unchanged. The corrected nine-minute harness measures capability through the production API, separates no-choice stall from raw affordability delay, records denial episodes, reports Pathfinder and trained-army counts, and derives mode/seed/duration-specific output names.",
+      "taught": "At 9:00 in economy-ceiling mode, seed 20260726, riverlands reached 42/42 population with four completed Dwellings, 12 Citizens, 13 Pathfinders, 9 Vanguards and 8 Quarrels. noChoiceStallSeconds was 0.000; raw affordability delay was 38.650 s, and all seven denial episodes had another productive action. A device pass proved the shipped cost, refund, +8 grant, real gathering, 5:58 defeat, and 4:01 economy-mode run. The full 9:00 arc was not hand-played to completion.",
+      "proof": {
+        "version": "0.6.1",
+        "build": 46,
+        "play": "iPadOS 26.5 device pass; deterministic economy-ceiling and contested runs",
+        "status": "local"
+      },
+      "next": "CP-C6 age progression.",
+      "before": "../QA/G3/cp-c5/10-six-arrived-group-move.png",
+      "after": "../QA/G3/cp-c9/device/01-opening-0m01-landscape.png",
+      "evidence": "../QA/G3/cp-c9/STATUS.md"
+    },
     {
       "id": "CP-C5",
       "date": "2026-08-01",
       "title": "Military roster breadth — the army finally has more than one shape in it",
       "changed": "BuildingKind gained .lumenSpire (90 Matter / 45 Lumen / 18 s / footprint 3.0 / 210 HP / trains Quarrel), gated behind a completed same-faction Formation Yard. UnitKind.ranged was renamed .quarrel per R1 B13 — a rename, not a second unit — and the rename boundary was checked by hand: the eleven surviving 'ranged' occurrences are all damage-type, armour-class or transport-targeting vocabulary and were correctly left alone. The Formation Yard now trains Pathfinder and Vanguard only, and its cost was corrected from 110 Matter / 40 Lumen to the design's 110 / 20. Two defects found during plan review were fixed in scope: the Vanguard's missing +8 vs siege (R1 B2), and ProductionSystem.step charging a queue item and then dropping it with no unit and no refund when no spawn slot resolved. SkirmishSimulation gained a typed BuildBlocker so a prerequisite is enforced in the simulation and not only in the HUD. The command grid became the two-page Economy / Military layout 02-BUILDING-ROSTER.md §6 specifies, and every dimmed tile now carries a visible on-screen reason. The adversary's Lumen Spire deferral closed: one Yard at tick 2400, one Spire at tick 4800, the second-Yard stand-in removed, and planArmy re-routed to pick a trainer by capability rather than by building kind — without that, the Yard losing Quarrel would have silently shrunk every wave from the second on.",
-      "proof": "swift test 72 → 86 tests, 0 failures. World hash 4f761a7b50d6df3c at tick 7192, identical across two full no-input runs, with no frozen hash literal anywhere in Tests/ — which is exactly what let a String-backed enum rename land safely. Host and device agree on the no-input outcome: Gravemark by conquest at 5:59. Two device passes on the iPad Air 13. Pass A ran with -sunfoldNoAdversary so no combat loss could confound the ledger: trainer exclusivity proved in both directions through the accessibility tree, the prerequisite gate flipping from 'Requires a completed Formation Yard.' to 'Lumen Spire. Trains Quarrels. Costs 90 Matter · 45 Lumen.' on completion, every cost charged to the unit against the Core trickle, an illegal site refused with 'BLOCKED · Move onto clear home ground' and not charged, 'Population 10/10.' surfacing a real production hold, and one group move of '6 Selected · 1 Pathfinders · 2 Vanguards · 3 Quarrels · 345/345' arriving intact — a total that independently confirms the composition against UnitKind.maxLife. Pass B ran normally and caught wave 2 as 4 Vanguard + 2 Quarrel, matching composition(ofWave: 2). Evidence: Docs/QA/G3/cp-c5/STATUS.md and thirteen frames.",
-      "open": "The Spire does not accept Lumen drop-off — 02-BUILDING-ROSTER.md:94 says it should, but acceptsDropOff is a plain Bool and cannot express 'Lumen only'; true would make it a drop-off for all four resources. Faction modifiers absent (CP-C8). Dwelling 80 Matter / 15 s vs the design's 55 / 14 (CP-C9). R1 §6.4's id.raw % ringSlotCount spawn rule deliberately not adopted, because the shipped ring search is already deterministic. Citizen gathering was never exercised on device this pass — both passes ran on the Core trickle. Not built from a clean clone. Three findings recorded rather than fixed: a dimmed tile's accessibility label replaces the building's identity with the reason, so a VoiceOver user cannot tell which building is gated; the multi-select panel reads '1 Pathfinders'; and the Vanguard/Quarrel read works by elongated-versus-compact, not by the vertical line 01-UNIT-ROSTER.md:156-176 claims — a vertical haft is foreshortened away by the top-down camera. The Dominion leak was re-measured (you 0 of 45 seconds, enemy 12) and stays open."
+      "open": "The Spire does not accept Lumen drop-off — 02-BUILDING-ROSTER.md:94 says it should, but acceptsDropOff is a plain Bool and cannot express 'Lumen only'; true would make it a drop-off for all four resources. Faction modifiers absent (CP-C8). CP-C9 economy tuning is shipped: home-only yields, the 55 Matter / 14 s Dwelling, and the nine-minute evidence are recorded under Docs/QA/G3/cp-c9/. R1 §6.4's id.raw % ringSlotCount spawn rule deliberately not adopted, because the shipped ring search is already deterministic. Citizen gathering was never exercised on device this pass — both passes ran on the Core trickle. Not built from a clean clone. Three findings recorded rather than fixed: a dimmed tile's accessibility label replaces the building's identity with the reason, so a VoiceOver user cannot tell which building is gated; the multi-select panel reads '1 Pathfinders'; and the Vanguard/Quarrel read works by elongated-versus-compact, not by the vertical line 01-UNIT-ROSTER.md:156-176 claims — a vertical haft is foreshortened away by the top-down camera. The Dominion leak was re-measured (you 0 of 45 seconds, enemy 12) and stays open."
     },
     {
       "id": "CP-C4",

@@ -19,7 +19,7 @@ Rules for this file:
 
 ## In flight
 
-Nothing. CP-C5 closed 2026-08-01; CP-C9 is next and not yet opened.
+Nothing. CP-C9 closed 2026-08-01; CP-C6 age progression is next.
 
 ### CP-C5 — Military roster breadth · CLOSED 2026-08-01
 
@@ -36,19 +36,26 @@ every cost charged to the unit against the Core trickle; `BLOCKED · Move onto c
 ground` refusing an illegal site without charging; `Population 10/10.` surfacing a real
 production hold; and one group move of `6 Selected · 1 Pathfinders · 2 Vanguards ·
 3 Quarrels · 345/345` arriving intact. `swift test` 72 → **86 tests, 0 failures**. World
-hash `4f761a7b50d6df3c` at tick 7192, identical across two runs, with no frozen literal
-anywhere in `Tests/` — which is what let the `String`-backed `.ranged` → `.quarrel` rename
-land safely. Host and device agree on the no-input outcome: Gravemark by conquest at 5:59.
+hash `4f761a7b50d6df3c` at tick 7192, identical across two runs. **The CP-C5 entry here used
+to claim no frozen literal existed anywhere in `Tests/`. That was false:**
+`Tests/AdversaryTests.swift` carried the frozen tuning literals `420` (deposit yield) and
+`89` (Lumen Spire affordability) until CP-C9 replaced both with reads from tuning. What is
+true is the narrower claim — no test now re-states a tuning value it does not own, which is
+what let the `String`-backed `.ranged` → `.quarrel` rename land safely. Approved constants
+still appear as literals in `Tests/EconomyTuningTests.swift`, deliberately: that file is the
+one place the economy's approved values are asserted, and a tuning test that read tuning
+would assert nothing. Host and device agree on the no-input outcome: Gravemark by conquest
+at 5:59.
 
 Two defects were found during review and fixed in scope: the Vanguard's missing `+8 vs
 siege` (R1 B2), and `ProductionSystem.step` dropping a charged queue item with no unit and
 no refund.
 
 **Left open, by name:** the Spire does not accept Lumen drop-off (`acceptsDropOff` is a
-plain `Bool` and cannot express "Lumen only"); faction modifiers absent (CP-C8); Dwelling
-80 Matter / 15 s vs the design's 55 / 14 (CP-C9); R1 §6.4's `id.raw % ringSlotCount` spawn
-rule deliberately not adopted; citizen gathering never exercised on device this pass; the
-ledger pass ran with `-sunfoldNoAdversary` and combat was verified separately; not built
+plain `Bool` and cannot express "Lumen only"); faction modifiers absent (CP-C8); R1 §6.4's
+`id.raw % ringSlotCount` spawn rule deliberately not adopted; citizen gathering never
+exercised on device this pass; the ledger pass ran with `-sunfoldNoAdversary` and combat was
+verified separately; not built
 from a clean clone. Three findings recorded rather than fixed: a dimmed tile's
 accessibility label loses the building's identity, the panel reads `1 Pathfinders`, and
 the Vanguard/Quarrel read works by elongated-versus-compact rather than by the vertical
@@ -61,7 +68,7 @@ line `01-UNIT-ROSTER.md:156-176` claims.
 | **Owner** | director (orchestrating), Codex implementation agents |
 | **Goal** | An army that is more than Vanguard spam: `Formation Yard → Pathfinder + Vanguard → Lumen Spire → Quarrel`, with a counter read a stranger can see. |
 | **Write scope (exact)** | `.lumenSpire` building (90 Matter / 45 Lumen / 18 s / footprint 3.0 / 210 HP / trains Quarrel / gated behind a completed same-faction Formation Yard). `.ranged` → `.quarrel` rename (R1 B13 — a rename, not a second unit). Formation Yard trains Pathfinder + Vanguard only, and its cost corrected 110 Matter / 40 Lumen → 110 Matter / **20** Lumen per `02-BUILDING-ROSTER.md`. Tier-1 combat profiles wired to `01-UNIT-ROSTER.md` + R1 (Vanguard gains the missing `+8 vs siege` from R1 B2; Quarrel range stays 9.0 per R1 B8). Typed simulation blockers so a prerequisite is enforced in the sim and not only in the HUD. Two-page command grid per `02` §6 with a **visible** on-screen reason for every dimmed tile. Held front production item so a charged queue item can never vanish. Adversary Lumen Spire deferral closed (Yard tick 2400, Spire tick 4800, second-Yard stand-in removed). Files: `Sources/Domain/EntityKinds.swift`, `SkirmishTuning.swift`, `Sources/Simulation/{ConstructionPlacement,SkirmishSimulation,ProductionSystem,Adversary}.swift`, `Sources/HUD/{CommandGrid,HUDStyle}.swift`, `Sources/Rendering/{EntityPresenter,WorldController,Meshes/BuildingMeshes,Meshes/UnitMeshes}.swift`, `Tests/*`, and evidence under `Docs/QA/G3/cp-c5/`. |
-| **Do not touch** | Rebuilding `CombatSystem` or `Adversary` from scratch · CP-C2 / CP-C3 / CP-C4 victory rules · CP-C6 age research · CP-C9 economy retune (including the Dwelling 80 → 55 drift, which stays recorded and unchanged) · faction modifiers (CP-C8) · per-resource drop-off migration · perf campaigns / 60 fps · app icon / P15a · Flowdeck · Tier-2 units and buildings in the simulation. |
+| **Do not touch** | Rebuilding `CombatSystem` or `Adversary` from scratch · CP-C2 / CP-C3 / CP-C4 victory rules · CP-C6 age research · CP-C9 economy retune (**closed 2026-08-01; do not reopen without new evidence**) · faction modifiers (CP-C8) · per-resource drop-off migration · perf campaigns / 60 fps · app icon / P15a · Flowdeck · Tier-2 units and buildings in the simulation. |
 | **Preserved dirty work** | Large foreign dirty surface: `Sources/Diagnostics/`, `Sources/Rendering/FramePacing.swift`, `Sources/Simulation/BoardingSystem.swift`, app icon / `PrivacyInfo.xcprivacy`, perf scripts and `Docs/QA/Perf/`, `Docs/Method/`, `Docs/agents/`, `Docs/research/`, `CONTEXT.md`, and the handoff family. **Never `git add -A`.** Commit by explicit path only; `RootView.swift` carries a perf overlay on top of committed MatchOverlay and must be staged surgically if it is touched at all. |
 | **Evidence** | `Docs/QA/G3/cp-c5/` (live naming wins over the design's `cp-g3c/`). |
 | **Carried open** | The Dominion leak (adversary banks progress crossing the ring) stays **open** — re-measured in CP-C5, not fixed. The 8–10 minute promise stays unmet. The contest rule stays test-only. |
@@ -123,20 +130,20 @@ the director, not taken from the builder. Evidence: `Docs/QA/G2/p14/test-run.md`
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-C5 — Military roster breadth · **shipped** 2026-08-01 |
-| **In flight** | Nothing. CP-C5 closed the day it opened. |
+| **Last checkpoint** | CP-C9 — Economy tuning and nine-minute proof · **shipped** 2026-08-01 |
+| **In flight** | Nothing. CP-C9 closed 2026-08-01; CP-C6 age progression is next. |
 | **Shipped 2026-07-31** | CP-G2a closed · P14 test harness · CP-C1 production · CP-G3a2 traversal · CP-G2b-NAV navigation · P4 pose caching · CP-C2′ combat · CP-C3 adversary |
-| **Shipped 2026-08-01** | CP-C4 victory and defeat · CP-C5 military roster breadth |
-| **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **86 tests pass** under `swift test`. |
+| **Shipped 2026-08-01** | CP-C4 victory and defeat · CP-C5 military roster breadth · CP-C9 economy tuning and nine-minute proof |
+| **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **99 tests pass; 2 opt-in long-run tests skipped** under `swift test`. |
 | **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
-| **Current frame** | `Docs/QA/G3/cp-c5/10-six-arrived-group-move.png` — `6 Selected · 1 Pathfinders · 2 Vanguards · 3 Quarrels · 345/345` after one group move. The first frame in this project of an army with more than one shape in it. |
-| **Version** | 0.6.0 · build 45 |
+| **Current frame** | `Docs/QA/G3/cp-c9/device/01-opening-0m01-landscape.png` — the clean 0:01 opening frame with the Core, home terrain, HUD, and starting stock visible. |
+| **Version** | 0.6.1 · build 46 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress · G3 opened — none passed |
 | **Play-feel reference** | **Age of Empires 2 / Rise of Rome, in space** (BC-01, 2026-07-31). Was Age of Empires IV. |
 | **Current direction** | Gameplay and content breadth (Directive 2 + 3). Performance is a guardrail, not a bar. The path to a playable match is complete: combat ✅ → adversary ✅ → victory ✅. Breadth and pacing are what remain. |
 | **Can a match be won or lost?** | **Yes.** Both paths were played to a result on the iPad and photographed: Dominion at 3:55, Conquest at 15:55, defeat by Conquest at 5:59, defeat by resignation, and Play Again back to 0:01. A finished match genuinely stops stepping. **What it is not yet:** inside the 8–10 minute promise (nothing observed landed in that window), and the contest rule has never been exercised in play. |
 | **Commit boundary** | Committed narrowly by explicit path. Other agents' dirty work (`Sources/Rendering/FramePacing.swift`, `Sources/Diagnostics/`, `Sources/Simulation/BoardingSystem.swift`, `scripts/`, `Docs/QA/Perf/`, `Docs/QA/Launch/`, app-icon and launch-gate files) left untouched and uncommitted. At CP-C4 `RootView.swift` carried both CP-C4 work and a perf overlay, so its index entry was staged surgically rather than committing the whole file. |
-| **Next checkpoint** | CP-C9 economy retune — not yet opened. The Dwelling 80 → 55 drift and the Lumen income curve are both waiting on it. |
+| **Next checkpoint** | CP-C6 age progression — Voyager research and the Aether gate, after CP-C9's home-economy closure. |
 
 ---
 
@@ -451,6 +458,30 @@ Newest first. Each entry records what changed, what was observed, and what it co
 > The 2026-07-31 checkpoints (P14, CP-G2a, CP-C1, CP-G3a2, CP-G2b-NAV, P4) keep their
 > full records under `Docs/QA/` rather than here. The entry below follows that
 > practice: a summary and a pointer, not a duplicate.
+
+### CP-C9 — Economy tuning and nine-minute proof · 2026-08-01 · closed
+
+**Goal.** Make the approved home economy pay for the Tier-1 opening without treating
+temporary unaffordability as a stall.
+
+**What shipped.** Home deposits are region-aware: Matter 700 and Lumen 550, with the
+pre-CP-C9 Matter 420 and Lumen 300 preserved outside home. The Dwelling is 55 Matter / 14 s
+with the existing +8 population grant. Deposit placement and deterministic draws are
+unchanged. The nine-minute harness now measures useful capability through the production
+API, separates no-choice stalls from raw affordability delay, records denial episodes,
+reports Pathfinder and the trained army separately, and writes mode/seed/duration-specific
+sample and denial files.
+
+**Observed.** At 9:00 in economy-ceiling mode, seed `20260726`, riverlands: population
+42/42, four completed Dwellings, 12 Citizens, 13 Pathfinders, 9 Vanguards, 8 Quarrels,
+one Light Transport, no Bastion Walker, and **0.000 s** of no-choice stall. Raw affordability
+delay totals 38.650 s, and every denial episode had another productive action available.
+The home Lumen deposit exhausts at **8:18.75**; home Aether is absent by design.
+
+**Device.** The iPad pass showed the shipped 55 Matter copy, the 75% refund, the +8 grant,
+real Matter/Lumen gathering, an adversary defeat at 5:58, and a clean no-adversary run to
+4:01. The full nine-minute arc was not hand-played to completion; the deterministic harness
+proved it twice with byte-identical CSVs. Full record: `Docs/QA/G3/cp-c9/STATUS.md`.
 
 ### CP-C4 — Victory and defeat · 2026-08-01 · closed
 

@@ -1,5 +1,72 @@
 # Changelog
 
+## 0.6.1 — 2026-08-01 — the economy pays for the game
+
+The build where home deposits pay for a real Tier-1 opening. CP-C9 follows
+`Docs/Design/05-RESOLUTIONS-R1.md` §2 (B4 + B5): home Matter rises to 700 and
+home Lumen to 550, while off-home deposits keep 420 Matter and 300 Lumen. The
+Dwelling now costs 55 Matter and takes 14 s. Evidence is in
+`Docs/QA/G3/cp-c9/`.
+
+At 9:00, seed `20260726`, riverlands, the economy-ceiling run reached **42/42
+population** with four completed Dwellings, 12 Citizens, 13 Pathfinders, 9
+Vanguards and 8 Quarrels. `noChoiceStallSeconds` was **0.000**. The raw
+affordability delay was **38.650 s**, but all seven denial episodes had another
+productive action available. This is resource pressure, not a no-choice stall.
+
+### Added
+
+- **Region-aware deposit yields.** The lookup requires both deposit kind and
+  region. The off-home values remain unchanged for expansions, neutral outcrops
+  and the Dominion. Deposit placement and seeded positions did not change.
+- **The corrected nine-minute harness.** It measures capability through the
+  production API, records denial episodes, separates raw affordability delay
+  from no-choice stall, reports Pathfinder and trained-army counts, and writes
+  mode/seed/duration-specific sample and denial CSVs.
+- **Economy evidence.** Two full long runs produced byte-identical sample and
+  denial CSVs. Regenerating the SVG from the same CSV was also byte-identical.
+
+### Changed
+
+- **Dwelling.** The cost changed from 80 Matter / 15 s to **55 Matter / 14 s**;
+  the population grant stays +8. The device showed `Cancel · +41.25 Matter`
+  after charging 55 Matter, then population moved 10 → 18 on completion.
+- **The supply table is now honest about the boundary.** Home supply at nine
+  minutes is ∞ Provisions, 1668 Matter, 644 Lumen and 0 Aether. The reference
+  bill is 1920 Provisions, 1140 Matter, 615 Lumen and 80 Aether. The +29 Lumen
+  headroom is thin by design, and home Aether is structurally absent because
+  the home plan has no Aether node. `00-CONTENT-SPEC.md` requires leaving home
+  to reach Voyager.
+- **Deposit exhaustion reporting.** Home deposits now distinguish `absent`,
+  `exhausted(at:)` and `neverExhausted`. The home Lumen deposit exhausted at
+  **8:18.75** in the nine-minute reading.
+
+### Fixed
+
+- The old `usefulActionAvailable()` check incorrectly treated an incomplete
+  foundation as a global building lock. It now uses
+  `SkirmishSimulation.buildBlocker(for:faction:)`; the reference player's
+  one-foundation policy remains only inside `act()`.
+- The old `stallSeconds` counted a preferred purchase while another useful
+  action was available. The decision bar is now `noChoiceStallSeconds`, with
+  raw `affordabilityDelaySeconds` retained as a separate measurement.
+- `Tests/AdversaryTests.swift` no longer freezes the Matter `420` ledger value
+  or the Lumen Spire `89` affordability fixture. CP-C9 is what makes the
+  no-frozen-tuning-literal statement true.
+
+### Notes
+
+The live iPad pass showed real Matter and Lumen gathering, including home Lumen
+income of **+10/s** and stock movement from 40 to 175. With the adversary live,
+the hand-played match ended **DEFEAT · CONQUEST at 5:58**, matching the headless
+contested run at 5:59 within one second. The `-sunfoldNoAdversary` run reached
+4:01 cleanly.
+
+The full 9:00 arc to approximately 40 population with four Dwellings was not
+hand-played to completion. Coordinate taps through a real-time RTS were the
+limiting factor, not the economy. The arc is proven twice by the deterministic
+harness, and the one device limitation remains open rather than being hidden.
+
 ## 0.6.0 — 2026-08-01 — the match can end
 
 The build where this stops being a simulation you watch and becomes a game you

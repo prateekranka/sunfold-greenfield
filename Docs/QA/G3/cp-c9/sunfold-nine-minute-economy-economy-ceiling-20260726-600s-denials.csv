@@ -1,0 +1,8 @@
+start_time_seconds,end_time_seconds,duration_seconds,denied_resources,requested_action,productive_action_available_for_whole_episode
+42.000000,42.250000,0.250000,provisions,train:citizen,true
+56.000000,61.700000,5.700000,provisions,train:citizen,true
+70.000000,75.450000,5.450000,provisions,train:citizen,true
+84.000000,85.300000,1.300000,provisions,train:citizen,true
+338.500000,342.300000,3.800000,lumen,train:quarrel,true
+342.350000,351.700000,9.350000,lumen,train:quarrel,true
+353.500000,366.300000,12.800000,lumen,train:quarrel,true
