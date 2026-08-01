@@ -260,9 +260,14 @@ enum BuildingKind: String, CaseIterable, Sendable {
     }
 
     /// Radius used for placement legality, selection and unit avoidance.
+    ///
+    /// The Core value is the larger authored base radius of the two faction
+    /// meshes, plus a small visual margin: Sunwoven reaches 5.40 m and
+    /// Gravemark reaches 5.35 m. Keeping one conservative value here preserves
+    /// the shared circular obstacle truth used by movement and placement.
     var footprintRadius: Float {
         switch self {
-        case .civilizationCore: 5.0
+        case .civilizationCore: 5.5
         case .farm: 3.6
         case .matterExtractor: 2.6
         case .dwelling: 2.6
