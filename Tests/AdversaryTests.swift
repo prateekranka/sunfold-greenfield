@@ -279,7 +279,7 @@ final class AdversaryTests: XCTestCase {
 
         let dug = simulation.deposits.values
             .filter { $0.kind == .matter && $0.region == .gravemarkHome }
-            .reduce(0.0) { $0 + (420 - max(0, $1.remaining)) }
+            .reduce(0.0) { $0 + (tuning.depositYield(for: $1.kind, in: $1.region) - max(0, $1.remaining)) }
         let inTransit = simulation.units.values
             .filter { $0.faction == .gravemark }
             .reduce(0.0) { total, unit in
@@ -365,6 +365,8 @@ final class AdversaryTests: XCTestCase {
     }
 
     func testLumenSpireIsDueAt4800AndDefersUntilReady() {
+        let tuning = SkirmishTuning.baseline
+        let lumenSpireCost = tuning.cost(for: .lumenSpire)
         XCTAssertEqual(Adversary.Schedule.lumenSpireTick, 4_800)
         let core = planningCore()
         let yard = planningYard(id: EntityID(raw: 101), complete: true)
@@ -387,7 +389,11 @@ final class AdversaryTests: XCTestCase {
         var blockedByStock = planningInput(
             tick: Adversary.Schedule.lumenSpireTick,
             buildings: [core.id: core, yard.id: yard],
-            stock: ResourcePool(provisions: 2_000, matter: 89, lumen: 45)
+            stock: ResourcePool(
+                provisions: 2_000,
+                matter: lumenSpireCost.matter - 1,
+                lumen: lumenSpireCost.lumen
+            )
         )
         var blockedState = AdversaryState()
         XCTAssertTrue(

@@ -29,15 +29,6 @@ enum WorldPopulator {
         }
     }
 
-    private static func startingYield(for kind: ResourceKind) -> Double {
-        switch kind {
-        case .provisions: .infinity  // Renewable forage never runs dry.
-        case .matter: 420
-        case .lumen: 300
-        case .aether: 180
-        }
-    }
-
     static func populate(map: WorldMap, tuning: SkirmishTuning, perfDensity: Int? = nil) -> Result {
         var result = Result(allocator: EntityIDAllocator())
 
@@ -49,7 +40,7 @@ enum WorldPopulator {
         placeDominionSpire(map: map, into: &result)
 
         for region in RegionID.allCases {
-            placeDeposits(region: region, map: map, into: &result)
+            placeDeposits(region: region, map: map, tuning: tuning, into: &result)
         }
 
         if let target = perfDensity, result.units.count < target {
@@ -148,6 +139,7 @@ enum WorldPopulator {
     private static func placeDeposits(
         region: RegionID,
         map: WorldMap,
+        tuning: SkirmishTuning,
         into result: inout Result
     ) {
         let fragment = map.fragment(region)
@@ -203,7 +195,7 @@ enum WorldPopulator {
                 kind: kind,
                 position: position,
                 region: region,
-                remaining: startingYield(for: kind)
+                remaining: tuning.depositYield(for: kind, in: region)
             )
         }
     }

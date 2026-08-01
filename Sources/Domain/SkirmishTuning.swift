@@ -21,6 +21,28 @@ struct SkirmishTuning: Sendable {
     var startingCitizens: Int = 4
     var startingPopulationCap: Int = 10
 
+    /// Yield seeded into each authored home deposit. Provisions are renewable.
+    var homeDepositYields = ResourcePool(
+        provisions: .infinity,
+        matter: 700,
+        lumen: 550,
+        aether: 180
+    )
+
+    /// Pre-CP-C9 established values for deposits outside home regions. The CP-C9
+    /// raise is home-only; see `Docs/Design/05-RESOLUTIONS-R1.md` §2 (B4 + B5).
+    var offHomeDepositYields = ResourcePool(
+        provisions: .infinity,
+        matter: 420,
+        lumen: 300,
+        aether: 180
+    )
+
+    func depositYield(for kind: ResourceKind, in region: RegionID) -> Double {
+        let yields = region.isHome ? homeDepositYields : offHomeDepositYields
+        return yields[kind]
+    }
+
     // MARK: - Simulation
 
     /// Fixed simulation rate. Presentation interpolates between steps; gathering,
@@ -60,8 +82,8 @@ struct SkirmishTuning: Sendable {
     var matterExtractorCost = ResourcePool(matter: 60)
     var matterExtractorBuildTime: Double = 14
 
-    var dwellingCost = ResourcePool(matter: 80)
-    var dwellingBuildTime: Double = 15
+    var dwellingCost = ResourcePool(matter: 55)
+    var dwellingBuildTime: Double = 14
 
     var formationYardCost = ResourcePool(matter: 110, lumen: 20)
     var formationYardBuildTime: Double = 18

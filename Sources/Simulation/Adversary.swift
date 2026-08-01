@@ -41,12 +41,10 @@ enum Adversary {
         /// A ceiling on Dwellings, and a measured one rather than a guess.
         ///
         /// Housing competes directly with the army it houses: home Matter is
-        /// finite (two 420-unit deposits, ~960 with the trickle), a Dwelling is
-        /// 80 of it and a Vanguard 20. Four Dwellings is a cap of 42 against a
-        /// ten-minute affordable army of roughly 21 soldiers and 12 citizens —
-        /// so the population is never the wall and never eats the army either.
-        /// At three the adversary jammed at 34/34 and dispatched wave 5 empty
-        /// with 340 Matter still in the bank.
+        /// finite (two 700-unit deposits, plus 160 starting Matter and 108 from
+        /// nine minutes of Core trickle, for 1,668 total), a Dwelling is 55 of it
+        /// and a Vanguard 20. Four Dwellings is a cap of 42, the approved
+        /// nine-minute capacity, so the population is never the wall.
         static let maxDwellings = 4
         /// How many items a queue is kept topped up to. Two keeps production
         /// continuous without locking resources up in a long queue.
@@ -193,7 +191,7 @@ enum Adversary {
     ///
     /// Provisions gets half because it is the only renewable one and the largest
     /// sink (every Citizen and every Vanguard). Matter and Lumen split the rest:
-    /// both are finite on the home fragment — 840 and 300 — so putting more
+    /// both are finite on the home fragment — 1,400 Matter and 550 Lumen — so putting more
     /// bodies on them does not raise the ceiling, it only reaches it sooner.
     /// When a kind runs out, `neediestResource` stops offering it and the whole
     /// workforce falls back to what is left.
