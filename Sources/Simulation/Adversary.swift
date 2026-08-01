@@ -28,17 +28,9 @@ enum Adversary {
     enum Schedule {
         /// Formation Yard is committed at 2:00 exactly, per R1 §5.
         static let formationYardTick: UInt64 = 2400
-        /// A **second** Yard at 4:00, standing in for R1's "Lumen Spire at tick
-        /// 4800" row.
-        ///
-        /// That row exists to open a second production line, and the measured
-        /// consequence of skipping it is not cosmetic: one Yard produces about
-        /// seven units in the 90 s between waves, so wave 5 came out *smaller*
-        /// than wave 4 and the table stopped rising. The Spire itself cannot be
-        /// built — `BuildingKind` has no case for it — so the schedule keeps the
-        /// slot and spends it on the production building that does exist.
-        static let secondYardTick: UInt64 = 4800
-        static let maxFormationYards = 2
+        /// Lumen Spire is due at 4:00, per R1 §5. It waits for its prerequisite,
+        /// stock, and a legal site instead of being silently skipped.
+        static let lumenSpireTick: UInt64 = 4800
         /// Citizens are trained continuously up to this count.
         static let citizenTarget = 12
         /// Wave 1 leaves at 4:00; every wave after it 90 s later.
@@ -90,21 +82,20 @@ enum Adversary {
         switch index {
         case ..<1: []
         case 1: [WaveSlot(.vanguard, 3)]
-        case 2: [WaveSlot(.vanguard, 4), WaveSlot(.ranged, 2)]
-        case 3: [WaveSlot(.vanguard, 4), WaveSlot(.ranged, 3)]
-        case 4: [WaveSlot(.vanguard, 5), WaveSlot(.ranged, 4)]
+        case 2: [WaveSlot(.vanguard, 4), WaveSlot(.quarrel, 2)]
+        case 3: [WaveSlot(.vanguard, 4), WaveSlot(.quarrel, 3)]
+        case 4: [WaveSlot(.vanguard, 5), WaveSlot(.quarrel, 4)]
         default:
             // R1: every wave after the fourth is the previous one plus a
             // Vanguard and a Quarrel.
-            [WaveSlot(.vanguard, 5 + (index - 4)), WaveSlot(.ranged, 4 + (index - 4))]
+            [WaveSlot(.vanguard, 5 + (index - 4)), WaveSlot(.quarrel, 4 + (index - 4))]
         }
     }
 
     /// Rows of R1 §5 this build cannot honour yet, recorded rather than fudged.
     static let deferredFromSpec: [String] = [
-        "wave 3 · 2 Lancer — `UnitKind` has no `.lancer` case (CP-C5)",
-        "wave 4 · 2 Lancer, 1 Bastion Walker — no `.lancer`; nothing trains `.bastionWalker` (CP-C5)",
-        "tick 4800 · Lumen Spire — `BuildingKind` has no `.lumenSpire` case (CP-C5)",
+        "wave 3 · 2 Lancer — `UnitKind` has no `.lancer` case (CP-C7)",
+        "wave 4 · 2 Lancer, 1 Bastion Walker — no `.lancer`; nothing trains `.bastionWalker` (CP-C7)",
         "tick 7200 · Dawn Loom, then Voyager when affordable — the building exists but the "
             + "research does not, so committing 130 Matter to it would only starve the waves (CP-C6)",
         "tick 9600 · Stride Yard — `BuildingKind` has no `.strideYard` case (CP-C7)",
@@ -145,6 +136,7 @@ enum Adversary {
         intents += planGathering(input, faction: faction)
         intents += planPopulation(input, faction: faction, state: &state)
         intents += planFormationYard(input, faction: faction, state: &state)
+        intents += planLumenSpire(input, faction: faction, state: &state)
         intents += planCitizens(input, faction: faction)
         intents += planArmy(input, faction: faction, state: state)
         intents += planWaves(input, faction: faction, state: &state)
@@ -290,9 +282,9 @@ enum Adversary {
         return [.build(.dwelling, at: point)]
     }
 
-    /// The Formation Yard at tick 2400 exactly, per R1 §5, and a second at 4800.
-    /// If either cannot be afforded on its tick it is committed on the first
-    /// tick it can be — deferring is honest, silently skipping the army is not.
+    /// Commits the one Formation Yard due at tick 2400, per R1 §5.
+    /// If it cannot be afforded on its tick it is committed on the first tick it
+    /// can be — deferring is honest, silently skipping the army is not.
     private static func planFormationYard(
         _ input: Inputs,
         faction: Faction,
@@ -301,19 +293,49 @@ enum Adversary {
         let yards = input.buildings.values.filter {
             $0.faction == faction && $0.kind == .formationYard
         }
-        guard yards.count < Schedule.maxFormationYards else { return [] }
         // One foundation at a time: two at once splits the builders between them.
         guard !yards.contains(where: { !$0.isComplete }) else { return [] }
+        guard yards.isEmpty else { return [] }
 
-        let due: UInt64 = yards.isEmpty ? Schedule.formationYardTick : Schedule.secondYardTick
-        guard input.tick >= due else { return [] }
+        guard input.tick >= Schedule.formationYardTick else { return [] }
 
         let cost = input.tuning.cost(for: .formationYard)
         guard (input.stock[faction] ?? .zero).covers(cost) else { return [] }
         guard let point = site(for: .formationYard, faction: faction, input: input) else { return [] }
 
-        state.record(input.tick, "Formation Yard \(yards.count + 1) committed")
+        state.record(input.tick, "Formation Yard committed")
         return [.build(.formationYard, at: point)]
+    }
+
+    /// Commits the one Lumen Spire due at tick 4800, per R1 §5.
+    ///
+    /// The prerequisite is checked here as well as by the simulation's build
+    /// entry point so the schedule waits for a completed same-faction Yard,
+    /// sufficient stock, and a legal site before it asks to build.
+    private static func planLumenSpire(
+        _ input: Inputs,
+        faction: Faction,
+        state: inout AdversaryState
+    ) -> [Intent] {
+        let spires = input.buildings.values.filter {
+            $0.faction == faction && $0.kind == .lumenSpire
+        }
+        guard spires.isEmpty else { return [] }
+        guard input.tick >= Schedule.lumenSpireTick else { return [] }
+
+        let yards = input.buildings.values.filter {
+            $0.faction == faction && $0.kind == .formationYard
+        }
+        guard yards.contains(where: \.isComplete) else { return [] }
+        // One foundation at a time: do not split builders across a live Yard.
+        guard !yards.contains(where: { !$0.isComplete }) else { return [] }
+
+        let cost = input.tuning.cost(for: .lumenSpire)
+        guard (input.stock[faction] ?? .zero).covers(cost) else { return [] }
+        guard let point = site(for: .lumenSpire, faction: faction, input: input) else { return [] }
+
+        state.record(input.tick, "Lumen Spire committed")
+        return [.build(.lumenSpire, at: point)]
     }
 
     /// Trains Citizens continuously to twelve.
@@ -350,22 +372,22 @@ enum Adversary {
         faction: Faction,
         state: AdversaryState
     ) -> [Intent] {
-        // Shortest queue first, so two Yards actually double throughput instead
-        // of one taking every order. Ties resolve by ID, never by dictionary order.
+        // Shortest queue first, so multiple production buildings share work
+        // instead of one taking every order. Ties resolve by ID, never by
+        // dictionary order.
         //
         // Built in annotated steps rather than one chain: the type checker gives
         // up on the fused version with `failed to type-check in reasonable time`,
         // which is the same cliff CP-05 hit in `CommandGrid`.
-        var yards: [(id: EntityID, depth: Int)] = []
+        var trainers: [(id: EntityID, kind: BuildingKind, depth: Int)] = []
         for building in input.buildings.values
-        where building.faction == faction && building.kind == .formationYard && building.isComplete {
+        where building.faction == faction && building.isComplete && !building.kind.trains.isEmpty {
             let depth: Int = (input.queues[building.id] ?? ProductionQueue()).count
-            yards.append((id: building.id, depth: depth))
+            trainers.append((id: building.id, kind: building.kind, depth: depth))
         }
-        yards.sort { $0.depth == $1.depth ? $0.id.raw < $1.id.raw : $0.depth < $1.depth }
-
-        guard let shortest = yards.first, shortest.depth < Schedule.queueDepth else { return [] }
-        let yard = shortest.id
+        trainers.sort {
+            $0.depth == $1.depth ? $0.id.raw < $1.id.raw : $0.depth < $1.depth
+        }
 
         let nextWave = state.wavesDispatched + 1
         var reserve: [UnitKind: Int] = [:]
@@ -391,10 +413,13 @@ enum Adversary {
 
         for slot in composition(ofWave: nextWave) {
             guard (reserve[slot.kind] ?? 0) < slot.count else { continue }
-            guard input.buildings[yard]?.kind.trains.contains(slot.kind) == true else { continue }
+            let candidates = trainers.filter { $0.kind.trains.contains(slot.kind) }
+            guard let trainer = candidates.first(where: { $0.depth < Schedule.queueDepth }) else {
+                continue
+            }
             guard pool.covers(input.tuning.cost(for: slot.kind)) else { continue }
             guard population.used + slot.kind.populationCost <= population.cap else { continue }
-            return [.train(slot.kind, at: yard)]
+            return [.train(slot.kind, at: trainer.id)]
         }
         return []
     }

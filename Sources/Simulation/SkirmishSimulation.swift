@@ -2,6 +2,12 @@ import Foundation
 import Observation
 import simd
 
+enum BuildBlocker: Sendable, Equatable {
+    case unaffordable(missing: ResourcePool)
+    case missingPrerequisite(BuildingKind)
+    case illegalSite
+}
+
 /// Owns all game truth. The renderer projects this state and sends intents back;
 /// it never decides a rule.
 @MainActor
@@ -81,6 +87,31 @@ final class SkirmishSimulation {
     func unit(_ id: EntityID) -> Unit? { units[id] }
     func building(_ id: EntityID) -> Building? { buildings[id] }
     func deposit(_ id: EntityID) -> Deposit? { deposits[id] }
+
+    /// Returns the simulation-owned reason a building cannot be started before a
+    /// placement site is chosen. Site legality remains in `ConstructionPlacement`.
+    func buildBlocker(for kind: BuildingKind, faction: Faction) -> BuildBlocker? {
+        if kind == .lumenSpire {
+            let hasCompletedYard = buildings.values.contains {
+                $0.faction == faction
+                    && $0.kind == .formationYard
+                    && $0.isComplete
+            }
+            guard hasCompletedYard else {
+                return .missingPrerequisite(.formationYard)
+            }
+        }
+
+        let cost = tuning.cost(for: kind)
+        let have = stock(for: faction)
+        guard !have.covers(cost) else { return nil }
+
+        var missing = ResourcePool.zero
+        for resource in ResourceKind.allCases {
+            missing[resource] = max(0, cost[resource] - have[resource])
+        }
+        return .unaffordable(missing: missing)
+    }
 
     /// Population in use versus the cap granted by Dwellings and Outposts.
     /// Queued units count toward used population because cost is charged on enqueue.
@@ -226,7 +257,7 @@ final class SkirmishSimulation {
     /// Commits a foundation at `point`. Deducts cost, spawns an incomplete
     /// building, and sends preferred (or nearest idle) citizens to construct.
     /// Caller must already have validated footprint legality.
-    /// Returns the new building id, or nil when stock or region refuse.
+    /// Returns the new building id, or nil when stock, prerequisite, or region refuse.
     @discardableResult
     func placeBuilding(
         _ kind: BuildingKind,
@@ -234,10 +265,21 @@ final class SkirmishSimulation {
         for faction: Faction,
         preferredBuilders: [EntityID] = []
     ) -> EntityID? {
-        guard let region = map.region(at: point) else { return nil }
+        guard let region = map.region(at: point) else {
+            DebugLog.info(
+                "Refused " + kind.displayName + ": illegal site at " + String(describing: point)
+            )
+            return nil
+        }
+
+        guard buildBlocker(for: kind, faction: faction) == nil else {
+            DebugLog.info(
+                "Refused " + kind.displayName + " for " + faction.displayName + ": build blocker"
+            )
+            return nil
+        }
 
         let cost = tuning.cost(for: kind)
-        guard stock(for: faction).covers(cost) else { return nil }
 
         stock[faction, default: .zero] = stock(for: faction) - cost
 

@@ -10,10 +10,25 @@ struct ProductionItem: Sendable, Equatable {
     var hasStarted: Bool = false
 }
 
+enum ProductionHoldReason: Sendable, Equatable {
+    case populationCap
+    case noSpawnPosition
+}
+
 /// Per-building production queue. Cost is charged on enqueue; refunds follow
 /// `SkirmishTuning.cancelRefundFraction` when cancelled or the building is lost.
 struct ProductionQueue: Sendable, Equatable {
     var items: [ProductionItem] = []
+    /// Why the completed front item is waiting, if it cannot spawn yet.
+    var heldReason: ProductionHoldReason?
+
+    init(
+        items: [ProductionItem] = [],
+        heldReason: ProductionHoldReason? = nil
+    ) {
+        self.items = items
+        self.heldReason = heldReason
+    }
 
     var isEmpty: Bool { items.isEmpty }
     var count: Int { items.count }
@@ -106,6 +121,7 @@ enum ProductionSystem {
         let cost = tuning.cost(for: item.kind)
         let fraction = item.hasStarted ? tuning.cancelRefundFraction : 1.0
         stock[owner, default: .zero] = stock[owner, default: .zero] + cost * fraction
+        queue.heldReason = nil
 
         if queue.isEmpty {
             queues[buildingID] = nil
@@ -166,12 +182,24 @@ enum ProductionSystem {
             guard totalTicks > 0 else { continue }
 
             if !front.hasStarted { front.hasStarted = true }
-            front.progressTicks += 1
+            front.progressTicks = min(front.progressTicks + 1, totalTicks)
             queue.items[0] = front
 
             if front.progressTicks >= totalTicks {
-                queue.items.removeFirst()
-                if let spawn = spawnPosition(
+                // The front item's population is already reserved in
+                // `populationCommitment`. A commitment above the cap means there
+                // is no room to turn this reservation into a live unit yet.
+                let population = populationCommitment(
+                    faction: owner,
+                    units: units,
+                    queues: queues,
+                    buildings: buildings,
+                    tuning: tuning
+                )
+
+                if population.used > population.cap {
+                    queue.heldReason = .populationCap
+                } else if let spawn = spawnPosition(
                     for: front.kind,
                     near: building,
                     units: units,
@@ -187,7 +215,13 @@ enum ProductionSystem {
                         facing: spawn.facing,
                         region: building.region
                     )
+                    queue.items.removeFirst()
+                    queue.heldReason = nil
+                } else {
+                    queue.heldReason = .noSpawnPosition
                 }
+            } else {
+                queue.heldReason = nil
             }
 
             if queue.isEmpty {

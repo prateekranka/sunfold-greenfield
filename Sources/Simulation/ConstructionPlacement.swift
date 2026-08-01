@@ -34,7 +34,7 @@ enum ConstructionPlacement {
     /// The Civilization Core is not here because nobody builds one, and the
     /// Dominion Spire is not here because nobody owns one.
     static var placeableKinds: [BuildingKind] {
-        [.farm, .matterExtractor, .dwelling, .formationYard, .expansionOutpost, .dawnLoom]
+        [.farm, .matterExtractor, .dwelling, .formationYard, .lumenSpire, .expansionOutpost, .dawnLoom]
     }
 
     /// How far outside Core / deposit / building discs a ghost must stay.

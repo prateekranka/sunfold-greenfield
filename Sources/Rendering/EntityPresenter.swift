@@ -161,7 +161,7 @@ final class EntityPresenter {
         case .citizen: entity = UnitMeshes.citizen(faction: unit.faction, seed: seed &+ UInt64(id.raw))
         case .pathfinder: entity = UnitMeshes.pathfinder(faction: unit.faction, seed: seed &+ UInt64(id.raw))
         case .vanguard: entity = UnitMeshes.vanguard(faction: unit.faction, seed: seed &+ UInt64(id.raw))
-        case .ranged: entity = UnitMeshes.ranged(faction: unit.faction, seed: seed &+ UInt64(id.raw))
+        case .quarrel: entity = UnitMeshes.quarrel(faction: unit.faction, seed: seed &+ UInt64(id.raw))
         case .bastionWalker: entity = UnitMeshes.bastionWalker(seed: seed &+ UInt64(id.raw))
         case .lightTransport: entity = TransportMesh.lightTransport(
             faction: unit.faction, seed: seed &+ UInt64(id.raw)
@@ -455,6 +455,8 @@ final class EntityPresenter {
             return BuildingMeshes.dwelling(faction: faction, seed: entitySeed)
         case .formationYard:
             return BuildingMeshes.formationYard(faction: faction, seed: entitySeed)
+        case .lumenSpire:
+            return BuildingMeshes.lumenSpire(faction: faction, seed: entitySeed)
         case .expansionOutpost:
             return BuildingMeshes.expansionOutpost(faction: faction, seed: entitySeed)
         case .dawnLoom:

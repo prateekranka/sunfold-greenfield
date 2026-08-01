@@ -5,7 +5,7 @@ enum UnitKind: String, CaseIterable, Sendable {
     case citizen
     case pathfinder
     case vanguard
-    case ranged
+    case quarrel
     case lightTransport
     case bastionWalker
 
@@ -14,21 +14,19 @@ enum UnitKind: String, CaseIterable, Sendable {
         case .citizen: "Citizen"
         case .pathfinder: "Pathfinder"
         case .vanguard: "Vanguard"
-        case .ranged: "Ranged"
+        case .quarrel: "Quarrel"
         case .lightTransport: "Light Transport"
         case .bastionWalker: "Bastion Walker"
         }
     }
 
-    /// Written out rather than derived by appending "s", because "Ranged" is
-    /// already plural and a naive rule would print "Rangeds" in the one place
-    /// the player reads a group at a glance.
+    /// Unit names are written explicitly so roster terminology stays intentional.
     var pluralName: String {
         switch self {
         case .citizen: "Citizens"
         case .pathfinder: "Pathfinders"
         case .vanguard: "Vanguards"
-        case .ranged: "Ranged"
+        case .quarrel: "Quarrels"
         case .lightTransport: "Light Transports"
         case .bastionWalker: "Bastion Walkers"
         }
@@ -40,7 +38,7 @@ enum UnitKind: String, CaseIterable, Sendable {
         case .citizen: 3.4
         case .pathfinder: 4.6
         case .vanguard: 3.0
-        case .ranged: 3.2
+        case .quarrel: 3.2
         case .lightTransport: 5.2
         case .bastionWalker: 2.6
         }
@@ -55,7 +53,7 @@ enum UnitKind: String, CaseIterable, Sendable {
 
     var isMilitary: Bool {
         switch self {
-        case .vanguard, .ranged, .bastionWalker: true
+        case .vanguard, .quarrel, .bastionWalker: true
         default: false
         }
     }
@@ -72,14 +70,14 @@ enum UnitKind: String, CaseIterable, Sendable {
     /// which is the right shape for a scout; Citizens neither capture nor contest.
     var canCaptureDominion: Bool {
         switch self {
-        case .vanguard, .ranged, .bastionWalker: true
+        case .vanguard, .quarrel, .bastionWalker: true
         case .citizen, .pathfinder, .lightTransport: false
         }
     }
 
     var populationCost: Int {
         switch self {
-        case .citizen, .pathfinder, .vanguard, .ranged: 1
+        case .citizen, .pathfinder, .vanguard, .quarrel: 1
         case .bastionWalker: 3
         case .lightTransport: 0
         }
@@ -90,7 +88,7 @@ enum UnitKind: String, CaseIterable, Sendable {
         case .citizen: 40
         case .pathfinder: 45
         case .vanguard: 75
-        case .ranged: 50
+        case .quarrel: 50
         case .lightTransport: 140
         case .bastionWalker: 190
         }
@@ -99,7 +97,7 @@ enum UnitKind: String, CaseIterable, Sendable {
     var armorClass: ArmorClass {
         switch self {
         case .citizen: .worker
-        case .pathfinder, .vanguard, .ranged: .infantry
+        case .pathfinder, .vanguard, .quarrel: .infantry
         case .bastionWalker: .siege
         case .lightTransport: .hull
         }
@@ -107,7 +105,7 @@ enum UnitKind: String, CaseIterable, Sendable {
 
     var meleeArmor: Int {
         switch self {
-        case .citizen, .pathfinder, .ranged: 0
+        case .citizen, .pathfinder, .quarrel: 0
         case .vanguard: 1
         case .bastionWalker: 3
         case .lightTransport: 2
@@ -116,7 +114,7 @@ enum UnitKind: String, CaseIterable, Sendable {
 
     var rangedArmor: Int {
         switch self {
-        case .citizen, .pathfinder, .vanguard, .ranged: 0
+        case .citizen, .pathfinder, .vanguard, .quarrel: 0
         case .bastionWalker: 4
         case .lightTransport: 2
         }
@@ -128,7 +126,7 @@ enum UnitKind: String, CaseIterable, Sendable {
         case .citizen: 9
         case .pathfinder: 20
         case .vanguard: 11
-        case .ranged: 13
+        case .quarrel: 13
         case .lightTransport: 14
         case .bastionWalker: 10
         }
@@ -157,11 +155,11 @@ enum UnitKind: String, CaseIterable, Sendable {
             AttackProfile(
                 damageType: .melee,
                 base: 7,
-                bonuses: [.mounted: 10],
+                bonuses: [.mounted: 10, .siege: 8],
                 range: 0.9,
                 cooldownTicks: 24
             )
-        case .ranged:
+        case .quarrel:
             AttackProfile(
                 damageType: .ranged,
                 base: 6,
@@ -193,7 +191,7 @@ enum UnitKind: String, CaseIterable, Sendable {
     /// silhouette and hit area disagreed.
     var footprintRadius: Float {
         switch self {
-        case .citizen, .pathfinder, .ranged: 1.15
+        case .citizen, .pathfinder, .quarrel: 1.15
         case .vanguard: 1.4
         case .lightTransport: 4.0
         case .bastionWalker: 2.25
@@ -208,6 +206,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
     case matterExtractor
     case dwelling
     case formationYard
+    case lumenSpire
     case expansionOutpost
     case dawnLoom
     /// Neutral, pre-placed, indestructible. The fifteenth building and the only
@@ -221,6 +220,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
         case .matterExtractor: "Matter Extractor"
         case .dwelling: "Dwelling"
         case .formationYard: "Formation Yard"
+        case .lumenSpire: "Lumen Spire"
         case .expansionOutpost: "Expansion Outpost"
         case .dawnLoom: "Dawn Loom"
         case .dominionSpire: "Dominion Spire"
@@ -235,6 +235,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
         case .matterExtractor: "Pulls Matter from nearby deposits"
         case .dwelling: "Raises the population cap"
         case .formationYard: "Trains Pathfinders and Vanguards"
+        case .lumenSpire: "Trains Quarrels"
         case .expansionOutpost: "Claims an expansion fragment"
         case .dawnLoom: "Channels the Voyager age"
         case .dominionSpire: "Hold it to claim the Dominion"
@@ -248,6 +249,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
         case .matterExtractor: 160
         case .dwelling: 180
         case .formationYard: 260
+        case .lumenSpire: 210
         case .expansionOutpost: 240
         case .dawnLoom: 320
         // Specified by R1 §3 (B10.1) and inert: the Spire is indestructible, so
@@ -265,6 +267,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
         case .matterExtractor: 2.6
         case .dwelling: 2.6
         case .formationYard: 4.0
+        case .lumenSpire: 3.0
         case .expansionOutpost: 3.0
         case .dawnLoom: 4.4
         case .dominionSpire: 4.0
@@ -314,14 +317,15 @@ enum BuildingKind: String, CaseIterable, Sendable {
     /// and cannot be damaged. `Building.faction` is `nil` for exactly these.
     var isNeutralObjective: Bool { self == .dominionSpire }
 
-    /// Armed structures only. None of the seven shipped kinds attack yet.
+    /// Armed structures only. None of the shipped building kinds attack yet.
     var attackProfile: AttackProfile? { nil }
 
     /// Which production this building offers, if any.
     var trains: [UnitKind] {
         switch self {
         case .civilizationCore: [.citizen]
-        case .formationYard: [.pathfinder, .vanguard, .ranged]
+        case .formationYard: [.pathfinder, .vanguard]
+        case .lumenSpire: [.quarrel]
         default: []
         }
     }

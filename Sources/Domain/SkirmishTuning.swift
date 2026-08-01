@@ -48,7 +48,7 @@ struct SkirmishTuning: Sendable {
     var citizenCost = ResourcePool(provisions: 50)
     var pathfinderCost = ResourcePool(provisions: 35, lumen: 10)
     var vanguardCost = ResourcePool(provisions: 45, matter: 20)
-    var rangedCost = ResourcePool(provisions: 35, lumen: 30)
+    var quarrelCost = ResourcePool(provisions: 35, lumen: 30)
 
     var transportCapacity: Int = 4
 
@@ -63,8 +63,11 @@ struct SkirmishTuning: Sendable {
     var dwellingCost = ResourcePool(matter: 80)
     var dwellingBuildTime: Double = 15
 
-    var formationYardCost = ResourcePool(matter: 110, lumen: 40)
+    var formationYardCost = ResourcePool(matter: 110, lumen: 20)
     var formationYardBuildTime: Double = 18
+
+    var lumenSpireCost = ResourcePool(matter: 90, lumen: 45)
+    var lumenSpireBuildTime: Double = 18
 
     var expansionOutpostCost = ResourcePool(matter: 100, lumen: 30)
     var expansionOutpostBuildTime: Double = 20
@@ -184,6 +187,7 @@ struct SkirmishTuning: Sendable {
         case .matterExtractor: matterExtractorCost
         case .dwelling: dwellingCost
         case .formationYard: formationYardCost
+        case .lumenSpire: lumenSpireCost
         case .expansionOutpost: expansionOutpostCost
         case .dawnLoom: dawnLoomCost
         // Neither is buildable, so neither has a price. Listed rather than
@@ -198,6 +202,7 @@ struct SkirmishTuning: Sendable {
         case .matterExtractor: matterExtractorBuildTime
         case .dwelling: dwellingBuildTime
         case .formationYard: formationYardBuildTime
+        case .lumenSpire: lumenSpireBuildTime
         case .expansionOutpost: expansionOutpostBuildTime
         case .dawnLoom: dawnLoomBuildTime
         case .civilizationCore, .dominionSpire: 0
@@ -211,7 +216,7 @@ struct SkirmishTuning: Sendable {
         case .citizen: citizenCost
         case .pathfinder: pathfinderCost
         case .vanguard: vanguardCost
-        case .ranged: rangedCost
+        case .quarrel: quarrelCost
         case .lightTransport, .bastionWalker: .zero
         }
     }
@@ -222,7 +227,7 @@ struct SkirmishTuning: Sendable {
         case .citizen: 280
         case .pathfinder: 220
         case .vanguard: 260
-        case .ranged: 300
+        case .quarrel: 300
         case .lightTransport, .bastionWalker: 0
         }
     }

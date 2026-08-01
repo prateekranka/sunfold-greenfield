@@ -20,7 +20,7 @@ final class CombatTests: XCTestCase {
                 EntityID(raw: 1): SunfoldCore.Unit(
                     id: EntityID(raw: 1),
                     faction: .gravemark,
-                    kind: .ranged,
+                    kind: .quarrel,
                     position: .zero,
                     region: .gravemarkHome
                 ),
@@ -31,7 +31,7 @@ final class CombatTests: XCTestCase {
     }
 
     func testDamageFormulaBonusDamagePair() {
-        let quarrel = UnitKind.ranged.attackProfile!
+        let quarrel = UnitKind.quarrel.attackProfile!
         let damage = CombatSystem.damage(
             profile: quarrel,
             against: EntityID(raw: 1),
@@ -50,7 +50,7 @@ final class CombatTests: XCTestCase {
     }
 
     func testDamageFormulaMinimumFloor() {
-        let quarrel = UnitKind.ranged.attackProfile!
+        let quarrel = UnitKind.quarrel.attackProfile!
         let damage = CombatSystem.damage(
             profile: quarrel,
             against: EntityID(raw: 1),

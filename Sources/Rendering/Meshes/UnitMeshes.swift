@@ -386,15 +386,15 @@ enum UnitMeshes {
         return biped.root
     }
 
-    /// The ranged line unit. A long lumen launcher held forward across the body
+    /// The Quarrel unit. A long lumen launcher held forward across the body
     /// is the whole silhouette read — the only unit with a horizontal bar
     /// projecting past its own outline. 2.52 m, ~215 triangles.
-    static func ranged(faction: Faction, seed: UInt64) -> Entity {
-        var random = DeterministicRandom.stream(seed: seed, tag: "unit.ranged.\(faction.rawValue)")
+    static func quarrel(faction: Faction, seed: UInt64) -> Entity {
+        var random = DeterministicRandom.stream(seed: seed, tag: "unit.quarrel.\(faction.rawValue)")
         let livery = Livery.of(faction)
 
         let spec = BipedSpec(
-            qualifier: "ranged.\(faction.rawValue)",
+            qualifier: "quarrel.\(faction.rawValue)",
             height: 2.52,
             crownHeight: 2.52,
             hipHeight: 1.00,

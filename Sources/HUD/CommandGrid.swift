@@ -16,16 +16,35 @@ struct CommandGrid: View {
     var controller: WorldController?
 
     private let viewer: Faction = .sunwoven
+    private let restingReason = "Select a dimmed tile for details."
+    private let unavailableContentReason = "Not available in this build."
+    private let emptyProductionReason = "No additional unit is trained here."
 
-    private var selectedUnits: [EntityID] { Array(selection.selectedUnits) }
+    @State private var citizenPage: CitizenPage = .economy
+    @State private var visibleReason = "Select a dimmed tile for details."
+
+    private var selectedUnits: [EntityID] {
+        selection.selectedUnits.sorted { $0.raw < $1.raw }
+    }
+
     private var hasUnits: Bool { !selectedUnits.isEmpty }
+
     private var hasCitizens: Bool {
         selectedUnits.contains { simulation.unit($0)?.kind == .citizen }
     }
+
     private var hasSelection: Bool {
         hasUnits
             || selection.selectedBuilding != nil
             || selection.selectedDeposit != nil
+    }
+
+    private var selectionKey: SelectionKey {
+        SelectionKey(
+            units: selectedUnits,
+            building: selection.selectedBuilding,
+            deposit: selection.selectedDeposit
+        )
     }
 
     private var selectedProductionBuilding: Building? {
@@ -39,10 +58,19 @@ struct CommandGrid: View {
     }
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 7) {
+        let currentRows: [[Cell]] = rows
+        let currentReason: String = reasonLine(for: currentRows)
+
+        return VStack(alignment: .trailing, spacing: 7) {
             Text(gridTitle).hudTitle()
+            Text(currentReason)
+                .hudLabel()
+                .multilineTextAlignment(.trailing)
+                .lineLimit(2)
+                .frame(width: gridWidth, height: 26, alignment: .trailing)
+
             VStack(spacing: 5) {
-                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                ForEach(Array(currentRows.enumerated()), id: \.offset) { _, row in
                     HStack(spacing: 5) {
                         ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
                             tile(for: cell)
@@ -52,20 +80,50 @@ struct CommandGrid: View {
             }
         }
         .hudPanel(corners: [.topLeading, .topTrailing, .bottomLeading])
+        .onChange(of: selectionKey) { _, _ in
+            resetForNewSelection()
+        }
+        .onChange(of: citizenPage) { _, _ in
+            visibleReason = restingReason
+        }
+    }
+
+    private var gridWidth: CGFloat {
+        HUDMetrics.commandTile * 3 + 10
     }
 
     private var gridTitle: String {
         if selectedProductionBuilding != nil { return "Train" }
-        if hasCitizens { return "Orders" }
+        if hasCitizens { return "Build · \(citizenPage.title)" }
         if hasSelection { return "Inspect" }
         return "No selection"
     }
 
     // MARK: - Layout
 
+    private enum CitizenPage: Equatable {
+        case economy
+        case military
+
+        var title: String {
+            switch self {
+            case .economy: "Economy"
+            case .military: "Military"
+            }
+        }
+    }
+
+    private struct SelectionKey: Equatable {
+        let units: [EntityID]
+        let building: EntityID?
+        let deposit: EntityID?
+    }
+
     private struct Cell {
         let glyph: HUDGlyph.Kind
         let name: String
+        var reason: String? = nil
+        var surfacesReasonAutomatically: Bool = false
         var isPrimary = false
         var badge: String?
         var isEnabled = false
@@ -73,153 +131,317 @@ struct CommandGrid: View {
     }
 
     private var rows: [[Cell]] {
+        let result: [[Cell]]
         if let building = selectedProductionBuilding {
-            return productionRows(for: building)
+            result = productionRows(for: building)
+        } else if hasCitizens {
+            result = citizenRows()
+        } else {
+            result = inspectRows()
         }
-        if hasCitizens {
-            return citizenRows()
+        return result
+    }
+
+    private func reasonLine(for rows: [[Cell]]) -> String {
+        guard visibleReason == restingReason else { return visibleReason }
+
+        let cells: [Cell] = rows.flatMap { $0 }
+        if let automaticCell: Cell = cells.first(where: { $0.surfacesReasonAutomatically }),
+           let reason: String = automaticCell.reason {
+            return reason
         }
-        return inspectRows()
+        return restingReason
+    }
+
+    private func resetForNewSelection() {
+        citizenPage = .economy
+        visibleReason = restingReason
+    }
+
+    private func showReason(_ reason: String) {
+        visibleReason = reason
+    }
+
+    private func clearReason() {
+        visibleReason = restingReason
     }
 
     // MARK: Production building
 
     private func productionRows(for building: Building) -> [[Cell]] {
-        let trains = building.kind.trains
+        let trains: [UnitKind] = building.kind.trains
         var trainCells: [Cell] = trains.map { trainCell($0, buildingID: building.id) }
         while trainCells.count < 3 {
-            trainCells.append(unavailableCell(glyph: .pin, label: "No training slot"))
+            let emptyCell: Cell = unavailableCell(glyph: .pin, label: emptyProductionReason)
+            trainCells.append(emptyCell)
         }
 
-        let queue = simulation.productionQueue(for: building.id)
-        let canCancel = !queue.isEmpty
+        let queue: ProductionQueue = simulation.productionQueue(for: building.id)
+        let canCancel: Bool = !queue.isEmpty
+
+        let cancelCell: Cell
+        if canCancel {
+            cancelCell = Cell(
+                glyph: .alert,
+                name: "Cancel front of queue. Refunds cost.",
+                isEnabled: true,
+                action: {
+                    if self.selection.cancelProduction(at: building.id, in: self.simulation) {
+                        self.clearReason()
+                    }
+                }
+            )
+        } else {
+            cancelCell = unavailableCell(
+                glyph: .alert,
+                label: "Cancel front of queue. Queue is empty."
+            )
+        }
 
         let commands: [Cell] = [
             unavailableCell(glyph: .rally, label: "Set rally point. Unavailable."),
             unavailableCell(glyph: .stop, label: "Stop. Unavailable for buildings."),
-            Cell(
-                glyph: .alert,
-                name: canCancel
-                    ? "Cancel front of queue. Refunds cost."
-                    : "Cancel front of queue. Queue is empty.",
-                isEnabled: canCancel,
-                action: canCancel ? { self.selection.cancelProduction(at: building.id, in: self.simulation) } : nil
-            )
+            cancelCell,
         ]
 
         let spare: [Cell] = [
             unavailableCell(glyph: .move, label: "Not available."),
             unavailableCell(glyph: .guardStance, label: "Not available."),
-            unavailableCell(glyph: .gather, label: "Not available.")
+            unavailableCell(glyph: .gather, label: "Not available."),
         ]
 
-        return [Array(trainCells.prefix(3)), commands, spare]
+        let trainRow: [Cell] = Array(trainCells.prefix(3))
+        return [trainRow, commands, spare]
     }
 
     private func trainCell(_ kind: UnitKind, buildingID: EntityID) -> Cell {
-        let cost = simulation.tuning.cost(for: kind)
-        let stock = simulation.stock(for: viewer)
-        let pop = simulation.population(for: viewer)
-        let queue = simulation.productionQueue(for: buildingID)
+        let cost: ResourcePool = simulation.tuning.cost(for: kind)
+        let stock: ResourcePool = simulation.stock(for: viewer)
+        let population: (used: Int, cap: Int) = simulation.population(for: viewer)
+        let queue: ProductionQueue = simulation.productionQueue(for: buildingID)
 
+        let holdReason: String? = queue.front?.kind == kind
+            ? productionHoldReasonText(queue.heldReason)
+            : nil
         let affordReason: String? = stock.covers(cost)
             ? nil
             : "Needs \(missingCostSummary(needed: cost, have: stock))."
-        let popReason: String? = (pop.used + kind.populationCost <= pop.cap)
+        let populationReason: String? = population.used + kind.populationCost <= population.cap
             ? nil
-            : "Population \(pop.used + kind.populationCost)/\(pop.cap)."
+            : "Population \(population.used + kind.populationCost)/\(population.cap)."
         let queueReason: String? = queue.count < simulation.tuning.maxQueueLength
             ? nil
             : "Queue full."
 
-        let blocker = affordReason ?? popReason ?? queueReason
-        let canTrain = blocker == nil
+        let blocker: String? = holdReason ?? affordReason ?? populationReason ?? queueReason
+        let canTrain: Bool = blocker == nil
+        let label: String = blocker ?? "Train \(kind.displayName). Costs \(cost.costSummary)."
+
+        let action: (() -> Void)?
+        if let blocker {
+            action = { self.showReason(blocker) }
+        } else {
+            action = {
+                let result: Result<Void, ProductionEnqueueFailure> = self.selection.enqueueUnit(
+                    kind,
+                    at: buildingID,
+                    in: self.simulation
+                )
+                switch result {
+                case .success:
+                    self.clearReason()
+                case .failure(let failure):
+                    self.showReason(self.productionFailureText(failure, kind: kind))
+                }
+            }
+        }
 
         return Cell(
             glyph: kind.glyph,
-            name: blocker.map { "\(kind.displayName). \($0)" }
-                ?? "Train \(kind.displayName). Costs \(cost.costSummary).",
+            name: label,
+            reason: blocker,
+            surfacesReasonAutomatically: blocker != nil,
             isPrimary: canTrain,
             badge: primaryBadge(for: cost),
             isEnabled: canTrain,
-            action: canTrain ? { _ = self.selection.enqueueUnit(kind, at: buildingID, in: self.simulation) } : nil
+            action: action
         )
+    }
+
+    private func productionHoldReasonText(_ reason: ProductionHoldReason?) -> String? {
+        guard let reason else { return nil }
+        switch reason {
+        case .populationCap: return "Waiting for population."
+        case .noSpawnPosition: return "Waiting for space to spawn."
+        }
+    }
+
+    private func productionFailureText(
+        _ failure: ProductionEnqueueFailure,
+        kind: UnitKind
+    ) -> String {
+        switch failure {
+        case .notTrainable: return "Cannot train \(kind.displayName)."
+        case .buildingIncomplete: return "Building is incomplete."
+        case .queueFull: return "Queue full."
+        case .cannotAfford(let missing): return "Needs \(missing)."
+        case .populationCap(let used, let cap): return "Population \(used)/\(cap)."
+        }
     }
 
     // MARK: Citizen build menu
 
     private func citizenRows() -> [[Cell]] {
-        let stopAction: (() -> Void)? = hasUnits ? { self.stop() } : nil
-        let orders: [Cell] = [
-            unavailableCell(glyph: .move, label: "Move. Unavailable."),
-            Cell(
+        let stop: Cell = stopCell()
+        let guardCell: Cell = unavailableCell(glyph: .guardStance, label: "Guard. Unavailable.")
+        let toggle: Cell = pageToggleCell()
+
+        switch citizenPage {
+        case .economy:
+            let top: [Cell] = [
+                buildCell(.farm),
+                buildCell(.matterExtractor),
+                unavailableCell(glyph: .pin, label: unavailableContentReason),
+            ]
+            let middle: [Cell] = [
+                buildCell(.dwelling),
+                unavailableCell(glyph: .pin, label: unavailableContentReason),
+                buildCell(.expansionOutpost),
+            ]
+            let bottom: [Cell] = [stop, guardCell, toggle]
+            return [top, middle, bottom]
+
+        case .military:
+            let top: [Cell] = [
+                buildCell(.formationYard),
+                buildCell(.lumenSpire),
+                unavailableCell(glyph: .pin, label: unavailableContentReason),
+            ]
+            let middle: [Cell] = [
+                unavailableCell(glyph: .pin, label: unavailableContentReason),
+                unavailableCell(glyph: .pin, label: unavailableContentReason),
+                unavailableCell(glyph: .pin, label: unavailableContentReason),
+            ]
+            let bottom: [Cell] = [buildCell(.dawnLoom), guardCell, toggle]
+            return [top, middle, bottom]
+        }
+    }
+
+    private func stopCell() -> Cell {
+        if hasUnits {
+            return Cell(
                 glyph: .stop,
-                name: hasUnits ? "Stop selected units." : "Stop. No units selected.",
-                isEnabled: hasUnits,
-                action: stopAction
-            ),
-            unavailableCell(glyph: .guardStance, label: "Guard. Unavailable.")
-        ]
-        let structures: [Cell] = [
-            buildCell(.farm, glyph: .farm),
-            buildCell(.matterExtractor, glyph: .extractor),
-            buildCell(.dwelling, glyph: .dwelling),
-            buildCell(.formationYard, glyph: .formationYard),
-            buildCell(.expansionOutpost, glyph: .outpost),
-            buildCell(.dawnLoom, glyph: .loom)
-        ]
-        return [orders, Array(structures.prefix(3)), Array(structures.dropFirst(3).prefix(3))]
+                name: "Stop selected units.",
+                isEnabled: true,
+                action: {
+                    self.stop()
+                    self.clearReason()
+                }
+            )
+        }
+        return unavailableCell(glyph: .stop, label: "Stop. No units selected.")
+    }
+
+    private func pageToggleCell() -> Cell {
+        switch citizenPage {
+        case .economy:
+            return Cell(
+                glyph: .pageForward,
+                name: "▸ Military",
+                isPrimary: true,
+                isEnabled: true,
+                action: { self.toggleCitizenPage() }
+            )
+        case .military:
+            return Cell(
+                glyph: .pageBack,
+                name: "◂ Economy",
+                isPrimary: true,
+                isEnabled: true,
+                action: { self.toggleCitizenPage() }
+            )
+        }
+    }
+
+    private func toggleCitizenPage() {
+        switch citizenPage {
+        case .economy: citizenPage = .military
+        case .military: citizenPage = .economy
+        }
+        clearReason()
     }
 
     // MARK: Inspect / non-production selection
 
     private func inspectRows() -> [[Cell]] {
-        let stopAction: (() -> Void)? = hasUnits ? { self.stop() } : nil
         let orders: [Cell] = [
             unavailableCell(glyph: .move, label: "Move. Unavailable."),
-            Cell(
-                glyph: .stop,
-                name: hasUnits ? "Stop selected units." : "Stop. No units selected.",
-                isEnabled: hasUnits,
-                action: stopAction
-            ),
-            unavailableCell(glyph: .guardStance, label: "Guard. Unavailable.")
+            stopCell(),
+            unavailableCell(glyph: .guardStance, label: "Guard. Unavailable."),
         ]
         let stances: [Cell] = [
             unavailableCell(glyph: .gather, label: "Gather. Unavailable."),
             unavailableCell(glyph: .rally, label: "Set rally point. Unavailable."),
-            unavailableCell(glyph: .outpost, label: "Build Outpost. Select a citizen.")
+            unavailableCell(glyph: .outpost, label: "Build Outpost. Select a citizen."),
         ]
         let structures: [Cell] = [
             unavailableCell(glyph: .farm, label: "Build Farm. Select a citizen."),
             unavailableCell(glyph: .extractor, label: "Build Matter Extractor. Select a citizen."),
-            unavailableCell(glyph: .dwelling, label: "Build Dwelling. Select a citizen.")
+            unavailableCell(glyph: .dwelling, label: "Build Dwelling. Select a citizen."),
         ]
         return [orders, stances, structures]
     }
 
-    private func buildCell(_ kind: BuildingKind, glyph: HUDGlyph.Kind) -> Cell {
-        let cost = simulation.tuning.cost(for: kind)
-        let stock = simulation.stock(for: viewer)
-        let canAfford = stock.covers(cost)
-        let blocker = canAfford
-            ? nil
-            : "Needs \(missingCostSummary(needed: cost, have: stock))."
-        let canBuild = blocker == nil
+    private func buildCell(_ kind: BuildingKind) -> Cell {
+        let cost: ResourcePool = simulation.tuning.cost(for: kind)
+        let blocker: BuildBlocker? = simulation.buildBlocker(for: kind, faction: viewer)
+        let reason: String? = blocker.map { self.buildBlockerText($0) }
+        let canBuild: Bool = reason == nil
+        let label: String = reason
+            ?? "\(kind.displayName). \(kind.purpose). Costs \(cost.costSummary)."
+
+        let action: (() -> Void)?
+        if let reason {
+            action = { self.showReason(reason) }
+        } else {
+            action = {
+                self.clearReason()
+                self.controller?.beginBuildGhost(kind)
+            }
+        }
 
         return Cell(
-            glyph: glyph,
-            name: blocker.map { "\(kind.displayName). \($0)" }
-                ?? "\(kind.displayName). \(kind.purpose). Costs \(cost.costSummary).",
+            glyph: kind.glyph,
+            name: label,
+            reason: reason,
+            surfacesReasonAutomatically: reason != nil,
             isPrimary: canBuild,
             badge: primaryBadge(for: cost),
             isEnabled: canBuild,
-            action: canBuild ? { self.controller?.beginBuildGhost(kind) } : nil
+            action: action
         )
     }
 
+    private func buildBlockerText(_ blocker: BuildBlocker) -> String {
+        switch blocker {
+        case .unaffordable(let missing):
+            return "Needs \(missingCostSummary(needed: missing, have: .zero))."
+        case .missingPrerequisite(.formationYard):
+            return "Requires a completed Formation Yard."
+        case .missingPrerequisite(let prerequisite):
+            return "Requires a completed \(prerequisite.displayName)."
+        case .illegalSite:
+            return "Cannot build on this site."
+        }
+    }
+
     private func unavailableCell(glyph: HUDGlyph.Kind, label: String) -> Cell {
-        Cell(glyph: glyph, name: label, isEnabled: false, action: nil)
+        Cell(
+            glyph: glyph,
+            name: label,
+            reason: label,
+            action: { self.showReason(label) }
+        )
     }
 
     private func primaryBadge(for cost: ResourcePool) -> String? {

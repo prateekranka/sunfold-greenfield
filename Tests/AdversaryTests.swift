@@ -93,6 +93,13 @@ final class AdversaryTests: XCTestCase {
             }),
             "The Yard must be finished, not left as a foundation nobody builds."
         )
+        XCTAssertEqual(
+            simulation.buildings.values.filter {
+                $0.faction == .gravemark && $0.kind == .formationYard
+            }.count,
+            1,
+            "The adversary must never commit a second Formation Yard."
+        )
     }
 
     func testAdversaryGrowsItsEconomyTowardTwelveCitizens() {
@@ -132,6 +139,18 @@ final class AdversaryTests: XCTestCase {
             Adversary.composition(ofWave: wave).reduce(0) { $0 + $1.count }
         }
         XCTAssertEqual(sizes, sizes.sorted(), "Waves must escalate, not shrink: \(sizes).")
+
+        XCTAssertEqual(
+            (1...5).map { Adversary.composition(ofWave: $0) },
+            [
+                [Adversary.WaveSlot(.vanguard, 3)],
+                [Adversary.WaveSlot(.vanguard, 4), Adversary.WaveSlot(.quarrel, 2)],
+                [Adversary.WaveSlot(.vanguard, 4), Adversary.WaveSlot(.quarrel, 3)],
+                [Adversary.WaveSlot(.vanguard, 5), Adversary.WaveSlot(.quarrel, 4)],
+                [Adversary.WaveSlot(.vanguard, 6), Adversary.WaveSlot(.quarrel, 5)],
+            ],
+            "The CP-C5 roster must not alter the established wave composition."
+        )
     }
 
     /// The waves that actually leave in a real match do so on their scheduled
@@ -305,6 +324,259 @@ final class AdversaryTests: XCTestCase {
             simulation.units.values.allSatisfy { $0.life >= $0.kind.maxLife - 0.001 },
             "Nothing may be hurt in a match with no adversary and no player."
         )
+    }
+
+    // MARK: - CP-C5 military roster
+
+    func testFormationYardIntentIsDueAtTick2400AndOnlyOnce() {
+        XCTAssertEqual(Adversary.Schedule.formationYardTick, 2_400)
+        let core = planningCore()
+        var input = planningInput(
+            tick: Adversary.Schedule.formationYardTick - 1,
+            buildings: [core.id: core],
+            stock: richStock()
+        )
+        var state = AdversaryState()
+
+        XCTAssertTrue(buildKinds(Adversary.plan(input, state: &state)).isEmpty)
+
+        input.tick = Adversary.Schedule.formationYardTick
+        let due = Adversary.plan(input, state: &state)
+        XCTAssertEqual(buildKinds(due), [.formationYard])
+
+        let yard = planningYard(id: EntityID(raw: 101), complete: false)
+        input.buildings[yard.id] = yard
+        input.tick += 1
+        let whileBuilding = Adversary.plan(input, state: &state)
+        XCTAssertEqual(
+            buildKinds(whileBuilding).filter { $0 == .formationYard }.count,
+            0,
+            "A Yard foundation must not cause a second Yard intent."
+        )
+
+        input.buildings[yard.id] = planningYard(id: yard.id, complete: true)
+        input.tick = Adversary.Schedule.lumenSpireTick
+        let afterYard = Adversary.plan(input, state: &state)
+        XCTAssertEqual(
+            buildKinds(afterYard).filter { $0 == .formationYard }.count,
+            0,
+            "The 4:00 production slot belongs to the Spire, not a second Yard."
+        )
+    }
+
+    func testLumenSpireIsDueAt4800AndDefersUntilReady() {
+        XCTAssertEqual(Adversary.Schedule.lumenSpireTick, 4_800)
+        let core = planningCore()
+        let yard = planningYard(id: EntityID(raw: 101), complete: true)
+        var input = planningInput(
+            tick: Adversary.Schedule.lumenSpireTick - 1,
+            buildings: [core.id: core, yard.id: yard],
+            stock: richStock()
+        )
+        var state = AdversaryState()
+
+        XCTAssertTrue(
+            buildKinds(Adversary.plan(input, state: &state)).filter { $0 == .lumenSpire }.isEmpty
+        )
+        XCTAssertNotNil(Adversary.site(for: .lumenSpire, faction: .gravemark, input: input))
+
+        input.tick = Adversary.Schedule.lumenSpireTick
+        let due = Adversary.plan(input, state: &state)
+        XCTAssertEqual(buildKinds(due).filter { $0 == .lumenSpire }.count, 1)
+
+        var blockedByStock = planningInput(
+            tick: Adversary.Schedule.lumenSpireTick,
+            buildings: [core.id: core, yard.id: yard],
+            stock: ResourcePool(provisions: 2_000, matter: 89, lumen: 45)
+        )
+        var blockedState = AdversaryState()
+        XCTAssertTrue(
+            buildKinds(Adversary.plan(blockedByStock, state: &blockedState))
+                .filter { $0 == .lumenSpire }
+                .isEmpty,
+            "Insufficient stock must defer the Spire, not drop it."
+        )
+
+        blockedByStock.tick += 1
+        blockedByStock.stock[.gravemark] = richStock()
+        let deferred = Adversary.plan(blockedByStock, state: &blockedState)
+        XCTAssertEqual(
+            buildKinds(deferred).filter { $0 == .lumenSpire }.count,
+            1,
+            "A deferred Spire must be committed on a later eligible tick."
+        )
+
+        var missingPrerequisite = planningInput(
+            tick: Adversary.Schedule.lumenSpireTick,
+            buildings: [core.id: core],
+            stock: richStock()
+        )
+        var prerequisiteState = AdversaryState()
+        XCTAssertTrue(
+            buildKinds(Adversary.plan(missingPrerequisite, state: &prerequisiteState))
+                .filter { $0 == .lumenSpire }
+                .isEmpty,
+            "The Spire must wait for a completed same-faction Formation Yard."
+        )
+
+        missingPrerequisite.buildings[yard.id] = yard
+        missingPrerequisite.tick += 1
+        let afterPrerequisite = Adversary.plan(missingPrerequisite, state: &prerequisiteState)
+        XCTAssertEqual(
+            buildKinds(afterPrerequisite).filter { $0 == .lumenSpire }.count,
+            1,
+            "A missing prerequisite must defer the Spire rather than lose its schedule row."
+        )
+    }
+
+    func testArmyTrainingUsesCompletedBuildingTrainerRoster() {
+        let core = planningCore()
+        let yard = planningYard(id: EntityID(raw: 101), complete: true)
+        let spire = planningSpire(id: EntityID(raw: 102), complete: true)
+        let buildings = [core.id: core, yard.id: yard, spire.id: spire]
+
+        var firstWaveInput = planningInput(
+            tick: 4_799,
+            buildings: buildings,
+            stock: richStock()
+        )
+        var firstWaveState = AdversaryState()
+        let firstWaveTraining = trainIntents(
+            Adversary.plan(firstWaveInput, state: &firstWaveState)
+        )
+        XCTAssertEqual(
+            firstWaveTraining.first(where: { $0.kind == .vanguard })?.buildingID,
+            yard.id,
+            "Vanguards must be enqueued at a completed Formation Yard."
+        )
+
+        firstWaveInput.buildings.removeValue(forKey: yard.id)
+        var noYardState = AdversaryState()
+        let noYardTraining = trainIntents(
+            Adversary.plan(firstWaveInput, state: &noYardState)
+        )
+        XCTAssertNil(
+            noYardTraining.first(where: { $0.kind == .vanguard }),
+            "A Lumen Spire must not substitute for a Formation Yard."
+        )
+
+        let vanguards = (0..<4).map { index -> (EntityID, SunfoldCore.Unit) in
+            let id = EntityID(raw: UInt32(200 + index))
+            return (
+                id,
+                SunfoldCore.Unit(
+                    id: id,
+                    faction: .gravemark,
+                    kind: .vanguard,
+                    position: planningCore().position,
+                    region: .gravemarkHome
+                )
+            )
+        }
+        let units = Dictionary(uniqueKeysWithValues: vanguards)
+        let secondWaveInput = planningInput(
+            tick: 4_801,
+            units: units,
+            buildings: buildings,
+            stock: richStock()
+        )
+        var secondWaveState = AdversaryState()
+        secondWaveState.wavesDispatched = 1
+        let secondWaveTraining = trainIntents(
+            Adversary.plan(secondWaveInput, state: &secondWaveState)
+        )
+        XCTAssertEqual(
+            secondWaveTraining.first(where: { $0.kind == .quarrel })?.buildingID,
+            spire.id,
+            "Quarrels must be enqueued at a completed Lumen Spire."
+        )
+
+        var incompleteSpireInput = secondWaveInput
+        incompleteSpireInput.buildings[spire.id] = planningSpire(id: spire.id, complete: false)
+        var incompleteSpireState = AdversaryState()
+        incompleteSpireState.wavesDispatched = 1
+        XCTAssertNil(
+            trainIntents(Adversary.plan(incompleteSpireInput, state: &incompleteSpireState))
+                .first(where: { $0.kind == .quarrel }),
+            "An incomplete Lumen Spire cannot train a Quarrel."
+        )
+
+        XCTAssertEqual(BuildingKind.formationYard.trains, [.pathfinder, .vanguard])
+        XCTAssertEqual(BuildingKind.lumenSpire.trains, [.quarrel])
+    }
+
+    private func planningInput(
+        tick: UInt64,
+        units: [EntityID: SunfoldCore.Unit] = [:],
+        buildings: [EntityID: Building],
+        stock: ResourcePool,
+        queues: [EntityID: ProductionQueue] = [:]
+    ) -> Adversary.Inputs {
+        Adversary.Inputs(
+            tick: tick,
+            units: units,
+            buildings: buildings,
+            deposits: [:],
+            queues: queues,
+            stock: [.gravemark: stock],
+            map: WorldMap.map(.riverlands, seed: Self.seed),
+            tuning: .baseline
+        )
+    }
+
+    private func planningCore() -> Building {
+        let map = WorldMap.map(.riverlands, seed: Self.seed)
+        return Building(
+            id: EntityID(raw: 100),
+            faction: .gravemark,
+            kind: .civilizationCore,
+            position: map.fragment(.gravemarkHome).center,
+            region: .gravemarkHome
+        )
+    }
+
+    private func planningYard(id: EntityID, complete: Bool) -> Building {
+        let core = planningCore()
+        return Building(
+            id: id,
+            faction: .gravemark,
+            kind: .formationYard,
+            position: core.position + WorldPoint(14, 0),
+            region: .gravemarkHome,
+            constructionProgress: complete ? 1 : 0
+        )
+    }
+
+    private func planningSpire(id: EntityID, complete: Bool) -> Building {
+        let core = planningCore()
+        return Building(
+            id: id,
+            faction: .gravemark,
+            kind: .lumenSpire,
+            position: core.position + WorldPoint(-14, 0),
+            region: .gravemarkHome,
+            constructionProgress: complete ? 1 : 0
+        )
+    }
+
+    private func richStock() -> ResourcePool {
+        ResourcePool(provisions: 2_000, matter: 2_000, lumen: 2_000)
+    }
+
+    private func buildKinds(_ intents: [Adversary.Intent]) -> [BuildingKind] {
+        intents.compactMap { intent in
+            guard case let .build(kind, _) = intent else { return nil }
+            return kind
+        }
+    }
+
+    private func trainIntents(
+        _ intents: [Adversary.Intent]
+    ) -> [(kind: UnitKind, buildingID: EntityID)] {
+        intents.compactMap { intent in
+            guard case let .train(kind, at: buildingID) = intent else { return nil }
+            return (kind: kind, buildingID: buildingID)
+        }
     }
 
     // MARK: - Evidence
