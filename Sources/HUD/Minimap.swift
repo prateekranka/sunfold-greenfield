@@ -64,6 +64,27 @@ struct Minimap: View {
             .contentShape(Rectangle())
             .gesture(minimapNavigationGesture)
             .hudWell()
+            .accessibilityElement(children: .ignore)
+            .accessibilityIdentifier("minimap")
+            .accessibilityLabel("Minimap, \(viewer.displayName) perspective")
+            .accessibilityValue(accessibilityCameraValue)
+            .accessibilityHint("Tap or drag to move the camera. Adjust up or down to pan north or south.")
+            .accessibilityAdjustableAction { direction in
+                switch direction {
+                case .increment:
+                    moveCamera(for: .north)
+                case .decrement:
+                    moveCamera(for: .south)
+                @unknown default:
+                    break
+                }
+            }
+            .accessibilityAction(named: Text("Move camera west")) {
+                moveCamera(for: .west)
+            }
+            .accessibilityAction(named: Text("Move camera east")) {
+                moveCamera(for: .east)
+            }
             tools
         }
         .hudPanel(corners: [.topLeading, .topTrailing, .bottomTrailing])
@@ -152,6 +173,75 @@ struct Minimap: View {
     }
 
     // MARK: - Navigation
+
+    private enum AccessibilityPanDirection {
+        case north
+        case south
+        case west
+        case east
+
+        var delta: WorldPoint {
+            switch self {
+            case .north: [0, -1]
+            case .south: [0, 1]
+            case .west: [-1, 0]
+            case .east: [1, 0]
+            }
+        }
+    }
+
+    private var accessibilityCameraValue: String {
+        guard let focus = rig?.focus else {
+            return "Camera unavailable"
+        }
+        return "Camera at \(mapPositionDescription(focus)); \(compassReading(yaw: rig?.yaw))"
+    }
+
+    private func mapPositionDescription(_ focus: WorldPoint) -> String {
+        let bounds = simulation.map.bounds
+        let horizontal = relativePosition(
+            focus.x,
+            limit: bounds.x,
+            negative: "west",
+            positive: "east"
+        )
+        let vertical = relativePosition(
+            focus.y,
+            limit: bounds.y,
+            negative: "north",
+            positive: "south"
+        )
+
+        switch (vertical, horizontal) {
+        case ("center", "center"):
+            return "the map center"
+        case ("center", _):
+            return "the \(horizontal) side"
+        case (_, "center"):
+            return "the \(vertical) side"
+        default:
+            return "the \(vertical) \(horizontal)"
+        }
+    }
+
+    private func relativePosition(
+        _ value: Float,
+        limit: Float,
+        negative: String,
+        positive: String
+    ) -> String {
+        guard limit > 0 else { return "center" }
+        let fraction = value / limit
+        if fraction < -0.25 { return negative }
+        if fraction > 0.25 { return positive }
+        return "center"
+    }
+
+    private func moveCamera(for direction: AccessibilityPanDirection) {
+        guard let rig else { return }
+        let step = max(rig.zoom * 0.5, 1)
+        rig.pan(by: direction.delta * step)
+    }
 
     /// Tap-to-jump and drag-to-scrub share one gesture: `minimumDistance` of zero
     /// fires on first contact and keeps updating while the finger moves.
