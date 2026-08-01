@@ -385,16 +385,17 @@ struct WorldMap: Sendable {
 
         // Rivers on the home→expansion seams. Inland reach is kept short so each
         // home plateau keeps a contiguous fight ground near the Core; the
-        // Dominion neck remains the dry crossing. One inland tarn (not three)
-        // marks water without peppering the field with pocket voids.
+        // Dominion neck remains the dry crossing. Two small basins mark water
+        // without creating pockets: the tarn meets the Sunwoven river, and the
+        // pool uses the outlet below.
         let sunRiver = strait(
             between: plate[.sunwovenHome]!, and: plate[.sunwovenExpansion]!,
-            head: 2.6, mouth: 6.0, inland: 10, seaward: 40, bow: -5, meander: 3.0,
+            head: 2.6, mouth: 6.0, inland: 10, seaward: 100, bow: -5, meander: 3.0,
             wander: 1.4, wanderScale: 28, salt: LandNoise.salt(0x7A3C_11E5, seed: seed)
         )
         let graveRiver = strait(
             between: plate[.gravemarkHome]!, and: plate[.gravemarkExpansion]!,
-            head: 2.8, mouth: 4.8, inland: 9, seaward: 36, bow: 4, meander: 1.8, meanderTurns: 2.0,
+            head: 2.8, mouth: 4.8, inland: 9, seaward: 92, bow: 4, meander: 1.8, meanderTurns: 2.0,
             wander: 1.5, wanderScale: 22, salt: LandNoise.salt(0x35C8_02BF, seed: seed)
         )
         let tarn = VoidBody.basin(
@@ -407,12 +408,21 @@ struct WorldMap: Sendable {
             outline: CoastProfile(lobes: [.init(2, 0.20, 2.70), .init(3, 0.08, 0.80)], fray: 0.06, frayScale: 8, salt: LandNoise.salt(0x2D5F_8B41, seed: seed)),
             wander: 0.9, wanderScale: 13, salt: LandNoise.salt(0x2E74_C1B8, seed: seed)
         )
+        // The pool remains a readable landmark, but it is not a lake without a
+        // route out. This short, curved outlet joins the grave river on the near
+        // bank and keeps the basin in the same navigable network as the coast.
+        let poolOutlet = VoidBody.channel(
+            [[40, -18], [45, -20], [48, -24], [47, -28], [43, -30]],
+            halfWidths: [2.5, 2.4, 2.2, 2.0, 1.8],
+            wander: 0.6, wanderScale: 12,
+            salt: LandNoise.salt(0x8E42_7A19, seed: seed)
+        )
 
         return assemble(
             id: .riverlands,
             seed: seed,
             authored: plates,
-            water: [sunRiver, graveRiver, tarn, pool],
+            water: [sunRiver, graveRiver, tarn, pool, poolOutlet],
             erosion: LandErosion(amplitude: 2.6, scale: 44, octaves: 2, bias: 16.5, salt: LandNoise.salt(0x6D2B_79F5, seed: seed))
         )
     }
