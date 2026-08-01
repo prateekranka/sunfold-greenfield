@@ -340,6 +340,17 @@ The subsystems behind all of that:
 
 ### Known open defects and risks
 
+- **The adversary banks Dominion progress by accident.** Measured on device at CP-C4
+  close: with nobody contesting, the objective rail read *"Dominion: you 0 of 45
+  seconds, **enemy 11**"* at the end of the untouched match. CP-C3 routes every wave
+  via the Dominion centre because there is no pathfinder, so waves cross the capture
+  ring on their way to the player's Core and fill the Gravemark timer as they pass.
+  Eleven of forty-five, and that match ended by Conquest first — but nothing caps it,
+  and no schedule asked for it. A slower Conquest or a wave that stalls on the
+  objective could hand Gravemark a Dominion win nobody designed, which is precisely
+  the "killed by something you could not see coming" failure the checkpoint question
+  asks about. **Decide before CP-C5**: route waves around the ring, exclude units in
+  transit from capture, or accept it as emergent and make it legible.
 - **A clean checkout of this branch does not build, and has not since CP-C2.** Found
   2026-07-31 while verifying the CP-C3 commit in a throwaway worktree. Two call sites are
   **committed** while the files that define them are **untracked**:
