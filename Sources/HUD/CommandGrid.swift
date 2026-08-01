@@ -15,7 +15,7 @@ struct CommandGrid: View {
     let selection: SelectionModel
     var controller: WorldController?
 
-    private let viewer: Faction = .sunwoven
+    private var viewer: Faction { simulation.playerFaction }
     private let restingReason = "Select a dimmed tile for details."
     private let unavailableContentReason = "Not available in this build."
     private let emptyProductionReason = "No additional unit is trained here."

@@ -21,6 +21,25 @@ enum VictorySystem {
         let buildings: [EntityID: Building]
         let tuning: SkirmishTuning
         let deltaTime: Double
+        let playerFaction: Faction
+
+        init(
+            elapsed: Double,
+            tick: UInt64,
+            units: [EntityID: Unit],
+            buildings: [EntityID: Building],
+            tuning: SkirmishTuning,
+            deltaTime: Double,
+            playerFaction: Faction = .sunwoven
+        ) {
+            self.elapsed = elapsed
+            self.tick = tick
+            self.units = units
+            self.buildings = buildings
+            self.tuning = tuning
+            self.deltaTime = deltaTime
+            self.playerFaction = playerFaction
+        }
     }
 
     // MARK: - Step
@@ -38,11 +57,11 @@ enum VictorySystem {
         noteCorePressure(state: &state, input: input)
 
         if let outcome = conquest(state: state, input: input) {
-            state.finish(outcome)
+            state.finish(outcome, playerFaction: input.playerFaction)
             return
         }
         if let outcome = dominion(state: state, input: input) {
-            state.finish(outcome)
+            state.finish(outcome, playerFaction: input.playerFaction)
         }
     }
 
@@ -134,7 +153,14 @@ enum VictorySystem {
 
             if theirs > 0 {
                 state.setHold(faction, max(0, before - dt * input.tuning.dominionContestDecay))
-                if mine > 0 { state.noteContested(faction, tick: input.tick, elapsed: input.elapsed) }
+                if mine > 0 {
+                    state.noteContested(
+                        faction,
+                        tick: input.tick,
+                        elapsed: input.elapsed,
+                        playerFaction: input.playerFaction
+                    )
+                }
             } else {
                 state.clearContestNotice(faction)
                 if mine > 0 { state.setHold(faction, min(requirement, before + dt)) }
@@ -147,7 +173,12 @@ enum VictorySystem {
                 state.setVacancy(faction, vacant)
                 if vacant >= input.tuning.dominionVacancyReset && state.hold(faction) > 0 {
                     state.setHold(faction, 0)
-                    state.abandonDominion(faction, tick: input.tick, elapsed: input.elapsed)
+                    state.abandonDominion(
+                        faction,
+                        tick: input.tick,
+                        elapsed: input.elapsed,
+                        playerFaction: input.playerFaction
+                    )
                 }
             }
 
@@ -193,7 +224,7 @@ enum VictorySystem {
                 MatchEvent(
                     tick: input.tick,
                     elapsed: input.elapsed,
-                    severity: faction == .sunwoven ? .good : .bad,
+                    severity: faction == input.playerFaction ? .good : .bad,
                     text: "\(faction.displayName) has held the Dominion \(Int(milestone))s"
                 )
             )
@@ -216,7 +247,7 @@ enum VictorySystem {
                     MatchEvent(
                         tick: input.tick,
                         elapsed: input.elapsed,
-                        severity: faction == .sunwoven ? .bad : .good,
+                severity: faction == input.playerFaction ? .bad : .good,
                         text: "\(faction.displayName) Core at \(Int(threshold * 100))%"
                     )
                 )
@@ -280,8 +311,13 @@ struct VictoryState: Sendable, Equatable {
         }
     }
 
-    mutating func noteContested(_ faction: Faction, tick: UInt64, elapsed: Double) {
-        guard faction == .sunwoven, !contestAnnounced.contains(faction) else { return }
+    mutating func noteContested(
+        _ faction: Faction,
+        tick: UInt64,
+        elapsed: Double,
+        playerFaction: Faction
+    ) {
+        guard faction == playerFaction, !contestAnnounced.contains(faction) else { return }
         contestAnnounced.insert(faction)
         record(
             MatchEvent(
@@ -299,9 +335,14 @@ struct VictoryState: Sendable, Equatable {
         contestAnnounced.remove(faction)
     }
 
-    mutating func abandonDominion(_ faction: Faction, tick: UInt64, elapsed: Double) {
+    mutating func abandonDominion(
+        _ faction: Faction,
+        tick: UInt64,
+        elapsed: Double,
+        playerFaction: Faction
+    ) {
         contestAnnounced.remove(faction)
-        guard faction == .sunwoven else { return }
+        guard faction == playerFaction else { return }
         record(
             MatchEvent(
                 tick: tick,
@@ -317,13 +358,13 @@ struct VictoryState: Sendable, Equatable {
         if events.count > Self.maxEvents { events.removeFirst(events.count - Self.maxEvents) }
     }
 
-    mutating func finish(_ outcome: MatchOutcome) {
+    mutating func finish(_ outcome: MatchOutcome, playerFaction: Faction = .sunwoven) {
         self.outcome = outcome
         record(
             MatchEvent(
                 tick: outcome.tick,
                 elapsed: outcome.elapsed,
-                severity: outcome.winner == .sunwoven ? .good : .bad,
+                severity: outcome.winner == playerFaction ? .good : .bad,
                 text: "\(outcome.winner.displayName) wins by \(outcome.path.rawValue.capitalized)"
             )
         )
@@ -332,7 +373,12 @@ struct VictoryState: Sendable, Equatable {
     /// Ends the match by concession. Not a third win path — the resigning side
     /// simply stops, and the overlay says so rather than reporting a Conquest
     /// that never happened.
-    mutating func resign(_ faction: Faction, tick: UInt64, elapsed: Double) {
+    mutating func resign(
+        _ faction: Faction,
+        tick: UInt64,
+        elapsed: Double,
+        playerFaction: Faction = .sunwoven
+    ) {
         guard outcome == nil else { return }
         finish(
             MatchOutcome(
@@ -340,7 +386,8 @@ struct VictoryState: Sendable, Equatable {
                 path: .resignation,
                 elapsed: elapsed,
                 tick: tick
-            )
+            ),
+            playerFaction: playerFaction
         )
     }
 }

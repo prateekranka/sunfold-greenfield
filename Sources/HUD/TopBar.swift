@@ -9,9 +9,11 @@ struct TopBar: View {
     @Bindable var simulation: SkirmishSimulation
     var controller: WorldController?
 
-    private var stock: ResourcePool { simulation.stock(for: .sunwoven) }
-    private var population: (used: Int, cap: Int) { simulation.population(for: .sunwoven) }
-    private var age: Age { simulation.age(for: .sunwoven) }
+    private var stock: ResourcePool { simulation.stock(for: simulation.playerFaction) }
+    private var population: (used: Int, cap: Int) {
+        simulation.population(for: simulation.playerFaction)
+    }
+    private var age: Age { simulation.age(for: simulation.playerFaction) }
 
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
@@ -31,15 +33,15 @@ struct TopBar: View {
     private var emblem: some View {
         ZStack {
             Circle()
-                .stroke(HUDInk.edgeBright, lineWidth: 1.25)
+                .stroke(HUDInk.friendly(for: simulation.playerFaction), lineWidth: 1.25)
                 .frame(width: 36, height: 36)
             HUDGlyph(.sunburst)
-                .fill(HUDInk.accent, style: HUDGlyph.Kind.sunburst.fillStyle)
+                .fill(HUDInk.friendly(for: simulation.playerFaction), style: HUDGlyph.Kind.sunburst.fillStyle)
                 .frame(width: 22, height: 22)
-                .shadow(color: HUDInk.accent.opacity(0.45), radius: 5)
+                .shadow(color: HUDInk.friendly(for: simulation.playerFaction).opacity(0.45), radius: 5)
         }
         .frame(width: 44, height: 44)
-        .accessibilityLabel("Sunwoven")
+        .accessibilityLabel(simulation.playerFaction.displayName)
     }
 
     private var zoomCluster: some View {

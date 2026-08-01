@@ -42,9 +42,15 @@ enum HUDInk {
     static var textDim: Color { SunfoldPalette.hudTextDim }
     /// The player's own things. Same turquoise as the selection rings in world.
     static var friendly: Color { Color(SunfoldPalette.sunwovenTurquoise) }
+    static func friendly(for faction: Faction) -> Color {
+        Color(faction == .sunwoven ? SunfoldPalette.sunwovenTurquoise : SunfoldPalette.gravemarkMineral)
+    }
     /// Restrained, per the bible: the enemy is marked in their own copper, not
     /// in alarm red. Saturated red stays reserved for genuine pressure.
     static var hostile: Color { Color(SunfoldPalette.gravemarkCopper) }
+    static func hostile(for faction: Faction) -> Color {
+        friendly(for: faction.opponent)
+    }
     /// Life. Green because the approved concept frame draws it green, held well
     /// down in saturation so it never competes with the gold.
     static var life: Color { Color(red: 0.404, green: 0.714, blue: 0.416) }

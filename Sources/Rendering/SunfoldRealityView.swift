@@ -29,8 +29,15 @@ struct SunfoldRealityView: View {
         ))
         // Above the gesture layer and in the same coordinate space, so the lasso
         // is drawn exactly where the finger drew it.
-        .overlay(MarqueeOverlay(rect: controller.marquee?.rect, hitCount: controller.marqueeHitCount))
+        .overlay(
+            MarqueeOverlay(
+                rect: controller.marquee?.rect,
+                hitCount: controller.marqueeHitCount,
+                viewer: controller.playerFaction
+            )
+        )
         .background(Color(SunfoldPalette.voidDeep))
         .ignoresSafeArea()
+        .sunfoldFramePacing()
     }
 }

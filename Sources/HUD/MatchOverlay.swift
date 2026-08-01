@@ -12,6 +12,7 @@ struct MatchOverlay: View {
     let outcome: MatchOutcome
     var viewer: Faction = .sunwoven
     let onPlayAgain: () -> Void
+    let onNewGame: () -> Void
 
     private var won: Bool { outcome.isVictory(for: viewer) }
 
@@ -27,8 +28,8 @@ struct MatchOverlay: View {
                 Text(outcome.verdict(for: viewer))
                     .font(.system(size: 44, weight: .heavy, design: .rounded))
                     .tracking(6)
-                    .foregroundStyle(won ? HUDInk.accent : HUDInk.hostile)
-                    .shadow(color: (won ? HUDInk.accent : HUDInk.hostile).opacity(0.45), radius: 14)
+                    .foregroundStyle(won ? HUDInk.accent : HUDInk.hostile(for: viewer))
+                    .shadow(color: (won ? HUDInk.accent : HUDInk.hostile(for: viewer)).opacity(0.45), radius: 14)
 
                 Text(condition)
                     .font(.system(size: 13, weight: .bold))
@@ -44,21 +45,38 @@ struct MatchOverlay: View {
                     .font(.system(size: 12, weight: .semibold).monospacedDigit())
                     .foregroundStyle(HUDInk.textDim)
 
-                Button(action: onPlayAgain) {
-                    Text("PLAY AGAIN")
-                        .font(.system(size: 13, weight: .bold))
-                        .tracking(1.4)
-                        .foregroundStyle(HUDInk.accent)
-                        .padding(.horizontal, 26)
-                        .padding(.vertical, 11)
-                        .overlay {
-                            ChamferedRect(cut: 8)
-                                .stroke(HUDInk.edgeBright, lineWidth: 1)
-                        }
+                HStack(spacing: 12) {
+                    Button(action: onPlayAgain) {
+                        Text("PLAY AGAIN")
+                            .font(.system(size: 13, weight: .bold))
+                            .tracking(1.4)
+                            .foregroundStyle(HUDInk.accent)
+                            .padding(.horizontal, 22)
+                            .padding(.vertical, 11)
+                            .overlay {
+                                ChamferedRect(cut: 8)
+                                    .stroke(HUDInk.edgeBright, lineWidth: 1)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Play again")
+
+                    Button(action: onNewGame) {
+                        Text("NEW GAME")
+                            .font(.system(size: 13, weight: .bold))
+                            .tracking(1.4)
+                            .foregroundStyle(HUDInk.textDim)
+                            .padding(.horizontal, 22)
+                            .padding(.vertical, 11)
+                            .overlay {
+                                ChamferedRect(cut: 8)
+                                    .stroke(HUDInk.edge, lineWidth: 1)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Start a new game")
                 }
-                .buttonStyle(.plain)
                 .padding(.top, 4)
-                .accessibilityLabel("Play again")
             }
             .padding(.horizontal, 52)
             .padding(.vertical, 34)

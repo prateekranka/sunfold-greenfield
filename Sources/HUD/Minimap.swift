@@ -333,9 +333,9 @@ struct Minimap: View {
             // must not lie about.
             let tint: Color
             switch building.faction {
-            case viewer: tint = HUDInk.friendly
+            case viewer: tint = HUDInk.friendly(for: viewer)
             case nil: tint = HUDInk.textDim
-            default: tint = HUDInk.hostile
+            default: tint = HUDInk.hostile(for: viewer)
             }
             context.fill(Path(rect), with: .color(tint))
             context.stroke(Path(rect), with: .color(.black.opacity(0.65)), lineWidth: 0.75)
@@ -354,7 +354,9 @@ struct Minimap: View {
                     height: radius * 2
                 )
             )
-            let tint = unit.faction == viewer ? HUDInk.friendly : HUDInk.hostile
+            let tint = unit.faction == viewer
+                ? HUDInk.friendly(for: viewer)
+                : HUDInk.hostile(for: viewer)
             context.fill(dot, with: .color(tint))
         }
     }

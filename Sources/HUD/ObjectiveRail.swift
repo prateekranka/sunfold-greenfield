@@ -15,6 +15,7 @@ import SwiftUI
 struct ObjectiveRail: View {
     @Bindable var simulation: SkirmishSimulation
     var viewer: Faction = .sunwoven
+    var onNewGame: (() -> Void)? = nil
 
     @State private var confirmingResign = false
 
@@ -30,6 +31,14 @@ struct ObjectiveRail: View {
             Spacer(minLength: 8)
             latestAlert
             resign
+            if let onNewGame {
+                Button("NEW GAME", action: onNewGame)
+                    .font(.system(size: 8, weight: .bold))
+                    .tracking(0.5)
+                    .foregroundStyle(HUDInk.textDim)
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Start a new game")
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
@@ -78,8 +87,14 @@ struct ObjectiveRail: View {
                         .foregroundStyle(HUDInk.warning)
                 }
             }
-            meter(fraction: simulation.dominionProgress(for: viewer), tint: HUDInk.friendly)
-            meter(fraction: simulation.dominionProgress(for: viewer.opponent), tint: HUDInk.hostile)
+            meter(
+                fraction: simulation.dominionProgress(for: viewer),
+                tint: HUDInk.friendly(for: viewer)
+            )
+            meter(
+                fraction: simulation.dominionProgress(for: viewer.opponent),
+                tint: HUDInk.hostile(for: viewer)
+            )
         }
         .frame(width: 150, alignment: .leading)
         .accessibilityElement(children: .ignore)
@@ -123,7 +138,10 @@ struct ObjectiveRail: View {
                 .tracking(0.8)
                 .foregroundStyle(HUDInk.textDim)
             meter(fraction: simulation.coreLifeFraction(for: viewer), tint: coreTint)
-            meter(fraction: simulation.coreLifeFraction(for: viewer.opponent), tint: HUDInk.hostile)
+            meter(
+                fraction: simulation.coreLifeFraction(for: viewer.opponent),
+                tint: HUDInk.hostile(for: viewer)
+            )
         }
         .frame(width: 96, alignment: .leading)
         .accessibilityElement(children: .ignore)
@@ -147,7 +165,7 @@ struct ObjectiveRail: View {
                 HStack(spacing: 6) {
                     HUDGlyph(.alert)
                         .fill(
-                            event.severity == .bad ? HUDInk.warning : HUDInk.friendly,
+                            event.severity == .bad ? HUDInk.warning : HUDInk.friendly(for: viewer),
                             style: HUDGlyph.Kind.alert.fillStyle
                         )
                         .frame(width: 10, height: 10)

@@ -15,6 +15,11 @@ final class WorldController {
     let selection = SelectionModel()
     private(set) var rig: CameraRig?
     private var presenter: EntityPresenter?
+    private var sceneRoot: Entity?
+    private(set) var isSceneReady = false
+    private var isDisposed = false
+
+    var playerFaction: Faction { simulation.playerFaction }
 
     /// Mirrors the system Reduced Motion setting. Simplifies gait and camera
     /// easing without freezing gameplay feedback, which would read as broken.
@@ -64,6 +69,7 @@ final class WorldController {
     /// Builds the scene into `content` and starts driving the simulation from
     /// the render loop. Safe to call once per RealityView lifetime.
     func attach(to content: inout RealityViewCameraContent) {
+        guard !isDisposed, !isSceneReady else { return }
         content.camera = .virtual
 
         // Bloom, filmic tonemap, split-tone grade and vignette, run on the
@@ -77,14 +83,20 @@ final class WorldController {
             tuning: simulation.tuning,
             keepClear: TerrainDressing.keepClear(for: simulation)
         )
+        if let core = simulation.buildings.values.first(where: {
+            $0.kind == .civilizationCore && $0.faction == simulation.playerFaction
+        }) {
+            rig.setFocus(core.position)
+        }
         self.rig = rig
+        self.sceneRoot = root
 
         let presenter = EntityPresenter(seed: simulation.seed, tuning: simulation.tuning)
         self.presenter = presenter
         root.addChild(presenter.root)
 
         content.add(root)
-
+        isSceneReady = true
         PerfHarness.shared.markSceneAttached()
 
         updateSubscription = content.subscribe(to: SceneEvents.Update.self) { [weak self] event in
@@ -116,7 +128,7 @@ final class WorldController {
             let footprintOK = ConstructionPlacement.isLegal(
                 kind: ghost.kind, at: ghost.position, in: simulation
             )
-            let canPay = simulation.stock(for: .sunwoven)
+            let canPay = simulation.stock(for: simulation.playerFaction)
                 .covers(simulation.tuning.cost(for: ghost.kind))
             ghost.isLegal = footprintOK && canPay
             buildGhost = ghost
@@ -194,16 +206,16 @@ final class WorldController {
 
         switch WorldPicker.pick(at: worldPoint, in: simulation) {
         case .unit(let id):
-            if let unit = simulation.unit(id), unit.faction != .sunwoven {
+            if let unit = simulation.unit(id), unit.faction != simulation.playerFaction {
                 lastTap = nil
                 if !selection.selectedUnits.isEmpty {
                     selection.orderAttack(target: id, in: simulation)
                 }
                 return
             }
-            // Only the player's own units are commandable; tapping a Gravemark
+            // Only the player's own units are commandable; tapping an enemy
             // unit with nothing selected is ignored.
-            guard let unit = simulation.unit(id), unit.faction == .sunwoven else {
+            guard let unit = simulation.unit(id), unit.faction == simulation.playerFaction else {
                 lastTap = nil
                 return
             }
@@ -227,7 +239,7 @@ final class WorldController {
         case .building(let id):
             lastTap = nil
             if let building = simulation.building(id),
-               building.faction != .sunwoven,
+               building.faction != simulation.playerFaction,
                !selection.selectedUnits.isEmpty
             {
                 selection.orderAttack(target: id, in: simulation)
@@ -235,7 +247,7 @@ final class WorldController {
             }
             if let building = simulation.building(id),
                !building.isComplete,
-               building.faction == .sunwoven
+               building.faction == simulation.playerFaction
             {
                 // Eligible citizens → assign; Light Transport / empty / boarding → inspect.
                 selection.respondToIncompleteFoundation(id, in: simulation)
@@ -279,7 +291,7 @@ final class WorldController {
     private func selectAllVisible(ofKind kind: UnitKind, viewportSize: SIMD2<Float>) {
         guard let rig else { return }
         let ids = simulation.units.values
-            .filter { $0.faction == .sunwoven && $0.kind == kind }
+            .filter { $0.faction == simulation.playerFaction && $0.kind == kind }
             .filter { unit in
                 guard let point = rig.screenPoint(forWorld: unit.position, viewportSize: viewportSize)
                 else { return false }
@@ -340,7 +352,7 @@ final class WorldController {
         guard let marquee, let rig else { return [] }
         let rect = marquee.rect
         return simulation.units.values
-            .filter { $0.faction == .sunwoven }
+            .filter { $0.faction == simulation.playerFaction }
             .filter { unit in
                 guard let point = rig.screenPoint(forWorld: unit.position, viewportSize: viewportSize)
                 else { return false }
@@ -355,7 +367,7 @@ final class WorldController {
     /// Starts a Soft ghost for `kind`. Prefers open home ground near the Core.
     func beginBuildGhost(_ kind: BuildingKind) {
         guard ConstructionPlacement.placeableKinds.contains(kind) else { return }
-        let home = simulation.map.fragment(.sunwovenHome).center
+        let home = simulation.map.fragment(simulation.playerFaction.homeRegion).center
         let candidates: [WorldPoint] = [
             home + WorldPoint(14, 0),
             home + WorldPoint(-14, 0),
@@ -370,7 +382,7 @@ final class WorldController {
             ConstructionPlacement.isLegal(kind: kind, at: $0, in: simulation)
         } ?? candidates[0]
         let footprintOK = ConstructionPlacement.isLegal(kind: kind, at: start, in: simulation)
-        let canPay = simulation.stock(for: .sunwoven)
+        let canPay = simulation.stock(for: simulation.playerFaction)
             .covers(simulation.tuning.cost(for: kind))
         buildGhost = ConstructionPlacement.Session(
             kind: kind,
@@ -396,7 +408,7 @@ final class WorldController {
         let footprintOK = ConstructionPlacement.isLegal(
             kind: ghost.kind, at: world, in: simulation
         )
-        let canPay = simulation.stock(for: .sunwoven)
+        let canPay = simulation.stock(for: simulation.playerFaction)
             .covers(simulation.tuning.cost(for: ghost.kind))
         ghost.isLegal = footprintOK && canPay
         buildGhost = ghost
@@ -407,13 +419,13 @@ final class WorldController {
     func endBuildGhostDrag() {
         guard var ghost = buildGhost else { return }
         let now = simulation.elapsed
-        let affordable = simulation.stock(for: .sunwoven)
+        let affordable = simulation.stock(for: simulation.playerFaction)
             .covers(simulation.tuning.cost(for: ghost.kind))
         if ghost.isLegal && affordable {
             let id = simulation.placeBuilding(
                 ghost.kind,
                 at: ghost.position,
-                for: .sunwoven,
+                for: simulation.playerFaction,
                 preferredBuilders: Array(selection.selectedUnits)
             )
             if let id {
@@ -455,11 +467,24 @@ final class WorldController {
         // usually standing over the enemy's base watching your own Core burn.
         // A new match starts where a new match starts.
         if let core = simulation.buildings.values.first(where: {
-            $0.kind == .civilizationCore && $0.faction == .sunwoven
+            $0.kind == .civilizationCore && $0.faction == simulation.playerFaction
         }) {
             rig?.setFocus(core.position)
         }
         DebugLog.info("Match restarted from seed \(simulation.seed)")
+    }
+
+    /// Releases the scene subscription and presentation entities before a new
+    /// match replaces this controller. The next match receives a new controller
+    /// and a new RealityView identity, so no old update closure can touch it.
+    func dispose() {
+        isDisposed = true
+        isSceneReady = false
+        updateSubscription = nil
+        sceneRoot?.removeFromParent()
+        sceneRoot = nil
+        presenter = nil
+        rig = nil
     }
 
     /// Cancels an incomplete foundation and refunds a fraction of its cost.

@@ -85,7 +85,7 @@ final class SelectionModel {
     func orderMove(to point: WorldPoint, in simulation: SkirmishSimulation) {
         let movable = selectedUnits
             .compactMap { simulation.unit($0) }
-            .filter { $0.faction == .sunwoven }
+            .filter { $0.faction == simulation.playerFaction }
             .map(\.id)
         guard !movable.isEmpty else { return }
 
@@ -98,7 +98,7 @@ final class SelectionModel {
         guard let deposit = simulation.deposit(depositID) else { return }
         let mine = selectedUnits
             .compactMap { simulation.unit($0) }
-            .filter { $0.faction == .sunwoven }
+            .filter { $0.faction == simulation.playerFaction }
             .map(\.id)
         guard !mine.isEmpty else { return }
 
@@ -126,7 +126,7 @@ final class SelectionModel {
         guard let building = simulation.building(buildingID), !building.isComplete else { return }
         let mine = selectedUnits
             .compactMap { simulation.unit($0) }
-            .filter { $0.faction == .sunwoven }
+            .filter { $0.faction == simulation.playerFaction }
             .map(\.id)
         guard !mine.isEmpty else { return }
 
@@ -140,11 +140,11 @@ final class SelectionModel {
     func orderBoard(onto transportID: EntityID, in simulation: SkirmishSimulation) {
         guard let transport = simulation.unit(transportID),
               transport.kind == .lightTransport,
-              transport.faction == .sunwoven
+              transport.faction == simulation.playerFaction
         else { return }
         let boarders = selectedUnits
             .compactMap { simulation.unit($0) }
-            .filter { $0.faction == .sunwoven && $0.kind.canGather }
+            .filter { $0.faction == simulation.playerFaction && $0.kind.canGather }
             .map(\.id)
         guard !boarders.isEmpty else { return }
 
@@ -166,7 +166,7 @@ final class SelectionModel {
         in simulation: SkirmishSimulation
     ) -> Result<Void, ProductionEnqueueFailure> {
         guard let building = simulation.building(buildingID),
-              building.faction == .sunwoven
+              building.faction == simulation.playerFaction
         else { return .failure(.notTrainable) }
         return simulation.enqueueUnit(kind, at: buildingID)
     }
@@ -174,7 +174,7 @@ final class SelectionModel {
     @discardableResult
     func cancelProduction(at buildingID: EntityID, in simulation: SkirmishSimulation) -> Bool {
         guard let building = simulation.building(buildingID),
-              building.faction == .sunwoven
+              building.faction == simulation.playerFaction
         else { return false }
         return simulation.cancelProduction(at: buildingID)
     }
@@ -183,7 +183,9 @@ final class SelectionModel {
     func orderAttack(target: EntityID, in simulation: SkirmishSimulation) {
         let attackers = selectedUnits
             .compactMap { simulation.unit($0) }
-            .filter { $0.faction == .sunwoven && $0.kind.canAttack && !$0.isAboard }
+            .filter {
+                $0.faction == simulation.playerFaction && $0.kind.canAttack && !$0.isAboard
+            }
             .map(\.id)
         guard !attackers.isEmpty else { return }
 

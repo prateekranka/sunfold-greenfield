@@ -17,6 +17,7 @@ final class SkirmishSimulation {
     let map: WorldMap
     let seed: UInt64
     let mapID: WorldMapID
+    let playerFaction: Faction
 
     private(set) var clock: SimulationClock
     private(set) var stock: [Faction: ResourcePool]
@@ -43,13 +44,15 @@ final class SkirmishSimulation {
         mapID: WorldMapID = .default,
         tuning: SkirmishTuning = .baseline,
         perfDensity: Int? = nil,
+        playerFaction: Faction = .sunwoven,
         adversaryEnabled: Bool = true
     ) {
         self.seed = seed
         self.mapID = mapID
         self.tuning = tuning
         self.perfDensity = perfDensity
-        self.adversary = AdversaryState(faction: .gravemark, isEnabled: adversaryEnabled)
+        self.playerFaction = playerFaction
+        self.adversary = AdversaryState(faction: playerFaction.opponent, isEnabled: adversaryEnabled)
         let map = WorldMap.map(mapID, seed: seed)
         self.map = map
         self.clock = SimulationClock(tuning: tuning)
@@ -488,8 +491,13 @@ final class SkirmishSimulation {
     }
 
     /// The player concedes. A defeat, recorded as one.
-    func resign(as faction: Faction = .sunwoven) {
-        victory.resign(faction, tick: clock.tick, elapsed: clock.elapsed)
+    func resign(as faction: Faction? = nil) {
+        victory.resign(
+            faction ?? playerFaction,
+            tick: clock.tick,
+            elapsed: clock.elapsed,
+            playerFaction: playerFaction
+        )
     }
 
     /// Plays the same match again from the same seed.
@@ -601,7 +609,8 @@ final class SkirmishSimulation {
                 units: units,
                 buildings: buildings,
                 tuning: tuning,
-                deltaTime: seconds
+                deltaTime: seconds,
+                playerFaction: playerFaction
             )
         )
     }

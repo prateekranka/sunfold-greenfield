@@ -181,7 +181,7 @@ struct SelectionPanel: View {
     private func depositCard(_ deposit: Deposit) -> some View {
         let tint = Color(SunfoldPalette.resourceTint(deposit.kind))
         let workers = simulation.units.values.count {
-            $0.faction == .sunwoven && $0.assignment == deposit.id
+            $0.faction == simulation.playerFaction && $0.assignment == deposit.id
         }
 
         return card {

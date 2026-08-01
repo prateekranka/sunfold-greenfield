@@ -22,7 +22,11 @@ struct SunfoldGreenfieldApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(seed: Self.lockedSeed, mapID: Self.selectedMapID)
+            RootView(
+                seed: Self.lockedSeed,
+                mapID: Self.selectedMapID,
+                perfDensity: PerfLaunchFlags.perfDensity
+            )
         }
     }
 }

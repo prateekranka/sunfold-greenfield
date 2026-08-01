@@ -1,0 +1,39 @@
+Timestamp               Ty Process[PID:TID]
+2026-08-01 20:41:00.270 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Lighting: key 2304 lux (exposure 0.72) +shadow(380m), fill 309, rim 828, procedural IBL
+2026-08-01 20:41:04.244 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Terrain dressing 'sunwovenHome': 16023 triangles across 19 zones.
+2026-08-01 20:41:04.450 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Terrain dressing 'gravemarkHome': 6605 triangles across 19 zones.
+2026-08-01 20:41:04.658 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Terrain dressing 'dominion': 6358 triangles across 19 zones.
+2026-08-01 20:41:04.920 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Terrain dressing 'sunwovenExpansion': 16570 triangles across 18 zones.
+2026-08-01 20:41:05.140 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Terrain dressing 'gravemarkExpansion': 9359 triangles across 19 zones.
+2026-08-01 20:41:05.352 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Terrain dressing 'neutralOutcropNorth': 5454 triangles across 18 zones.
+2026-08-01 20:41:05.579 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Terrain dressing 'neutralOutcropSouth': 8114 triangles across 19 zones.
+2026-08-01 20:41:05.579 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] World built: 7 fragments, seed 20260726.
+2026-08-01 20:41:05.662 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'spire.dominion': 106 triangles across 3 zones.
+2026-08-01 20:41:05.673 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'core.sunwoven': 1354 triangles across 8 zones.
+2026-08-01 20:41:05.678 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'core.gravemark': 300 triangles across 6 zones.
+2026-08-01 20:41:05.683 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.provisions': 142 triangles across 5 zones.
+2026-08-01 20:41:05.688 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.lumen': 448 triangles across 5 zones.
+2026-08-01 20:41:05.691 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.provisions': 142 triangles across 5 zones.
+2026-08-01 20:41:05.697 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.matter': 502 triangles across 5 zones.
+2026-08-01 20:41:05.701 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.matter': 502 triangles across 5 zones.
+2026-08-01 20:41:05.705 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.lumen': 448 triangles across 5 zones.
+2026-08-01 20:41:05.710 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.aether': 237 triangles across 5 zones.
+2026-08-01 20:41:05.714 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.aether': 237 triangles across 5 zones.
+2026-08-01 20:41:05.717 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.provisions': 142 triangles across 5 zones.
+2026-08-01 20:41:05.720 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.provisions': 142 triangles across 5 zones.
+2026-08-01 20:41:05.723 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.matter': 499 triangles across 5 zones.
+2026-08-01 20:41:05.727 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.matter': 505 triangles across 5 zones.
+2026-08-01 20:41:05.731 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.matter': 490 triangles across 5 zones.
+2026-08-01 20:41:05.735 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.matter': 502 triangles across 5 zones.
+2026-08-01 20:41:05.738 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.provisions': 142 triangles across 5 zones.
+2026-08-01 20:41:05.742 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.aether': 237 triangles across 5 zones.
+2026-08-01 20:41:05.746 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.aether': 237 triangles across 5 zones.
+2026-08-01 20:41:05.749 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.matter': 517 triangles across 5 zones.
+2026-08-01 20:41:05.754 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.lumen': 448 triangles across 5 zones.
+2026-08-01 20:41:05.756 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.provisions': 142 triangles across 5 zones.
+2026-08-01 20:41:05.760 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.lumen': 448 triangles across 5 zones.
+2026-08-01 20:41:05.764 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.matter': 496 triangles across 5 zones.
+2026-08-01 20:41:05.768 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.lumen': 448 triangles across 5 zones.
+2026-08-01 20:41:05.772 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'deposit.aether': 237 triangles across 5 zones.
+2026-08-01 20:41:05.811 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'transport.sunwoven': 290 triangles across 4 zones.
+2026-08-01 20:41:05.843 I  SunfoldGreenfield[66581:9b895a] [com.sunfold.greenfield:world] Structure 'transport.gravemark': 140 triangles across 4 zones.

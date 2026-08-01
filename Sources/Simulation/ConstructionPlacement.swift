@@ -59,8 +59,8 @@ enum ConstructionPlacement {
         return kind.footprintRadius
     }
 
-    /// True when the entire footprint sits on Sunwoven home land, clear of void
-    /// and other footprints. Green only when every sample passes.
+    /// True when the entire footprint sits on the player's home land, clear of
+    /// void and other footprints. Green only when every sample passes.
     static func isLegal(
         kind: BuildingKind,
         at point: WorldPoint,
@@ -68,10 +68,11 @@ enum ConstructionPlacement {
     ) -> Bool {
         let map = simulation.map
         let radius = collisionRadius(for: kind)
+        let homeRegion = simulation.playerFaction.homeRegion
 
         for sample in footprintSamples(kind: kind, center: point) {
             guard map.landField(at: sample) > minLand else { return false }
-            guard map.region(at: sample) == .sunwovenHome else { return false }
+            guard map.region(at: sample) == homeRegion else { return false }
         }
 
         for building in simulation.buildings.values {

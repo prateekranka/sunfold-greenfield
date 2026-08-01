@@ -36,6 +36,22 @@ enum Faction: String, CaseIterable, Sendable {
         case .gravemark: "Gravemark"
         }
     }
+
+    /// The home region used by player-facing camera, placement, and selection logic.
+    var homeRegion: RegionID {
+        switch self {
+        case .sunwoven: .sunwovenHome
+        case .gravemark: .gravemarkHome
+        }
+    }
+
+    /// The expansion region used by deterministic starting-state placement.
+    var expansionRegion: RegionID {
+        switch self {
+        case .sunwoven: .sunwovenExpansion
+        case .gravemark: .gravemarkExpansion
+        }
+    }
 }
 
 /// The four legible resources. Order here is the order shown in the top bar.
