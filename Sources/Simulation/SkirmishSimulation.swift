@@ -151,29 +151,44 @@ final class SkirmishSimulation {
     /// Orders a unit to walk somewhere. The destination is clamped to somewhere
     /// the unit may legally stand, so an imprecise tap still produces a sensible
     /// move rather than being silently dropped.
-    func order(_ id: EntityID, moveTo point: WorldPoint) {
-        guard var unit = units[id] else { return }
-        guard let destination = MovementSystem.resolveDestination(point, for: unit, map: map) else { return }
+    @discardableResult
+    func order(_ id: EntityID, moveTo point: WorldPoint) -> WorldPoint? {
+        guard var unit = units[id] else { return nil }
+        guard let route = MovementSystem.resolveOrder(
+            point,
+            for: unit,
+            map: map,
+            buildings: buildings,
+            deposits: deposits
+        ) else { return nil }
         unit.assignment = nil
         unit.attackOrderTarget = nil
         unit.attackTarget = nil
         unit.guardAnchor = nil
-        unit.destination = destination
+        unit.destination = route.destination
+        unit.movementPath = route.waypoints
+        unit.movementPathTarget = route.destination
         unit.activity = .moving
         units[id] = unit
+        return route.destination
     }
 
-    func orderMove(_ ids: [EntityID], to point: WorldPoint) {
+    @discardableResult
+    func orderMove(_ ids: [EntityID], to point: WorldPoint) -> [WorldPoint] {
         // Ordering several units to one point spreads them so they do not pile
         // onto a single coordinate. Slots derive from durable IDs, never from
         // collection order, so the same unit keeps the same slot every time.
         let ordered = ids.sorted { $0.raw < $1.raw }
+        var destinations: [WorldPoint] = []
         for (index, id) in ordered.enumerated() {
-            units[id].map { _ in
+            if units[id] != nil {
                 let offset = formationOffset(index: index, count: ordered.count)
-                order(id, moveTo: point + offset)
+                if let destination = order(id, moveTo: point + offset) {
+                    destinations.append(destination)
+                }
             }
         }
+        return destinations
     }
 
     /// A stable, outward-growing ring so groups arrive as a readable cluster.
@@ -576,7 +591,13 @@ final class SkirmishSimulation {
             tuning: tuning,
             deltaTime: seconds
         )
-        MovementSystem.step(units: &units, map: map, deltaTime: seconds)
+        MovementSystem.step(
+            units: &units,
+            map: map,
+            buildings: buildings,
+            deposits: deposits,
+            deltaTime: seconds
+        )
         let combatResult = CombatSystem.step(
             units: &units,
             buildings: &buildings,

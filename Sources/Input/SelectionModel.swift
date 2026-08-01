@@ -89,8 +89,21 @@ final class SelectionModel {
             .map(\.id)
         guard !movable.isEmpty else { return }
 
-        simulation.orderMove(movable, to: point)
-        lastOrderMarker = OrderMarker(position: point, issuedAt: simulation.elapsed)
+        let destinations = simulation.orderMove(movable, to: point)
+        if let destination = destinations.first {
+            // Accepted orders use the simulation's resolved endpoint.
+            lastOrderMarker = OrderMarker(
+                position: destination,
+                issuedAt: simulation.elapsed
+            )
+        } else {
+            // A rejected order still leaves a short-lived marker at the point
+            // the player tapped, so denial is visible as well as audible.
+            lastOrderMarker = OrderMarker(
+                position: point,
+                issuedAt: simulation.elapsed
+            )
+        }
     }
 
     /// Puts the selection to work on a deposit.

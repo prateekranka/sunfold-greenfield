@@ -174,6 +174,10 @@ struct Causeway: Sendable {
 /// half is. The layouts are now free to differ side to side, and ``core(bearing:reach:)``
 /// carries the one rule that is left.
 struct WorldMap: Sendable {
+    /// Minimum signed-water depth required for a Light Transport centre. This
+    /// is the shared water clearance used by spawning, orders, and movement.
+    static let transportVoidClearance: Float = 0.75
+
     let id: WorldMapID
     let seed: UInt64
     let fragments: [RegionID: Fragment]
@@ -978,12 +982,55 @@ struct WorldMap: Sendable {
             if isLand(next) { break }
             berth = next
         }
-        return best
+
+        // `crossing` identifies the correct water body, but its midpoint can
+        // still sit too close to a wandering bank for the navigable centerline.
+        // Search a deterministic local ring before accepting a shallow berth.
+        // The first ring that contains legal water wins, so this cannot jump
+        // across land to a visually unrelated outer-water point.
+        let voidMargin = WorldMap.transportVoidClearance
+        if isNavigableVoid(best, margin: voidMargin) {
+            return best
+        }
+
+        // Erosion can move the bank farther than the old 20 m repair window.
+        // Search the complete local theatre in deterministic rings instead of
+        // returning the original shallow point when the first window is empty.
+        let searchLimit = max(bounds.x, bounds.y) + 8
+        for radius in stride(from: Float(1), through: searchLimit, by: 1) {
+            var ringBest: WorldPoint?
+            var ringDepth = Float.greatestFiniteMagnitude
+            for sample in 0..<48 {
+                let bearing = Float(sample) / 48 * 2 * .pi
+                let candidate = pair.water + WorldPoint(cos(bearing), sin(bearing)) * radius
+                guard isNavigableVoid(candidate, margin: voidMargin) else { continue }
+                let depth = landField(at: candidate)
+                if depth < ringDepth {
+                    ringBest = candidate
+                    ringDepth = depth
+                }
+            }
+            if let ringBest {
+                return ringBest
+            }
+        }
+
+        // Every authored Phase A map has exterior void. Reaching this branch
+        // means the map no longer provides a legal berth for its own contract.
+        assertionFailure(
+            "No legal Transport berth for \(id.rawValue) facing \(target.rawValue)"
+        )
+        preconditionFailure(
+            "WorldMap.dockPoint cannot return a non-void Transport position"
+        )
     }
 
     /// True when a transport may occupy `point`. Requires clear void (rivers,
     /// lakes, or open channel) — not dry land and not a thin coastal fringe.
-    func isNavigableVoid(_ point: WorldPoint, margin: Float = 0.75) -> Bool {
+    func isNavigableVoid(
+        _ point: WorldPoint,
+        margin: Float = WorldMap.transportVoidClearance
+    ) -> Bool {
         landField(at: point) < -margin
     }
 
@@ -1063,6 +1110,42 @@ struct WorldMap: Sendable {
         guard isLand(point) else { return false }
         guard margin > 0 else { return true }
         return waterDepth(at: point) < -margin
+    }
+
+    /// Whether a land-unit centre has enough signed ground around it to remain
+    /// on the visible continent. The existing `isStandable` check protects
+    /// against authored void bodies, while this check also protects the outer
+    /// coastline where no `VoidBody` exists to provide a water-depth margin.
+    func isTraversable(_ point: WorldPoint, margin: Float) -> Bool {
+        guard isStandable(point, margin: margin) else { return false }
+        return landField(at: point) >= max(margin, 0.25)
+    }
+
+    /// Resolves a point on a coastline or cliff edge to the last grounded point
+    /// on the segment from `from`. This keeps the terrain field and movement
+    /// legality on the same side of the visible edge.
+    func clampToTraversable(
+        _ proposed: WorldPoint,
+        from: WorldPoint,
+        margin: Float
+    ) -> WorldPoint {
+        if isTraversable(proposed, margin: margin) { return proposed }
+
+        var good = from
+        var bad = proposed
+        guard isTraversable(good, margin: margin) else {
+            return clampToLand(proposed, from: from, margin: margin)
+        }
+
+        for _ in 0..<14 {
+            let middle = (good + bad) * 0.5
+            if isTraversable(middle, margin: margin) {
+                good = middle
+            } else {
+                bad = middle
+            }
+        }
+        return good
     }
 
     /// The nearest point to `proposed` that a land unit may occupy on any dry

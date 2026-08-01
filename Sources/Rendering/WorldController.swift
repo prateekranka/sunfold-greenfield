@@ -40,6 +40,35 @@ final class WorldController {
     /// completion feedback exactly once when progress crosses 1.
     private var risingBuildings: Set<EntityID> = []
 
+    /// State snapshots used only to classify the player's transport order and
+    /// arrival feedback. The simulation remains the sole owner of movement.
+    private struct TransportOrderState: Equatable {
+        let destination: WorldPoint?
+        let movementPathTarget: WorldPoint?
+        let movementPath: [WorldPoint]
+        let activity: UnitActivity
+
+        init(_ unit: Unit) {
+            destination = unit.destination
+            movementPathTarget = unit.movementPathTarget
+            movementPath = unit.movementPath
+            activity = unit.activity
+        }
+    }
+
+    private struct TransportAudioState: Equatable {
+        let destination: WorldPoint?
+        let activity: UnitActivity
+
+        init(_ unit: Unit) {
+            destination = unit.destination
+            activity = unit.activity
+        }
+    }
+
+    private var transportAudioStates: [EntityID: TransportAudioState] = [:]
+    private var lastViewportSize: SIMD2<Float> = .zero
+
     struct Marquee: Equatable {
         var origin: SIMD2<Float>
         var current: SIMD2<Float>
@@ -120,6 +149,7 @@ final class WorldController {
         // must be reconciled every frame rather than trusted to stay valid.
         selection.prune(against: simulation)
         selection.expireOrderMarker(after: 2.5, now: simulation.elapsed)
+        detectTransportMovementFeedback()
 
         // Presentation is reconciled after the simulation has stepped, so a frame
         // never shows a mix of this tick's positions and last tick's entities.
@@ -186,6 +216,111 @@ final class WorldController {
         return justFinished
     }
 
+    /// Emits one arrival cue for a selected, visible player Transport when its
+    /// simulation state changes from moving to stopped. Docking takes precedence
+    /// over the generic arrival cue, so one frame never stacks both sounds.
+    private func detectTransportMovementFeedback() {
+        var currentStates: [EntityID: TransportAudioState] = [:]
+        let selectedIDs = selection.selectedUnits.sorted { $0.raw < $1.raw }
+
+        for id in selectedIDs {
+            guard let unit = simulation.unit(id),
+                  unit.faction == simulation.playerFaction,
+                  unit.kind == .lightTransport
+            else { continue }
+
+            let current = TransportAudioState(unit)
+            if let previous = transportAudioStates[id] {
+                let wasMoving = previous.activity == .moving || previous.destination != nil
+                let hasStopped = current.activity == .idle && current.destination == nil
+                if wasMoving && hasStopped && isTransportVisible(unit) {
+                    if isAtShoreBerth(unit.position) {
+                        FeedbackAudio.transportDocked()
+                    } else {
+                        FeedbackAudio.movementArrived()
+                    }
+                }
+            }
+            currentStates[id] = current
+        }
+
+        transportAudioStates = currentStates
+    }
+
+    /// Uses the last touch viewport because arrival feedback must not fire for
+    /// a selected hull that has left the player's visible frame.
+    private func isTransportVisible(_ unit: Unit) -> Bool {
+        guard let rig,
+              lastViewportSize.x > 0,
+              lastViewportSize.y > 0,
+              let point = rig.screenPoint(
+                  forWorld: unit.position,
+                  viewportSize: lastViewportSize
+              )
+        else { return false }
+
+        return point.x >= 0 && point.x <= lastViewportSize.x
+            && point.y >= 0 && point.y <= lastViewportSize.y
+    }
+
+    /// A berth is the water-side position from which a passenger can reach
+    /// standable shore. This mirrors the existing boarding search without
+    /// changing its acceptance rules.
+    private func isAtShoreBerth(_ point: WorldPoint) -> Bool {
+        let samples = 24
+        for radius in stride(from: Float(2), through: BoardingSystem.embarkRadius, by: 1.2) {
+            for sample in 0..<samples {
+                let bearing = Float(sample) / Float(samples) * 2 * .pi
+                let offset = WorldPoint(cos(bearing), sin(bearing)) * radius
+                if simulation.map.isStandable(
+                    point + offset,
+                    margin: UnitKind.citizen.footprintRadius
+                ) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private func playTransportSelectionFeedback(before: Set<EntityID>) {
+        let newlySelected = selection.selectedUnits.subtracting(before)
+        guard newlySelected.contains(where: { id in
+            guard let unit = simulation.unit(id) else { return false }
+            return unit.faction == simulation.playerFaction && unit.kind == .lightTransport
+        }) else { return }
+        FeedbackAudio.unitSelected()
+    }
+
+    private func selectedTransportOrderStates() -> [EntityID: TransportOrderState] {
+        Dictionary(uniqueKeysWithValues: selection.selectedUnits.compactMap { id in
+            guard let unit = simulation.unit(id),
+                  unit.faction == simulation.playerFaction,
+                  unit.kind == .lightTransport
+            else { return nil }
+            return (id, TransportOrderState(unit))
+        })
+    }
+
+    /// Compares simulation state before and after the existing order call. A
+    /// changed Transport state means the void route was accepted; an unchanged
+    /// state means the simulation rejected the target.
+    private func playTransportOrderFeedback(before: [EntityID: TransportOrderState]) {
+        guard !before.isEmpty else { return }
+
+        let accepted = before.contains { entry in
+            let id = entry.key
+            let previous = entry.value
+            guard let unit = simulation.unit(id) else { return false }
+            return TransportOrderState(unit) != previous
+        }
+        if accepted {
+            FeedbackAudio.movementOrdered()
+        } else {
+            FeedbackAudio.movementDenied()
+        }
+    }
+
     // MARK: - Touch intents
 
     /// Resolves a tap to a selection change or an order.
@@ -194,6 +329,8 @@ final class WorldController {
     /// elsewhere with units selected moves them; tapping empty ground with nothing
     /// selected clears. Advanced orders wait until the basic loop is proven.
     func handleTap(atScreenPoint screenPoint: SIMD2<Float>, viewportSize: SIMD2<Float>) {
+        lastViewportSize = viewportSize
+
         // PROTOTYPE (#11): tap cancels an active ghost without placing.
         if buildGhost != nil {
             cancelBuildGhost()
@@ -232,7 +369,9 @@ final class WorldController {
                 selectAllVisible(ofKind: unit.kind, viewportSize: viewportSize)
                 lastTap = nil
             } else {
+                let previousSelection = selection.selectedUnits
                 selection.selectUnit(id)
+                playTransportSelectionFeedback(before: previousSelection)
                 lastTap = (ProcessInfo.processInfo.systemUptime, screenPoint, id)
             }
 
@@ -270,8 +409,11 @@ final class WorldController {
             lastTap = nil
             if selection.selectedUnits.isEmpty {
                 selection.clear()
+                transportAudioStates.removeAll()
             } else {
+                let transportStates = selectedTransportOrderStates()
                 selection.orderMove(to: worldPoint, in: simulation)
+                playTransportOrderFeedback(before: transportStates)
             }
         }
     }
@@ -301,7 +443,9 @@ final class WorldController {
             .map(\.id)
             .sorted { $0.raw < $1.raw }
         guard !ids.isEmpty else { return }
+        let previousSelection = selection.selectedUnits
         selection.selectUnits(ids)
+        playTransportSelectionFeedback(before: previousSelection)
     }
 
     // MARK: - Marquee selection
@@ -345,7 +489,14 @@ final class WorldController {
         let hits = unitsInMarquee(viewportSize: viewportSize)
         // An empty box is a real instruction — the player drew over open ground
         // to let go of what they had.
-        if hits.isEmpty { selection.clear() } else { selection.selectUnits(hits) }
+        if hits.isEmpty {
+            selection.clear()
+            transportAudioStates.removeAll()
+        } else {
+            let previousSelection = selection.selectedUnits
+            selection.selectUnits(hits)
+            playTransportSelectionFeedback(before: previousSelection)
+        }
     }
 
     private func unitsInMarquee(viewportSize: SIMD2<Float>) -> [EntityID] {
@@ -452,6 +603,7 @@ final class WorldController {
     func clearSelection() {
         cancelBuildGhost()
         selection.clear()
+        transportAudioStates.removeAll()
     }
 
     /// Play Again. Rewinds the match to its opening state from the same seed and
@@ -485,6 +637,7 @@ final class WorldController {
         sceneRoot = nil
         presenter = nil
         rig = nil
+        transportAudioStates.removeAll()
     }
 
     /// Cancels an incomplete foundation and refunds a fraction of its cost.

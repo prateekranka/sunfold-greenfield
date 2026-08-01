@@ -22,6 +22,11 @@ struct Unit: Sendable, Identifiable {
     var position: WorldPoint
     /// Where the unit is walking to. Nil means it has arrived or was never ordered.
     var destination: WorldPoint?
+    /// Deterministic single-unit path, including the final destination. The path
+    /// is simulation state so a route is not rebuilt from frame timing.
+    var movementPath: [WorldPoint] = []
+    /// Destination for which `movementPath` was planned.
+    var movementPathTarget: WorldPoint?
     /// Spawn facing, in radians about Y. Live facing belongs to the presentation
     /// layer's `LocomotionState`, which applies the turn-rate limit and deadband
     /// that stop a unit shivering between adjacent headings. Keeping one owner
