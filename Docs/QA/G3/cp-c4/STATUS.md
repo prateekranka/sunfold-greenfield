@@ -18,7 +18,7 @@ Spec: `Docs/Design/00-CONTENT-SPEC.md` §5, overridden where they disagree by
 | Contested **decays at half the fill rate**, per B10.3 | **PASS (test only)** — `testContestedProgressDecaysAtHalfTheFillRateRatherThanPausing`, `testMutualOccupationDrainsBothSidesAndCannotDeadlock`. Never observed in play — see *What is not proven* |
 | The Spire is neutral and indestructible | **PASS** — `testTheSpireCannotBeDamagedEvenWhenOrderedAttackedPointBlank`, `testNothingEverAcquiresTheSpireAsATarget` |
 | The hold requirement shortens with match time | **PASS** — asserted in test, and visible on device: `03-…png` reads **`0s / 20s`** at 15:55 |
-| A finished match stops stepping | **PASS** — `testAFinishedMatchStopsSteppingEntirely`, and on device the clock held at **0:21** across two accessibility reads seven seconds apart |
+| A finished match stops stepping | **PASS** — `testAFinishedMatchStopsSteppingEntirely`, and on device the accessibility tree was polled at 1 Hz for **12.0 s** with the overlay up and the match clock read `Match time 5:59` on every poll |
 | Resignation is named honestly, not reported as a Conquest | **PASS** — `04-defeat-by-resignation.png` reads *DEFEAT · RESIGNATION · Sunwoven resigned.* |
 | Play Again rewinds to the opening state | **PASS** — `06-play-again-restarted.png`: clock **0:01**, POP **4/10**, stock back to 180 / 160 / 40, no stale entities |
 | Determinism survives the new system | **PASS** — two no-input runs stop on the same tick with the same outcome and the same fingerprint |
@@ -126,9 +126,22 @@ landscape.
 | `05-defeat-under-live-adversary.png` | The same ending arriving under a live opponent rather than a forced one |
 | `06-play-again-restarted.png` | **After tapping PLAY AGAIN**: clock **0:01**, POP **4/10**, stock back to 180 Provisions / 160 Matter / 40 Lumen, the Spire back, nothing left over from the finished match |
 
-**The world really stops.** The accessibility tree was read twice, seven seconds
-apart, with the defeat overlay up. `Match time 0:21` both times. The overlay is not
-a panel over a running world.
+**The world really stops.** With a Conquest defeat overlay up, the accessibility
+tree was polled once a second for **12.0 s**. `Match time 5:59` on every one of the
+thirteen reads, in both the objective rail and the overlay. The overlay is not a
+panel over a running world.
+
+**Restart replays the seed, and that was observed rather than assumed.** The match
+restarted by `06-play-again-restarted.png` was left running untouched and resolved
+on its own to **DEFEAT · CONQUEST at 5:59** — the same outcome, at the same match
+time, as the first run and as `testAnUntouchedMatchAgainstTheAdversaryNowResolves`
+(tick 7192). Play Again is a genuine rewind, not a partial reset.
+
+> **Correction to commit `3f63da9`.** That message says the clock "held at 0:21
+> across two accessibility reads seven seconds apart". The two 0:21 observations
+> were in fact one screenshot and one accessibility read, 7.4 s apart — the
+> conclusion held, the method description did not. The 12.0 s / 1 Hz measurement
+> above was taken afterwards to replace it and is the number to cite.
 
 ---
 
@@ -144,10 +157,21 @@ Recorded so it is a known gap, not a surprise.
   600 HP Core, which is what 15:55 was mostly spent on. This is a pacing question for
   CP-C5/CP-C9, not a victory-rules question.
 - **The contest rule has never been seen in play.** Decay-at-half-rate and the
-  no-deadlock property are test-proven only. The adversary's schedule sends every
-  wave at the player's Core and never walks into the ring, so two live sides have
-  never contested the Spire on a device. This is the single largest untested surface
-  in CP-C4.
+  no-deadlock property are test-proven only. A *contest* needs both sides in the
+  ring at once, and that has never happened on a device: the player has never had
+  a unit there while Gravemark did. This is the single largest untested surface in
+  CP-C4.
+- **The adversary banks Dominion progress by accident, and nobody designed that.**
+  Measured on device at the end of the observed no-input match: the rail read
+  *"Dominion: you 0 of 45 seconds, **enemy 11**"*. CP-C3 routes every wave via the
+  Dominion centre because there is no pathfinder, so waves walk through the capture
+  ring on their way to the player's Core and fill the Gravemark timer while they
+  pass. Eleven seconds of forty-five is a long way from a win, and this run ended by
+  Conquest first — but the number is not zero, it was never intended, and nothing
+  caps it. A slower Conquest or a wave that stalls on the objective could hand
+  Gravemark a Dominion victory that no schedule ever asked for. **Worth a decision
+  before CP-C5**, and it is a live example of exactly the failure the checkpoint
+  question asks about: losing to something the player could not see coming.
 - **Play Again does not reset `timeScale`.** Restarting after a match played at 3×
   starts the new match at 3×. Deliberate-looking rather than deliberate — nobody
   decided it. The device capture was taken at 1×, so the interaction is unobserved.
