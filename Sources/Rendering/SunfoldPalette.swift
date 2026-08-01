@@ -13,6 +13,11 @@ enum SunfoldPalette {
     /// value it replaced was indistinguishable from #000 in the rendered build.
     static let voidDeep = UIColor(red: 0.039, green: 0.045, blue: 0.105, alpha: 1)
     static let voidHorizon = UIColor(red: 0.055, green: 0.062, blue: 0.130, alpha: 1)
+    /// Opaque void-water tones. They stay black-indigo, but separate water from
+    /// the backdrop and give depth without introducing a bright sea colour.
+    static let voidWaterDeep = UIColor(red: 0.030, green: 0.065, blue: 0.145, alpha: 1)
+    static let voidWaterShallow = UIColor(red: 0.065, green: 0.115, blue: 0.220, alpha: 1)
+    static let voidWaterShore = UIColor(red: 0.130, green: 0.190, blue: 0.290, alpha: 1)
     static let starWarm = UIColor(red: 1.00, green: 0.95, blue: 0.86, alpha: 1)
     static let starCool = UIColor(red: 0.82, green: 0.88, blue: 1.00, alpha: 1)
     /// Warm dust lobe sampled from concept 01's soft-void — not a second backdrop,
