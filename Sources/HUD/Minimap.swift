@@ -328,7 +328,15 @@ struct Minimap: View {
                 width: side,
                 height: side
             )
-            let tint = building.faction == viewer ? HUDInk.friendly : HUDInk.hostile
+            // Neutral is neither: painting the objective in the enemy's copper
+            // would read as "they hold it", which is the one thing the minimap
+            // must not lie about.
+            let tint: Color
+            switch building.faction {
+            case viewer: tint = HUDInk.friendly
+            case nil: tint = HUDInk.textDim
+            default: tint = HUDInk.hostile
+            }
             context.fill(Path(rect), with: .color(tint))
             context.stroke(Path(rect), with: .color(.black.opacity(0.65)), lineWidth: 0.75)
         }

@@ -609,7 +609,8 @@ enum Adversary {
 
     private static func describe(_ id: EntityID?, input: Inputs) -> String {
         guard let id, let building = input.buildings[id] else { return "no target" }
-        return "\(building.faction.displayName) \(building.kind.displayName) #\(id.raw)"
+        let owner = building.faction?.displayName ?? "Neutral"
+        return "\(owner) \(building.kind.displayName) #\(id.raw)"
     }
 }
 

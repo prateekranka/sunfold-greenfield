@@ -442,6 +442,26 @@ final class WorldController {
         selection.clear()
     }
 
+    /// Play Again. Rewinds the match to its opening state from the same seed and
+    /// drops everything the renderer was holding about the old world — selection,
+    /// a half-placed ghost, and the rising-building set, all of which name entity
+    /// IDs that no longer exist.
+    func restartMatch() {
+        clearSelection()
+        risingBuildings.removeAll()
+        simulation.restart()
+
+        // The camera is wherever the last match left it, which after a defeat is
+        // usually standing over the enemy's base watching your own Core burn.
+        // A new match starts where a new match starts.
+        if let core = simulation.buildings.values.first(where: {
+            $0.kind == .civilizationCore && $0.faction == .sunwoven
+        }) {
+            rig?.setFocus(core.position)
+        }
+        DebugLog.info("Match restarted from seed \(simulation.seed)")
+    }
+
     /// Cancels an incomplete foundation and refunds a fraction of its cost.
     @discardableResult
     func cancelConstruction(_ buildingID: EntityID) -> Bool {

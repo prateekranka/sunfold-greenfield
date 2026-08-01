@@ -106,7 +106,7 @@ struct SelectionPanel: View {
         let queue = simulation.productionQueue(for: building.id)
 
         return card {
-            title(building.kind.displayName, trailing: building.faction.displayName)
+            title(building.kind.displayName, trailing: building.faction?.displayName ?? "Neutral")
             Text(building.kind.purpose).hudLabel()
             if building.isComplete {
                 if !building.kind.trains.isEmpty {

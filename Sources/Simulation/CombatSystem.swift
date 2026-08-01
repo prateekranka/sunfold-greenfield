@@ -123,6 +123,9 @@ enum CombatSystem {
         for id in armedBuildingIDs {
             guard !deadBuildings.contains(id) else { continue }
             guard var building = buildings[id], !building.isDead, building.isComplete else { continue }
+            // Only an owned building shoots. A neutral objective has no side to
+            // shoot for, so it never acquires a target.
+            guard let owner = building.faction else { continue }
             guard let profile = building.kind.attackProfile else { continue }
 
             if building.attackCooldownRemaining > 0 {
@@ -133,7 +136,7 @@ enum CombatSystem {
 
             if building.attackTarget == nil || !isValidTarget(
                 building.attackTarget!,
-                for: building.faction,
+                for: owner,
                 sight: buildingSight(building),
                 from: building.position,
                 units: units,
@@ -142,7 +145,7 @@ enum CombatSystem {
                 deadBuildings: deadBuildings
             ) {
                 building.attackTarget = acquireNearestHostile(
-                    for: building.faction,
+                    for: owner,
                     sight: buildingSight(building),
                     from: building.position,
                     units: units,
@@ -388,7 +391,12 @@ enum CombatSystem {
             }
         }
 
-        for (id, building) in buildings where building.faction != faction && !building.isDead && building.isComplete {
+        // `building.faction != faction` is not enough now that a building can be
+        // neutral: `nil != .sunwoven` is true, and the Dominion Spire would be
+        // acquired as a target by both sides. Ownership has to be asserted, not
+        // assumed to exist.
+        for (id, building) in buildings
+        where isHostileOwner(building.faction, to: faction) && !building.isDead && building.isComplete {
             guard !deadBuildings.contains(id) else { continue }
             let distance = footprintDistance(
                 from: origin,
@@ -446,9 +454,18 @@ enum CombatSystem {
             return unit.faction != faction && !unit.isDead
         }
         if let building = buildings[targetID] {
-            return building.faction != faction && !building.isDead && building.isComplete
+            return isHostileOwner(building.faction, to: faction)
+                && !building.isDead
+                && building.isComplete
         }
         return false
+    }
+
+    /// A neutral objective is nobody's enemy. Only a building owned by the other
+    /// side is hostile.
+    private static func isHostileOwner(_ owner: Faction?, to faction: Faction) -> Bool {
+        guard let owner else { return false }
+        return owner != faction
     }
 
     private static func canEngage(
@@ -573,6 +590,11 @@ enum CombatSystem {
         }
 
         if var building = buildings[targetID], !building.isDead {
+            // Indestructible by rule, per R1 §3 (B10.1): the Dominion Spire is an
+            // objective, not a target. Nothing can acquire it — this guard makes
+            // that true by construction rather than by inference from the
+            // targeting code, so a future attack path cannot quietly break it.
+            guard !building.kind.isNeutralObjective else { return }
             building.life -= Double(amount)
             if building.life <= 0 {
                 building.life = 0

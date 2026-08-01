@@ -46,6 +46,8 @@ final class EntityPresenter {
     private var constructionRings: [EntityID: Entity] = [:]
     /// Brief gold flash entities when a building completes.
     private var completionFlashes: [EntityID: (entity: Entity, until: Double)] = [:]
+    /// Life bars for damaged units and buildings.
+    private var healthBars: [EntityID: Entity] = [:]
 
     /// The load a citizen is carrying, and which kind it is currently tinted for,
     /// so the material is only rebuilt when the resource actually changes.
@@ -75,6 +77,7 @@ final class EntityPresenter {
             + selectionRings.count
             + constructionRings.count
             + completionFlashes.count
+            + healthBars.count
             + (buildGhostEntity == nil ? 0 : 1)
             + (orderMarker == nil ? 0 : 1)
     }
@@ -95,6 +98,7 @@ final class EntityPresenter {
         syncOrderMarker(simulation, selection)
         syncConstructionProgress(simulation)
         syncCompletionFlashes(justFinished, simulation: simulation, now: simulation.elapsed)
+        syncHealthBars(simulation)
         syncBuildGhost(buildGhost, map: simulation.map, now: simulation.elapsed)
     }
 
@@ -429,24 +433,37 @@ final class EntityPresenter {
 
     private func makeBuildingEntity(for building: Building, id: EntityID) -> Entity {
         let entitySeed = seed &+ UInt64(id.raw)
+
+        // The one structure with no owner, so it is resolved before the faction
+        // is unwrapped. Everything below this line belongs to somebody.
+        if building.kind == .dominionSpire {
+            return DominionSpireMesh.make(seed: entitySeed)
+        }
+        guard let faction = building.faction else {
+            DebugLog.warn("Unowned \(building.kind.displayName) has no authored mesh.")
+            return Entity()
+        }
+
         switch building.kind {
         case .civilizationCore:
-            return CivilizationCoreMesh.make(faction: building.faction, seed: entitySeed)
+            return CivilizationCoreMesh.make(faction: faction, seed: entitySeed)
         case .farm:
-            return BuildingMeshes.farm(faction: building.faction, seed: entitySeed)
+            return BuildingMeshes.farm(faction: faction, seed: entitySeed)
         case .matterExtractor:
-            return BuildingMeshes.matterExtractor(faction: building.faction, seed: entitySeed)
+            return BuildingMeshes.matterExtractor(faction: faction, seed: entitySeed)
         case .dwelling:
-            return BuildingMeshes.dwelling(faction: building.faction, seed: entitySeed)
+            return BuildingMeshes.dwelling(faction: faction, seed: entitySeed)
         case .formationYard:
-            return BuildingMeshes.formationYard(faction: building.faction, seed: entitySeed)
+            return BuildingMeshes.formationYard(faction: faction, seed: entitySeed)
         case .expansionOutpost:
-            return BuildingMeshes.expansionOutpost(faction: building.faction, seed: entitySeed)
+            return BuildingMeshes.expansionOutpost(faction: faction, seed: entitySeed)
         case .dawnLoom:
             // The Voyager landmark arrives with G4. Fail closed: show something
             // readable and say so, rather than rendering nothing.
             DebugLog.warn("Dawn Loom mesh not authored yet; using Core silhouette.")
-            return CivilizationCoreMesh.make(faction: building.faction, seed: entitySeed)
+            return CivilizationCoreMesh.make(faction: faction, seed: entitySeed)
+        case .dominionSpire:
+            return DominionSpireMesh.make(seed: entitySeed)
         }
     }
 
@@ -498,6 +515,101 @@ final class EntityPresenter {
         entity.isEnabled = true
         entity.position = TerrainSurface.standing(at: marker.position, in: simulation.map, lift: 0.04)
         entity.scale = [pulse, 1, pulse]
+    }
+
+    // MARK: - Health bars
+
+    private func syncHealthBars(_ simulation: SkirmishSimulation) {
+        var live: Set<EntityID> = []
+
+        for (id, unit) in simulation.units where unit.life < unit.kind.maxLife {
+            live.insert(id)
+            let bar = healthBars[id] ?? makeHealthBar(named: "health.unit.\(id.raw)")
+            bar.isEnabled = true
+            positionHealthBar(bar, at: unit.position, in: simulation, lift: 2.2 * unitScale)
+            updateHealthBar(bar, fraction: Float(unit.life / unit.kind.maxLife))
+            healthBars[id] = bar
+        }
+
+        for (id, building) in simulation.buildings where building.life < building.kind.maxLife {
+            live.insert(id)
+            let bar = healthBars[id] ?? makeHealthBar(named: "health.building.\(id.raw)")
+            bar.isEnabled = true
+            positionHealthBar(bar, at: building.position, in: simulation, lift: 4.5)
+            updateHealthBar(bar, fraction: Float(building.life / building.kind.maxLife))
+            healthBars[id] = bar
+        }
+
+        for id in healthBars.keys where !live.contains(id) {
+            healthBars[id]?.removeFromParent()
+            healthBars[id] = nil
+        }
+    }
+
+    private func positionHealthBar(
+        _ bar: Entity,
+        at point: WorldPoint,
+        in simulation: SkirmishSimulation,
+        lift: Float
+    ) {
+        bar.position = TerrainSurface.standing(at: point, in: simulation.map, lift: lift)
+    }
+
+    private func makeHealthBar(named name: String) -> Entity {
+        let entity = Entity()
+        entity.name = name
+        let width: Float = 1.6
+        let height: Float = 0.12
+        var builder = FlatMeshBuilder()
+        let up = SIMD3<Float>(0, 1, 0)
+        let bg = [
+            SIMD3<Float>(-width / 2, 0, 0),
+            SIMD3<Float>( width / 2, 0, 0),
+            SIMD3<Float>( width / 2, 0, height),
+            SIMD3<Float>(-width / 2, 0, height),
+        ]
+        builder.addTriangle(bg[0], bg[1], bg[2], facing: up)
+        builder.addTriangle(bg[0], bg[2], bg[3], facing: up)
+        let dim = UIColor(white: 0.12, alpha: 0.85)
+        entity.components.set(
+            ModelComponent(
+                mesh: builder.makeMesh(named: "health.bg"),
+                materials: [UnlitMaterial(color: dim)]
+            )
+        )
+
+        let fill = Entity()
+        fill.name = "health.fill"
+        var fillBuilder = FlatMeshBuilder()
+        fillBuilder.addTriangle(
+            SIMD3<Float>(-width / 2 + 0.02, 0.01, 0.02),
+            SIMD3<Float>( width / 2 - 0.02, 0.01, 0.02),
+            SIMD3<Float>( width / 2 - 0.02, 0.01, height - 0.02),
+            facing: up
+        )
+        fillBuilder.addTriangle(
+            SIMD3<Float>(-width / 2 + 0.02, 0.01, 0.02),
+            SIMD3<Float>( width / 2 - 0.02, 0.01, height - 0.02),
+            SIMD3<Float>(-width / 2 + 0.02, 0.01, height - 0.02),
+            facing: up
+        )
+        fill.components.set(
+            ModelComponent(
+                mesh: fillBuilder.makeMesh(named: "health.fill"),
+                materials: [UnlitMaterial(color: UIColor(red: 0.35, green: 0.82, blue: 0.55, alpha: 0.95))]
+            )
+        )
+        fill.scale = [1, 1, 1]
+        entity.addChild(fill)
+        root.addChild(entity)
+        return entity
+    }
+
+    private func updateHealthBar(_ bar: Entity, fraction: Float) {
+        guard let fill = bar.findEntity(named: "health.fill") else { return }
+        let clamped = max(0, min(1, fraction))
+        fill.scale = [clamped, 1, 1]
+        fill.position = [-(1 - clamped) * 0.78, 0, 0]
     }
 
     // MARK: - Build ghost (Soft, shipping)

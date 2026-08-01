@@ -51,6 +51,10 @@ enum ProductionSystem {
         guard let building = buildings[buildingID] else {
             return .failure(.notTrainable)
         }
+        // A neutral objective has no treasury and trains nothing.
+        guard let owner = building.faction else {
+            return .failure(.notTrainable)
+        }
         guard building.isComplete else {
             return .failure(.buildingIncomplete)
         }
@@ -64,13 +68,13 @@ enum ProductionSystem {
         }
 
         let cost = tuning.cost(for: kind)
-        let factionStock = stock[building.faction, default: .zero]
+        let factionStock = stock[owner, default: .zero]
         guard factionStock.covers(cost) else {
             return .failure(.cannotAfford(missingCostSummary(needed: cost, have: factionStock)))
         }
 
         let pop = populationCommitment(
-            faction: building.faction,
+            faction: owner,
             units: units,
             queues: queues,
             buildings: buildings,
@@ -81,7 +85,7 @@ enum ProductionSystem {
             return .failure(.populationCap(used: pop.used + additional, cap: pop.cap))
         }
 
-        stock[building.faction, default: .zero] = factionStock - cost
+        stock[owner, default: .zero] = factionStock - cost
         queue.items.append(ProductionItem(kind: kind))
         queues[buildingID] = queue
         return .success(())
@@ -96,12 +100,12 @@ enum ProductionSystem {
         tuning: SkirmishTuning
     ) -> Bool {
         guard var queue = queues[buildingID], !queue.items.isEmpty else { return false }
-        guard let building = buildings[buildingID] else { return false }
+        guard let building = buildings[buildingID], let owner = building.faction else { return false }
 
         let item = queue.items.removeFirst()
         let cost = tuning.cost(for: item.kind)
         let fraction = item.hasStarted ? tuning.cancelRefundFraction : 1.0
-        stock[building.faction, default: .zero] = stock[building.faction, default: .zero] + cost * fraction
+        stock[owner, default: .zero] = stock[owner, default: .zero] + cost * fraction
 
         if queue.isEmpty {
             queues[buildingID] = nil
@@ -124,7 +128,7 @@ enum ProductionSystem {
             queues[buildingID] = nil
             return
         }
-        guard let building = buildings[buildingID] else {
+        guard let building = buildings[buildingID], let owner = building.faction else {
             queues[buildingID] = nil
             return
         }
@@ -132,7 +136,7 @@ enum ProductionSystem {
         if let front = queue.items.first {
             let cost = tuning.cost(for: front.kind)
             let fraction = front.hasStarted ? tuning.cancelRefundFraction : 1.0
-            stock[building.faction, default: .zero] = stock[building.faction, default: .zero] + cost * fraction
+            stock[owner, default: .zero] = stock[owner, default: .zero] + cost * fraction
         }
         queues[buildingID] = nil
     }
@@ -152,6 +156,7 @@ enum ProductionSystem {
         for buildingID in buildingIDs {
             guard var queue = queues[buildingID], !queue.isEmpty else { continue }
             guard let building = buildings[buildingID],
+                  let owner = building.faction,
                   building.isComplete,
                   !building.kind.trains.isEmpty
             else { continue }
@@ -176,7 +181,7 @@ enum ProductionSystem {
                     let id = allocator.allocate()
                     units[id] = Unit(
                         id: id,
-                        faction: building.faction,
+                        faction: owner,
                         kind: front.kind,
                         position: spawn.position,
                         facing: spawn.facing,

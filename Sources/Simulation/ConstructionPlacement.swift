@@ -21,8 +21,21 @@ enum ConstructionPlacement {
         var placeUntil: Double = 0
     }
 
-    /// G2 land buildings only.
-    static var placeableKinds: [BuildingKind] { [.farm, .matterExtractor, .dwelling] }
+    /// Everything a citizen may put down.
+    ///
+    /// The Formation Yard, Expansion Outpost and Dawn Loom were added to the
+    /// command grid by CP-C1 and **not** added here, so all three tiles read as
+    /// affordable, lit and live, and tapping them did nothing at all —
+    /// `beginBuildGhost` bounced off this list without a word. Found on device
+    /// during CP-C4, trying to build the Yard that trains the Vanguard that
+    /// captures the Dominion: the player could not reach *either* win path,
+    /// because the only military building in the game was unbuildable.
+    ///
+    /// The Civilization Core is not here because nobody builds one, and the
+    /// Dominion Spire is not here because nobody owns one.
+    static var placeableKinds: [BuildingKind] {
+        [.farm, .matterExtractor, .dwelling, .formationYard, .expansionOutpost, .dawnLoom]
+    }
 
     /// How far outside Core / deposit / building discs a ghost must stay.
     private static let clearance: Float = 0.75

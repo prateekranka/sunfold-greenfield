@@ -706,6 +706,10 @@ extension BuildingKind {
         case .formationYard: .formationYard
         case .expansionOutpost: .outpost
         case .dawnLoom: .loom
+        // Nobody builds it and nobody selects it, so this glyph appears only in
+        // the minimap legend. The reticle is the closest honest mark for a place
+        // rather than a structure.
+        case .dominionSpire: .reticle
         }
     }
 }

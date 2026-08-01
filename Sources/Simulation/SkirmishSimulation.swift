@@ -22,8 +22,11 @@ final class SkirmishSimulation {
     private(set) var deposits: [EntityID: Deposit]
     private(set) var productionQueues: [EntityID: ProductionQueue] = [:]
     private(set) var adversary: AdversaryState
+    private(set) var victory = VictoryState()
 
     private var allocator: EntityIDAllocator
+    /// Held so `restart()` can repopulate the same world it started with.
+    private let perfDensity: Int?
 
     /// Presentation clock scale. 1.0 is real time; the fixed 20 Hz step size is
     /// unchanged — this only decides how many steps a wall-clock frame buys.
@@ -39,6 +42,7 @@ final class SkirmishSimulation {
         self.seed = seed
         self.mapID = mapID
         self.tuning = tuning
+        self.perfDensity = perfDensity
         self.adversary = AdversaryState(faction: .gravemark, isEnabled: adversaryEnabled)
         let map = WorldMap.map(mapID, seed: seed)
         self.map = map
@@ -174,12 +178,11 @@ final class SkirmishSimulation {
     /// Returns how many citizens were newly assigned this call.
     @discardableResult
     func orderConstruct(_ ids: [EntityID], on buildingID: EntityID) -> Int {
-        guard let building = buildings[buildingID], !building.isComplete else { return 0 }
-        return assignBuilders(
-            to: buildingID,
-            faction: building.faction,
-            preferred: ids
-        )
+        guard let building = buildings[buildingID],
+              let owner = building.faction,
+              !building.isComplete
+        else { return 0 }
+        return assignBuilders(to: buildingID, faction: owner, preferred: ids)
     }
 
     /// Maximum citizens that may work one foundation at once.
@@ -262,10 +265,13 @@ final class SkirmishSimulation {
     /// Completed buildings cannot be cancelled this way.
     @discardableResult
     func cancelConstruction(_ buildingID: EntityID) -> Bool {
-        guard let building = buildings[buildingID], !building.isComplete else { return false }
+        guard let building = buildings[buildingID],
+              let owner = building.faction,
+              !building.isComplete
+        else { return false }
         let cost = tuning.cost(for: building.kind)
         let refund = cost * tuning.cancelRefundFraction
-        stock[building.faction, default: .zero] = stock(for: building.faction) + refund
+        stock[owner, default: .zero] = stock(for: owner) + refund
 
         for id in units.keys.sorted(by: { $0.raw < $1.raw }) {
             guard var unit = units[id] else { continue }
@@ -417,14 +423,73 @@ final class SkirmishSimulation {
 
     func setPaused(_ paused: Bool) { isPaused = paused }
 
+    // MARK: - Match state
+
+    var outcome: MatchOutcome? { victory.outcome }
+    var isOver: Bool { victory.outcome != nil }
+
+    /// Seconds of Dominion hold required right now. Shrinks as the match runs
+    /// long so a stalemate becomes a fight rather than a timeout.
+    var dominionRequirement: Double {
+        tuning.dominionHoldRequirement(atElapsed: clock.elapsed)
+    }
+
+    func dominionHold(for faction: Faction) -> Double { victory.hold(faction) }
+    func dominionProgress(for faction: Faction) -> Double {
+        let requirement = dominionRequirement
+        guard requirement > 0 else { return 0 }
+        return min(1, victory.hold(faction) / requirement)
+    }
+    func isDominionContested(for faction: Faction) -> Bool { victory.isContested(for: faction) }
+    func coreLifeFraction(for faction: Faction) -> Double {
+        VictorySystem.coreLifeFraction(faction, in: buildings)
+    }
+
+    /// The player concedes. A defeat, recorded as one.
+    func resign(as faction: Faction = .sunwoven) {
+        victory.resign(faction, tick: clock.tick, elapsed: clock.elapsed)
+    }
+
+    /// Plays the same match again from the same seed.
+    ///
+    /// Rebuilds in place rather than handing back a new object, because the
+    /// renderer holds this simulation by a `let` and diffs the world by entity
+    /// ID every frame — a fresh populate simply reads as "every old entity left,
+    /// every new one arrived", which is exactly what a restart is.
+    func restart() {
+        clock = SimulationClock(tuning: tuning)
+        stock = [
+            .sunwoven: tuning.startingResources,
+            .gravemark: tuning.startingResources,
+        ]
+        age = [.sunwoven: .foundation, .gravemark: .foundation]
+        productionQueues = [:]
+        victory = VictoryState()
+        adversary = AdversaryState(faction: adversary.faction, isEnabled: adversary.isEnabled)
+        isPaused = false
+
+        let populated = WorldPopulator.populate(map: map, tuning: tuning, perfDensity: perfDensity)
+        units = populated.units
+        buildings = populated.buildings
+        deposits = populated.deposits
+        allocator = populated.allocator
+    }
+
     // MARK: - Stepping
 
     /// Advances simulated time by a frame's worth of real time.
+    ///
+    /// A finished match does not step. The overlay is not a pause on top of a
+    /// running world — the world is genuinely stopped behind it, which is the
+    /// bar `04-IMPLEMENTATION-ORDER.md` §5 sets.
     func update(deltaTime: Double) {
-        guard !isPaused else { return }
+        guard !isPaused, !isOver else { return }
         let steps = clock.advance(by: deltaTime * timeScale)
         guard steps > 0 else { return }
-        for _ in 0..<steps { step() }
+        for _ in 0..<steps {
+            step()
+            if isOver { break }
+        }
     }
 
     /// One fixed simulation step. Everything rule-bearing happens here.
@@ -482,6 +547,20 @@ final class SkirmishSimulation {
             map: map,
             tuning: tuning,
             deltaTime: seconds
+        )
+
+        // Last, because it judges the world every other system just produced.
+        // A Core that fell to this tick's combat ends the match on this tick.
+        VictorySystem.step(
+            state: &victory,
+            input: VictorySystem.Inputs(
+                elapsed: clock.elapsed,
+                tick: clock.tick,
+                units: units,
+                buildings: buildings,
+                tuning: tuning,
+                deltaTime: seconds
+            )
         )
     }
 

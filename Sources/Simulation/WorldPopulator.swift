@@ -46,6 +46,8 @@ enum WorldPopulator {
             placeHome(faction: faction, region: home, map: map, tuning: tuning, into: &result)
         }
 
+        placeDominionSpire(map: map, into: &result)
+
         for region in RegionID.allCases {
             placeDeposits(region: region, map: map, into: &result)
         }
@@ -122,6 +124,25 @@ enum WorldPopulator {
         )
     }
 
+    // MARK: - The objective
+
+    /// The Dominion Spire stands at the exact centre of the contested fragment,
+    /// which is the one point both Cores are equidistant from — the map's only
+    /// fairness contract. Placed before deposits so nothing spawns under it.
+    ///
+    /// It belongs to nobody (`faction: nil`), so it is never trained from, never
+    /// targeted, never counted as anyone's building, and cannot be destroyed.
+    private static func placeDominionSpire(map: WorldMap, into result: inout Result) {
+        let id = result.allocator.allocate()
+        result.buildings[id] = Building(
+            id: id,
+            faction: nil,
+            kind: .dominionSpire,
+            position: map.fragment(.dominion).center,
+            region: .dominion
+        )
+    }
+
     // MARK: - Deposits
 
     private static func placeDeposits(
@@ -138,7 +159,19 @@ enum WorldPopulator {
         // the map's rivers and lakes as well as inside the coast. `outerLimit` is
         // measured per bearing off the authored outline; a fixed radius would put
         // deposits in the void wherever the coast cuts in.
-        let innerLimit = region.isHome ? BuildingKind.civilizationCore.footprintRadius + 6 : 3.0
+        // The Dominion's centre is no longer empty ground: the Spire stands on it,
+        // so deposits there start outside its footprint plus a citizen's working
+        // ring. Without this a Matter node can sit *inside* the objective, and the
+        // one piece of ground the whole match is fought over becomes a mine.
+        let innerLimit: Float
+        switch region {
+        case _ where region.isHome:
+            innerLimit = BuildingKind.civilizationCore.footprintRadius + 6
+        case .dominion:
+            innerLimit = BuildingKind.dominionSpire.footprintRadius + Deposit.workRadius + 1
+        default:
+            innerLimit = 3.0
+        }
         var placed: [WorldPoint] = []
 
         for (index, kind) in plan.enumerated() {

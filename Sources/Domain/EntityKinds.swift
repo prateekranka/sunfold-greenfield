@@ -60,6 +60,23 @@ enum UnitKind: String, CaseIterable, Sendable {
         }
     }
 
+    /// Who may capture or contest the Dominion Spire.
+    ///
+    /// Deliberately its own list rather than `isMilitary`, per
+    /// `05-RESOLUTIONS-R1.md` §3 (B10.2). The two are identical today, and that
+    /// is exactly the trap: `isMilitary` is a combat question, and reusing it
+    /// would silently answer a *victory* question every time a unit is added.
+    /// The spec's set is Vanguard, Quarrel, Lancer, Bastion Walker, Sunlance and
+    /// Ironsworn — the last four of which do not exist yet, so this list grows
+    /// as the roster does. A Pathfinder can see the Dominion and cannot hold it,
+    /// which is the right shape for a scout; Citizens neither capture nor contest.
+    var canCaptureDominion: Bool {
+        switch self {
+        case .vanguard, .ranged, .bastionWalker: true
+        case .citizen, .pathfinder, .lightTransport: false
+        }
+    }
+
     var populationCost: Int {
         switch self {
         case .citizen, .pathfinder, .vanguard, .ranged: 1
@@ -193,6 +210,9 @@ enum BuildingKind: String, CaseIterable, Sendable {
     case formationYard
     case expansionOutpost
     case dawnLoom
+    /// Neutral, pre-placed, indestructible. The fifteenth building and the only
+    /// one nobody builds — it is the Dominion objective, not a structure.
+    case dominionSpire
 
     var displayName: String {
         switch self {
@@ -203,6 +223,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
         case .formationYard: "Formation Yard"
         case .expansionOutpost: "Expansion Outpost"
         case .dawnLoom: "Dawn Loom"
+        case .dominionSpire: "Dominion Spire"
         }
     }
 
@@ -216,6 +237,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
         case .formationYard: "Trains Pathfinders and Vanguards"
         case .expansionOutpost: "Claims an expansion fragment"
         case .dawnLoom: "Channels the Voyager age"
+        case .dominionSpire: "Hold it to claim the Dominion"
         }
     }
 
@@ -228,6 +250,10 @@ enum BuildingKind: String, CaseIterable, Sendable {
         case .formationYard: 260
         case .expansionOutpost: 240
         case .dawnLoom: 320
+        // Specified by R1 §3 (B10.1) and inert: the Spire is indestructible, so
+        // nothing ever reads this down. Kept at the specified number rather than
+        // dropped, so the day it becomes destructible the value is already right.
+        case .dominionSpire: 1200
         }
     }
 
@@ -241,6 +267,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
         case .formationYard: 4.0
         case .expansionOutpost: 3.0
         case .dawnLoom: 4.4
+        case .dominionSpire: 4.0
         }
     }
 
@@ -270,6 +297,7 @@ enum BuildingKind: String, CaseIterable, Sendable {
     var meleeArmor: Int {
         switch self {
         case .farm: 0
+        case .dominionSpire: 6
         default: 4
         }
     }
@@ -277,9 +305,14 @@ enum BuildingKind: String, CaseIterable, Sendable {
     var rangedArmor: Int {
         switch self {
         case .farm: 0
+        case .dominionSpire: 8
         default: 6
         }
     }
+
+    /// Neutral objectives belong to nobody, cannot be built, cannot be selected
+    /// and cannot be damaged. `Building.faction` is `nil` for exactly these.
+    var isNeutralObjective: Bool { self == .dominionSpire }
 
     /// Armed structures only. None of the seven shipped kinds attack yet.
     var attackProfile: AttackProfile? { nil }

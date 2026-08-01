@@ -64,7 +64,12 @@ struct RootView: View {
                 Spacer(minLength: 0)
                 bottomStrip
             }
+
+            if let outcome = simulation.outcome {
+                MatchOverlay(outcome: outcome) { controller.restartMatch() }
+            }
         }
+        .animation(.easeOut(duration: 0.25), value: simulation.outcome)
         .background(Color(SunfoldPalette.voidDeep))
         .preferredColorScheme(.dark)
         .statusBarHidden()
@@ -76,13 +81,13 @@ struct RootView: View {
     private var topStrip: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top, spacing: 12) {
-                TopBar(simulation: simulation)
+                TopBar(simulation: simulation, controller: controller)
                 if Self.showsDebugOverlay {
                     DebugOverlay(controller: controller, isExpanded: $isDebugExpanded)
                         .padding(.top, 4)
                 }
             }
-            AlertStrip()
+            ObjectiveRail(simulation: simulation)
                 .padding(.leading, 4)
         }
         .padding(.horizontal, 16)

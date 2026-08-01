@@ -344,4 +344,38 @@ final class ConstructionIntegrityTests: XCTestCase {
         let refund = SkirmishTuning.baseline.farmCost.matter * SkirmishTuning.baseline.cancelRefundFraction
         XCTAssertEqual(ResourcePool.displayAmount(refund), "52.5")
     }
+
+    /// **If it has a price, a citizen can put it down.**
+    ///
+    /// Found on device during CP-C4: the Formation Yard, Expansion Outpost and
+    /// Dawn Loom had been given command tiles by CP-C1 — lit, priced, and
+    /// tappable — while `placeableKinds` still listed only the three G2 kinds.
+    /// `beginBuildGhost` bounced off that list silently, so all three tiles did
+    /// nothing at all. Because the Formation Yard is the only building that
+    /// trains a military unit, the player could reach *neither* win path: no
+    /// Vanguard means no Conquest and no Dominion.
+    ///
+    /// A tile that costs 110 Matter and does nothing is the exact failure this
+    /// project keeps meeting. The rule that catches it is this one.
+    func testEveryBuildingWithAPriceCanActuallyBePlaced() {
+        let tuning = SkirmishTuning.baseline
+        for kind in BuildingKind.allCases where tuning.cost(for: kind) != .zero {
+            XCTAssertTrue(
+                ConstructionPlacement.placeableKinds.contains(kind),
+                "\(kind.displayName) costs \(tuning.cost(for: kind)) and cannot be placed."
+            )
+        }
+    }
+
+    /// And the mirror: nothing free is placeable, so a stray addition to the
+    /// list cannot hand the player a free Civilization Core or the objective.
+    func testNothingFreeIsPlaceable() {
+        let tuning = SkirmishTuning.baseline
+        for kind in ConstructionPlacement.placeableKinds {
+            XCTAssertNotEqual(
+                tuning.cost(for: kind), .zero,
+                "\(kind.displayName) is placeable and free."
+            )
+        }
+    }
 }

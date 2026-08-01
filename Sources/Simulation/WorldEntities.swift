@@ -99,7 +99,16 @@ struct Unit: Sendable, Identifiable {
 /// A fixed structure.
 struct Building: Sendable, Identifiable {
     let id: EntityID
-    let faction: Faction
+    /// `nil` means neutral — nobody owns it. Today that is the Dominion Spire and
+    /// nothing else.
+    ///
+    /// Optional rather than a third `Faction` case on purpose: a `.neutral`
+    /// faction would flow into every `for faction in Faction.allCases` loop in
+    /// the project — resource stocks, population, the Core trickle — and give the
+    /// Spire a treasury. `nil` makes the compiler ask the ownership question at
+    /// every site that needs an answer, which is how the neutral case gets found
+    /// rather than assumed.
+    let faction: Faction?
     let kind: BuildingKind
     let position: WorldPoint
     let region: RegionID
@@ -118,7 +127,7 @@ struct Building: Sendable, Identifiable {
 
     init(
         id: EntityID,
-        faction: Faction,
+        faction: Faction?,
         kind: BuildingKind,
         position: WorldPoint,
         region: RegionID,

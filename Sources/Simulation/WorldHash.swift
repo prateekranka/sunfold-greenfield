@@ -51,7 +51,9 @@ enum WorldHash {
             guard let building = buildings[id] else { continue }
             mix(&hash, UInt64(id.raw))
             mix(&hash, tag(building.kind.rawValue))
-            mix(&hash, tag(building.faction.rawValue))
+            // "neutral" is a stable string like every other tag here, so the
+            // Dominion Spire folds into the fingerprint without a faction.
+            mix(&hash, tag(building.faction?.rawValue ?? "neutral"))
             mix(&hash, milli(building.position.x))
             mix(&hash, milli(building.position.y))
             mix(&hash, centi(building.life))

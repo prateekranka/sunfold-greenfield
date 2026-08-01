@@ -1,5 +1,12 @@
 import Foundation
 
+/// One rung of the Dominion escalation ladder: after this many simulated
+/// seconds, the hold requirement becomes `hold` seconds.
+struct DominionHoldStep: Sendable, Equatable {
+    let after: Double
+    let hold: Double
+}
+
 /// Every cost, rate, timing and radius in the skirmish lives here.
 ///
 /// Nothing in this file may be duplicated as a literal elsewhere. Values are the
@@ -86,6 +93,40 @@ struct SkirmishTuning: Sendable {
     var enemyCoreLife: Double = 600
     var corePressureThresholds: [Double] = [0.75, 0.50, 0.25]
 
+    /// Metres from the Spire a unit must stand inside to capture or contest.
+    var dominionCaptureRadius: Float = 12
+
+    /// Contested drains the holder's timer instead of pausing it, per
+    /// `05-RESOLUTIONS-R1.md` §3 (B10.3), at this fraction of the fill rate.
+    ///
+    /// A pause rule deadlocks forever if both sides keep one unit in the ring —
+    /// which is exactly what two schedules would do — and a deadlock breaks the
+    /// "no draw state, no hard timer" promise. Draining always resolves.
+    var dominionContestDecay: Double = 0.5
+
+    /// Seconds of an empty ring before the holder's progress is wiped rather
+    /// than merely stalled. Walking away briefly costs nothing; leaving does.
+    var dominionVacancyReset: Double = 8
+
+    /// The hold requirement shortens as the match runs long, so a stalemate
+    /// becomes a forced fight over one piece of ground rather than a timeout.
+    /// Each entry is (simulated seconds elapsed, seconds of hold required); the
+    /// last entry whose time has passed wins. Purely a function of the clock.
+    var dominionHoldSchedule: [DominionHoldStep] = [
+        DominionHoldStep(after: 0, hold: 45),
+        DominionHoldStep(after: 420, hold: 30),
+        DominionHoldStep(after: 540, hold: 20),
+    ]
+
+    /// Seconds of hold required at a given match time.
+    func dominionHoldRequirement(atElapsed elapsed: Double) -> Double {
+        var requirement = dominionHoldDuration
+        for step in dominionHoldSchedule where elapsed >= step.after {
+            requirement = step.hold
+        }
+        return requirement
+    }
+
     // MARK: - Gravemark AI (First Timer)
 
     /// Earliest wall-clock seconds at which the AI may commit to each behaviour.
@@ -145,7 +186,9 @@ struct SkirmishTuning: Sendable {
         case .formationYard: formationYardCost
         case .expansionOutpost: expansionOutpostCost
         case .dawnLoom: dawnLoomCost
-        case .civilizationCore: .zero
+        // Neither is buildable, so neither has a price. Listed rather than
+        // folded into a `default` so adding a building forces the question.
+        case .civilizationCore, .dominionSpire: .zero
         }
     }
 
@@ -157,7 +200,7 @@ struct SkirmishTuning: Sendable {
         case .formationYard: formationYardBuildTime
         case .expansionOutpost: expansionOutpostBuildTime
         case .dawnLoom: dawnLoomBuildTime
-        case .civilizationCore: 0
+        case .civilizationCore, .dominionSpire: 0
         }
     }
 

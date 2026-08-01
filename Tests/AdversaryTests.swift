@@ -22,13 +22,21 @@ final class AdversaryTests: XCTestCase {
     // MARK: - The determinism bar
 
     /// **The CP-C3 bar.** Two no-input runs from seed `20260726` must produce an
-    /// identical world hash at tick 12000 — ten minutes of simulated match.
-    func testTwoNoInputRunsShareOneWorldHashAtTick12000() {
+    /// identical world hash for the whole match.
+    ///
+    /// The bar was originally written as "at tick 12000", ten minutes of
+    /// simulated match. **CP-C4 made tick 12000 unreachable**: the match now
+    /// *ends* when the adversary destroys the untouched player's Core, at tick
+    /// 7192, and a finished simulation refuses to step. The determinism claim is
+    /// unchanged and is now measured over the whole match instead of a fixed
+    /// tick — both runs must stop on the same tick with the same fingerprint.
+    func testTwoNoInputRunsShareOneWorldHashForTheWholeMatch() {
         let first = run(ticks: 12_000)
         let second = run(ticks: 12_000)
 
-        XCTAssertEqual(first.tick, 12_000)
-        XCTAssertEqual(second.tick, 12_000)
+        XCTAssertTrue(first.isOver, "the match must resolve inside ten minutes")
+        XCTAssertEqual(first.tick, second.tick, "the two runs ended on different ticks")
+        XCTAssertEqual(first.outcome, second.outcome, "the two runs ended differently")
         XCTAssertEqual(
             first.worldHash, second.worldHash,
             "Two runs of one seed diverged — the adversary is not a pure function of tick and state."
@@ -99,9 +107,39 @@ final class AdversaryTests: XCTestCase {
         XCTAssertLessThanOrEqual(citizens, Adversary.Schedule.citizenTarget, "It must stop at twelve.")
     }
 
-    /// The wave table, all three of its claims at once: waves leave on the ticks
-    /// R1 §5 names, none of them leaves empty, and each of the first four fields
-    /// exactly what the table asks for in units this roster actually has.
+    /// The wave table as a pure function: five waves, on the ticks R1 §5 names,
+    /// each fielding what the table asks for and never smaller than the last.
+    ///
+    /// Split out from the live-match test below because **CP-C4 shortened the
+    /// match**: the untouched player is wiped at 5:59, so waves 3 to 5 (7:00,
+    /// 8:30, 10:00) no longer leave at all in a real game. The schedule is still
+    /// specified for them, and a spec that only holds where it happens to run is
+    /// not a spec, so it is asserted directly.
+    func testTheWaveTableIsWhatTheSpecAsksForAllTheWayToWaveFive() {
+        for wave in 1...5 {
+            XCTAssertEqual(
+                Adversary.Schedule.dispatchTick(ofWave: wave),
+                UInt64(4_800 + (wave - 1) * 1_800),
+                "Wave \(wave) is scheduled off R1 §5's 90-second cadence."
+            )
+            XCTAssertFalse(
+                Adversary.composition(ofWave: wave).isEmpty,
+                "Wave \(wave) has no composition at all."
+            )
+        }
+
+        let sizes = (1...5).map { wave in
+            Adversary.composition(ofWave: wave).reduce(0) { $0 + $1.count }
+        }
+        XCTAssertEqual(sizes, sizes.sorted(), "Waves must escalate, not shrink: \(sizes).")
+    }
+
+    /// The waves that actually leave in a real match do so on their scheduled
+    /// tick, non-empty, fielding exactly the table's composition.
+    ///
+    /// Only waves 1 and 2 fit inside a match now — see the note above. That is
+    /// the honest bound, and asserting more would be asserting a match that no
+    /// longer exists.
     func testWavesLeaveOnScheduleAndFieldWhatTheTableAsksFor() {
         let simulation = SkirmishSimulation(seed: Self.seed)
         var dispatchTick: [Int: UInt64] = [:]
@@ -123,7 +161,9 @@ final class AdversaryTests: XCTestCase {
             roster[dispatched] = counts
         }
 
-        for wave in 1...4 {
+        XCTAssertTrue(simulation.isOver, "the match must resolve — CP-C4")
+
+        for wave in 1...2 {
             guard let tick = dispatchTick[wave] else { return XCTFail("Wave \(wave) never left.") }
             XCTAssertEqual(
                 tick, Adversary.Schedule.dispatchTick(ofWave: wave),
@@ -141,7 +181,7 @@ final class AdversaryTests: XCTestCase {
             }
         }
 
-        let sizes = (1...4).map { (roster[$0] ?? [:]).values.reduce(0, +) }
+        let sizes = (1...2).map { (roster[$0] ?? [:]).values.reduce(0, +) }
         XCTAssertEqual(sizes, sizes.sorted(), "Waves must escalate, not shrink: \(sizes).")
     }
 
@@ -323,7 +363,11 @@ final class AdversaryTests: XCTestCase {
         let stock = simulation.stock(for: .gravemark)
         let military = simulation.units.values.filter { $0.faction == .gravemark && $0.kind.isMilitary }.count
         let citizens = simulation.units.values.filter { $0.faction == .gravemark && $0.kind == .citizen }.count
-        print("=== Gravemark at 10:00 ===")
+        // Labelled off the clock rather than the loop bound. This read "at
+        // 10:00" and "at tick 12000" until CP-C4 ended the match at 5:59, at
+        // which point both captions described a tick the run never reaches —
+        // and this output gets pasted into STATUS docs as evidence.
+        print("=== Gravemark at \(matchClock(simulation.elapsed)) ===")
         print("population \(population.used)/\(population.cap) · \(citizens) citizens · \(military) soldiers")
         print("stock \(stock.costSummary.isEmpty ? "empty" : stock.costSummary)")
         for kind in [ResourceKind.matter, .lumen] {
@@ -332,7 +376,7 @@ final class AdversaryTests: XCTestCase {
                 .reduce(0.0) { $0 + max(0, $1.remaining) }
             print("home \(kind.displayName) left in the ground: \(Int(left))")
         }
-        print("=== world hash at tick 12000: \(String(simulation.worldHash, radix: 16)) ===")
+        print("=== world hash at tick \(simulation.tick): \(String(simulation.worldHash, radix: 16)) ===")
         print("=== deferred from R1 §5 (not shipped in this roster) ===")
         for line in Adversary.deferredFromSpec { print("· \(line)") }
         XCTAssertFalse(simulation.adversary.events.isEmpty)

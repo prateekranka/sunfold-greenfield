@@ -7,6 +7,7 @@ import SwiftUI
 /// unchanged; only how many steps a wall-clock frame buys moves.
 struct TopBar: View {
     @Bindable var simulation: SkirmishSimulation
+    var controller: WorldController?
 
     private var stock: ResourcePool { simulation.stock(for: .sunwoven) }
     private var population: (used: Int, cap: Int) { simulation.population(for: .sunwoven) }
@@ -18,7 +19,10 @@ struct TopBar: View {
             Spacer(minLength: 12)
             emblem
             Spacer(minLength: 12)
-            speedCluster
+            HStack(spacing: 8) {
+                zoomCluster
+                speedCluster
+            }
         }
         .frame(maxWidth: .infinity)
     }
@@ -36,6 +40,39 @@ struct TopBar: View {
         }
         .frame(width: 44, height: 44)
         .accessibilityLabel("Sunwoven")
+    }
+
+    private var zoomCluster: some View {
+        HStack(spacing: 5) {
+            Button {
+                guard let controller else { return }
+                controller.zoom(to: controller.currentZoom * 1.18)
+            } label: {
+                Text("−")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(HUDInk.accent)
+                    .frame(width: 34, height: 34)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Zoom out")
+
+            Button {
+                guard let controller else { return }
+                controller.zoom(to: controller.currentZoom / 1.18)
+            } label: {
+                Text("+")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(HUDInk.accent)
+                    .frame(width: 34, height: 34)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Zoom in")
+        }
+        .hudPanel(
+            cut: 10,
+            corners: .bottom,
+            padding: EdgeInsets(top: 6, leading: 7, bottom: 6, trailing: 7)
+        )
     }
 
     private var speedCluster: some View {
@@ -79,34 +116,6 @@ struct TopBar: View {
     private func setSpeed(_ scale: Double) {
         simulation.setPaused(false)
         simulation.timeScale = scale
-    }
-}
-
-/// Contest / arrival cues under the top bar.
-///
-/// G2 has no live alert feed yet, so this shows the chrome geometry with one
-/// quiet seed cue rather than an empty strip the eye learns to ignore.
-struct AlertStrip: View {
-    var body: some View {
-        HStack(spacing: 8) {
-            HUDGlyph(.alert)
-                .fill(HUDInk.warning, style: HUDGlyph.Kind.alert.fillStyle)
-                .frame(width: 11, height: 11)
-            Text("Light transport docked at home rim")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(HUDInk.text)
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .frame(maxWidth: 420, alignment: .leading)
-        .hudSurface(
-            cut: 8,
-            corners: [.bottomLeading, .bottomTrailing],
-            lineWidth: 0.75,
-            shadow: false
-        )
-        .accessibilityLabel("Alert: Light transport docked at home rim")
     }
 }
 
