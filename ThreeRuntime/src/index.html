@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; font-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Sunfold</title>
+  <style>
+    :root { background: #050711; color: #f4eee3; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    html, body, #sunfold-root { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #050711; }
+    body { touch-action: none; -webkit-user-select: none; user-select: none; }
+    canvas { display: block; width: 100%; height: 100%; }
+    #runtime-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: #a7b0c7; letter-spacing: .16em; font-size: 12px; pointer-events: none; }
+    #runtime-hud { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; pointer-events: none; }
+    #runtime-hud[hidden] { display: none; }
+    #runtime-hud header, #runtime-hud footer { display: flex; align-items: center; gap: 10px; }
+    #runtime-hud header { justify-content: space-between; }
+    #runtime-hud footer { justify-content: flex-end; }
+    #runtime-hud .eyebrow { color: #d9aa5c; font-size: 10px; font-weight: 700; letter-spacing: .18em; }
+    #runtime-hud .status { color: rgba(244,238,227,.7); font-size: 11px; letter-spacing: .08em; }
+    #runtime-hud button { appearance: none; border: 1px solid rgba(244,238,227,.24); border-radius: 999px; padding: 8px 12px; color: #f4eee3; background: rgba(5,7,17,.64); font: 700 10px -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: .1em; }
+    #runtime-hud button:active { background: rgba(226,184,102,.4); }
+  </style>
+</head>
+<body>
+  <main id="sunfold-root" aria-label="Sunfold game runtime">
+    <div id="runtime-fallback">WEAVING THE WORLD</div>
+    <section id="runtime-hud" hidden aria-label="Sunfold gameplay controls">
+      <header>
+        <span class="eyebrow">SUNFOLD // THREE.JS</span>
+        <span id="runtime-status" class="status">READY</span>
+      </header>
+      <footer>
+        <button type="button" data-command="pauseGame">PAUSE</button>
+        <button type="button" data-command="saveGame">SAVE</button>
+        <button type="button" data-command="returnToMenu">MENU</button>
+      </footer>
+    </section>
+  </main>
+  <script src="sunfold-runtime.js"></script>
+</body>
+</html>

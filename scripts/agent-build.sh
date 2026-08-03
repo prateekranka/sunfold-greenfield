@@ -14,7 +14,7 @@ set -uo pipefail
 AGENT="${1:?usage: agent-build.sh <agent-name>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DD="$ROOT/build-agents/$AGENT"
-SIM_ID="A59055F8-1354-4936-97B8-7033DF90B0BB"
+SIM_ID="${SUNFOLD_SIMULATOR_UDID:-75898CE1-A691-4973-817A-973D4249A38F}"
 LOCK="$ROOT/build-agents/.xcodegen.lock"
 
 cd "$ROOT"
