@@ -13,7 +13,7 @@
     canvas { display: block; width: 100%; height: 100%; }
     #runtime-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: #a7b0c7; letter-spacing: .16em; font-size: 12px; pointer-events: none; }
     #runtime-hud { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; pointer-events: none; }
-    #runtime-hud[hidden] { display: none; }
+    #runtime-fallback[hidden], #runtime-hud[hidden] { display: none; }
     #runtime-hud header, #runtime-hud footer { display: flex; align-items: center; gap: 10px; }
     #runtime-hud header { justify-content: space-between; }
     #runtime-hud footer { justify-content: flex-end; }

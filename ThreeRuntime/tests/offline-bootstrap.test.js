@@ -17,6 +17,13 @@ test("HTML has a local-only CSP and local runtime script", () => {
   assert.equal(generatedHTML, sourceHTML);
 });
 
+test("runtime fallback clears when the runtime marks itself ready", () => {
+  assert.match(sourceHTML, /#runtime-fallback\[hidden\], #runtime-hud\[hidden\] \{ display: none; \}/);
+  assert.match(sourceRuntime, /fallback\.hidden = true/);
+  assert.match(sourceRuntime, /postEvent\("runtimeReady"/);
+  assert.match(generatedHTML, /#runtime-fallback\[hidden\]/);
+});
+
 test("runtime uses bundled WebGLRenderer and contains no remote fetch path", () => {
   assert.match(sourceRuntime, /new THREE\.WebGLRenderer/);
   assert.doesNotMatch(sourceRuntime, /fetch\s*\(|XMLHttpRequest|https?:\/\//i);
