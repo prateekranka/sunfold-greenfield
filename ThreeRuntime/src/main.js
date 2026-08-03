@@ -5,6 +5,7 @@ import {
   assertValidEnvelope,
   createEnvelope
 } from "./protocol.js";
+import { SimulationSession } from "./sim/session.js";
 
 const canvasRoot = document.getElementById("sunfold-root");
 const fallback = document.getElementById("runtime-fallback");
@@ -20,6 +21,14 @@ let paused = false;
 let lastFrame = 0;
 let elapsed = 0;
 
+/**
+ * The one simulation this runtime owns. It is created by `startGame`,
+ * recreated by `loadGame`, advanced only from render deltas through the fixed
+ * clock inside it, serialised only on `saveGame`, and dropped on menu return.
+ * The rules live in `sim/session.js`; the shell below only forwards commands.
+ */
+const session = new SimulationSession();
+
 function postEvent(name, payload = {}, options = {}) {
   const message = createEnvelope("event", name, payload, options);
   window.webkit?.messageHandlers?.sunfold?.postMessage(message);
@@ -32,6 +41,11 @@ function setStatus(value) {
 function reportFatal(error) {
   const message = error instanceof Error ? error.message : String(error);
   postEvent("fatalError", { code: "invalidBridgeMessage", message });
+}
+
+function reportSaveFailure(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  postEvent("fatalError", { code: "invalidSaveDocument", message });
 }
 
 function setDPR() {
@@ -102,12 +116,16 @@ function frame(now) {
   lastFrame = now;
   if (!paused) {
     elapsed += delta;
+    // Render cadence only ever *offers* time; the fixed 20 Hz clock inside
+    // the simulation decides how many whole steps that time is worth.
+    session.update(delta);
     scene.rotation.y = Math.sin(elapsed * 0.18) * 0.025;
   }
   renderer.render(scene, camera);
 }
 
-function startGame(payload) {
+/** Brings the shell into the in-game presentation, starting the render loop. */
+function enterGame(faction) {
   if (!renderer) {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -118,13 +136,79 @@ function startGame(payload) {
   }
   fallback.hidden = true;
   hud.hidden = false;
-  setStatus(`${String(payload.faction || "sunwoven").toUpperCase()} // ONLINE`);
   running = true;
-  paused = false;
-  postEvent("runtimeReady", { renderer: "WebGLRenderer", offline: "true", faction: payload.faction || "sunwoven" });
+  paused = session.paused;
+  setStatus(paused ? "PAUSED" : `${String(faction || "sunwoven").toUpperCase()} // ONLINE`);
+  window.dispatchEvent(new Event(paused ? "sunfold:runtimePaused" : "sunfold:runtimeResumed"));
   cancelAnimationFrame(animationFrame);
   lastFrame = performance.now();
   animationFrame = requestAnimationFrame(frame);
+}
+
+function startGame(payload) {
+  session.start({ faction: payload.faction, seed: payload.seed, mapID: payload.mapID });
+  enterGame(payload.faction);
+  postEvent("runtimeReady", { renderer: "WebGLRenderer", offline: "true", faction: payload.faction || "sunwoven" });
+}
+
+function loadGame(payload) {
+  let document;
+  try {
+    document = JSON.parse(typeof payload.snapshot === "string" ? payload.snapshot : "");
+  } catch (error) {
+    reportSaveFailure(new TypeError(`The save document is not valid JSON: ${error.message}`));
+    return;
+  }
+  let simulation;
+  try {
+    simulation = session.restore(document);
+  } catch (error) {
+    reportSaveFailure(error);
+    return;
+  }
+  enterGame(simulation.state.playerFaction);
+  postEvent("runtimeReady", {
+    renderer: "WebGLRenderer",
+    offline: "true",
+    faction: simulation.state.playerFaction || "sunwoven"
+  });
+}
+
+function saveGame() {
+  const document = session.save();
+  if (!document) {
+    reportFatal(new TypeError("saveGame arrived with no active simulation."));
+    return;
+  }
+  postEvent(
+    "saveReady",
+    { snapshotID: `sunfold-${document.mapID}-tick-${document.tick}`, snapshot: JSON.stringify(document) },
+    { saveSchemaVersion: SAVE_SCHEMA_VERSION }
+  );
+}
+
+function pauseGame() {
+  paused = true;
+  session.setPaused(true);
+  setStatus("PAUSED");
+  window.dispatchEvent(new Event("sunfold:runtimePaused"));
+  postEvent("runtimePaused");
+}
+
+function resumeGame() {
+  paused = false;
+  session.setPaused(false);
+  setStatus("ONLINE");
+  window.dispatchEvent(new Event("sunfold:runtimeResumed"));
+  postEvent("runtimeResumed");
+}
+
+function returnToMenu() {
+  running = false;
+  session.dispose();
+  hud.hidden = true;
+  cancelAnimationFrame(animationFrame);
+  postEvent("returnedToMenu");
 }
 
 function receive(message) {
@@ -140,15 +224,11 @@ function receive(message) {
   }
   switch (message.name) {
     case "startGame": startGame(message.payload || {}); break;
-    case "pauseGame": paused = true; setStatus("PAUSED"); window.dispatchEvent(new Event("sunfold:runtimePaused")); postEvent("runtimePaused"); break;
-    case "resumeGame": paused = false; setStatus("ONLINE"); window.dispatchEvent(new Event("sunfold:runtimeResumed")); postEvent("runtimeResumed"); break;
-    case "saveGame": postEvent("saveReady", { snapshotID: "minimal-scene-v1" }, { saveSchemaVersion: SAVE_SCHEMA_VERSION }); break;
-    case "returnToMenu":
-      running = false;
-      hud.hidden = true;
-      cancelAnimationFrame(animationFrame);
-      postEvent("returnedToMenu");
-      break;
+    case "pauseGame": pauseGame(); break;
+    case "resumeGame": resumeGame(); break;
+    case "saveGame": saveGame(); break;
+    case "loadGame": loadGame(message.payload || {}); break;
+    case "returnToMenu": returnToMenu(); break;
     default: reportFatal(new TypeError(`Unknown command: ${message.name}`));
   }
 }

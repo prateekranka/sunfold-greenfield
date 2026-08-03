@@ -1,11 +1,15 @@
 export const BRIDGE_PROTOCOL_VERSION = 1;
-export const SAVE_SCHEMA_VERSION = 1;
+// Bumped from 1 when the placeholder snapshot of #21 was replaced by the real
+// serialised simulation state of #22. Swift's `currentSaveSchemaVersion` moves
+// with it — a mismatch must fail closed rather than load a foreign world.
+export const SAVE_SCHEMA_VERSION = 2;
 
 export const COMMAND_NAMES = Object.freeze([
   "startGame",
   "pauseGame",
   "resumeGame",
   "saveGame",
+  "loadGame",
   "returnToMenu"
 ]);
 
@@ -25,10 +29,13 @@ export const EVENT_NAMES = Object.freeze([
 ]);
 
 const commandPayloadKeys = Object.freeze({
-  startGame: new Set(["faction", "seed"]),
+  startGame: new Set(["faction", "seed", "mapID"]),
   pauseGame: new Set(),
   resumeGame: new Set(),
   saveGame: new Set(),
+  // A save document is lifecycle traffic, which #19 permits. It is one
+  // message at a player-driven moment, never a per-frame stream.
+  loadGame: new Set(["snapshot"]),
   returnToMenu: new Set()
 });
 
@@ -37,7 +44,7 @@ const eventPayloadKeys = Object.freeze({
   runtimeReady: new Set(["offline", "renderer", "faction"]),
   runtimePaused: new Set(),
   runtimeResumed: new Set(),
-  saveReady: new Set(["snapshotID"]),
+  saveReady: new Set(["snapshotID", "snapshot"]),
   battleFinished: new Set(["winner", "reason"]),
   returnedToMenu: new Set(),
   fatalError: new Set(["code", "message"]),
@@ -46,6 +53,9 @@ const eventPayloadKeys = Object.freeze({
   saveRequested: new Set(),
   returnToMenuRequested: new Set()
 });
+
+/** The two messages that carry a save document and must state its schema version. */
+const SAVE_BEARING_NAMES = new Set(["saveReady", "loadGame"]);
 
 function isRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -90,12 +100,12 @@ export function validateEnvelope(envelope) {
     if (typeof value !== "string") return invalid(`bridge payload value is not a string: ${key}`);
   }
 
-  if (envelope.name === "saveReady") {
+  if (SAVE_BEARING_NAMES.has(envelope.name)) {
     if (!owns(envelope, "saveSchemaVersion") || envelope.saveSchemaVersion !== SAVE_SCHEMA_VERSION) {
       return invalid(versionError("save schema version", envelope.saveSchemaVersion, SAVE_SCHEMA_VERSION));
     }
   } else if (owns(envelope, "saveSchemaVersion") && envelope.saveSchemaVersion !== null) {
-    return invalid("save schema version is only valid on saveReady snapshots");
+    return invalid("save schema version is only valid on save-bearing messages");
   }
 
   return { valid: true, reason: null };
@@ -108,7 +118,7 @@ export function createEnvelope(type, name, payload = {}, options = {}) {
     name,
     payload
   };
-  if (name === "saveReady") {
+  if (SAVE_BEARING_NAMES.has(name)) {
     envelope.saveSchemaVersion = options.saveSchemaVersion ?? SAVE_SCHEMA_VERSION;
   }
   const result = validateEnvelope(envelope);

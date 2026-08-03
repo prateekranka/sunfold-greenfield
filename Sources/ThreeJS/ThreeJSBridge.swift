@@ -7,12 +7,16 @@ enum ThreeJSBridgeCommand: String, CaseIterable, Codable, Sendable {
     case pauseGame
     case resumeGame
     case saveGame
+    case loadGame
     case returnToMenu
 }
 
 struct ThreeJSBridgeEnvelope: Codable, Equatable, Sendable {
     static let currentProtocolVersion = 1
-    static let currentSaveSchemaVersion = 1
+    /// Moved from 1 with #22, when the placeholder snapshot became the real
+    /// serialised simulation state. A mismatch fails closed rather than
+    /// loading a world this build cannot reproduce.
+    static let currentSaveSchemaVersion = 2
 
     let protocolVersion: Int
     let type: String
@@ -37,6 +41,9 @@ struct ThreeJSBridgeEnvelope: Codable, Equatable, Sendable {
 
 enum ThreeJSBridgeProtocol {
     static let commandNames: Set<String> = Set(ThreeJSBridgeCommand.allCases.map(\.rawValue))
+    /// The two messages that carry a save document and must state its schema version.
+    static let saveBearingNames: Set<String> = ["saveReady", "loadGame"]
+
     static let eventNames: Set<String> = [
         "runtimeLoaded",
         "runtimeReady",
@@ -69,10 +76,13 @@ enum ThreeJSBridgeProtocol {
 
         let allowedPayloadKeys: Set<String>
         switch envelope.name {
-        case "startGame": allowedPayloadKeys = ["faction", "seed"]
+        case "startGame": allowedPayloadKeys = ["faction", "seed", "mapID"]
         case "runtimeLoaded": allowedPayloadKeys = ["offline", "renderer"]
         case "runtimeReady": allowedPayloadKeys = ["offline", "renderer", "faction"]
-        case "saveReady": allowedPayloadKeys = ["snapshotID"]
+        case "saveReady": allowedPayloadKeys = ["snapshotID", "snapshot"]
+        // A save document is lifecycle traffic, which #19 permits. It crosses
+        // once, at a player-driven moment, never per frame.
+        case "loadGame": allowedPayloadKeys = ["snapshot"]
         case "battleFinished": allowedPayloadKeys = ["winner", "reason"]
         case "fatalError": allowedPayloadKeys = ["code", "message"]
         default: allowedPayloadKeys = []
@@ -81,7 +91,7 @@ enum ThreeJSBridgeProtocol {
             return "The JavaScript bridge payload contains an unsupported field."
         }
 
-        if envelope.name == "saveReady" {
+        if saveBearingNames.contains(envelope.name) {
             guard envelope.saveSchemaVersion == ThreeJSBridgeEnvelope.currentSaveSchemaVersion else {
                 if let saveSchemaVersion = envelope.saveSchemaVersion,
                    saveSchemaVersion > ThreeJSBridgeEnvelope.currentSaveSchemaVersion {
@@ -90,7 +100,7 @@ enum ThreeJSBridgeProtocol {
                 return "The save schema version is missing or stale."
             }
         } else if envelope.saveSchemaVersion != nil {
-            return "The save schema version is only valid on save snapshots."
+            return "The save schema version is only valid on save-bearing messages."
         }
 
         return nil
@@ -112,6 +122,8 @@ final class ThreeJSBridge: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published private(set) var runtimeReady = false
     @Published private(set) var lastEvent: String?
     @Published private(set) var fatalErrorMessage: String?
+    /// The most recent save document the runtime produced. Opaque to Swift.
+    @Published private(set) var lastSnapshot: String?
     @Published private(set) var trace: [ThreeJSBridgeTrace] = []
 
     private weak var webView: WKWebView?
@@ -130,6 +142,7 @@ final class ThreeJSBridge: NSObject, ObservableObject, WKScriptMessageHandler {
         runtimeReady = false
         lastEvent = nil
         fatalErrorMessage = nil
+        lastSnapshot = nil
         pendingCommands.removeAll()
         trace.removeAll()
         webView = nil
@@ -175,6 +188,8 @@ final class ThreeJSBridge: NSObject, ObservableObject, WKScriptMessageHandler {
             queued.forEach { sendNow($0.0, payload: $0.1) }
         case "runtimeReady":
             runtimeReady = true
+        case "saveReady":
+            lastSnapshot = envelope.payload["snapshot"]
         case "runtimePaused":
             runtimeReady = true
         case "runtimeResumed":
@@ -200,6 +215,9 @@ final class ThreeJSBridge: NSObject, ObservableObject, WKScriptMessageHandler {
         let envelope = ThreeJSBridgeEnvelope(
             type: "command",
             name: command.rawValue,
+            saveSchemaVersion: ThreeJSBridgeProtocol.saveBearingNames.contains(command.rawValue)
+                ? ThreeJSBridgeEnvelope.currentSaveSchemaVersion
+                : nil,
             payload: payload ?? [:]
         )
         guard ThreeJSBridgeProtocol.validationError(for: envelope) == nil,

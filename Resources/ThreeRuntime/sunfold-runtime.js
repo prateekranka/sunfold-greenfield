@@ -611,8 +611,8 @@
      * @return {Vector2} A reference to this vector.
      */
     clampLength(min, max) {
-      const length = this.length();
-      return this.divideScalar(length || 1).multiplyScalar(clamp(length, min, max));
+      const length2 = this.length();
+      return this.divideScalar(length2 || 1).multiplyScalar(clamp(length2, min, max));
     }
     /**
      * The components of this vector are rounded down to the nearest integer value.
@@ -776,8 +776,8 @@
      * @param {number} length - The new length of this vector.
      * @return {Vector2} A reference to this vector.
      */
-    setLength(length) {
-      return this.normalize().multiplyScalar(length);
+    setLength(length2) {
+      return this.normalize().multiplyScalar(length2);
     }
     /**
      * Linearly interpolates between the given vector and this instance, where
@@ -1975,8 +1975,8 @@
      * @return {Vector3} A reference to this vector.
      */
     clampLength(min, max) {
-      const length = this.length();
-      return this.divideScalar(length || 1).multiplyScalar(clamp(length, min, max));
+      const length2 = this.length();
+      return this.divideScalar(length2 || 1).multiplyScalar(clamp(length2, min, max));
     }
     /**
      * The components of this vector are rounded down to the nearest integer value.
@@ -2086,8 +2086,8 @@
      * @param {number} length - The new length of this vector.
      * @return {Vector3} A reference to this vector.
      */
-    setLength(length) {
-      return this.normalize().multiplyScalar(length);
+    setLength(length2) {
+      return this.normalize().multiplyScalar(length2);
     }
     /**
      * Linearly interpolates between the given vector and this instance, where
@@ -4082,8 +4082,8 @@
      * @return {Vector4} A reference to this vector.
      */
     clampLength(min, max) {
-      const length = this.length();
-      return this.divideScalar(length || 1).multiplyScalar(clamp(length, min, max));
+      const length2 = this.length();
+      return this.divideScalar(length2 || 1).multiplyScalar(clamp(length2, min, max));
     }
     /**
      * The components of this vector are rounded down to the nearest integer value.
@@ -4197,8 +4197,8 @@
      * @param {number} length - The new length of this vector.
      * @return {Vector4} A reference to this vector.
      */
-    setLength(length) {
-      return this.normalize().multiplyScalar(length);
+    setLength(length2) {
+      return this.normalize().multiplyScalar(length2);
     }
     /**
      * Linearly interpolates between the given vector and this instance, where
@@ -5319,9 +5319,9 @@
       _v1$6.subVectors(point, this.center);
       const lengthSq = _v1$6.lengthSq();
       if (lengthSq > this.radius * this.radius) {
-        const length = Math.sqrt(lengthSq);
-        const delta = (length - this.radius) * 0.5;
-        this.center.addScaledVector(_v1$6, delta / length);
+        const length2 = Math.sqrt(lengthSq);
+        const delta = (length2 - this.radius) * 0.5;
+        this.center.addScaledVector(_v1$6, delta / length2);
         this.radius += delta;
       }
       return this;
@@ -7503,9 +7503,9 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateOnAxis(axis, distance) {
+    translateOnAxis(axis, distance2) {
       _v1$4.copy(axis).applyQuaternion(this.quaternion);
-      this.position.add(_v1$4.multiplyScalar(distance));
+      this.position.add(_v1$4.multiplyScalar(distance2));
       return this;
     }
     /**
@@ -7514,8 +7514,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateX(distance) {
-      return this.translateOnAxis(_xAxis, distance);
+    translateX(distance2) {
+      return this.translateOnAxis(_xAxis, distance2);
     }
     /**
      * Translate the 3D object by a distance along its Y-axis in local space.
@@ -7523,8 +7523,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateY(distance) {
-      return this.translateOnAxis(_yAxis, distance);
+    translateY(distance2) {
+      return this.translateOnAxis(_yAxis, distance2);
     }
     /**
      * Translate the 3D object by a distance along its Z-axis in local space.
@@ -7532,8 +7532,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateZ(distance) {
-      return this.translateOnAxis(_zAxis, distance);
+    translateZ(distance2) {
+      return this.translateOnAxis(_zAxis, distance2);
     }
     /**
      * Converts the given vector from this 3D object's local space to world space.
@@ -11158,10 +11158,10 @@
     if (intersect === null) return null;
     _intersectionPointWorld.copy(point);
     _intersectionPointWorld.applyMatrix4(object.matrixWorld);
-    const distance = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
-    if (distance < raycaster.near || distance > raycaster.far) return null;
+    const distance2 = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
+    if (distance2 < raycaster.near || distance2 > raycaster.far) return null;
     return {
-      distance,
+      distance: distance2,
       point: _intersectionPointWorld.clone(),
       object
     };
@@ -11618,11 +11618,11 @@
      * @param {Vector2} minTarget - The lower-left corner of the view rectangle is written into this vector.
      * @param {Vector2} maxTarget - The upper-right corner of the view rectangle is written into this vector.
      */
-    getViewBounds(distance, minTarget, maxTarget) {
+    getViewBounds(distance2, minTarget, maxTarget) {
       _v3$1.set(-1, -1, 0.5).applyMatrix4(this.projectionMatrixInverse);
-      minTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance / _v3$1.z);
+      minTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance2 / _v3$1.z);
       _v3$1.set(1, 1, 0.5).applyMatrix4(this.projectionMatrixInverse);
-      maxTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance / _v3$1.z);
+      maxTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance2 / _v3$1.z);
     }
     /**
      * Computes the width and height of the camera's viewable rectangle at a given distance along the viewing direction.
@@ -11631,8 +11631,8 @@
      * @param {Vector2} target - The target vector that is used to store result where x is width and y is height.
      * @returns {Vector2} The view size.
      */
-    getViewSize(distance, target) {
-      this.getViewBounds(distance, _minTarget, _maxTarget);
+    getViewSize(distance2, target) {
+      this.getViewBounds(distance2, _minTarget, _maxTarget);
       return target.subVectors(_maxTarget, _minTarget);
     }
     /**
@@ -12164,17 +12164,17 @@
           }
           const indexTip = hand.joints["index-finger-tip"];
           const thumbTip = hand.joints["thumb-tip"];
-          const distance = indexTip.position.distanceTo(thumbTip.position);
+          const distance2 = indexTip.position.distanceTo(thumbTip.position);
           const distanceToPinch = 0.02;
           const threshold = 5e-3;
-          if (hand.inputState.pinching && distance > distanceToPinch + threshold) {
+          if (hand.inputState.pinching && distance2 > distanceToPinch + threshold) {
             hand.inputState.pinching = false;
             this.dispatchEvent({
               type: "pinchend",
               handedness: inputSource.handedness,
               target: this
             });
-          } else if (!hand.inputState.pinching && distance <= distanceToPinch - threshold) {
+          } else if (!hand.inputState.pinching && distance2 <= distanceToPinch - threshold) {
             hand.inputState.pinching = true;
             this.dispatchEvent({
               type: "pinchstart",
@@ -12668,8 +12668,8 @@
       const center = sphere.center;
       const negRadius = -sphere.radius;
       for (let i = 0; i < 6; i++) {
-        const distance = planes[i].distanceToPoint(center);
-        if (distance < negRadius) {
+        const distance2 = planes[i].distanceToPoint(center);
+        if (distance2 < negRadius) {
           return false;
         }
       }
@@ -17547,11 +17547,11 @@
     }
     function isCubeTextureComplete(image) {
       let count = 0;
-      const length = 6;
-      for (let i = 0; i < length; i++) {
+      const length2 = 6;
+      for (let i = 0; i < length2; i++) {
         if (image[i] !== void 0) count++;
       }
-      return count === length;
+      return count === length2;
     }
     function onTextureDispose(event) {
       const texture = event.target;
@@ -20104,7 +20104,7 @@
         const light = lights[i];
         const color = light.color;
         const intensity = light.intensity;
-        const distance = light.distance;
+        const distance2 = light.distance;
         const shadowMap = light.shadow && light.shadow.map ? light.shadow.map.texture : null;
         if (light.isAmbientLight) {
           r += color.r * intensity;
@@ -20137,7 +20137,7 @@
           const uniforms = cache.get(light);
           uniforms.position.setFromMatrixPosition(light.matrixWorld);
           uniforms.color.copy(color).multiplyScalar(intensity);
-          uniforms.distance = distance;
+          uniforms.distance = distance2;
           uniforms.coneCos = Math.cos(light.angle);
           uniforms.penumbraCos = Math.cos(light.angle * (1 - light.penumbra));
           uniforms.decay = light.decay;
@@ -22770,7 +22770,7 @@ void main() {
     constructor(renderer2, gl) {
       super();
       const scope = this;
-      let session = null;
+      let session2 = null;
       let framebufferScaleFactor = 1;
       let referenceSpace = null;
       let referenceSpaceType = "local-floor";
@@ -22836,14 +22836,14 @@ void main() {
         }
       }
       function onSessionEnd() {
-        session.removeEventListener("select", onSessionEvent);
-        session.removeEventListener("selectstart", onSessionEvent);
-        session.removeEventListener("selectend", onSessionEvent);
-        session.removeEventListener("squeeze", onSessionEvent);
-        session.removeEventListener("squeezestart", onSessionEvent);
-        session.removeEventListener("squeezeend", onSessionEvent);
-        session.removeEventListener("end", onSessionEnd);
-        session.removeEventListener("inputsourceschange", onInputSourcesChange);
+        session2.removeEventListener("select", onSessionEvent);
+        session2.removeEventListener("selectstart", onSessionEvent);
+        session2.removeEventListener("selectend", onSessionEvent);
+        session2.removeEventListener("squeeze", onSessionEvent);
+        session2.removeEventListener("squeezestart", onSessionEvent);
+        session2.removeEventListener("squeezeend", onSessionEvent);
+        session2.removeEventListener("end", onSessionEnd);
+        session2.removeEventListener("inputsourceschange", onInputSourcesChange);
         for (let i = 0; i < controllers.length; i++) {
           const inputSource = controllerInputSources[i];
           if (inputSource === null) continue;
@@ -22857,7 +22857,7 @@ void main() {
         glBaseLayer = null;
         glProjLayer = null;
         glBinding = null;
-        session = null;
+        session2 = null;
         newRenderTarget = null;
         animation.stop();
         scope.isPresenting = false;
@@ -22893,20 +22893,20 @@ void main() {
         return xrFrame;
       };
       this.getSession = function() {
-        return session;
+        return session2;
       };
       this.setSession = async function(value) {
-        session = value;
-        if (session !== null) {
+        session2 = value;
+        if (session2 !== null) {
           initialRenderTarget = renderer2.getRenderTarget();
-          session.addEventListener("select", onSessionEvent);
-          session.addEventListener("selectstart", onSessionEvent);
-          session.addEventListener("selectend", onSessionEvent);
-          session.addEventListener("squeeze", onSessionEvent);
-          session.addEventListener("squeezestart", onSessionEvent);
-          session.addEventListener("squeezeend", onSessionEvent);
-          session.addEventListener("end", onSessionEnd);
-          session.addEventListener("inputsourceschange", onInputSourcesChange);
+          session2.addEventListener("select", onSessionEvent);
+          session2.addEventListener("selectstart", onSessionEvent);
+          session2.addEventListener("selectend", onSessionEvent);
+          session2.addEventListener("squeeze", onSessionEvent);
+          session2.addEventListener("squeezestart", onSessionEvent);
+          session2.addEventListener("squeezeend", onSessionEvent);
+          session2.addEventListener("end", onSessionEnd);
+          session2.addEventListener("inputsourceschange", onInputSourcesChange);
           if (attributes.xrCompatible !== true) {
             await gl.makeXRCompatible();
           }
@@ -22921,8 +22921,8 @@ void main() {
               stencil: attributes.stencil,
               framebufferScaleFactor
             };
-            glBaseLayer = new XRWebGLLayer(session, gl, layerInit);
-            session.updateRenderState({ baseLayer: glBaseLayer });
+            glBaseLayer = new XRWebGLLayer(session2, gl, layerInit);
+            session2.updateRenderState({ baseLayer: glBaseLayer });
             renderer2.setPixelRatio(1);
             renderer2.setSize(glBaseLayer.framebufferWidth, glBaseLayer.framebufferHeight, false);
             newRenderTarget = new WebGLRenderTarget(
@@ -22951,9 +22951,9 @@ void main() {
               depthFormat: glDepthFormat,
               scaleFactor: framebufferScaleFactor
             };
-            glBinding = new XRWebGLBinding(session, gl);
+            glBinding = new XRWebGLBinding(session2, gl);
             glProjLayer = glBinding.createProjectionLayer(projectionlayerInit);
-            session.updateRenderState({ layers: [glProjLayer] });
+            session2.updateRenderState({ layers: [glProjLayer] });
             renderer2.setPixelRatio(1);
             renderer2.setSize(glProjLayer.textureWidth, glProjLayer.textureHeight, false);
             newRenderTarget = new WebGLRenderTarget(
@@ -22974,16 +22974,16 @@ void main() {
           newRenderTarget.isXRRenderTarget = true;
           this.setFoveation(foveation);
           customReferenceSpace = null;
-          referenceSpace = await session.requestReferenceSpace(referenceSpaceType);
-          animation.setContext(session);
+          referenceSpace = await session2.requestReferenceSpace(referenceSpaceType);
+          animation.setContext(session2);
           animation.start();
           scope.isPresenting = true;
           scope.dispatchEvent({ type: "sessionstart" });
         }
       };
       this.getEnvironmentBlendMode = function() {
-        if (session !== null) {
-          return session.environmentBlendMode;
+        if (session2 !== null) {
+          return session2.environmentBlendMode;
         }
       };
       this.getDepthTexture = function() {
@@ -23067,7 +23067,7 @@ void main() {
         camera2.matrixWorldInverse.copy(camera2.matrixWorld).invert();
       }
       this.updateCamera = function(camera2) {
-        if (session === null) return;
+        if (session2 === null) return;
         let depthNear = camera2.near;
         let depthFar = camera2.far;
         if (depthSensing.texture !== null) {
@@ -23077,7 +23077,7 @@ void main() {
         cameraXR.near = cameraR.near = cameraL.near = depthNear;
         cameraXR.far = cameraR.far = cameraL.far = depthFar;
         if (_currentDepthNear !== cameraXR.near || _currentDepthFar !== cameraXR.far) {
-          session.updateRenderState({
+          session2.updateRenderState({
             depthNear: cameraXR.near,
             depthFar: cameraXR.far
           });
@@ -23193,12 +23193,12 @@ void main() {
               cameraXR.cameras.push(camera2);
             }
           }
-          const enabledFeatures = session.enabledFeatures;
-          const gpuDepthSensingEnabled = enabledFeatures && enabledFeatures.includes("depth-sensing") && session.depthUsage == "gpu-optimized";
+          const enabledFeatures = session2.enabledFeatures;
+          const gpuDepthSensingEnabled = enabledFeatures && enabledFeatures.includes("depth-sensing") && session2.depthUsage == "gpu-optimized";
           if (gpuDepthSensingEnabled && glBinding) {
             const depthData = glBinding.getDepthInformation(views[0]);
             if (depthData && depthData.isValid && depthData.texture) {
-              depthSensing.init(renderer2, depthData, session.renderState);
+              depthSensing.init(renderer2, depthData, session2.renderState);
             }
           }
         }
@@ -25268,12 +25268,13 @@ void main() {
 
   // src/protocol.js
   var BRIDGE_PROTOCOL_VERSION = 1;
-  var SAVE_SCHEMA_VERSION = 1;
+  var SAVE_SCHEMA_VERSION = 2;
   var COMMAND_NAMES = Object.freeze([
     "startGame",
     "pauseGame",
     "resumeGame",
     "saveGame",
+    "loadGame",
     "returnToMenu"
   ]);
   var EVENT_NAMES = Object.freeze([
@@ -25291,10 +25292,13 @@ void main() {
     "returnToMenuRequested"
   ]);
   var commandPayloadKeys = Object.freeze({
-    startGame: /* @__PURE__ */ new Set(["faction", "seed"]),
+    startGame: /* @__PURE__ */ new Set(["faction", "seed", "mapID"]),
     pauseGame: /* @__PURE__ */ new Set(),
     resumeGame: /* @__PURE__ */ new Set(),
     saveGame: /* @__PURE__ */ new Set(),
+    // A save document is lifecycle traffic, which #19 permits. It is one
+    // message at a player-driven moment, never a per-frame stream.
+    loadGame: /* @__PURE__ */ new Set(["snapshot"]),
     returnToMenu: /* @__PURE__ */ new Set()
   });
   var eventPayloadKeys = Object.freeze({
@@ -25302,7 +25306,7 @@ void main() {
     runtimeReady: /* @__PURE__ */ new Set(["offline", "renderer", "faction"]),
     runtimePaused: /* @__PURE__ */ new Set(),
     runtimeResumed: /* @__PURE__ */ new Set(),
-    saveReady: /* @__PURE__ */ new Set(["snapshotID"]),
+    saveReady: /* @__PURE__ */ new Set(["snapshotID", "snapshot"]),
     battleFinished: /* @__PURE__ */ new Set(["winner", "reason"]),
     returnedToMenu: /* @__PURE__ */ new Set(),
     fatalError: /* @__PURE__ */ new Set(["code", "message"]),
@@ -25311,6 +25315,7 @@ void main() {
     saveRequested: /* @__PURE__ */ new Set(),
     returnToMenuRequested: /* @__PURE__ */ new Set()
   });
+  var SAVE_BEARING_NAMES = /* @__PURE__ */ new Set(["saveReady", "loadGame"]);
   function isRecord(value) {
     return value !== null && typeof value === "object" && !Array.isArray(value);
   }
@@ -25346,12 +25351,12 @@ void main() {
       if (!allowedKeys.has(key)) return invalid(`bridge payload key is not allowed: ${key}`);
       if (typeof value !== "string") return invalid(`bridge payload value is not a string: ${key}`);
     }
-    if (envelope.name === "saveReady") {
+    if (SAVE_BEARING_NAMES.has(envelope.name)) {
       if (!owns(envelope, "saveSchemaVersion") || envelope.saveSchemaVersion !== SAVE_SCHEMA_VERSION) {
         return invalid(versionError("save schema version", envelope.saveSchemaVersion, SAVE_SCHEMA_VERSION));
       }
     } else if (owns(envelope, "saveSchemaVersion") && envelope.saveSchemaVersion !== null) {
-      return invalid("save schema version is only valid on saveReady snapshots");
+      return invalid("save schema version is only valid on save-bearing messages");
     }
     return { valid: true, reason: null };
   }
@@ -25362,7 +25367,7 @@ void main() {
       name,
       payload
     };
-    if (name === "saveReady") {
+    if (SAVE_BEARING_NAMES.has(name)) {
       envelope.saveSchemaVersion = options.saveSchemaVersion ?? SAVE_SCHEMA_VERSION;
     }
     const result = validateEnvelope(envelope);
@@ -25374,6 +25379,4341 @@ void main() {
     if (!result.valid) throw new TypeError(result.reason);
     return envelope;
   }
+
+  // src/sim/clock.js
+  var SIMULATION_HZ = 20;
+  var STEP_DURATION = 1 / SIMULATION_HZ;
+  var MAX_STEPS_PER_FRAME = 5;
+  var SimulationClock = class _SimulationClock {
+    constructor({ hz = SIMULATION_HZ, maxStepsPerFrame = MAX_STEPS_PER_FRAME } = {}) {
+      this.hz = hz;
+      this.stepDuration = 1 / hz;
+      this.maxStepsPerFrame = maxStepsPerFrame;
+      this.tick = 0;
+      this.accumulator = 0;
+      this.elapsed = 0;
+    }
+    /** How far presentation should interpolate between the last two steps, in [0, 1). */
+    get interpolationAlpha() {
+      return this.accumulator / this.stepDuration;
+    }
+    /**
+     * Consumes real elapsed time and reports how many fixed steps to run.
+     *
+     * If the app was suspended or a frame took far too long, surplus time is
+     * dropped rather than replayed as a burst — a resumed game must not
+     * fast-forward through the time it spent in the background.
+     */
+    advance(deltaTime) {
+      if (!(deltaTime > 0)) return 0;
+      this.accumulator += deltaTime;
+      let steps = 0;
+      while (this.accumulator >= this.stepDuration && steps < this.maxStepsPerFrame) {
+        this.accumulator -= this.stepDuration;
+        steps += 1;
+      }
+      if (this.accumulator >= this.stepDuration) {
+        this.accumulator = 0;
+      }
+      this.tick += steps;
+      this.elapsed = this.tick * this.stepDuration;
+      return steps;
+    }
+    snapshot() {
+      return { tick: this.tick };
+    }
+    static restore(snapshot, options = {}) {
+      const clock = new _SimulationClock(options);
+      clock.tick = snapshot.tick >>> 0;
+      clock.elapsed = clock.tick * clock.stepDuration;
+      return clock;
+    }
+  };
+
+  // src/sim/ids.js
+  var EntityIDAllocator = class _EntityIDAllocator {
+    constructor(next = 1) {
+      this.next = next >>> 0;
+    }
+    allocate() {
+      const id = this.next;
+      this.next = this.next + 1 >>> 0;
+      if (this.next === 0) this.next = 1;
+      return id;
+    }
+    snapshot() {
+      return { next: this.next };
+    }
+    static restore(snapshot) {
+      return new _EntityIDAllocator(snapshot.next);
+    }
+  };
+  var EntityStore = class {
+    constructor(entries = []) {
+      this.map = new Map(entries);
+      this.orderedCache = null;
+    }
+    get size() {
+      return this.map.size;
+    }
+    get(id) {
+      return this.map.get(id);
+    }
+    has(id) {
+      return this.map.has(id);
+    }
+    set(id, entity) {
+      this.map.set(id, entity);
+      this.orderedCache = null;
+      return entity;
+    }
+    delete(id) {
+      const removed = this.map.delete(id);
+      if (removed) this.orderedCache = null;
+      return removed;
+    }
+    values() {
+      return this.map.values();
+    }
+    keys() {
+      return this.map.keys();
+    }
+    /**
+     * Every entity in ascending id order — the only order a rule may iterate in.
+     *
+     * Cached because a 20 Hz step walks this several times over 80+ entities and
+     * re-sorting each pass is measurable at benchmark density. The cache is
+     * dropped on any structural change, so it can never serve a stale set.
+     */
+    ordered() {
+      if (this.orderedCache === null) {
+        this.orderedCache = [...this.map.values()].sort((left, right) => left.id - right.id);
+      }
+      return this.orderedCache;
+    }
+    /** Ascending ids, snapshotted — safe to mutate the store while iterating. */
+    orderedIDs() {
+      return this.ordered().map((entity) => entity.id);
+    }
+  };
+
+  // src/sim/int64.js
+  function u64(hi, lo) {
+    return { hi: hi >>> 0, lo: lo >>> 0 };
+  }
+  function add64(a, b) {
+    const lo = a.lo + b.lo;
+    const carry = lo > 4294967295 ? 1 : 0;
+    return { hi: a.hi + b.hi + carry >>> 0, lo: lo >>> 0 };
+  }
+  function umul32(a, b) {
+    const aLow = a & 65535;
+    const aHigh = a >>> 16;
+    const bLow = b & 65535;
+    const bHigh = b >>> 16;
+    const lowLow = aLow * bLow;
+    const lowHigh = aLow * bHigh;
+    const highLow = aHigh * bLow;
+    const highHigh = aHigh * bHigh;
+    const middle = (lowLow >>> 16) + (lowHigh & 65535) + (highLow & 65535);
+    const lo = ((middle & 65535) << 16 | lowLow & 65535) >>> 0;
+    const hi = highHigh + (lowHigh >>> 16) + (highLow >>> 16) + (middle >>> 16) >>> 0;
+    return { hi, lo };
+  }
+  function mul64(a, b) {
+    const low = umul32(a.lo, b.lo);
+    const hi = low.hi + Math.imul(a.hi, b.lo) + Math.imul(a.lo, b.hi) >>> 0;
+    return { hi, lo: low.lo };
+  }
+  function xor64(a, b) {
+    return { hi: (a.hi ^ b.hi) >>> 0, lo: (a.lo ^ b.lo) >>> 0 };
+  }
+  function shr64(value, bits) {
+    if (bits === 0) return { hi: value.hi, lo: value.lo };
+    if (bits < 32) {
+      return {
+        hi: value.hi >>> bits,
+        lo: (value.lo >>> bits | value.hi << 32 - bits) >>> 0
+      };
+    }
+    return { hi: 0, lo: value.hi >>> bits - 32 };
+  }
+  function hex64(value) {
+    return value.hi.toString(16).padStart(8, "0") + value.lo.toString(16).padStart(8, "0");
+  }
+  function parseHex64(text) {
+    if (typeof text !== "string" || !/^[0-9a-f]{16}$/.test(text)) {
+      throw new TypeError(`not a canonical 64-bit hex value: ${String(text)}`);
+    }
+    return u64(parseInt(text.slice(0, 8), 16), parseInt(text.slice(8), 16));
+  }
+
+  // src/sim/rng.js
+  var GOLDEN_GAMMA = u64(2654435769, 2135587861);
+  var MIX_A = u64(3210233709, 484763065);
+  var MIX_B = u64(2496678331, 321982955);
+  var FNV_OFFSET_BASIS = u64(3421674724, 2216829733);
+  var FNV_PRIME = u64(256, 435);
+  function fnv1a64(text) {
+    let hash = FNV_OFFSET_BASIS;
+    const bytes = utf8Bytes(text);
+    for (let index = 0; index < bytes.length; index += 1) {
+      hash = xor64(hash, u64(0, bytes[index]));
+      hash = mul64(hash, FNV_PRIME);
+    }
+    return hash;
+  }
+  function utf8Bytes(text) {
+    const bytes = [];
+    for (const character of String(text)) {
+      let code = character.codePointAt(0);
+      if (code < 128) {
+        bytes.push(code);
+      } else if (code < 2048) {
+        bytes.push(192 | code >> 6, 128 | code & 63);
+      } else if (code < 65536) {
+        bytes.push(224 | code >> 12, 128 | code >> 6 & 63, 128 | code & 63);
+      } else {
+        bytes.push(
+          240 | code >> 18,
+          128 | code >> 12 & 63,
+          128 | code >> 6 & 63,
+          128 | code & 63
+        );
+      }
+    }
+    return bytes;
+  }
+  var DeterministicRandom = class _DeterministicRandom {
+    /** @param {{hi:number, lo:number}} seed */
+    constructor(seed) {
+      this.state = seed.hi === 0 && seed.lo === 0 ? { ...GOLDEN_GAMMA } : { hi: seed.hi >>> 0, lo: seed.lo >>> 0 };
+      this.draws = 0;
+    }
+    /**
+     * A generator derived from a seed and a stable string tag.
+     *
+     * Each subsystem draws from its own stream, so adding a call in one place
+     * cannot shift the numbers every other system receives.
+     */
+    static stream(seed, tag) {
+      return new _DeterministicRandom(xor64(seed, fnv1a64(tag)));
+    }
+    /** The next raw 64-bit value. */
+    next() {
+      this.state = add64(this.state, GOLDEN_GAMMA);
+      let z = this.state;
+      z = mul64(xor64(z, shr64(z, 30)), MIX_A);
+      z = mul64(xor64(z, shr64(z, 27)), MIX_B);
+      this.draws += 1;
+      return xor64(z, shr64(z, 31));
+    }
+    /**
+     * Uniform in [0, 1).
+     *
+     * 24 bits is exactly what a binary float can represent without bias, and the
+     * quotient of two exactly-representable values is itself exact — so this
+     * number is the same on every engine that implements IEEE 754.
+     */
+    unitFloat() {
+      return (this.next().hi >>> 8) / 16777216;
+    }
+    /** Uniform in [lower, upper). */
+    float(lower, upper) {
+      return lower + this.unitFloat() * (upper - lower);
+    }
+    /** Uniform integer in [0, bound). `bound` must be a positive safe integer. */
+    int(bound) {
+      if (!Number.isInteger(bound) || bound <= 0) {
+        throw new RangeError(`random bound must be a positive integer: ${bound}`);
+      }
+      return Math.floor(this.unitFloat() * bound) % bound;
+    }
+    /** Serialised generator state — enough to continue the identical sequence. */
+    snapshot() {
+      return { state: hex64(this.state), draws: this.draws };
+    }
+    static restore(snapshot) {
+      const generator = new _DeterministicRandom(parseHex64(snapshot.state));
+      generator.state = parseHex64(snapshot.state);
+      generator.draws = snapshot.draws | 0;
+      return generator;
+    }
+  };
+  var RNG_STREAM_TAGS = Object.freeze([
+    "world.populate",
+    "world.deposits",
+    "movement.jitter",
+    "gathering.station",
+    "production.spawn",
+    "adversary.plan"
+  ]);
+  var RandomStreams = class _RandomStreams {
+    constructor(seed) {
+      this.seed = { hi: seed.hi >>> 0, lo: seed.lo >>> 0 };
+      this.streams = /* @__PURE__ */ new Map();
+      for (const tag of RNG_STREAM_TAGS) {
+        this.streams.set(tag, DeterministicRandom.stream(this.seed, tag));
+      }
+    }
+    /** The generator for `tag`. Unknown tags are a programming error, not a new stream. */
+    stream(tag) {
+      const generator = this.streams.get(tag);
+      if (!generator) throw new RangeError(`unregistered RNG stream tag: ${tag}`);
+      return generator;
+    }
+    snapshot() {
+      const out = {};
+      for (const tag of RNG_STREAM_TAGS) out[tag] = this.streams.get(tag).snapshot();
+      return out;
+    }
+    static restore(seed, snapshot) {
+      const streams = new _RandomStreams(seed);
+      for (const tag of RNG_STREAM_TAGS) {
+        if (!snapshot || !snapshot[tag]) throw new TypeError(`snapshot is missing RNG stream: ${tag}`);
+        streams.streams.set(tag, DeterministicRandom.restore(snapshot[tag]));
+      }
+      return streams;
+    }
+  };
+  function seedFrom(value) {
+    if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) {
+      return u64(Math.floor(value / 4294967296), value >>> 0);
+    }
+    if (typeof value === "string") {
+      if (/^[0-9a-f]{16}$/i.test(value)) return parseHex64(value.toLowerCase());
+      if (/^\d+$/.test(value)) {
+        const parsed = Number(value);
+        if (Number.isSafeInteger(parsed)) return seedFrom(parsed);
+      }
+      return fnv1a64(value);
+    }
+    throw new TypeError(`cannot build a seed from: ${String(value)}`);
+  }
+
+  // src/sim/events.js
+  var EVENT_KINDS = Object.freeze([
+    "tool_attach",
+    "tool_release",
+    "gather_contact",
+    "payload_attach",
+    "deposit_release",
+    "construct_contact"
+  ]);
+  var EventLog = class {
+    constructor(capacity = 2e4) {
+      this.capacity = capacity;
+      this.entries = [];
+      this.dropped = 0;
+      this.counts = Object.fromEntries(EVENT_KINDS.map((kind) => [kind, 0]));
+    }
+    emit(kind, tick, unitID, detail = {}) {
+      if (!EVENT_KINDS.includes(kind)) throw new RangeError(`unknown simulation event: ${kind}`);
+      this.counts[kind] += 1;
+      if (this.entries.length >= this.capacity) {
+        this.dropped += 1;
+        return;
+      }
+      this.entries.push({ kind, tick, unitID, ...detail });
+    }
+    /** Every event for one unit, in the order it fired. */
+    forUnit(unitID) {
+      return this.entries.filter((entry) => entry.unitID === unitID);
+    }
+    clear() {
+      this.entries.length = 0;
+      this.dropped = 0;
+      for (const kind of EVENT_KINDS) this.counts[kind] = 0;
+    }
+    /**
+     * Deliberately excluded from the world hash and from save snapshots.
+     *
+     * The trace is an observation of the run, not state the run depends on —
+     * hashing it would make a save taken mid-match differ from the same match
+     * replayed from tick zero purely because one of them remembered more history.
+     */
+    summary() {
+      return { total: this.entries.length, dropped: this.dropped, counts: { ...this.counts } };
+    }
+  };
+
+  // src/sim/hash.js
+  var WORLD_HASH_LAYOUT_VERSION = 3;
+  var OFFSET_BASIS = u64(3421674724, 2216829733);
+  var PRIME = u64(256, 435);
+  var FACTION_ORDER = Object.freeze(["sunwoven", "gravemark"]);
+  var RESOURCE_ORDER = Object.freeze(["provisions", "matter", "lumen", "aether"]);
+  var INT64_MAX = u64(2147483647, 4294967295);
+  var INT64_MIN = u64(2147483648, 0);
+  var Hasher = class {
+    constructor() {
+      this.value = OFFSET_BASIS;
+    }
+    /** Mixes one 64-bit value, little-endian, one byte at a time. */
+    u64(value) {
+      let hi = value.hi >>> 0;
+      let lo = value.lo >>> 0;
+      for (let index = 0; index < 4; index += 1) {
+        this.value = mul64(xor64(this.value, u64(0, lo & 255)), PRIME);
+        lo = lo >>> 8;
+      }
+      for (let index = 0; index < 4; index += 1) {
+        this.value = mul64(xor64(this.value, u64(0, hi & 255)), PRIME);
+        hi = hi >>> 8;
+      }
+      return this;
+    }
+    /** Mixes a non-negative safe integer (ids, counts, tick numbers). */
+    int(value) {
+      const rounded = Math.trunc(value);
+      if (rounded < 0) return this.u64(twosComplement(rounded));
+      return this.u64(u64(Math.floor(rounded / 4294967296), rounded >>> 0));
+    }
+    /**
+     * Mixes a stable string tag rather than an enum ordinal, so reordering a
+     * declaration cannot silently change a recorded hash.
+     */
+    tag(text) {
+      let hash = OFFSET_BASIS;
+      const value = String(text);
+      for (let index = 0; index < value.length; index += 1) {
+        const code = value.charCodeAt(index);
+        if (code > 127) throw new TypeError(`hash tag must be ASCII: ${value}`);
+        hash = mul64(xor64(hash, u64(0, code)), PRIME);
+      }
+      return this.u64(hash);
+    }
+    /** Hundredths — life, resources, construction progress. */
+    centi(value) {
+      return this.u64(quantise(value, 100));
+    }
+    /** Millimetres — every world coordinate. */
+    milli(value) {
+      return this.u64(quantise(value, 1e3));
+    }
+    /** An optional entity id; absence is a stable zero rather than a skipped field. */
+    optionalID(value) {
+      return this.int(value === null || value === void 0 ? 0 : value);
+    }
+    /** An optional world point; absence is a stable sentinel rather than a skipped field. */
+    optionalPoint(point) {
+      if (!point) return this.int(0).milli(0).milli(0);
+      return this.int(1).milli(point.x).milli(point.z);
+    }
+    digest() {
+      return hex64(this.value);
+    }
+  };
+  function twosComplement(value) {
+    const magnitude = Math.abs(value);
+    const hi = Math.floor(magnitude / 4294967296) >>> 0;
+    const lo = magnitude >>> 0;
+    if (value >= 0) return u64(hi, lo);
+    const invertedLo = (~lo >>> 0) + 1;
+    const carry = invertedLo > 4294967295 ? 1 : 0;
+    return u64((~hi >>> 0) + carry >>> 0, invertedLo >>> 0);
+  }
+  function quantise(value, scale) {
+    if (!Number.isFinite(value)) {
+      if (Number.isNaN(value)) throw new TypeError("cannot hash NaN \u2014 a rule produced an undefined number");
+      return value > 0 ? INT64_MAX : INT64_MIN;
+    }
+    const scaled = Math.round(value * scale);
+    if (!Number.isSafeInteger(scaled)) return scaled > 0 ? INT64_MAX : INT64_MIN;
+    return twosComplement(scaled);
+  }
+  function worldHash(state) {
+    const hasher = new Hasher();
+    hasher.int(WORLD_HASH_LAYOUT_VERSION);
+    hasher.int(state.clock.tick);
+    for (const faction of FACTION_ORDER) {
+      const pool2 = state.stock[faction];
+      for (const kind of RESOURCE_ORDER) hasher.centi(pool2 ? pool2[kind] : 0);
+    }
+    for (const unit of sortedByID(state.units)) {
+      hasher.int(unit.id);
+      hasher.tag(unit.kind);
+      hasher.tag(unit.faction);
+      hasher.milli(unit.position.x);
+      hasher.milli(unit.position.z);
+      hasher.centi(unit.life);
+      hasher.tag(unit.activity.tag);
+      hasher.optionalID(unit.activity.subject);
+      hasher.tag(unit.cargo ? unit.cargo.kind : "none");
+      hasher.centi(unit.cargo ? unit.cargo.amount : 0);
+      hasher.optionalID(unit.assignment);
+      hasher.optionalPoint(unit.destination);
+      hasher.tag(unit.animation.state);
+      hasher.int(unit.animation.loopIndex);
+      hasher.int(unit.animation.phaseTicks);
+      hasher.tag(unit.animation.leadHand);
+      hasher.tag(unit.animation.toolHeld ? unit.animation.toolHeld : "none");
+      hasher.int(unit.animation.carriedChunks);
+      hasher.int(unit.animation.airborneChunks.length);
+      for (const chunk of unit.animation.airborneChunks) {
+        hasher.int(chunk.remainingTicks);
+        hasher.tag(chunk.kind);
+        hasher.centi(chunk.amount);
+      }
+    }
+    for (const building of sortedByID(state.buildings)) {
+      hasher.int(building.id);
+      hasher.tag(building.kind);
+      hasher.tag(building.faction ?? "neutral");
+      hasher.milli(building.position.x);
+      hasher.milli(building.position.z);
+      hasher.centi(building.life);
+      hasher.centi(building.constructionProgress);
+      hasher.int(building.installedComponents);
+    }
+    for (const deposit of sortedByID(state.deposits)) {
+      hasher.int(deposit.id);
+      hasher.tag(deposit.kind);
+      hasher.milli(deposit.position.x);
+      hasher.milli(deposit.position.z);
+      hasher.centi(deposit.remaining);
+      hasher.int(deposit.chunksRemaining);
+    }
+    const queueIDs = [...state.productionQueues.keys()].sort((left, right) => left - right);
+    for (const buildingID of queueIDs) {
+      const queue = state.productionQueues.get(buildingID);
+      if (!queue || queue.items.length === 0) continue;
+      hasher.int(buildingID);
+      hasher.tag(queue.heldReason ?? "none");
+      hasher.int(queue.items.length);
+      for (const item of queue.items) {
+        hasher.tag(item.kind);
+        hasher.int(item.progressTicks);
+        hasher.int(item.hasStarted ? 1 : 0);
+      }
+    }
+    const orders = state.orders;
+    hasher.int(orders.sequence);
+    hasher.int(orders.pending.length);
+    for (const order of orders.pending) {
+      hasher.int(order.scheduledTick);
+      hasher.int(order.sequence);
+      hasher.tag(order.kind);
+      hasher.tag(canonicalPayload(order.payload));
+    }
+    return hasher.digest();
+  }
+  function canonicalPayload(value) {
+    if (value === null || typeof value !== "object") return JSON.stringify(value ?? null);
+    if (Array.isArray(value)) return `[${value.map(canonicalPayload).join(",")}]`;
+    const keys = Object.keys(value).sort();
+    const fields = keys.map((key) => `${JSON.stringify(key)}:${canonicalPayload(value[key])}`);
+    return `{${fields.join(",")}}`;
+  }
+  function sortedByID(collection) {
+    return [...collection.values()].sort((left, right) => left.id - right.id);
+  }
+
+  // src/sim/types.js
+  var RESOURCE_KINDS = Object.freeze(["provisions", "matter", "lumen", "aether"]);
+  var FACTIONS = Object.freeze(["sunwoven", "gravemark"]);
+  var ACTIVITY_TAGS = Object.freeze([
+    "idle",
+    "moving",
+    "gathering",
+    "boarding",
+    "aboard",
+    "constructing",
+    "attacking"
+  ]);
+  function activity(tag, subject = null) {
+    if (!ACTIVITY_TAGS.includes(tag)) throw new RangeError(`unknown activity: ${tag}`);
+    return { tag, subject };
+  }
+  var IDLE = Object.freeze({ tag: "idle", subject: null });
+  function addPoints(a, b) {
+    return { x: a.x + b.x, z: a.z + b.z };
+  }
+  function subtractPoints(a, b) {
+    return { x: a.x - b.x, z: a.z - b.z };
+  }
+  function length(p) {
+    return Math.sqrt(p.x * p.x + p.z * p.z);
+  }
+  function distance(a, b) {
+    const dx = a.x - b.x;
+    const dz = a.z - b.z;
+    return Math.sqrt(dx * dx + dz * dz);
+  }
+  function distanceSquared(a, b) {
+    const dx = a.x - b.x;
+    const dz = a.z - b.z;
+    return dx * dx + dz * dz;
+  }
+  function pool({ provisions = 0, matter = 0, lumen = 0, aether = 0 } = {}) {
+    return { provisions, matter, lumen, aether };
+  }
+  var ZERO_POOL = Object.freeze(pool());
+  function clonePool(source) {
+    return { provisions: source.provisions, matter: source.matter, lumen: source.lumen, aether: source.aether };
+  }
+  function addPools(a, b) {
+    return {
+      provisions: a.provisions + b.provisions,
+      matter: a.matter + b.matter,
+      lumen: a.lumen + b.lumen,
+      aether: a.aether + b.aether
+    };
+  }
+  function scalePool(source, scalar) {
+    return {
+      provisions: source.provisions * scalar,
+      matter: source.matter * scalar,
+      lumen: source.lumen * scalar,
+      aether: source.aether * scalar
+    };
+  }
+  function covers(have, cost) {
+    return RESOURCE_KINDS.every((kind) => have[kind] >= cost[kind]);
+  }
+  var REGION_IDS = Object.freeze([
+    "sunwovenHome",
+    "gravemarkHome",
+    "sunwovenExpansion",
+    "gravemarkExpansion",
+    "dominion"
+  ]);
+  function homeRegion(faction) {
+    return faction === "sunwoven" ? "sunwovenHome" : "gravemarkHome";
+  }
+  function expansionRegion(faction) {
+    return faction === "sunwoven" ? "sunwovenExpansion" : "gravemarkExpansion";
+  }
+
+  // src/sim/tuning.js
+  var TUNING = Object.freeze({
+    // MARK: - Starting state
+    startingResources: pool({ provisions: 180, matter: 160, lumen: 40, aether: 0 }),
+    startingCitizens: 4,
+    startingPopulationCap: 10,
+    /** Yield seeded into each authored home deposit. Provisions are renewable. */
+    homeDepositYields: pool({ provisions: Infinity, matter: 700, lumen: 550, aether: 180 }),
+    offHomeDepositYields: pool({ provisions: Infinity, matter: 420, lumen: 300, aether: 180 }),
+    // MARK: - Simulation
+    simulationHz: 20,
+    maxStepsPerFrame: 5,
+    // MARK: - Gathering (units per second while actively working)
+    gatherRates: pool({ provisions: 1.6, matter: 1.4, lumen: 1.1, aether: 0.9 }),
+    /**
+     * How much a citizen carries before walking a load home. Sets the rhythm of
+     * the whole early game: too small and the fragment is a conveyor belt of
+     * walking, too large and a node is worked in one uninterrupted stand.
+     */
+    carryCapacity: 10,
+    /**
+     * Quiet Core trickle so one early mistake cannot hard-lock a first match.
+     * The AI receives the identical rule — this is not a player handicap.
+     */
+    coreTrickle: pool({ provisions: 0.25, matter: 0.2, lumen: 0.1, aether: 0 }),
+    // MARK: - Units
+    citizenCost: pool({ provisions: 50 }),
+    pathfinderCost: pool({ provisions: 35, lumen: 10 }),
+    vanguardCost: pool({ provisions: 45, matter: 20 }),
+    quarrelCost: pool({ provisions: 35, lumen: 30 }),
+    transportCapacity: 4,
+    // MARK: - Buildings
+    farmCost: pool({ matter: 70 }),
+    farmBuildTime: 12,
+    matterExtractorCost: pool({ matter: 60 }),
+    matterExtractorBuildTime: 14,
+    dwellingCost: pool({ matter: 55 }),
+    dwellingBuildTime: 14,
+    formationYardCost: pool({ matter: 110, lumen: 20 }),
+    formationYardBuildTime: 18,
+    lumenSpireCost: pool({ matter: 90, lumen: 45 }),
+    lumenSpireBuildTime: 18,
+    expansionOutpostCost: pool({ matter: 100, lumen: 30 }),
+    expansionOutpostBuildTime: 20,
+    expansionOutpostPopulationGrant: 2,
+    dawnLoomCost: pool({ matter: 130, lumen: 50 }),
+    dawnLoomBuildTime: 26,
+    // MARK: - Age up
+    voyagerCost: pool({ provisions: 180, matter: 180, lumen: 100, aether: 80 }),
+    voyagerChannelDuration: 20,
+    // MARK: - Production
+    maxQueueLength: 10,
+    /** Fraction of cost returned when a queued train item or foundation is cancelled. */
+    cancelRefundFraction: 0.75,
+    // MARK: - Victory
+    dominionHoldDuration: 45,
+    enemyCoreLife: 600,
+    dominionCaptureRadius: 12,
+    dominionContestDecay: 0.5,
+    dominionVacancyReset: 8,
+    dominionHoldSchedule: Object.freeze([
+      Object.freeze({ after: 0, hold: 45 }),
+      Object.freeze({ after: 420, hold: 30 }),
+      Object.freeze({ after: 540, hold: 20 })
+    ]),
+    // MARK: - Presentation scale
+    unitVisualScale: 1.25,
+    // MARK: - Camera
+    cameraPitchDegrees: 57,
+    cameraDefaultZoom: 64,
+    cameraMinZoom: 34,
+    cameraMaxZoom: 165
+  });
+  var STEP_DURATION2 = 1 / TUNING.simulationHz;
+  var BUILDING_COSTS = Object.freeze({
+    farm: TUNING.farmCost,
+    matterExtractor: TUNING.matterExtractorCost,
+    dwelling: TUNING.dwellingCost,
+    formationYard: TUNING.formationYardCost,
+    lumenSpire: TUNING.lumenSpireCost,
+    expansionOutpost: TUNING.expansionOutpostCost,
+    dawnLoom: TUNING.dawnLoomCost,
+    // Neither is buildable, so neither has a price. Listed rather than defaulted,
+    // so adding a building forces the question.
+    civilizationCore: pool(),
+    dominionSpire: pool()
+  });
+  var BUILDING_TIMES = Object.freeze({
+    farm: TUNING.farmBuildTime,
+    matterExtractor: TUNING.matterExtractorBuildTime,
+    dwelling: TUNING.dwellingBuildTime,
+    formationYard: TUNING.formationYardBuildTime,
+    lumenSpire: TUNING.lumenSpireBuildTime,
+    expansionOutpost: TUNING.expansionOutpostBuildTime,
+    dawnLoom: TUNING.dawnLoomBuildTime,
+    civilizationCore: 0,
+    dominionSpire: 0
+  });
+  var UNIT_COSTS = Object.freeze({
+    citizen: TUNING.citizenCost,
+    pathfinder: TUNING.pathfinderCost,
+    vanguard: TUNING.vanguardCost,
+    quarrel: TUNING.quarrelCost,
+    lightTransport: pool(),
+    bastionWalker: pool()
+  });
+  var UNIT_BUILD_TICKS = Object.freeze({
+    citizen: 280,
+    pathfinder: 220,
+    vanguard: 260,
+    quarrel: 300,
+    lightTransport: 0,
+    bastionWalker: 0
+  });
+  function buildingCost(kind) {
+    const cost = BUILDING_COSTS[kind];
+    if (!cost) throw new RangeError(`unknown building kind: ${kind}`);
+    return cost;
+  }
+  function buildTime(kind) {
+    const time = BUILDING_TIMES[kind];
+    if (time === void 0) throw new RangeError(`unknown building kind: ${kind}`);
+    return time;
+  }
+  function unitCost(kind) {
+    const cost = UNIT_COSTS[kind];
+    if (!cost) throw new RangeError(`unknown unit kind: ${kind}`);
+    return cost;
+  }
+  function unitBuildTicks(kind) {
+    const ticks = UNIT_BUILD_TICKS[kind];
+    if (ticks === void 0) throw new RangeError(`unknown unit kind: ${kind}`);
+    return ticks;
+  }
+  function depositYield(kind, region) {
+    const isHome = region === "sunwovenHome" || region === "gravemarkHome";
+    return (isHome ? TUNING.homeDepositYields : TUNING.offHomeDepositYields)[kind];
+  }
+
+  // src/sim/world.js
+  var MAP_IDS = Object.freeze(["riverlands", "basin", "fjords"]);
+  var DEFAULT_MAP_ID = "riverlands";
+  function landHash(x, y, salt) {
+    let h = Math.imul(x | 0, 668265261) >>> 0;
+    h = (h ^ Math.imul(y | 0, 374761393) >>> 0) >>> 0;
+    h = (h ^ Math.imul(salt | 0, 2654435769) >>> 0) >>> 0;
+    h = (h ^ h >>> 15) >>> 0;
+    h = Math.imul(h, 2246822507) >>> 0;
+    h = (h ^ h >>> 13) >>> 0;
+    h = Math.imul(h, 3266489909) >>> 0;
+    h = (h ^ h >>> 16) >>> 0;
+    return h / 4294967295;
+  }
+  function noiseValue(x, z, cell, salt) {
+    const spacing = cell > 1e-3 ? cell : 1e-3;
+    const sx = x / spacing;
+    const sz = z / spacing;
+    const bx = Math.floor(sx);
+    const bz = Math.floor(sz);
+    const fx = sx - bx;
+    const fz = sz - bz;
+    const ex = fx * fx * (3 - 2 * fx);
+    const ez = fz * fz * (3 - 2 * fz);
+    const a = landHash(bx, bz, salt);
+    const b = landHash(bx + 1, bz, salt);
+    const c = landHash(bx, bz + 1, salt);
+    const d = landHash(bx + 1, bz + 1, salt);
+    const top = a + (b - a) * ex;
+    const bottom = c + (d - c) * ex;
+    return (top + (bottom - top) * ez) * 2 - 1;
+  }
+  function fbm(x, z, cell, octaves, salt) {
+    let total = 0;
+    let amplitude = 1;
+    let normaliser = 0;
+    let spacing = cell;
+    const count = octaves > 1 ? octaves : 1;
+    for (let octave = 0; octave < count; octave += 1) {
+      total += noiseValue(x, z, spacing, salt + Math.imul(octave, 7919) >>> 0) * amplitude;
+      normaliser += amplitude;
+      amplitude *= 0.5;
+      spacing *= 0.5;
+    }
+    return total / (normaliser > 1e-3 ? normaliser : 1e-3);
+  }
+  function saltFor(authored, seed) {
+    let mixed = (authored >>> 0 ^ seed.lo >>> 0) >>> 0;
+    mixed = (mixed ^ Math.imul(seed.hi >>> 0, 2654435769) >>> 0) >>> 0;
+    mixed = (mixed ^ mixed >>> 16) >>> 0;
+    return Math.imul(mixed, 2146121005) >>> 0;
+  }
+  function coast({ lobes = [], fray = 0.05, frayScale = 26, salt = 1374497815 }) {
+    return {
+      lobes: lobes.map(([harmonic, amplitude, phase]) => ({ harmonic, amplitude, phase })),
+      fray,
+      frayScale,
+      salt: salt >>> 0
+    };
+  }
+  function halfTurned(profile) {
+    return {
+      lobes: profile.lobes.map((lobe) => ({
+        harmonic: lobe.harmonic,
+        amplitude: lobe.amplitude,
+        phase: lobe.phase + lobe.harmonic * Math.PI
+      })),
+      fray: profile.fray,
+      frayScale: profile.frayScale,
+      salt: profile.salt
+    };
+  }
+  function coastReach(profile, bearing, centerX, centerZ, nominal) {
+    let reach = 1;
+    const lobes = profile.lobes;
+    for (let index = 0; index < lobes.length; index += 1) {
+      const lobe = lobes[index];
+      reach += lobe.amplitude * Math.cos(lobe.harmonic * bearing + lobe.phase);
+    }
+    if (profile.fray !== 0) {
+      const rimX = centerX + Math.cos(bearing) * nominal;
+      const rimZ = centerZ + Math.sin(bearing) * nominal;
+      reach += profile.fray * fbm(rimX, rimZ, profile.frayScale, 2, profile.salt);
+    }
+    if (reach < 0.25) return 0.25;
+    if (reach > 1.9) return 1.9;
+    return reach;
+  }
+  function plate({ region = null, center, radius, depth, coast: profile }) {
+    return { region, center, radius, depth, coast: profile };
+  }
+  function plateReachAtBearing(fragment2, bearing) {
+    return fragment2.radius * coastReach(fragment2.coast, bearing, fragment2.center.x, fragment2.center.z, fragment2.radius);
+  }
+  function plateMaxReach(fragment2) {
+    let largest = 0;
+    for (let step = 0; step < 64; step += 1) {
+      const reach = plateReachAtBearing(fragment2, step / 64 * 2 * Math.PI);
+      if (reach > largest) largest = reach;
+    }
+    return largest;
+  }
+  function erosionOf({ amplitude, scale = 40, octaves = 3, bias = 0, salt }) {
+    return { amplitude, scale, octaves, bias, salt: salt >>> 0 };
+  }
+  function erosionDisplacement(erosion, x, z) {
+    if (erosion.amplitude === 0) return erosion.bias;
+    return erosion.bias + erosion.amplitude * fbm(x, z, erosion.scale, erosion.octaves, erosion.salt);
+  }
+  function basinBody({ center, radius, outline, wander = 4.5, wanderScale = 30, salt }) {
+    return { form: "basin", center, radius, outline, wander, wanderScale, salt: salt >>> 0 };
+  }
+  function channelBody({ path, halfWidths, wander = 3, wanderScale = 20, salt }) {
+    if (path.length !== halfWidths.length || path.length < 2) {
+      throw new RangeError("a channel needs at least two nodes and one half-width each");
+    }
+    return { form: "channel", path, halfWidths, wander, wanderScale, salt: salt >>> 0 };
+  }
+  function bodyDepth(body, x, z) {
+    let raw;
+    if (body.form === "basin") {
+      const dx = x - body.center.x;
+      const dz = z - body.center.z;
+      const reach = coastReach(body.outline, Math.atan2(dz, dx), body.center.x, body.center.z, body.radius);
+      raw = body.radius * reach - Math.sqrt(dx * dx + dz * dz);
+    } else {
+      const path = body.path;
+      const widths = body.halfWidths;
+      raw = -Infinity;
+      for (let index = 0; index < path.length - 1; index += 1) {
+        const a = path[index];
+        const b = path[index + 1];
+        const spanX = b.x - a.x;
+        const spanZ = b.z - a.z;
+        const lengthSquared = spanX * spanX + spanZ * spanZ;
+        let t = 0;
+        if (lengthSquared >= 1e-6) {
+          t = ((x - a.x) * spanX + (z - a.z) * spanZ) / lengthSquared;
+          if (t < 0) t = 0;
+          else if (t > 1) t = 1;
+        }
+        const closestX = a.x + spanX * t;
+        const closestZ = a.z + spanZ * t;
+        const halfWidth = widths[index] + (widths[index + 1] - widths[index]) * t;
+        const dx = x - closestX;
+        const dz = z - closestZ;
+        const value = halfWidth - Math.sqrt(dx * dx + dz * dz);
+        if (value > raw) raw = value;
+      }
+    }
+    if (body.wander === 0) return raw;
+    return raw + body.wander * fbm(x, z, body.wanderScale, 2, body.salt);
+  }
+  function strait(a, b, options) {
+    const {
+      head,
+      mouth,
+      inland,
+      seaward,
+      bow = 0,
+      meander = 0,
+      meanderTurns = 1.5,
+      wander = 2.6,
+      wanderScale = 19,
+      salt
+    } = options;
+    const spanX = b.center.x - a.center.x;
+    const spanZ = b.center.z - a.center.z;
+    const span = Math.sqrt(spanX * spanX + spanZ * spanZ);
+    const axis = span > 1e-4 ? { x: spanX / span, z: spanZ / span } : { x: 1, z: 0 };
+    const across = { x: -axis.z, z: axis.x };
+    const along = span * a.radius / Math.max(a.radius + b.radius, 1e-3);
+    const spine = { x: a.center.x + axis.x * along, z: a.center.z + axis.z * along };
+    const spineLength = Math.sqrt(spine.x * spine.x + spine.z * spine.z);
+    const reference = spineLength > 1e-4 ? { x: spine.x / spineLength, z: spine.z / spineLength } : axis;
+    const facesOut = across.x * reference.x + across.z * reference.z >= 0;
+    const outward = facesOut ? across : { x: -across.x, z: -across.z };
+    const steps = 16;
+    const path = [];
+    const halfWidths = [];
+    for (let step = 0; step <= steps; step += 1) {
+      const t = step / steps;
+      const distance2 = -inland + (inland + seaward) * t;
+      const bend = bow * Math.sin(t * Math.PI) + meander * Math.sin(t * 2 * Math.PI * meanderTurns);
+      path.push({
+        x: spine.x + outward.x * distance2 + axis.x * bend,
+        z: spine.z + outward.z * distance2 + axis.z * bend
+      });
+      halfWidths.push(head + (mouth - head) * t * t);
+    }
+    return channelBody({ path, halfWidths, wander, wanderScale, salt });
+  }
+  function coreAnchor(degrees, reach) {
+    const radians = degrees * Math.PI / 180;
+    return { x: Math.cos(radians) * reach, z: Math.sin(radians) * reach };
+  }
+  function findPlate(plates, region) {
+    const found = plates.find((entry) => entry.region === region);
+    if (!found) throw new RangeError(`layout is missing authored plate ${region}`);
+    return found;
+  }
+  function riverlands(seed) {
+    const homeCoast = coast({
+      lobes: [[2, 0.1, 0.4], [3, 0.06, 2.1], [5, 0.03, 0.9]],
+      fray: 0.01,
+      frayScale: 24,
+      salt: saltFor(1374497815, seed)
+    });
+    const expansionCoast = coast({
+      lobes: [[2, 0.09, 1.8], [3, 0.06, 0.5], [5, 0.03, 2.4]],
+      fray: 0.01,
+      frayScale: 20,
+      salt: saltFor(444056505, seed)
+    });
+    const outcropCoast = coast({
+      lobes: [[2, 0.1, 1.1], [3, 0.07, 2.7]],
+      fray: 0.012,
+      frayScale: 15,
+      salt: saltFor(1723932883, seed)
+    });
+    const plates = [
+      plate({ region: "sunwovenHome", center: coreAnchor(188, 44), radius: 58, depth: 30, coast: homeCoast }),
+      plate({ region: "gravemarkHome", center: coreAnchor(8, 44), radius: 56, depth: 30, coast: halfTurned(homeCoast) }),
+      plate({
+        region: "dominion",
+        center: { x: 0, z: 0 },
+        radius: 52,
+        depth: 22,
+        coast: coast({
+          lobes: [[2, 0.07, 1.55], [3, 0.04, 0.4]],
+          fray: 0.01,
+          frayScale: 14,
+          salt: saltFor(730111505, seed)
+        })
+      }),
+      plate({ region: "sunwovenExpansion", center: { x: -8, z: 46 }, radius: 54, depth: 22, coast: expansionCoast }),
+      plate({
+        region: "gravemarkExpansion",
+        center: { x: 12, z: -44 },
+        radius: 52,
+        depth: 22,
+        coast: halfTurned(expansionCoast)
+      }),
+      plate({ region: null, center: { x: 50, z: 44 }, radius: 46, depth: 18, coast: outcropCoast }),
+      plate({ region: null, center: { x: -48, z: -42 }, radius: 48, depth: 18, coast: halfTurned(outcropCoast) })
+    ];
+    const sunRiver = strait(findPlate(plates, "sunwovenHome"), findPlate(plates, "sunwovenExpansion"), {
+      head: 2.6,
+      mouth: 6,
+      inland: 10,
+      seaward: 100,
+      bow: -5,
+      meander: 3,
+      wander: 1.4,
+      wanderScale: 28,
+      salt: saltFor(2050757093, seed)
+    });
+    const graveRiver = strait(findPlate(plates, "gravemarkHome"), findPlate(plates, "gravemarkExpansion"), {
+      head: 2.8,
+      mouth: 4.8,
+      inland: 9,
+      seaward: 92,
+      bow: 4,
+      meander: 1.8,
+      meanderTurns: 2,
+      wander: 1.5,
+      wanderScale: 22,
+      salt: saltFor(902300351, seed)
+    });
+    const tarn = basinBody({
+      center: { x: -42, z: 30 },
+      radius: 4.5,
+      outline: coast({
+        lobes: [[2, 0.18, 1.1], [3, 0.08, 2.4]],
+        fray: 0.06,
+        frayScale: 9,
+        salt: saltFor(1242668037, seed)
+      }),
+      wander: 0.9,
+      wanderScale: 11,
+      salt: saltFor(2603078672, seed)
+    });
+    const poolOutline = coast({
+      lobes: [[2, 0.2, 2.7], [3, 0.08, 0.8]],
+      fray: 0.06,
+      frayScale: 8,
+      salt: saltFor(761236289, seed)
+    });
+    const pool2 = basinBody({
+      center: { x: 40, z: -18 },
+      radius: 5,
+      outline: poolOutline,
+      wander: 0.9,
+      wanderScale: 13,
+      salt: saltFor(779403704, seed)
+    });
+    const poolOutlet = channelBody({
+      path: [
+        { x: 40, z: -18 },
+        { x: 45, z: -20 },
+        { x: 48, z: -24 },
+        { x: 47, z: -28 },
+        { x: 43, z: -30 }
+      ],
+      halfWidths: [2.5, 2.4, 2.2, 2, 1.8],
+      wander: 0.6,
+      wanderScale: 12,
+      salt: saltFor(2386721305, seed)
+    });
+    return {
+      plates,
+      water: [sunRiver, graveRiver, tarn, pool2, poolOutlet],
+      erosion: erosionOf({ amplitude: 2.6, scale: 44, octaves: 2, bias: 16.5, salt: saltFor(1831565813, seed) })
+    };
+  }
+  function basin(seed) {
+    const homeCoast = coast({
+      lobes: [[2, 0.1, 1.7], [3, 0.06, 0.4], [4, 0.04, 2.1]],
+      fray: 0.01,
+      frayScale: 23,
+      salt: saltFor(1085439189, seed)
+    });
+    const expansionCoast = coast({
+      lobes: [[2, 0.09, 0.3], [3, 0.06, 1.5], [5, 0.03, 2.7]],
+      fray: 0.01,
+      frayScale: 19,
+      salt: saltFor(2011369737, seed)
+    });
+    const outcropCoast = coast({
+      lobes: [[2, 0.1, 2.2], [3, 0.07, 0.7]],
+      fray: 0.012,
+      frayScale: 15,
+      salt: saltFor(215572135, seed)
+    });
+    const plates = [
+      plate({ region: "sunwovenHome", center: coreAnchor(200, 46), radius: 58, depth: 29, coast: homeCoast }),
+      plate({ region: "gravemarkHome", center: coreAnchor(20, 46), radius: 55, depth: 29, coast: halfTurned(homeCoast) }),
+      plate({
+        region: "dominion",
+        center: { x: 0, z: 0 },
+        radius: 50,
+        depth: 22,
+        coast: coast({
+          lobes: [[2, 0.05, 0.2], [3, 0.03, 2.1]],
+          fray: 0.01,
+          frayScale: 17,
+          salt: saltFor(298085352, seed)
+        })
+      }),
+      plate({ region: "sunwovenExpansion", center: { x: -8, z: 48 }, radius: 54, depth: 22, coast: expansionCoast }),
+      plate({
+        region: "gravemarkExpansion",
+        center: { x: 10, z: -46 },
+        radius: 56,
+        depth: 22,
+        coast: halfTurned(expansionCoast)
+      }),
+      plate({ region: null, center: { x: 48, z: 46 }, radius: 46, depth: 18, coast: outcropCoast }),
+      plate({ region: null, center: { x: -46, z: -44 }, radius: 48, depth: 18, coast: halfTurned(outcropCoast) })
+    ];
+    const greatLake = basinBody({
+      center: { x: -32, z: 12 },
+      radius: 9,
+      outline: coast({
+        lobes: [[2, 0.2, 0.65], [3, 0.1, 2.3], [5, 0.05, 1.1]],
+        fray: 0.05,
+        frayScale: 13,
+        salt: saltFor(1552952887, seed)
+      }),
+      wander: 1.2,
+      wanderScale: 22,
+      salt: saltFor(1847763341, seed)
+    });
+    const farLake = basinBody({
+      center: { x: 30, z: -10 },
+      radius: 7.5,
+      outline: coast({
+        lobes: [[2, 0.22, 2.05], [3, 0.09, 0.7], [4, 0.06, 2.6]],
+        fray: 0.06,
+        frayScale: 11,
+        salt: saltFor(2801016194, seed)
+      }),
+      wander: 1.2,
+      wanderScale: 19,
+      salt: saltFor(243492545, seed)
+    });
+    const sunArm = strait(findPlate(plates, "sunwovenHome"), findPlate(plates, "sunwovenExpansion"), {
+      head: 3.2,
+      mouth: 7,
+      inland: 6,
+      seaward: 36,
+      bow: 5,
+      meander: 2.6,
+      wander: 1.4,
+      wanderScale: 28,
+      salt: saltFor(414137440, seed)
+    });
+    const graveArm = strait(findPlate(plates, "gravemarkHome"), findPlate(plates, "gravemarkExpansion"), {
+      head: 3,
+      mouth: 7.2,
+      inland: 7,
+      seaward: 34,
+      bow: -6,
+      meander: 2,
+      meanderTurns: 2,
+      wander: 1.4,
+      wanderScale: 24,
+      salt: saltFor(2480364036, seed)
+    });
+    return {
+      plates,
+      water: [greatLake, farLake, sunArm, graveArm],
+      erosion: erosionOf({ amplitude: 2.2, scale: 40, octaves: 2, bias: 16.8, salt: saltFor(1058652747, seed) })
+    };
+  }
+  function fjords(seed) {
+    const homeCoast = coast({
+      lobes: [[2, 0.1, 0.7], [3, 0.06, 2.4], [5, 0.03, 1.2]],
+      fray: 0.01,
+      frayScale: 19,
+      salt: saltFor(745388307, seed)
+    });
+    const expansionCoast = coast({
+      lobes: [[2, 0.09, 2], [3, 0.06, 0.8], [5, 0.03, 2.6]],
+      fray: 0.01,
+      frayScale: 17,
+      salt: saltFor(1777353922, seed)
+    });
+    const outcropCoast = coast({
+      lobes: [[2, 0.1, 0.5], [3, 0.06, 1.8]],
+      fray: 0.012,
+      frayScale: 13,
+      salt: saltFor(1045539030, seed)
+    });
+    const plates = [
+      plate({ region: "sunwovenHome", center: coreAnchor(170, 45), radius: 56, depth: 28, coast: homeCoast }),
+      plate({ region: "gravemarkHome", center: coreAnchor(-10, 45), radius: 54, depth: 28, coast: halfTurned(homeCoast) }),
+      plate({
+        region: "dominion",
+        center: { x: 0, z: 0 },
+        radius: 50,
+        depth: 22,
+        coast: coast({
+          lobes: [[2, 0.05, 1.2], [3, 0.03, 0.3], [5, 0.02, 2.4]],
+          fray: 0.01,
+          frayScale: 15,
+          salt: saltFor(1503844100, seed)
+        })
+      }),
+      plate({ region: "sunwovenExpansion", center: { x: -14, z: -44 }, radius: 54, depth: 22, coast: expansionCoast }),
+      plate({
+        region: "gravemarkExpansion",
+        center: { x: 16, z: 46 },
+        radius: 52,
+        depth: 22,
+        coast: halfTurned(expansionCoast)
+      }),
+      plate({ region: null, center: { x: 48, z: 48 }, radius: 46, depth: 18, coast: outcropCoast }),
+      plate({ region: null, center: { x: -46, z: -46 }, radius: 48, depth: 18, coast: halfTurned(outcropCoast) })
+    ];
+    const sunSound = strait(findPlate(plates, "sunwovenHome"), findPlate(plates, "sunwovenExpansion"), {
+      head: 2.4,
+      mouth: 5.6,
+      inland: 14,
+      seaward: 40,
+      bow: -6,
+      meander: 2.4,
+      wander: 1.1,
+      wanderScale: 24,
+      salt: saltFor(1148656617, seed)
+    });
+    const graveSound = strait(findPlate(plates, "gravemarkHome"), findPlate(plates, "gravemarkExpansion"), {
+      head: 2.5,
+      mouth: 4.8,
+      inland: 10,
+      seaward: 34,
+      bow: 5,
+      meander: 1.8,
+      meanderTurns: 1,
+      wander: 1.2,
+      wanderScale: 20,
+      salt: saltFor(3859518231, seed)
+    });
+    const outerBite = strait(findPlate(plates, "sunwovenHome"), plates[5], {
+      head: 1.6,
+      mouth: 4,
+      inland: 8,
+      seaward: 24,
+      bow: -4,
+      meander: 1.8,
+      wander: 0.9,
+      wanderScale: 16,
+      salt: saltFor(496205634, seed)
+    });
+    return {
+      plates,
+      water: [sunSound, graveSound, outerBite],
+      erosion: erosionOf({ amplitude: 3.2, scale: 32, octaves: 2, bias: 16, salt: saltFor(2354120365, seed) })
+    };
+  }
+  var LAYOUTS = Object.freeze({ riverlands, basin, fjords });
+  var GRID_CELL = 0.5;
+  var FIT_STEP = 2.5;
+  var COVERAGE_STEP = 1;
+  var LAND_COVERAGE_TARGET = 0.775;
+  var MIN_RETAINED_LAND = 0.96;
+  var WorldMap = class _WorldMap {
+    /**
+     * Builds the map for `mapID` under `seedSource`.
+     *
+     * `seedSource` may be a 64-bit seed `{ hi, lo }` — how `simulation.js` and
+     * `snapshot.js` call it — or a `DeterministicRandom` stream, in which case its
+     * *state* is read and **no draw is taken**. That is deliberate: the map has to
+     * be a pure function of `(mapID, seed)` so a snapshot can store only those two,
+     * and a generator that advanced here would hand every later system different
+     * numbers depending on whether the map had been rebuilt.
+     */
+    static create(mapID, seedSource) {
+      const id = MAP_IDS.includes(mapID) ? mapID : DEFAULT_MAP_ID;
+      const seed = normaliseSeed(seedSource);
+      const layout = LAYOUTS[id](seed);
+      return new _WorldMap(id, seed, layout);
+    }
+    constructor(id, seed, layout) {
+      this.id = id;
+      this.seed = seed;
+      this.plates = layout.plates;
+      this.water = layout.water;
+      this.erosion = layout.erosion;
+      this.regionPlates = /* @__PURE__ */ new Map();
+      for (const fragment2 of this.plates) {
+        if (fragment2.region === null) continue;
+        if (!REGION_IDS.includes(fragment2.region)) {
+          throw new RangeError(`layout authors an unknown region: ${fragment2.region}`);
+        }
+        this.regionPlates.set(fragment2.region, fragment2);
+      }
+      for (const region of REGION_IDS) {
+        if (!this.regionPlates.has(region)) {
+          throw new RangeError(`layout ${id} is missing authored plate ${region}`);
+        }
+      }
+      this.#buildGrid();
+      this.bounds = this.#fitBounds();
+      this.coverage = this.#coverageWithin(this.bounds.maxX, this.bounds.maxZ);
+      this.retainedLandFraction = this.#measureRetainedLand();
+    }
+    // MARK: - Land
+    /**
+     * The signed land field at a point: metres of dry ground, negative in void,
+     * zero at the shore. Off the sampled grid it is `-Infinity`.
+     *
+     * **This is the map's definition of land**, and everything else — the legality
+     * tests, the carved mesh, the bank walls, the minimap contour — is a reading of
+     * it. Read from the precomputed grid, so it is O(1).
+     */
+    landField(point) {
+      return this.#sampleField(point.x, point.z);
+    }
+    /** True anywhere a land unit could legally stand, and inside the playable rectangle. */
+    isLand(point) {
+      const bounds = this.bounds;
+      const x = point.x;
+      const z = point.z;
+      if (x < bounds.minX || x > bounds.maxX || z < bounds.minZ || z > bounds.maxZ) return false;
+      return this.#sampleField(x, z) > 0;
+    }
+    /**
+     * The region containing `point`, or `null` when it is off-map or on void.
+     *
+     * Whether it is land at all is the field's answer, not this one's. This only
+     * decides *whose* it is, and the nearer centre wins *relative to its own size*,
+     * so boundaries fall midway between neighbours instead of at whichever region
+     * happens to come first in the list. A big home plate does not swallow a small
+     * neighbour it merely reaches over.
+     *
+     * There is no `distance <= reach` gate: erosion can push the coast a few metres
+     * past every plate's nominal outline, and that ground is real, walkable and has
+     * to belong to somebody.
+     */
+    region(point) {
+      if (!this.isLand(point)) return null;
+      let best = null;
+      let bestScore = Infinity;
+      for (const region of REGION_IDS) {
+        const fragment2 = this.regionPlates.get(region);
+        const dx = point.x - fragment2.center.x;
+        const dz = point.z - fragment2.center.z;
+        const reach = plateReachAtBearing(fragment2, Math.atan2(dz, dx));
+        const score = Math.sqrt(dx * dx + dz * dz) / Math.max(reach, 1e-3);
+        if (score < bestScore) {
+          bestScore = score;
+          best = region;
+        }
+      }
+      return best;
+    }
+    /** True when `point` lies on solid land owned by `region`. */
+    contains(point, region) {
+      return this.region(point) === region;
+    }
+    /**
+     * Whether a land unit of `margin` footprint fits at `point`.
+     *
+     * One test covers both hazards the Swift original split across `isStandable`
+     * and `isTraversable`: because the field is `min(ground, -water)`, requiring
+     * `margin` metres of it at once keeps a citizen's feet out of a river *and* off
+     * the last texel of the outer coast.
+     */
+    isStandable(point, margin = 0) {
+      if (!this.isLand(point)) return false;
+      if (!(margin > 0)) return true;
+      return this.#sampleField(point.x, point.z) >= Math.max(margin, 0.25);
+    }
+    /** `isStandable`, additionally requiring the ground belong to `region`. */
+    isStandableIn(point, region, margin = 0) {
+      if (!this.isStandable(point, margin)) return false;
+      return this.region(point) === region;
+    }
+    /**
+     * The nearest point to `proposed` a land unit of `margin` footprint may occupy,
+     * or `null` when the map offers none.
+     *
+     * The contract's signature carries no `from`, so this cannot walk back along an
+     * attempted move the way Swift's clamp does. It searches outward in
+     * deterministic rings instead — ascending radius, then ascending bearing index,
+     * ties broken by the lower index — which is order-independent and so gives the
+     * same answer to every caller, but does not inherit the Swift version's
+     * guarantee that the result is reachable without crossing water. Movement owns
+     * that guarantee; this owns legality.
+     */
+    clampToLand(point, margin = 0) {
+      if (this.isStandable(point, margin)) return { x: point.x, z: point.z };
+      const bounds = this.bounds;
+      const limit = Math.max(bounds.maxX - bounds.minX, bounds.maxZ - bounds.minZ);
+      const samples = 32;
+      for (let radius = GRID_CELL; radius <= limit; radius += GRID_CELL * 2) {
+        let best = null;
+        let bestDistanceSquared = Infinity;
+        for (let index = 0; index < samples; index += 1) {
+          const bearing = index / samples * 2 * Math.PI;
+          const candidate = {
+            x: point.x + Math.cos(bearing) * radius,
+            z: point.z + Math.sin(bearing) * radius
+          };
+          if (!this.isStandable(candidate, margin)) continue;
+          const dx = candidate.x - point.x;
+          const dz = candidate.z - point.z;
+          const distanceSquared2 = dx * dx + dz * dz;
+          if (distanceSquared2 < bestDistanceSquared) {
+            bestDistanceSquared = distanceSquared2;
+            best = candidate;
+          }
+        }
+        if (best) return best;
+      }
+      return null;
+    }
+    /** The authored anchor of a region — its plate centre, where its Core stands. */
+    regionAnchor(region) {
+      const fragment2 = this.regionPlates.get(region);
+      if (!fragment2) throw new RangeError(`unknown region: ${region}`);
+      return { x: fragment2.center.x, z: fragment2.center.z };
+    }
+    /**
+     * The authored land radius of `region`'s plate in the direction of `point`.
+     *
+     * Deposit placement measures its outer limit per bearing off this rather than
+     * off a fixed radius: a fixed one would put deposits in the void wherever the
+     * coast cuts in.
+     */
+    regionReachToward(region, point) {
+      const fragment2 = this.regionPlates.get(region);
+      if (!fragment2) throw new RangeError(`unknown region: ${region}`);
+      const dx = point.x - fragment2.center.x;
+      const dz = point.z - fragment2.center.z;
+      return plateReachAtBearing(fragment2, Math.atan2(dz, dx));
+    }
+    /**
+     * Fraction of the playable rectangle that is dry land.
+     *
+     * This is the coverage the layouts are tuned against (CP-14: 75–80%): land
+     * should fill most of the camera map, with rivers, lakes and inlets remaining as
+     * readable void cuts rather than dominating the frame.
+     */
+    landCoverage() {
+      return this.coverage;
+    }
+    // MARK: - Build
+    #buildGrid() {
+      let extentX = 0;
+      let extentZ = 0;
+      for (const fragment2 of this.plates) {
+        const reach = plateMaxReach(fragment2);
+        extentX = Math.max(extentX, Math.abs(fragment2.center.x) + reach);
+        extentZ = Math.max(extentZ, Math.abs(fragment2.center.z) + reach);
+      }
+      const pad = Math.max(this.erosion.bias + this.erosion.amplitude, 0) + 4;
+      extentX += pad;
+      extentZ += pad;
+      const columns = Math.ceil(extentX * 2 / GRID_CELL) + 3;
+      const rows = Math.ceil(extentZ * 2 / GRID_CELL) + 3;
+      this.gridColumns = columns;
+      this.gridRows = rows;
+      this.gridOriginX = -extentX - GRID_CELL;
+      this.gridOriginZ = -extentZ - GRID_CELL;
+      this.gridExtentX = extentX;
+      this.gridExtentZ = extentZ;
+      const field = new Float32Array(columns * rows);
+      for (let row = 0; row < rows; row += 1) {
+        const z = this.gridOriginZ + row * GRID_CELL;
+        const base = row * columns;
+        for (let column = 0; column < columns; column += 1) {
+          field[base + column] = this.#computeField(this.gridOriginX + column * GRID_CELL, z);
+        }
+      }
+      this.field = field;
+    }
+    /**
+     * The land field, evaluated from the authored shapes. Three terms, in order of
+     * how much they matter:
+     *
+     *   1. The deepest plate. `reach - distance` is positive inside a plate's
+     *      authored outline, so the max over plates is the union of them.
+     *   2. Erosion, added to that union. Because the field is signed, adding to it
+     *      moves the *shoreline* rather than any particular plate's outline — which
+     *      is what makes seven overlapping plates stop reading as seven overlapping
+     *      circles.
+     *   3. Water, which wins outright: `-depth` is negative wherever a river or lake
+     *      stands, and taking the min subtracts it from the land.
+     */
+    #computeField(x, z) {
+      let ground = -Infinity;
+      const plates = this.plates;
+      for (let index = 0; index < plates.length; index += 1) {
+        const fragment2 = plates[index];
+        const dx = x - fragment2.center.x;
+        const dz = z - fragment2.center.z;
+        const reach = plateReachAtBearing(fragment2, Math.atan2(dz, dx));
+        const inside = reach - Math.sqrt(dx * dx + dz * dz);
+        if (inside > ground) ground = inside;
+      }
+      let deepestWater = -Infinity;
+      const water = this.water;
+      for (let index = 0; index < water.length; index += 1) {
+        const depth = bodyDepth(water[index], x, z);
+        if (depth > deepestWater) deepestWater = depth;
+      }
+      const land = ground + erosionDisplacement(this.erosion, x, z);
+      return Math.min(land, -deepestWater);
+    }
+    /** Bilinear read of the sampled field. O(1); off-grid is void. */
+    #sampleField(x, z) {
+      const fx = (x - this.gridOriginX) / GRID_CELL;
+      const fz = (z - this.gridOriginZ) / GRID_CELL;
+      if (!(fx >= 0) || !(fz >= 0)) return -Infinity;
+      const column = fx | 0;
+      const row = fz | 0;
+      if (column >= this.gridColumns - 1 || row >= this.gridRows - 1) return -Infinity;
+      const tx = fx - column;
+      const tz = fz - row;
+      const field = this.field;
+      const base = row * this.gridColumns + column;
+      const a = field[base];
+      const b = field[base + 1];
+      const c = field[base + this.gridColumns];
+      const d = field[base + this.gridColumns + 1];
+      const top = a + (b - a) * tx;
+      const bottom = c + (d - c) * tx;
+      return top + (bottom - top) * tz;
+    }
+    /**
+     * Camera half-extent fitted so land covers `LAND_COVERAGE_TARGET` of the
+     * rectangle, keeping at least `MIN_RETAINED_LAND` of the coast inside it.
+     *
+     * A raw land AABB always wastes its corners on void — a circular continent can
+     * never beat π/4 ≈ 78% of its own box, and an irregular coast sits lower — so
+     * the box is scaled off the land envelope, keeping the envelope's aspect. Both
+     * searches are on that one scale, and coverage falls monotonically as it grows,
+     * so the larger of the two answers satisfies both.
+     */
+    #fitBounds() {
+      const stride = Math.max(1, Math.round(FIT_STEP / GRID_CELL));
+      let envelopeX = 0;
+      let envelopeZ = 0;
+      const landX = [];
+      const landZ = [];
+      for (let row = 0; row < this.gridRows; row += stride) {
+        const z = Math.abs(this.gridOriginZ + row * GRID_CELL);
+        const base = row * this.gridColumns;
+        for (let column = 0; column < this.gridColumns; column += stride) {
+          if (!(this.field[base + column] > 0)) continue;
+          const x = Math.abs(this.gridOriginX + column * GRID_CELL);
+          landX.push(x);
+          landZ.push(z);
+          if (x > envelopeX) envelopeX = x;
+          if (z > envelopeZ) envelopeZ = z;
+        }
+      }
+      if (landX.length === 0 || envelopeX <= 0 || envelopeZ <= 0) {
+        return { minX: -this.gridExtentX, maxX: this.gridExtentX, minZ: -this.gridExtentZ, maxZ: this.gridExtentZ };
+      }
+      const retainedAt = (scale2) => {
+        const limitX = envelopeX * scale2;
+        const limitZ = envelopeZ * scale2;
+        let kept = 0;
+        for (let index = 0; index < landX.length; index += 1) {
+          if (landX[index] <= limitX && landZ[index] <= limitZ) kept += 1;
+        }
+        return kept / landX.length;
+      };
+      let retainLow = 0.5;
+      let retainHigh = 1;
+      for (let iteration = 0; iteration < 22; iteration += 1) {
+        const mid = (retainLow + retainHigh) * 0.5;
+        if (retainedAt(mid) >= MIN_RETAINED_LAND) retainHigh = mid;
+        else retainLow = mid;
+      }
+      let coverLow = 0.5;
+      let coverHigh = 1.7;
+      for (let iteration = 0; iteration < 22; iteration += 1) {
+        const mid = (coverLow + coverHigh) * 0.5;
+        if (this.#coverageWithin(envelopeX * mid, envelopeZ * mid) > LAND_COVERAGE_TARGET) coverLow = mid;
+        else coverHigh = mid;
+      }
+      const scale = Math.max(retainHigh, coverHigh);
+      return {
+        minX: -envelopeX * scale,
+        maxX: envelopeX * scale,
+        minZ: -envelopeZ * scale,
+        maxZ: envelopeZ * scale
+      };
+    }
+    /** Land fraction of the axis-aligned box of these half-extents. */
+    #coverageWithin(halfX, halfZ) {
+      let land = 0;
+      let total = 0;
+      for (let z = -halfZ; z <= halfZ; z += COVERAGE_STEP) {
+        for (let x = -halfX; x <= halfX; x += COVERAGE_STEP) {
+          total += 1;
+          if (this.#sampleField(x, z) > 0) land += 1;
+        }
+      }
+      return total > 0 ? land / total : 0;
+    }
+    /**
+     * How much of the authored land survives the camera fit. Reported so the fit can
+     * be judged: a rectangle that hits the coverage band by amputating the coast is
+     * not the same result as one that hits it by dropping empty corners.
+     */
+    #measureRetainedLand() {
+      const stride = Math.max(1, Math.round(FIT_STEP / GRID_CELL));
+      const bounds = this.bounds;
+      let inside = 0;
+      let total = 0;
+      for (let row = 0; row < this.gridRows; row += stride) {
+        const z = this.gridOriginZ + row * GRID_CELL;
+        const base = row * this.gridColumns;
+        for (let column = 0; column < this.gridColumns; column += stride) {
+          if (!(this.field[base + column] > 0)) continue;
+          total += 1;
+          const x = this.gridOriginX + column * GRID_CELL;
+          if (x >= bounds.minX && x <= bounds.maxX && z >= bounds.minZ && z <= bounds.maxZ) inside += 1;
+        }
+      }
+      return total > 0 ? inside / total : 1;
+    }
+  };
+  function normaliseSeed(source) {
+    if (source && typeof source.next === "function" && source.state) {
+      return { hi: source.state.hi >>> 0, lo: source.state.lo >>> 0 };
+    }
+    if (source && typeof source.hi === "number" && typeof source.lo === "number") {
+      return { hi: source.hi >>> 0, lo: source.lo >>> 0 };
+    }
+    throw new TypeError("WorldMap.create needs a { hi, lo } seed or a DeterministicRandom");
+  }
+
+  // src/sim/kinds.js
+  var UNIT_KINDS = Object.freeze([
+    "citizen",
+    "pathfinder",
+    "vanguard",
+    "quarrel",
+    "lightTransport",
+    "bastionWalker"
+  ]);
+  var BUILDING_KINDS = Object.freeze([
+    "civilizationCore",
+    "farm",
+    "matterExtractor",
+    "dwelling",
+    "formationYard",
+    "lumenSpire",
+    "expansionOutpost",
+    "dawnLoom",
+    "dominionSpire"
+  ]);
+  var UNITS = Object.freeze({
+    citizen: {
+      displayName: "Citizen",
+      speed: 3.4,
+      travelsVoid: false,
+      canGather: true,
+      isMilitary: false,
+      canCaptureDominion: false,
+      populationCost: 1,
+      maxLife: 40,
+      sightRange: 9,
+      footprintRadius: 1.15
+    },
+    pathfinder: {
+      displayName: "Pathfinder",
+      speed: 4.6,
+      travelsVoid: false,
+      canGather: false,
+      isMilitary: false,
+      canCaptureDominion: false,
+      populationCost: 1,
+      maxLife: 45,
+      sightRange: 20,
+      footprintRadius: 1.15
+    },
+    vanguard: {
+      displayName: "Vanguard",
+      speed: 3,
+      travelsVoid: false,
+      canGather: false,
+      isMilitary: true,
+      canCaptureDominion: true,
+      populationCost: 1,
+      maxLife: 75,
+      sightRange: 11,
+      footprintRadius: 1.4
+    },
+    quarrel: {
+      displayName: "Quarrel",
+      speed: 3.2,
+      travelsVoid: false,
+      canGather: false,
+      isMilitary: true,
+      canCaptureDominion: true,
+      populationCost: 1,
+      maxLife: 50,
+      sightRange: 13,
+      footprintRadius: 1.15
+    },
+    lightTransport: {
+      displayName: "Light Transport",
+      speed: 5.2,
+      travelsVoid: true,
+      canGather: false,
+      isMilitary: false,
+      canCaptureDominion: false,
+      populationCost: 0,
+      maxLife: 140,
+      sightRange: 14,
+      footprintRadius: 4
+    },
+    bastionWalker: {
+      displayName: "Bastion Walker",
+      speed: 2.6,
+      travelsVoid: false,
+      canGather: false,
+      isMilitary: true,
+      canCaptureDominion: true,
+      populationCost: 3,
+      maxLife: 190,
+      sightRange: 10,
+      footprintRadius: 2.25
+    }
+  });
+  var BUILDINGS = Object.freeze({
+    civilizationCore: {
+      displayName: "Civilization Core",
+      maxLife: 600,
+      footprintRadius: 5.5,
+      acceptsDropOff: true,
+      populationGrant: 0,
+      trains: Object.freeze(["citizen"]),
+      isNeutralObjective: false
+    },
+    farm: {
+      displayName: "Farm",
+      maxLife: 120,
+      footprintRadius: 3.6,
+      acceptsDropOff: true,
+      populationGrant: 0,
+      trains: Object.freeze([]),
+      isNeutralObjective: false
+    },
+    matterExtractor: {
+      displayName: "Matter Extractor",
+      maxLife: 160,
+      footprintRadius: 2.6,
+      acceptsDropOff: true,
+      populationGrant: 0,
+      trains: Object.freeze([]),
+      isNeutralObjective: false
+    },
+    dwelling: {
+      displayName: "Dwelling",
+      maxLife: 180,
+      footprintRadius: 2.6,
+      acceptsDropOff: false,
+      populationGrant: 8,
+      trains: Object.freeze([]),
+      isNeutralObjective: false
+    },
+    formationYard: {
+      displayName: "Formation Yard",
+      maxLife: 260,
+      footprintRadius: 4,
+      acceptsDropOff: false,
+      populationGrant: 0,
+      trains: Object.freeze(["pathfinder", "vanguard"]),
+      isNeutralObjective: false
+    },
+    lumenSpire: {
+      displayName: "Lumen Spire",
+      maxLife: 210,
+      footprintRadius: 3,
+      acceptsDropOff: false,
+      populationGrant: 0,
+      trains: Object.freeze(["quarrel"]),
+      isNeutralObjective: false
+    },
+    expansionOutpost: {
+      displayName: "Expansion Outpost",
+      maxLife: 240,
+      footprintRadius: 3,
+      acceptsDropOff: false,
+      populationGrant: 2,
+      trains: Object.freeze([]),
+      isNeutralObjective: false
+    },
+    dawnLoom: {
+      displayName: "Dawn Loom",
+      maxLife: 320,
+      footprintRadius: 4.4,
+      acceptsDropOff: false,
+      populationGrant: 0,
+      trains: Object.freeze([]),
+      isNeutralObjective: false
+    },
+    dominionSpire: {
+      displayName: "Dominion Spire",
+      maxLife: 1200,
+      footprintRadius: 4,
+      acceptsDropOff: false,
+      populationGrant: 0,
+      trains: Object.freeze([]),
+      isNeutralObjective: true
+    }
+  });
+  function unitKind(kind) {
+    const entry = UNITS[kind];
+    if (!entry) throw new RangeError(`unknown unit kind: ${kind}`);
+    return entry;
+  }
+  function buildingKind(kind) {
+    const entry = BUILDINGS[kind];
+    if (!entry) throw new RangeError(`unknown building kind: ${kind}`);
+    return entry;
+  }
+  var DEPOSIT_WORK_RADIUS = 2.4;
+  var CHUNKS_PER_LOAD = 3;
+
+  // src/sim/populate.js
+  var DEPOSIT_PLANS = Object.freeze({
+    sunwovenHome: Object.freeze(["provisions", "provisions", "matter", "matter", "lumen"]),
+    gravemarkHome: Object.freeze(["provisions", "provisions", "matter", "matter", "lumen"]),
+    sunwovenExpansion: Object.freeze(["matter", "lumen", "provisions", "aether"]),
+    gravemarkExpansion: Object.freeze(["matter", "lumen", "provisions", "aether"]),
+    dominion: Object.freeze(["aether", "lumen"])
+  });
+  var COMPLETE_COMPONENTS = 3;
+  var DEPOSIT_ATTEMPTS = 48;
+  var DEPOSIT_SPACING = 5;
+  function populate(state) {
+    requireEmpty(state);
+    const map = state.map;
+    const random = state.random.stream("world.populate");
+    for (const faction of FACTIONS) {
+      placeHome(state, map, random, faction);
+    }
+    placeDominionSpire(state, map);
+    const deposits = state.random.stream("world.deposits");
+    for (const region of REGION_IDS) {
+      placeDeposits(state, map, deposits, region);
+    }
+  }
+  function placeHome(state, map, random, faction) {
+    const region = homeRegion(faction);
+    const anchor = map.regionAnchor(region);
+    addBuilding(state, {
+      faction,
+      kind: "civilizationCore",
+      position: anchor,
+      region
+    });
+    const expansion = map.regionAnchor(expansionRegion(faction));
+    const outward = normalise({ x: expansion.x - anchor.x, z: expansion.z - anchor.z });
+    const baseAngle = Math.atan2(outward.x, outward.z);
+    const coreRadius = buildingKind("civilizationCore").footprintRadius;
+    const footprint = unitKind("citizen").footprintRadius;
+    const count = TUNING.startingCitizens;
+    for (let index = 0; index < count; index += 1) {
+      const spread = (index - (count - 1) / 2) * 0.34;
+      const angle = baseAngle + spread + random.float(-0.06, 0.06);
+      const distance2 = coreRadius + random.float(3, 6.5);
+      const wanted = {
+        x: anchor.x + Math.sin(angle) * distance2,
+        z: anchor.z + Math.cos(angle) * distance2
+      };
+      const position = map.clampToLand(wanted, footprint) ?? { x: anchor.x, z: anchor.z };
+      addUnit(state, {
+        faction,
+        kind: "citizen",
+        position,
+        facing: angle,
+        region: map.region(position)
+      });
+    }
+  }
+  function placeDominionSpire(state, map) {
+    addBuilding(state, {
+      faction: null,
+      kind: "dominionSpire",
+      position: map.regionAnchor("dominion"),
+      region: "dominion"
+    });
+  }
+  function placeDeposits(state, map, random, region) {
+    const plan2 = DEPOSIT_PLANS[region];
+    if (!plan2) throw new RangeError(`no deposit plan for region: ${region}`);
+    const anchor = map.regionAnchor(region);
+    const placed = [];
+    for (let index = 0; index < plan2.length; index += 1) {
+      const kind = plan2[index];
+      let position = { x: anchor.x, z: anchor.z };
+      for (let attempt = 0; attempt < DEPOSIT_ATTEMPTS; attempt += 1) {
+        const sector = index / plan2.length * 2 * Math.PI;
+        const angle = sector + random.float(-0.5, 0.5) + attempt * 0.31;
+        const heading = { x: Math.sin(angle), z: Math.cos(angle) };
+        const outerLimit = map.regionReachToward(region, { x: anchor.x + heading.x, z: anchor.z + heading.z }) - 4.5;
+        const inner = innerLimit(region);
+        const distance2 = random.float(inner, Math.max(inner + 1, outerLimit));
+        const candidate = { x: anchor.x + heading.x * distance2, z: anchor.z + heading.z * distance2 };
+        if (!map.isStandableIn(candidate, region, DEPOSIT_WORK_RADIUS)) continue;
+        position = candidate;
+        if (placed.every((other) => distanceBetween(other, candidate) > DEPOSIT_SPACING)) break;
+      }
+      placed.push(position);
+      addDeposit(state, { kind, position, region });
+    }
+  }
+  function innerLimit(region) {
+    if (region === "sunwovenHome" || region === "gravemarkHome") {
+      return buildingKind("civilizationCore").footprintRadius + 6;
+    }
+    if (region === "dominion") {
+      return buildingKind("dominionSpire").footprintRadius + DEPOSIT_WORK_RADIUS + 1;
+    }
+    return 3;
+  }
+  function addUnit(state, { faction, kind, position, facing, region }) {
+    const id = state.allocator.allocate();
+    const unit = {
+      id,
+      faction,
+      kind,
+      position: { x: position.x, z: position.z },
+      destination: null,
+      movementPath: [],
+      movementPathTarget: null,
+      facing,
+      activity: activity("idle"),
+      life: unitKind(kind).maxLife,
+      region,
+      carrying: [],
+      cargo: null,
+      assignment: null,
+      boardingProgress: 0,
+      animation: {
+        state: "idle",
+        loopIndex: 0,
+        phaseTicks: 0,
+        leadHand: "none",
+        toolHeld: null,
+        carriedChunks: 0,
+        airborneChunks: []
+      }
+    };
+    state.units.set(id, unit);
+    return unit;
+  }
+  function addBuilding(state, { faction, kind, position, region }) {
+    const id = state.allocator.allocate();
+    const building = {
+      id,
+      faction,
+      kind,
+      position: { x: position.x, z: position.z },
+      region,
+      life: buildingKind(kind).maxLife,
+      // Both authored buildings stand finished: nobody built them, so there is no
+      // foundation to raise and all three frame pieces are already in.
+      constructionProgress: 1,
+      installedComponents: COMPLETE_COMPONENTS
+    };
+    state.buildings.set(id, building);
+    return building;
+  }
+  function addDeposit(state, { kind, position, region }) {
+    const id = state.allocator.allocate();
+    const deposit = {
+      id,
+      kind,
+      position: { x: position.x, z: position.z },
+      region,
+      remaining: depositYield(kind, region),
+      // The visible loose pile. Full at match start; gathering takes one chunk per
+      // contact loop and refills it while yield remains.
+      chunksRemaining: CHUNKS_PER_LOAD
+    };
+    state.deposits.set(id, deposit);
+    return deposit;
+  }
+  function normalise(vector) {
+    const magnitude = Math.sqrt(vector.x * vector.x + vector.z * vector.z);
+    if (magnitude < 1e-6) return { x: 0, z: 0 };
+    return { x: vector.x / magnitude, z: vector.z / magnitude };
+  }
+  function distanceBetween(a, b) {
+    const dx = a.x - b.x;
+    const dz = a.z - b.z;
+    return Math.sqrt(dx * dx + dz * dz);
+  }
+  function requireEmpty(state) {
+    if (!(state.allocator instanceof EntityIDAllocator)) {
+      throw new TypeError("populate needs a state carrying an EntityIDAllocator");
+    }
+    if (state.units.size > 0 || state.buildings.size > 0 || state.deposits.size > 0) {
+      throw new Error("populate was given a state that is already seeded");
+    }
+  }
+
+  // src/sim/movement.js
+  var TWO_PI = Math.PI * 2;
+  var ARRIVAL_RADIUS = 0.35;
+  var DESTINATION_EPSILON = 0.05;
+  var WAYPOINT_EPSILON = 0.01;
+  var ROUTED_ARRIVAL_EPSILON = 1e-3;
+  var GRID_SPACING = 1;
+  var LINE_SAMPLE_SPACING = 0.3;
+  var OBSTACLE_PADDING = 0.25;
+  var DEPOSIT_BLOCKER_RADIUS = DEPOSIT_WORK_RADIUS - 0.15;
+  var MAX_GRID_CELLS = 16384;
+  var DIAGONAL_COST = 1.4142135;
+  var TRAVERSABLE_CLAMP_STEPS = 14;
+  var LAND_CLAMP_STEPS = 8;
+  var FOOTPRINT_SAMPLES = 8;
+  var ESCAPE_RING_STEP = 0.5;
+  var ESCAPE_RING_SAMPLES = 16;
+  var ESCAPE_RING_HEADROOM = 4;
+  var ESCAPE_RING_MINIMUM_REACH = 12;
+  var FACING_DEADBAND = 12 * Math.PI / 180;
+  var MAX_TURN_RATE = 6;
+  var STEER_MINIMUM_SPEED = 0.12;
+  var MAX_FACING_DELTA_TIME = 0.25;
+  var VOID_TRAVEL_DEFERRED = true;
+  function clamp2(value, lower, upper) {
+    return Math.min(Math.max(value, lower), upper);
+  }
+  function roundHalfAwayFromZero(value) {
+    return value < 0 ? -Math.round(-value) : Math.round(value);
+  }
+  function wrapSigned(angle) {
+    let wrapped = angle % TWO_PI;
+    if (wrapped > Math.PI) wrapped -= TWO_PI;
+    if (wrapped <= -Math.PI) wrapped += TWO_PI;
+    return wrapped;
+  }
+  function shortestAngle(from, to) {
+    return wrapSigned(to - from);
+  }
+  function headingOf(direction) {
+    return Math.atan2(-direction.x, -direction.z);
+  }
+  function lerpPoint(from, to, fraction) {
+    return {
+      x: from.x + (to.x - from.x) * fraction,
+      z: from.z + (to.z - from.z) * fraction
+    };
+  }
+  function samePoint(a, b) {
+    return a.x === b.x && a.z === b.z;
+  }
+  function copyPoint(p) {
+    return { x: p.x, z: p.z };
+  }
+  function isAboard(unit) {
+    return !!unit.activity && unit.activity.tag === "aboard";
+  }
+  function isMovingActivity(unit) {
+    return !!unit.activity && unit.activity.tag === "moving";
+  }
+  function isIdleActivity(unit) {
+    return !!unit.activity && unit.activity.tag === "idle";
+  }
+  function finishMoveActivity(unit) {
+    if (isMovingActivity(unit)) unit.activity = activity("idle");
+  }
+  function beginMoveActivity(unit) {
+    if (isIdleActivity(unit)) unit.activity = activity("moving");
+  }
+  function withinBounds(map, p) {
+    const bounds = map.bounds;
+    return p.x >= bounds.minX && p.x <= bounds.maxX && p.z >= bounds.minZ && p.z <= bounds.maxZ;
+  }
+  function standable(map, point, margin) {
+    if (!withinBounds(map, point)) return false;
+    if (!map.isLand(point)) return false;
+    if (!(margin > 0)) return true;
+    for (let index = 0; index < FOOTPRINT_SAMPLES; index += 1) {
+      const angle = index / FOOTPRINT_SAMPLES * TWO_PI;
+      const sample = {
+        x: point.x + Math.sin(angle) * margin,
+        z: point.z + Math.cos(angle) * margin
+      };
+      if (!withinBounds(map, sample)) return false;
+      if (!map.isLand(sample)) return false;
+    }
+    return true;
+  }
+  function clampAlongSegment(from, proposed, accepts, steps) {
+    if (accepts(proposed)) return copyPoint(proposed);
+    if (!accepts(from)) return null;
+    let good = copyPoint(from);
+    let bad = copyPoint(proposed);
+    for (let index = 0; index < steps; index += 1) {
+      const middle = lerpPoint(good, bad, 0.5);
+      if (accepts(middle)) good = middle;
+      else bad = middle;
+    }
+    return good;
+  }
+  function clampToLandAlongSegment(map, proposed, from, margin) {
+    const clamped = clampAlongSegment(
+      from,
+      proposed,
+      (point) => standable(map, point, margin),
+      LAND_CLAMP_STEPS
+    );
+    return clamped === null ? copyPoint(from) : clamped;
+  }
+  function obstaclesFor(unit, state) {
+    const unitRadius = unitKind(unit.kind).footprintRadius;
+    const obstacles = [];
+    if (state.buildings) {
+      for (const building of state.buildings.ordered()) {
+        obstacles.push({
+          center: building.position,
+          radius: buildingKind(building.kind).footprintRadius + unitRadius + OBSTACLE_PADDING
+        });
+      }
+    }
+    if (state.deposits) {
+      for (const deposit of state.deposits.ordered()) {
+        obstacles.push({ center: deposit.position, radius: DEPOSIT_BLOCKER_RADIUS });
+      }
+    }
+    return obstacles;
+  }
+  function clearOfObstacles(point, obstacles) {
+    for (let index = 0; index < obstacles.length; index += 1) {
+      const obstacle = obstacles[index];
+      if (distance(point, obstacle.center) < obstacle.radius) return false;
+    }
+    return true;
+  }
+  function largestObstacleRadius(obstacles) {
+    let largest = 0;
+    for (let index = 0; index < obstacles.length; index += 1) {
+      if (obstacles[index].radius > largest) largest = obstacles[index].radius;
+    }
+    return largest;
+  }
+  function isLegal(point, unit, state, obstacles = obstaclesFor(unit, state)) {
+    if (!standable(state.map, point, unitKind(unit.kind).footprintRadius)) return false;
+    return clearOfObstacles(point, obstacles);
+  }
+  var MinHeap = class _MinHeap {
+    constructor() {
+      this.storage = [];
+    }
+    static ordered(left, right) {
+      if (left.score !== right.score) return left.score < right.score;
+      if (left.heuristic !== right.heuristic) return left.heuristic < right.heuristic;
+      return left.index < right.index;
+    }
+    push(item) {
+      this.storage.push(item);
+      let child = this.storage.length - 1;
+      while (child > 0) {
+        const parent = child - 1 >> 1;
+        if (!_MinHeap.ordered(this.storage[child], this.storage[parent])) break;
+        const swap = this.storage[child];
+        this.storage[child] = this.storage[parent];
+        this.storage[parent] = swap;
+        child = parent;
+      }
+    }
+    pop() {
+      if (this.storage.length === 0) return null;
+      if (this.storage.length === 1) return this.storage.pop();
+      const result = this.storage[0];
+      this.storage[0] = this.storage.pop();
+      let parent = 0;
+      for (; ; ) {
+        const left = parent * 2 + 1;
+        if (left >= this.storage.length) break;
+        const right = left + 1;
+        let child = left;
+        if (right < this.storage.length && _MinHeap.ordered(this.storage[right], this.storage[left])) {
+          child = right;
+        }
+        if (!_MinHeap.ordered(this.storage[child], this.storage[parent])) break;
+        const swap = this.storage[parent];
+        this.storage[parent] = this.storage[child];
+        this.storage[child] = swap;
+        parent = child;
+      }
+      return result;
+    }
+  };
+  var DIRECTIONS = Object.freeze([
+    Object.freeze({ column: -1, row: 0, cost: 1 }),
+    Object.freeze({ column: 1, row: 0, cost: 1 }),
+    Object.freeze({ column: 0, row: -1, cost: 1 }),
+    Object.freeze({ column: 0, row: 1, cost: 1 }),
+    Object.freeze({ column: -1, row: -1, cost: DIAGONAL_COST }),
+    Object.freeze({ column: 1, row: -1, cost: DIAGONAL_COST }),
+    Object.freeze({ column: -1, row: 1, cost: DIAGONAL_COST }),
+    Object.freeze({ column: 1, row: 1, cost: DIAGONAL_COST })
+  ]);
+  function planGrid({ start, requested, bounds, padding, maxCells, passable, fallback: fallback2 }) {
+    const minX = Math.max(
+      bounds.minX,
+      Math.floor((Math.min(start.x, requested.x) - padding) / GRID_SPACING) * GRID_SPACING
+    );
+    const maxX = Math.min(
+      bounds.maxX,
+      Math.ceil((Math.max(start.x, requested.x) + padding) / GRID_SPACING) * GRID_SPACING
+    );
+    const minZ = Math.max(
+      bounds.minZ,
+      Math.floor((Math.min(start.z, requested.z) - padding) / GRID_SPACING) * GRID_SPACING
+    );
+    const maxZ = Math.min(
+      bounds.maxZ,
+      Math.ceil((Math.max(start.z, requested.z) + padding) / GRID_SPACING) * GRID_SPACING
+    );
+    const columns = Math.max(Math.ceil((maxX - minX) / GRID_SPACING) + 1, 2);
+    const rows = Math.max(Math.ceil((maxZ - minZ) / GRID_SPACING) + 1, 2);
+    const count = columns * rows;
+    if (!(count > 0)) return null;
+    if (count > maxCells) {
+      const destination2 = fallback2();
+      if (destination2 === null) return null;
+      return {
+        destination: destination2,
+        waypoints: [copyPoint(destination2)],
+        reachedRequestedDestination: samePoint(destination2, requested)
+      };
+    }
+    const pointAt = (index) => {
+      const row = Math.floor(index / columns);
+      const column = index % columns;
+      return { x: minX + column * GRID_SPACING, z: minZ + row * GRID_SPACING };
+    };
+    const nearestIndex = (p) => {
+      const column = Math.min(
+        Math.max(roundHalfAwayFromZero((p.x - minX) / GRID_SPACING), 0),
+        columns - 1
+      );
+      const row = Math.min(
+        Math.max(roundHalfAwayFromZero((p.z - minZ) / GRID_SPACING), 0),
+        rows - 1
+      );
+      return row * columns + column;
+    };
+    const startIndex = nearestIndex(start);
+    const goalIndex = nearestIndex(requested);
+    const startAndGoalShareCell = startIndex === goalIndex;
+    const points = new Array(count);
+    for (let index = 0; index < count; index += 1) points[index] = pointAt(index);
+    points[startIndex] = copyPoint(start);
+    if (!startAndGoalShareCell) points[goalIndex] = copyPoint(requested);
+    const walkable = new Array(count);
+    for (let index = 0; index < count; index += 1) walkable[index] = passable(points[index]);
+    if (!walkable[startIndex]) return null;
+    const lineIsClear = (from, to) => {
+      const span = distance(from, to);
+      const samples = Math.max(Math.ceil(span / LINE_SAMPLE_SPACING), 1);
+      for (let sample = 1; sample <= samples; sample += 1) {
+        if (!passable(lerpPoint(from, to, sample / samples))) return false;
+      }
+      return true;
+    };
+    if (startAndGoalShareCell) {
+      const canReach = passable(requested) && lineIsClear(start, requested);
+      const destination2 = canReach ? copyPoint(requested) : copyPoint(start);
+      return {
+        destination: destination2,
+        waypoints: [copyPoint(destination2)],
+        reachedRequestedDestination: canReach
+      };
+    }
+    const heuristic = (index) => distance(points[index], requested);
+    const gScore = new Array(count).fill(Infinity);
+    const cameFrom = new Array(count).fill(-1);
+    const closed = new Array(count).fill(false);
+    const open = new MinHeap();
+    gScore[startIndex] = 0;
+    open.push({ index: startIndex, score: heuristic(startIndex), heuristic: heuristic(startIndex) });
+    let bestIndex = startIndex;
+    let bestDistance = heuristic(startIndex);
+    let reachedRequestedDestination = false;
+    for (; ; ) {
+      const current = open.pop();
+      if (current === null) break;
+      if (closed[current.index]) continue;
+      closed[current.index] = true;
+      const distanceToGoal = heuristic(current.index);
+      if (distanceToGoal < bestDistance || distanceToGoal === bestDistance && current.index < bestIndex) {
+        bestDistance = distanceToGoal;
+        bestIndex = current.index;
+      }
+      if (current.index === goalIndex && walkable[goalIndex]) {
+        reachedRequestedDestination = true;
+        bestIndex = goalIndex;
+        break;
+      }
+      const currentRow = Math.floor(current.index / columns);
+      const currentColumn = current.index % columns;
+      for (let step = 0; step < DIRECTIONS.length; step += 1) {
+        const direction = DIRECTIONS[step];
+        const nextColumn = currentColumn + direction.column;
+        const nextRow = currentRow + direction.row;
+        if (nextColumn < 0 || nextColumn >= columns || nextRow < 0 || nextRow >= rows) continue;
+        const next = nextRow * columns + nextColumn;
+        if (!walkable[next] || closed[next]) continue;
+        if (direction.column !== 0 && direction.row !== 0) {
+          const horizontal = currentRow * columns + nextColumn;
+          const vertical = nextRow * columns + currentColumn;
+          if (!walkable[horizontal] || !walkable[vertical]) continue;
+        }
+        if (!lineIsClear(points[current.index], points[next])) continue;
+        const candidate = gScore[current.index] + direction.cost;
+        if (!(candidate < gScore[next])) continue;
+        gScore[next] = candidate;
+        cameFrom[next] = current.index;
+        const nextHeuristic = heuristic(next);
+        open.push({ index: next, score: candidate + nextHeuristic, heuristic: nextHeuristic });
+      }
+    }
+    if (!closed[bestIndex]) return null;
+    const indices = [bestIndex];
+    let cursor = bestIndex;
+    while (cursor !== startIndex) {
+      const parent = cameFrom[cursor];
+      if (parent < 0) break;
+      indices.push(parent);
+      cursor = parent;
+    }
+    indices.reverse();
+    const routePoints = indices.map((index) => points[index]);
+    let waypoints = [];
+    let anchor = copyPoint(start);
+    let routeIndex = 0;
+    while (routeIndex < routePoints.length) {
+      let furthest = routeIndex;
+      for (let candidate = routeIndex; candidate < routePoints.length; candidate += 1) {
+        if (lineIsClear(anchor, routePoints[candidate])) furthest = candidate;
+      }
+      const point = routePoints[furthest];
+      if (distance(anchor, point) > WAYPOINT_EPSILON) {
+        waypoints.push(copyPoint(point));
+        anchor = copyPoint(point);
+      }
+      routeIndex = furthest + 1;
+    }
+    const destination = waypoints.length > 0 ? copyPoint(waypoints[waypoints.length - 1]) : copyPoint(start);
+    if (distance(destination, start) <= WAYPOINT_EPSILON) waypoints = [copyPoint(start)];
+    return { destination, waypoints, reachedRequestedDestination };
+  }
+  function plan(from, to, unit, state) {
+    const map = state.map;
+    const margin = unitKind(unit.kind).footprintRadius;
+    const obstacles = obstaclesFor(unit, state);
+    if (!standable(map, from, margin)) return null;
+    return planGrid({
+      start: from,
+      requested: to,
+      bounds: map.bounds,
+      padding: Math.max(8, largestObstacleRadius(obstacles) + 3),
+      maxCells: MAX_GRID_CELLS,
+      passable: (point) => standable(map, point, margin) && clearOfObstacles(point, obstacles),
+      fallback: () => clampToLandAlongSegment(map, to, from, margin)
+    });
+  }
+  function nearestLegalOnRings(around, unit, state, obstacles) {
+    const reach = Math.max(ESCAPE_RING_MINIMUM_REACH, largestObstacleRadius(obstacles) + ESCAPE_RING_HEADROOM);
+    const rings = Math.ceil(reach / ESCAPE_RING_STEP);
+    for (let ring = 1; ring <= rings; ring += 1) {
+      const radius = ring * ESCAPE_RING_STEP;
+      for (let sample = 0; sample < ESCAPE_RING_SAMPLES; sample += 1) {
+        const angle = sample / ESCAPE_RING_SAMPLES * TWO_PI;
+        const candidate = {
+          x: around.x + Math.sin(angle) * radius,
+          z: around.z + Math.cos(angle) * radius
+        };
+        if (isLegal(candidate, unit, state, obstacles)) return candidate;
+      }
+    }
+    return null;
+  }
+  function advanceFacing(unit, before, deltaTime) {
+    const step = clamp2(deltaTime, 0, MAX_FACING_DELTA_TIME);
+    if (!(step > 0)) return;
+    if (!Number.isFinite(unit.facing)) unit.facing = 0;
+    const delta = { x: unit.position.x - before.x, z: unit.position.z - before.z };
+    const travelled = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+    if (travelled <= 1e-5) return;
+    if (travelled / step < STEER_MINIMUM_SPEED) return;
+    const heading = headingOf(delta);
+    const offTarget = shortestAngle(unit.facing, heading);
+    if (Math.abs(offTarget) <= FACING_DEADBAND) return;
+    const limit = MAX_TURN_RATE * step;
+    unit.facing = wrapSigned(unit.facing + clamp2(offTarget, -limit, limit));
+  }
+  function stopAtLegalPoint(unit, state) {
+    unit.destination = null;
+    unit.movementPath = [];
+    unit.movementPathTarget = null;
+    unit.region = state.map.region(unit.position);
+    finishMoveActivity(unit);
+  }
+  function advanceStraightLine(unit, destination, state, deltaTime) {
+    const map = state.map;
+    const toTarget = { x: destination.x - unit.position.x, z: destination.z - unit.position.z };
+    const span = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z);
+    if (span <= ARRIVAL_RADIUS) {
+      unit.position = copyPoint(destination);
+      unit.destination = null;
+      unit.region = map.region(destination);
+      finishMoveActivity(unit);
+      return;
+    }
+    const speed = unitKind(unit.kind).speed;
+    const travel = Math.min(Math.max(speed * deltaTime, 0), span);
+    if (!(travel > 0)) return;
+    const heading = { x: toTarget.x / span, z: toTarget.z / span };
+    const proposed = {
+      x: unit.position.x + heading.x * travel,
+      z: unit.position.z + heading.z * travel
+    };
+    const legal = clampToLandAlongSegment(
+      map,
+      proposed,
+      unit.position,
+      unitKind(unit.kind).footprintRadius
+    );
+    unit.position = legal;
+    unit.region = map.region(legal);
+    beginMoveActivity(unit);
+  }
+  function advanceRouted(unit, state, deltaTime) {
+    const map = state.map;
+    let destination = unit.destination;
+    if (unit.movementPathTarget && distance(unit.movementPathTarget, destination) <= DESTINATION_EPSILON) {
+      destination = copyPoint(unit.movementPathTarget);
+      unit.destination = destination;
+    }
+    if (distance(unit.position, destination) <= ROUTED_ARRIVAL_EPSILON) {
+      unit.destination = null;
+      unit.movementPath = [];
+      unit.movementPathTarget = null;
+      unit.region = map.region(unit.position);
+      finishMoveActivity(unit);
+      return;
+    }
+    const destinationChanged = unit.movementPathTarget ? distance(unit.movementPathTarget, destination) > DESTINATION_EPSILON : true;
+    if (destinationChanged || unit.movementPath.length === 0) {
+      const route = plan(unit.position, destination, unit, state);
+      if (route === null) {
+        stopAtLegalPoint(unit, state);
+        return;
+      }
+      destination = route.destination;
+      unit.destination = destination;
+      unit.movementPath = route.waypoints;
+      unit.movementPathTarget = copyPoint(destination);
+    }
+    while (unit.movementPath.length > 0 && distance(unit.position, unit.movementPath[0]) <= WAYPOINT_EPSILON) {
+      unit.movementPath.shift();
+    }
+    if (unit.movementPath.length === 0) {
+      unit.destination = null;
+      unit.movementPathTarget = null;
+      finishMoveActivity(unit);
+      return;
+    }
+    const waypoint = unit.movementPath[0];
+    const toWaypoint = { x: waypoint.x - unit.position.x, z: waypoint.z - unit.position.z };
+    const span = Math.sqrt(toWaypoint.x * toWaypoint.x + toWaypoint.z * toWaypoint.z);
+    if (!(span > 1e-4)) return;
+    const heading = { x: toWaypoint.x / span, z: toWaypoint.z / span };
+    const travel = Math.min(Math.max(unitKind(unit.kind).speed * deltaTime, 0), span);
+    if (!(travel > 0)) return;
+    const proposed = {
+      x: unit.position.x + heading.x * travel,
+      z: unit.position.z + heading.z * travel
+    };
+    if (!isLegal(proposed, unit, state)) {
+      const route = plan(unit.position, destination, unit, state);
+      if (route === null || samePoint(route.destination, unit.position) && !route.reachedRequestedDestination) {
+        stopAtLegalPoint(unit, state);
+        return;
+      }
+      unit.destination = route.destination;
+      unit.movementPath = route.waypoints;
+      unit.movementPathTarget = copyPoint(route.destination);
+      return;
+    }
+    unit.position = proposed;
+    unit.region = map.region(unit.position);
+    beginMoveActivity(unit);
+    if (travel >= span - 1e-4) {
+      unit.movementPath.shift();
+      if (unit.movementPath.length === 0) {
+        unit.destination = null;
+        unit.movementPathTarget = null;
+        finishMoveActivity(unit);
+      }
+    }
+  }
+  function advance(unit, state, deltaTime) {
+    if (isAboard(unit)) return;
+    if (VOID_TRAVEL_DEFERRED && unitKind(unit.kind).travelsVoid) return;
+    if (!Array.isArray(unit.movementPath)) unit.movementPath = [];
+    if (!unit.destination) {
+      unit.movementPath = [];
+      unit.movementPathTarget = null;
+      return;
+    }
+    const hasStoredRoute = unit.movementPathTarget !== null && unit.movementPathTarget !== void 0;
+    if (!hasStoredRoute && unit.movementPath.length === 0 || !isMovingActivity(unit)) {
+      advanceStraightLine(unit, unit.destination, state, deltaTime);
+      return;
+    }
+    advanceRouted(unit, state, deltaTime);
+  }
+  function formationOffset(index, count) {
+    if (count <= 1 || index <= 0) return { x: 0, z: 0 };
+    const ring = Math.floor(index / 6) + 1;
+    const slotsInRing = ring * 6;
+    const slot = (index - 1) % slotsInRing;
+    const angle = slot / slotsInRing * TWO_PI;
+    const radius = ring * 2.2;
+    return { x: Math.sin(angle) * radius, z: Math.cos(angle) * radius };
+  }
+  function orderUnitMove(state, unitID, point) {
+    const unit = state.units.get(unitID);
+    if (!unit) return null;
+    const route = MovementSystem.resolveOrder(point, unit, state);
+    if (route === null) return null;
+    unit.assignment = null;
+    unit.destination = copyPoint(route.destination);
+    unit.movementPath = route.waypoints.map(copyPoint);
+    unit.movementPathTarget = copyPoint(route.destination);
+    unit.activity = activity("moving");
+    return unit.destination;
+  }
+  function orderMove(state, unitIDs, point) {
+    const ordered = [...unitIDs].sort((left, right) => left - right);
+    const results = [];
+    for (let index = 0; index < ordered.length; index += 1) {
+      const id = ordered[index];
+      if (!state.units.has(id)) continue;
+      const offset = formationOffset(index, ordered.length);
+      const destination = orderUnitMove(state, id, {
+        x: point.x + offset.x,
+        z: point.z + offset.z
+      });
+      if (destination !== null) results.push({ id, destination });
+    }
+    return results;
+  }
+  var MovementSystem = {
+    arrivalRadius: ARRIVAL_RADIUS,
+    /**
+     * Clamps an imprecise order to somewhere `unit` may legally stand: on land,
+     * inside `state.map.bounds`, off every building footprint and off every
+     * deposit work radius.
+     *
+     * Null only when nothing legal exists for this unit — it is aboard a
+     * transport, it travels the void (deferred), or neither the segment back
+     * toward the unit, nor the rings around the request, nor the map's own clamp,
+     * nor the unit's current position is a place it could stand.
+     */
+    resolveDestination(point, unit, state) {
+      if (isAboard(unit)) return null;
+      if (VOID_TRAVEL_DEFERRED && unitKind(unit.kind).travelsVoid) return null;
+      const map = state.map;
+      const margin = unitKind(unit.kind).footprintRadius;
+      const obstacles = obstaclesFor(unit, state);
+      const accepts = (candidate) => isLegal(candidate, unit, state, obstacles);
+      if (accepts(point)) return copyPoint(point);
+      const retreat = clampAlongSegment(unit.position, point, accepts, TRAVERSABLE_CLAMP_STEPS);
+      if (retreat !== null) return retreat;
+      const ringed = nearestLegalOnRings(point, unit, state, obstacles);
+      if (ringed !== null) return ringed;
+      const clamped = map.clampToLand(point, margin);
+      if (clamped && accepts(clamped)) return copyPoint(clamped);
+      if (accepts(unit.position)) return copyPoint(unit.position);
+      return null;
+    },
+    /**
+     * A destination plus the waypoints that reach it around circular obstacles.
+     *
+     * Terrain is clamped first, exactly as Swift does, so the planner is never
+     * asked to reach a point in the sea; the planner then routes around
+     * buildings and deposits and returns the closest node it actually reached
+     * when the request is blocked or disconnected.
+     */
+    resolveOrder(point, unit, state) {
+      if (isAboard(unit)) return null;
+      if (VOID_TRAVEL_DEFERRED && unitKind(unit.kind).travelsVoid) return null;
+      const map = state.map;
+      const margin = unitKind(unit.kind).footprintRadius;
+      let terrainDestination;
+      if (standable(map, point, margin)) {
+        terrainDestination = copyPoint(point);
+      } else {
+        const clamped = clampAlongSegment(
+          unit.position,
+          point,
+          (candidate) => standable(map, candidate, margin),
+          TRAVERSABLE_CLAMP_STEPS
+        );
+        if (clamped !== null) {
+          terrainDestination = clamped;
+        } else {
+          const mapClamped = map.clampToLand(point, margin);
+          if (!mapClamped) return null;
+          terrainDestination = copyPoint(mapClamped);
+        }
+      }
+      const route = plan(unit.position, terrainDestination, unit, state);
+      if (route === null) return null;
+      return route;
+    },
+    /**
+     * Advances every unit that has somewhere to be, by `deltaTime` seconds.
+     *
+     * Reads no clock: the only time this function knows about is the argument, so
+     * 600 calls of `1/20` produce the same result whatever the render cadence
+     * around them. Iterates ascending id, so no unit's step can depend on another
+     * unit's insertion order.
+     */
+    step(state, deltaTime) {
+      const ids = state.units.orderedIDs();
+      for (let index = 0; index < ids.length; index += 1) {
+        const unit = state.units.get(ids[index]);
+        if (!unit) continue;
+        const before = copyPoint(unit.position);
+        advance(unit, state, deltaTime);
+        advanceFacing(unit, before, deltaTime);
+      }
+    },
+    /** Whether `point` is a legal standing place for `unit`. */
+    isLegal(point, unit, state) {
+      return isLegal(point, unit, state);
+    },
+    formationOffset,
+    orderUnitMove,
+    orderMove
+  };
+
+  // src/sim/gathering.js
+  var STATION_COUNT = 6;
+  var ARRIVAL_TOLERANCE = 0.9;
+  var LOAD_EPSILON = 1e-6;
+  var NO_LEG = Object.freeze({
+    leg: "none",
+    deposit: null,
+    target: null,
+    station: null,
+    atStation: false,
+    atTarget: false,
+    canExtract: false
+  });
+  function ensureFields(unit) {
+    if (unit.cargo === void 0) unit.cargo = null;
+    if (unit.assignment === void 0) unit.assignment = null;
+    if (unit.pending === void 0) unit.pending = null;
+    if (unit.destination === void 0) unit.destination = null;
+    return unit;
+  }
+  function airborneAmount(unit) {
+    const animation = unit.animation;
+    if (!animation || !animation.airborneChunks || animation.airborneChunks.length === 0) return 0;
+    let total = 0;
+    for (const chunk of animation.airborneChunks) total += chunk.amount;
+    return total;
+  }
+  function committedAmount(unit) {
+    return unit.cargo ? unit.cargo.amount : 0;
+  }
+  function pendingAmount(unit) {
+    return unit.pending ? unit.pending.amount : 0;
+  }
+  function realisedLoad(unit) {
+    return committedAmount(unit) + airborneAmount(unit);
+  }
+  function isFull(unit) {
+    return realisedLoad(unit) >= TUNING.carryCapacity - LOAD_EPSILON;
+  }
+  function canLeaveStation(unit) {
+    const animation = unit.animation;
+    if (!animation) return true;
+    if (animation.toolHeld !== null && animation.toolHeld !== void 0) return false;
+    return !animation.airborneChunks || animation.airborneChunks.length === 0;
+  }
+  function resolveStandingPoint(state, unit, requested) {
+    const map = state.map;
+    if (!map || typeof map.clampToLand !== "function") return { x: requested.x, z: requested.z };
+    const clamped = map.clampToLand(requested, unitKind(unit.kind).footprintRadius);
+    return clamped ? { x: clamped.x, z: clamped.z } : null;
+  }
+  function approachPoint(target, origin, standOff) {
+    const awayX = origin.x - target.x;
+    const awayZ = origin.z - target.z;
+    const magnitude = Math.sqrt(awayX * awayX + awayZ * awayZ);
+    if (magnitude <= 1e-4) return { x: target.x, z: target.z };
+    return {
+      x: target.x + awayX / magnitude * standOff,
+      z: target.z + awayZ / magnitude * standOff
+    };
+  }
+  function nearestDropOff(state, unit) {
+    let best = null;
+    let bestDistance = Infinity;
+    for (const building of state.buildings.ordered()) {
+      if (building.faction !== unit.faction) continue;
+      if (!(building.constructionProgress >= 1)) continue;
+      if (!buildingKind(building.kind).acceptsDropOff) continue;
+      const candidate = distance(building.position, unit.position);
+      if (candidate < bestDistance) {
+        best = building;
+        bestDistance = candidate;
+      }
+    }
+    return best;
+  }
+  function dropOffReach(building) {
+    return buildingKind(building.kind).footprintRadius + DEPOSIT_WORK_RADIUS;
+  }
+  function extractDescriptor(state, unit, deposit) {
+    const station = resolveStandingPoint(state, unit, GatheringSystem.workStation(deposit, unit)) || {
+      x: deposit.position.x,
+      z: deposit.position.z
+    };
+    const atStation = distance(unit.position, station) <= ARRIVAL_TOLERANCE && distance(unit.position, deposit.position) <= DEPOSIT_WORK_RADIUS + ARRIVAL_TOLERANCE;
+    const room = TUNING.carryCapacity - realisedLoad(unit);
+    const compatible = !unit.cargo || unit.cargo.kind === deposit.kind;
+    return {
+      leg: "extract",
+      deposit,
+      target: null,
+      station,
+      atStation,
+      atTarget: false,
+      canExtract: room > LOAD_EPSILON && deposit.remaining > 0 && compatible
+    };
+  }
+  function deliverDescriptor(state, unit) {
+    const target = nearestDropOff(state, unit);
+    if (!target) {
+      return { ...NO_LEG, leg: "hold" };
+    }
+    return {
+      leg: "deliver",
+      deposit: null,
+      target,
+      station: null,
+      atStation: false,
+      atTarget: distance(unit.position, target.position) <= dropOffReach(target),
+      canExtract: false
+    };
+  }
+  function gatherLeg(state, unit, deposit, deltaTime) {
+    unit.activity = activity("gathering", deposit.id);
+    const station = resolveStandingPoint(state, unit, GatheringSystem.workStation(deposit, unit)) || {
+      x: deposit.position.x,
+      z: deposit.position.z
+    };
+    if (distance(unit.position, station) > ARRIVAL_TOLERANCE) {
+      unit.destination = station;
+      unit.pending = null;
+      return;
+    }
+    unit.destination = null;
+    if (distance(unit.position, deposit.position) > DEPOSIT_WORK_RADIUS + ARRIVAL_TOLERANCE) return;
+    if (unit.cargo && unit.cargo.kind !== deposit.kind) return;
+    if (unit.pending && unit.pending.kind !== deposit.kind) unit.pending = null;
+    const alreadyPending = pendingAmount(unit);
+    const room = TUNING.carryCapacity - realisedLoad(unit) - alreadyPending;
+    if (room <= LOAD_EPSILON) return;
+    const availableYield = deposit.remaining - alreadyPending;
+    if (!(availableYield > 0)) return;
+    const rate = TUNING.gatherRates[deposit.kind];
+    const extracted = Math.min(rate * deltaTime, room, availableYield);
+    if (!(extracted > 0)) return;
+    unit.pending = { kind: deposit.kind, amount: alreadyPending + extracted };
+  }
+  function deliverLeg(state, unit) {
+    if (!canLeaveStation(unit)) {
+      unit.destination = null;
+      return;
+    }
+    unit.pending = null;
+    const descriptor = deliverDescriptor(state, unit);
+    if (descriptor.leg === "hold") {
+      unit.destination = null;
+      unit.activity = IDLE;
+      return;
+    }
+    const target = descriptor.target;
+    if (!descriptor.atTarget) {
+      const reach = dropOffReach(target);
+      const approach = approachPoint(target.position, unit.position, reach * 0.85);
+      unit.destination = resolveStandingPoint(state, unit, approach);
+      return;
+    }
+    unit.destination = null;
+  }
+  function advance2(state, unit, deltaTime) {
+    const deposit = state.deposits.get(unit.assignment);
+    if (!deposit || !(deposit.remaining > 0)) {
+      if (!unit.cargo && canLeaveStation(unit)) {
+        unit.assignment = null;
+        unit.pending = null;
+        unit.destination = null;
+        unit.activity = IDLE;
+      } else {
+        deliverLeg(state, unit);
+      }
+      return;
+    }
+    if (isFull(unit)) {
+      if (canLeaveStation(unit)) {
+        deliverLeg(state, unit);
+      } else {
+        unit.destination = null;
+      }
+      return;
+    }
+    gatherLeg(state, unit, deposit, deltaTime);
+  }
+  var GatheringSystem = {
+    /** Advances every citizen with a gather assignment, in ascending id order. */
+    step(state, deltaTime) {
+      for (const id of state.units.orderedIDs()) {
+        const unit = state.units.get(id);
+        if (!unit) continue;
+        ensureFields(unit);
+        if (unit.assignment === null) continue;
+        if (!unitKind(unit.kind).canGather) continue;
+        if (unit.activity && unit.activity.tag === "aboard") continue;
+        advance2(state, unit, deltaTime);
+      }
+    },
+    /**
+     * Assigns citizens to work a deposit.
+     *
+     * Anything in the selection that cannot gather is walked to the node instead,
+     * so a mixed selection does something sensible rather than half-ignoring the
+     * tap. Ids are sorted so a multi-select resolves identically on replay.
+     */
+    orderGather(state, unitIDs, depositID) {
+      const deposit = state.deposits.get(depositID);
+      if (!deposit || !(deposit.remaining > 0)) return;
+      const ids = [...unitIDs].sort((left, right) => left - right);
+      for (const id of ids) {
+        const unit = state.units.get(id);
+        if (!unit) continue;
+        ensureFields(unit);
+        if (!unitKind(unit.kind).canGather) {
+          const point = resolveStandingPoint(state, unit, deposit.position);
+          if (point) unit.destination = point;
+          continue;
+        }
+        unit.assignment = depositID;
+        unit.activity = activity("gathering", depositID);
+      }
+    },
+    /**
+     * The fixed spot this citizen works this node from.
+     *
+     * A pure function of the node and the unit's durable id, which buys two
+     * things at once. Workers fan out around the rock instead of converging on
+     * one point and standing inside each other. And because the station never
+     * moves, a citizen returning from a delivery walks back to the spot it left,
+     * which reads as its own working position rather than a scramble for a gap.
+     */
+    workStation(deposit, unit) {
+      const slot = (unit.id >>> 0) % STATION_COUNT;
+      const angle = slot / STATION_COUNT * 2 * Math.PI;
+      const radius = DEPOSIT_WORK_RADIUS * 0.95;
+      return {
+        x: deposit.position.x + Math.sin(angle) * radius,
+        z: deposit.position.z + Math.cos(angle) * radius
+      };
+    },
+    isFull,
+    /**
+     * Which leg this citizen is on, computed without mutating anything.
+     *
+     * `AnimationController` needs the same answer `step` acts on, one system
+     * later in the tick, and deriving it twice from different rules is how two
+     * copies of a decision drift apart.
+     */
+    legOf(state, unit) {
+      if (!unitKind(unit.kind).canGather) return NO_LEG;
+      if (unit.activity && unit.activity.tag === "aboard") return NO_LEG;
+      const assignment = unit.assignment === void 0 ? null : unit.assignment;
+      const deposit = assignment === null ? null : state.deposits.get(assignment);
+      if (!deposit || !(deposit.remaining > 0)) {
+        if (!unit.cargo) return NO_LEG;
+        return deliverDescriptor(state, unit);
+      }
+      if (isFull(unit)) {
+        if (canLeaveStation(unit)) return deliverDescriptor(state, unit);
+        const descriptor = extractDescriptor(state, unit, deposit);
+        descriptor.canExtract = false;
+        return descriptor;
+      }
+      return extractDescriptor(state, unit, deposit);
+    },
+    /** True when this citizen still owes the node a tool or a landing chunk. */
+    canLeaveStation,
+    /**
+     * The `gather_contact` commit. One chunk leaves the pile.
+     *
+     * Everything accrued since the last contact is debited from the node in one
+     * move and handed back as the chunk that is about to fly. The clamp against
+     * `remaining` is what keeps two citizens sharing the last of a node from
+     * driving it negative. Returns `null` when there was nothing to take, in
+     * which case the pile is untouched — no chunk is spent for no resource.
+     */
+    commitContact(state, unit) {
+      const pending = unit.pending;
+      unit.pending = null;
+      if (!pending || !(pending.amount > 0)) return null;
+      const deposit = state.deposits.get(unit.assignment);
+      if (!deposit) return null;
+      if (deposit.kind !== pending.kind) return null;
+      const amount = Math.min(pending.amount, deposit.remaining);
+      if (!(amount > 0)) return null;
+      deposit.remaining -= amount;
+      if (deposit.chunksRemaining > 0) deposit.chunksRemaining -= 1;
+      if (deposit.chunksRemaining <= 0 && deposit.remaining > 0) {
+        deposit.chunksRemaining = CHUNKS_PER_LOAD;
+      }
+      return { kind: deposit.kind, amount, depositID: deposit.id };
+    },
+    /**
+     * The `payload_attach` commit. An arriving chunk becomes carrier cargo.
+     *
+     * A mismatched kind cannot happen — `gatherLeg` refuses to accrue a second
+     * kind — but if it ever did, the amount is refunded to the node it came from,
+     * or failing that credited to the faction. Both conserve; dropping it would
+     * not, and #20 forbids discarding committed work.
+     */
+    commitPayload(state, unit, chunk) {
+      if (!chunk || !(chunk.amount > 0)) return 0;
+      ensureFields(unit);
+      if (!unit.cargo) {
+        unit.cargo = { kind: chunk.kind, amount: chunk.amount };
+        return chunk.amount;
+      }
+      if (unit.cargo.kind === chunk.kind) {
+        unit.cargo.amount += chunk.amount;
+        return chunk.amount;
+      }
+      const source = chunk.depositID === void 0 ? null : state.deposits.get(chunk.depositID);
+      if (source && source.kind === chunk.kind) {
+        source.remaining += chunk.amount;
+        return 0;
+      }
+      const pool2 = state.stock[unit.faction];
+      if (pool2) pool2[chunk.kind] += chunk.amount;
+      return 0;
+    },
+    /**
+     * The `deposit_release` commit. All committed cargo transfers atomically.
+     *
+     * Atomic by construction: one read, one add, one clear, with nothing between
+     * them that can fail. There is no partial delivery to leave a citizen holding
+     * a remainder it can never spend.
+     */
+    commitDeposit(state, unit) {
+      const cargo = unit.cargo;
+      if (!cargo || !(cargo.amount > 0)) {
+        unit.cargo = null;
+        return null;
+      }
+      const pool2 = state.stock[unit.faction];
+      if (!pool2) return null;
+      pool2[cargo.kind] += cargo.amount;
+      unit.cargo = null;
+      return { kind: cargo.kind, amount: cargo.amount };
+    },
+    /**
+     * Abandons speculative accrual. Used by an interruption that reverses before
+     * `gather_contact` fires. Nothing has left a deposit, so nothing is lost.
+     */
+    abortPending(unit) {
+      unit.pending = null;
+    },
+    /** Public for `populate.js` and for restores that predate the `pending` field. */
+    ensureFields
+  };
+
+  // src/sim/production.js
+  var POPULATION_HARD_CEILING = 200;
+  var SPAWN_RINGS = 4;
+  var SPAWN_SLOTS_PER_RING = 6;
+  var SPAWN_RING_SPACING = 1.8;
+  var SPAWN_CLEARANCE = 0.6;
+  var SPAWN_FALLBACK_MARGIN = 1.2;
+  var ProductionSystem = {
+    /**
+     * Advances the front item of every queue by one tick and spawns what
+     * finished.
+     *
+     * Walks buildings in ascending id, so two runs of one seed train in the same
+     * order even though the queue map is keyed by building.
+     */
+    step(state) {
+      const buildingIDs = state.buildings.orderedIDs().filter((id) => state.productionQueues.has(id));
+      for (const buildingID of buildingIDs) {
+        const queue = state.productionQueues.get(buildingID);
+        if (!queue || queue.items.length === 0) continue;
+        const building = state.buildings.get(buildingID);
+        if (!building) continue;
+        const owner = building.faction;
+        if (owner === null || owner === void 0) continue;
+        if (building.constructionProgress < 1) continue;
+        if (buildingKind(building.kind).trains.length === 0) continue;
+        const front = queue.items[0];
+        const totalTicks = unitBuildTicks(front.kind);
+        if (totalTicks <= 0) continue;
+        front.hasStarted = true;
+        front.progressTicks = Math.min(front.progressTicks + 1, totalTicks);
+        if (front.progressTicks >= totalTicks) {
+          const population = this.populationCommitment(state, owner);
+          if (population.used > population.cap) {
+            queue.heldReason = "populationCap";
+          } else {
+            const spawn = spawnPosition(state, front.kind, building);
+            if (spawn) {
+              const id = state.allocator.allocate();
+              state.units.set(id, createUnit(id, owner, front.kind, spawn, building.region));
+              queue.items.shift();
+              queue.heldReason = null;
+            } else {
+              queue.heldReason = "noSpawnPosition";
+            }
+          }
+        } else {
+          queue.heldReason = null;
+        }
+        if (queue.items.length === 0) state.productionQueues.delete(buildingID);
+      }
+    },
+    /**
+     * Adds one unit to a building's queue, charging its cost now.
+     *
+     * Returns `{ ok: true }` or `{ ok: false, reason }`. The reasons are the
+     * Swift failure cases verbatim, because the HUD tells the player which one it
+     * was and "could not train" is not an answer.
+     */
+    enqueue(state, kind, buildingID) {
+      const building = state.buildings.get(buildingID);
+      if (!building) return { ok: false, reason: "notTrainable" };
+      const owner = building.faction;
+      if (owner === null || owner === void 0) return { ok: false, reason: "notTrainable" };
+      if (building.constructionProgress < 1) return { ok: false, reason: "buildingIncomplete" };
+      if (!buildingKind(building.kind).trains.includes(kind)) {
+        return { ok: false, reason: "notTrainable" };
+      }
+      const queue = state.productionQueues.get(buildingID) ?? { items: [], heldReason: null };
+      if (queue.items.length >= TUNING.maxQueueLength) return { ok: false, reason: "queueFull" };
+      const cost = unitCost(kind);
+      const stock = state.stock[owner];
+      if (!stock || !covers(stock, cost)) {
+        return { ok: false, reason: "cannotAfford", missing: shortfall(cost, stock ?? pool()) };
+      }
+      const population = this.populationCommitment(state, owner);
+      const additional = unitKind(kind).populationCost;
+      if (population.used + additional > population.cap) {
+        return {
+          ok: false,
+          reason: "populationCap",
+          used: population.used + additional,
+          cap: population.cap
+        };
+      }
+      for (const resource of RESOURCE_KINDS) stock[resource] -= cost[resource];
+      queue.items.push({ kind, progressTicks: 0, hasStarted: false });
+      state.productionQueues.set(buildingID, queue);
+      return { ok: true };
+    },
+    /**
+     * Removes the front item and refunds its cost.
+     *
+     * Matches `ProductionSystem.cancelFront` exactly: an item that has not yet
+     * received a tick is returned in full, and one that has started is returned
+     * at `cost * cancelRefundFraction`. The `hasStarted` flag decides, not the
+     * progress bar.
+     */
+    cancelFront(state, buildingID) {
+      const queue = state.productionQueues.get(buildingID);
+      if (!queue || queue.items.length === 0) return false;
+      const building = state.buildings.get(buildingID);
+      if (!building) return false;
+      const owner = building.faction;
+      if (owner === null || owner === void 0) return false;
+      const item = queue.items.shift();
+      const fraction = item.hasStarted ? TUNING.cancelRefundFraction : 1;
+      refund(state.stock[owner], unitCost(item.kind), fraction);
+      queue.heldReason = null;
+      if (queue.items.length === 0) state.productionQueues.delete(buildingID);
+      return true;
+    },
+    /**
+     * Refunds the in-progress front item and discards the rest when a building
+     * is lost. Call before removing the building — the refund needs its owner.
+     *
+     * Matches `ProductionSystem.onBuildingDestroyed` exactly: only the front
+     * item is returned, under the same started rule as a manual cancel, and the
+     * remaining queue goes with the building. This is the authored Swift
+     * contract, not a conservation reinterpretation of it.
+     */
+    onBuildingDestroyed(state, buildingID) {
+      const queue = state.productionQueues.get(buildingID);
+      if (!queue || queue.items.length === 0) {
+        state.productionQueues.delete(buildingID);
+        return;
+      }
+      const building = state.buildings.get(buildingID);
+      const owner = building ? building.faction : null;
+      if (owner === null || owner === void 0) {
+        state.productionQueues.delete(buildingID);
+        return;
+      }
+      const stock = state.stock[owner];
+      const front = queue.items[0];
+      const fraction = front.hasStarted ? TUNING.cancelRefundFraction : 1;
+      refund(stock, unitCost(front.kind), fraction);
+      state.productionQueues.delete(buildingID);
+    },
+    /**
+     * Population in use versus the cap granted by Dwellings and Outposts.
+     *
+     * Queued units count toward used population because cost is charged on
+     * enqueue. Anything else lets a player queue ten Citizens against a cap of
+     * ten they already fill, and discover the lie only when the first one refuses
+     * to appear.
+     */
+    populationCommitment(state, faction) {
+      let live = 0;
+      for (const unit of state.units.ordered()) {
+        if (unit.faction !== faction) continue;
+        live += unitKind(unit.kind).populationCost;
+      }
+      let queued = 0;
+      const queueIDs = [...state.productionQueues.keys()].sort((left, right) => left - right);
+      for (const buildingID of queueIDs) {
+        const building = state.buildings.get(buildingID);
+        if (!building || building.faction !== faction) continue;
+        const queue = state.productionQueues.get(buildingID);
+        for (const item of queue.items) queued += unitKind(item.kind).populationCost;
+      }
+      let granted = 0;
+      for (const building of state.buildings.ordered()) {
+        if (building.faction !== faction) continue;
+        if (building.constructionProgress < 1) continue;
+        granted += buildingKind(building.kind).populationGrant;
+      }
+      return {
+        used: live + queued,
+        cap: Math.min(TUNING.startingPopulationCap + granted, POPULATION_HARD_CEILING)
+      };
+    },
+    /** Front-item progress as 0…1, for the HUD readout. */
+    progress(state, buildingID) {
+      const queue = state.productionQueues.get(buildingID);
+      if (!queue || queue.items.length === 0) return 0;
+      const front = queue.items[0];
+      const total = unitBuildTicks(front.kind);
+      if (total <= 0) return 0;
+      return front.progressTicks / total;
+    }
+  };
+  function refund(stock, cost, fraction) {
+    if (!stock) return;
+    for (const resource of RESOURCE_KINDS) {
+      stock[resource] += cost[resource] * fraction;
+    }
+  }
+  function shortfall(needed, have) {
+    const missing = pool();
+    for (const resource of RESOURCE_KINDS) {
+      missing[resource] = Math.max(0, needed[resource] - have[resource]);
+    }
+    return missing;
+  }
+  function createUnit(id, faction, kind, spawn, region) {
+    return {
+      id,
+      faction,
+      kind,
+      position: { x: spawn.position.x, z: spawn.position.z },
+      destination: null,
+      movementPath: [],
+      movementPathTarget: null,
+      facing: spawn.facing,
+      activity: activity("idle"),
+      life: unitKind(kind).maxLife,
+      region,
+      carrying: [],
+      cargo: null,
+      assignment: null,
+      boardingProgress: 0,
+      animation: {
+        state: "idle",
+        loopIndex: 0,
+        phaseTicks: 0,
+        leadHand: "none",
+        toolHeld: null,
+        carriedChunks: 0,
+        airborneChunks: []
+      }
+    };
+  }
+  function spawnPosition(state, kind, building) {
+    const margin = unitKind(kind).footprintRadius;
+    const footprint = buildingKind(building.kind).footprintRadius;
+    for (let ring = 1; ring <= SPAWN_RINGS; ring += 1) {
+      const slots = ring * SPAWN_SLOTS_PER_RING;
+      for (let slot = 0; slot < slots; slot += 1) {
+        const angle = slot / slots * 2 * Math.PI;
+        const span = footprint + margin + ring * SPAWN_RING_SPACING;
+        const candidate = {
+          x: building.position.x + Math.sin(angle) * span,
+          z: building.position.z + Math.cos(angle) * span
+        };
+        if (!isStandable(state.map, candidate, building.region, margin)) continue;
+        if (overlapsStructure(state, candidate, margin + SPAWN_CLEARANCE, building.id)) continue;
+        if (overlapsUnit(state, candidate, margin + SPAWN_CLEARANCE)) continue;
+        return { position: candidate, facing: angle };
+      }
+    }
+    const fallback2 = {
+      x: building.position.x + footprint + margin + SPAWN_FALLBACK_MARGIN,
+      z: building.position.z
+    };
+    const clamped = state.map.clampToLand(fallback2, margin);
+    return {
+      position: clamped ? { x: clamped.x, z: clamped.z } : { x: building.position.x, z: building.position.z },
+      facing: 0
+    };
+  }
+  function isStandable(map, point, region, margin) {
+    if (map.region(point) !== region) return false;
+    const clamped = map.clampToLand(point, margin);
+    if (!clamped) return false;
+    return Math.abs(clamped.x - point.x) < 1e-6 && Math.abs(clamped.z - point.z) < 1e-6;
+  }
+  function overlapsStructure(state, point, radius, excludingID) {
+    for (const building of state.buildings.ordered()) {
+      if (building.id === excludingID) continue;
+      const need = buildingKind(building.kind).footprintRadius + radius;
+      if (distance(building.position, point) < need) return true;
+    }
+    return false;
+  }
+  function overlapsUnit(state, point, radius) {
+    for (const unit of state.units.ordered()) {
+      const need = unitKind(unit.kind).footprintRadius + radius;
+      if (distance(unit.position, point) < need) return true;
+    }
+    return false;
+  }
+
+  // src/sim/construction.js
+  var WORK_RADIUS_MARGIN = 2;
+  var APPROACH_MARGIN = 1.4;
+  var APPROACH_SAFETY = 0.85;
+  var COMPLETION_EPSILON = 1e-9;
+  var ConstructionSystem = {
+    /** Maximum citizens that may work one foundation at once. */
+    maxBuildersPerSite: 4,
+    workRadius(kind) {
+      return buildingKind(kind).footprintRadius + WORK_RADIUS_MARGIN;
+    },
+    /**
+     * Advances every incomplete building that has builders standing on it.
+     *
+     * Builders that have not arrived are given a destination on the kerb; the
+     * movement system owns the walk itself and replans when the destination
+     * stops matching the planned path target.
+     */
+    step(state, deltaTime) {
+      const incomplete = state.buildings.orderedIDs().filter((id) => !isComplete(state.buildings.get(id)));
+      if (incomplete.length === 0) return;
+      for (const buildingID of incomplete) {
+        const building = state.buildings.get(buildingID);
+        if (!building || isComplete(building)) continue;
+        const onSiteRadius = this.workRadius(building.kind);
+        let buildersOnSite = 0;
+        for (const unitID of state.units.orderedIDs()) {
+          const unit = state.units.get(unitID);
+          if (!unit) continue;
+          if (unit.activity.tag !== "constructing" || unit.activity.subject !== buildingID) continue;
+          if (unit.faction !== building.faction) continue;
+          if (!unitKind(unit.kind).canGather) continue;
+          if (distance(unit.position, building.position) <= onSiteRadius) {
+            unit.destination = null;
+            buildersOnSite += 1;
+          } else if (unit.destination === null || unit.destination === void 0) {
+            const offset = approachOffset(unit.position, building);
+            const destination = resolveDestination(state, unit, addPoints(building.position, offset));
+            if (destination) unit.destination = destination;
+          }
+        }
+        if (buildersOnSite === 0) continue;
+        const duration = Math.max(buildTime(building.kind), 0.01);
+        const advanced = building.constructionProgress + buildersOnSite * deltaTime / duration;
+        building.constructionProgress = advanced >= 1 - COMPLETION_EPSILON ? 1 : advanced;
+        if (isComplete(building)) {
+          building.installedComponents = 3;
+          releaseBuilders(state, buildingID);
+        }
+      }
+    },
+    /**
+     * The simulation-owned reason a building cannot be started, before a site is
+     * chosen. Footprint legality is a placement concern and stays out of here.
+     */
+    buildBlocker(state, kind, faction) {
+      if (kind === "lumenSpire") {
+        let hasCompletedYard = false;
+        for (const building of state.buildings.ordered()) {
+          if (building.faction === faction && building.kind === "formationYard" && isComplete(building)) {
+            hasCompletedYard = true;
+            break;
+          }
+        }
+        if (!hasCompletedYard) {
+          return { reason: "missingPrerequisite", prerequisite: "formationYard" };
+        }
+      }
+      const cost = buildingCost(kind);
+      const have = state.stock[faction] ?? pool();
+      let affordable = true;
+      const missing = pool();
+      for (const resource of RESOURCE_KINDS) {
+        missing[resource] = Math.max(0, cost[resource] - have[resource]);
+        if (missing[resource] > 0) affordable = false;
+      }
+      if (affordable) return null;
+      return { reason: "unaffordable", missing };
+    },
+    /**
+     * Commits a foundation at `point`. Charges the cost, spawns the incomplete
+     * building, and sends preferred (else nearest idle or gathering) citizens.
+     *
+     * Returns the new building id, or null when stock, prerequisite or region
+     * refuse. The caller owns footprint legality — the adversary and the player
+     * reach this through different site checks and neither may be assumed here.
+     */
+    placeBuilding(state, kind, point, faction, preferredIDs = []) {
+      const region = state.map.region(point);
+      if (!region) return null;
+      if (this.buildBlocker(state, kind, faction) !== null) return null;
+      const cost = buildingCost(kind);
+      const stock = state.stock[faction];
+      for (const resource of RESOURCE_KINDS) stock[resource] -= cost[resource];
+      const id = state.allocator.allocate();
+      state.buildings.set(id, {
+        id,
+        faction,
+        kind,
+        position: { x: point.x, z: point.z },
+        region,
+        life: buildingKind(kind).maxLife,
+        constructionProgress: 0,
+        installedComponents: 0
+      });
+      this.assignBuilders(state, id, faction, preferredIDs);
+      return id;
+    },
+    /**
+     * Tears down an incomplete foundation and refunds exactly
+     * `cost * cancelRefundFraction`. Completed buildings cannot be cancelled
+     * this way — a finished Farm is demolished, not un-ordered.
+     */
+    cancelConstruction(state, buildingID) {
+      const building = state.buildings.get(buildingID);
+      if (!building) return false;
+      const owner = building.faction;
+      if (owner === null || owner === void 0) return false;
+      if (isComplete(building)) return false;
+      const cost = buildingCost(building.kind);
+      const stock = state.stock[owner];
+      for (const resource of RESOURCE_KINDS) {
+        stock[resource] += cost[resource] * TUNING.cancelRefundFraction;
+      }
+      releaseBuilders(state, buildingID);
+      ProductionSystem.onBuildingDestroyed(state, buildingID);
+      state.buildings.delete(buildingID);
+      return true;
+    },
+    /**
+     * Sends citizens to an incomplete building. Prefers the caller's selection,
+     * then the nearest idle or gathering citizens of the same faction. Builders
+     * already on the job stay assigned until the foundation completes or is
+     * cancelled, so adding help never scatters the crew already working.
+     *
+     * Returns how many citizens were newly assigned.
+     */
+    assignBuilders(state, buildingID, faction, preferredIDs = []) {
+      const building = state.buildings.get(buildingID);
+      if (!building || isComplete(building)) return 0;
+      const alreadyAssigned = /* @__PURE__ */ new Set();
+      for (const unit of state.units.ordered()) {
+        if (unit.activity.tag === "constructing" && unit.activity.subject === buildingID) {
+          alreadyAssigned.add(unit.id);
+        }
+      }
+      let slots = Math.max(0, this.maxBuildersPerSite - alreadyAssigned.size);
+      if (slots <= 0) return 0;
+      const toAssign = [];
+      const chosen = /* @__PURE__ */ new Set();
+      for (const id of [...preferredIDs].sort((left, right) => left - right)) {
+        if (slots <= 0) break;
+        if (chosen.has(id) || alreadyAssigned.has(id)) continue;
+        const unit = state.units.get(id);
+        if (!unit) continue;
+        if (unit.faction !== faction) continue;
+        if (!canBeAssignedToConstruction(unit)) continue;
+        toAssign.push(id);
+        chosen.add(id);
+        slots -= 1;
+      }
+      if (toAssign.length === 0 && preferredIDs.length === 0 && slots > 0) {
+        const candidates = [];
+        for (const unit of state.units.ordered()) {
+          if (unit.faction !== faction) continue;
+          if (!canBeAssignedToConstruction(unit)) continue;
+          if (alreadyAssigned.has(unit.id)) continue;
+          if (unit.activity.tag !== "idle" && unit.activity.tag !== "gathering") continue;
+          candidates.push(unit);
+        }
+        candidates.sort((left, right) => {
+          const leftDistance = distanceSquared(left.position, building.position);
+          const rightDistance = distanceSquared(right.position, building.position);
+          if (leftDistance !== rightDistance) return leftDistance - rightDistance;
+          return left.id - right.id;
+        });
+        for (const unit of candidates.slice(0, Math.min(slots, 2))) toAssign.push(unit.id);
+      }
+      for (const id of toAssign) sendToConstruction(state, id, buildingID, building);
+      return toAssign.length;
+    }
+  };
+  function isComplete(building) {
+    return building ? building.constructionProgress >= 1 : true;
+  }
+  function canBeAssignedToConstruction(unit) {
+    if (!unitKind(unit.kind).canGather) return false;
+    return unit.activity.tag !== "aboard" && unit.activity.tag !== "boarding";
+  }
+  function sendToConstruction(state, id, buildingID, building) {
+    const unit = state.units.get(id);
+    if (!unit || !canBeAssignedToConstruction(unit)) return;
+    if (unit.cargo) {
+      const stock = state.stock[unit.faction];
+      if (stock) stock[unit.cargo.kind] += unit.cargo.amount;
+      unit.cargo = null;
+    }
+    unit.assignment = null;
+    unit.activity = activity("constructing", buildingID);
+    const offset = approachOffset(unit.position, building);
+    unit.destination = resolveDestination(state, unit, addPoints(building.position, offset)) ?? null;
+  }
+  function approachOffset(from, building) {
+    const delta = subtractPoints(from, building.position);
+    const span = length(delta);
+    const radius = Math.min(
+      buildingKind(building.kind).footprintRadius + APPROACH_MARGIN,
+      ConstructionSystem.workRadius(building.kind) * APPROACH_SAFETY
+    );
+    if (span < 0.01) return { x: radius, z: 0 };
+    return { x: delta.x / span * radius, z: delta.z / span * radius };
+  }
+  function resolveDestination(state, unit, point) {
+    return state.map.clampToLand(point, unitKind(unit.kind).footprintRadius);
+  }
+  function releaseBuilders(state, buildingID) {
+    for (const id of state.units.orderedIDs()) {
+      const unit = state.units.get(id);
+      if (!unit) continue;
+      if (unit.activity.tag !== "constructing" || unit.activity.subject !== buildingID) continue;
+      unit.activity = activity("idle");
+      unit.destination = null;
+    }
+  }
+
+  // src/sim/animation.js
+  var CITIZEN_ANIMATION_STATES = Object.freeze([
+    "idle",
+    "attachTool",
+    "workLoop",
+    "releaseTool",
+    "deliver",
+    "cleanup"
+  ]);
+  var ATTACH_TICKS = 6;
+  var GATHER_LOOP_TICKS = 14;
+  var GATHER_CONTACT_PHASE = 9;
+  var CONSTRUCT_LOOP_TICKS = 16;
+  var CONSTRUCT_CONTACT_PHASE = 11;
+  var CHUNK_FLIGHT_TICKS = 4;
+  var RELEASE_TICKS = 5;
+  var DELIVER_TICKS = 10;
+  var DELIVER_COMMIT_PHASE = 7;
+  var CLEANUP_TICKS = 4;
+  function toolFor(unit) {
+    return unit.activity && unit.activity.tag === "constructing" ? "mallet" : "scraper";
+  }
+  function createBlock() {
+    return {
+      state: "idle",
+      loopIndex: 0,
+      phaseTicks: 0,
+      leadHand: "none",
+      toolHeld: null,
+      carriedChunks: 0,
+      airborneChunks: []
+    };
+  }
+  function ensureBlock(unit) {
+    if (!unit.animation) unit.animation = createBlock();
+    const animation = unit.animation;
+    if (animation.loopIndex === void 0) animation.loopIndex = 0;
+    if (animation.phaseTicks === void 0) animation.phaseTicks = 0;
+    if (animation.leadHand === void 0) animation.leadHand = "none";
+    if (animation.toolHeld === void 0) animation.toolHeld = null;
+    if (animation.carriedChunks === void 0) animation.carriedChunks = 0;
+    if (!animation.airborneChunks) animation.airborneChunks = [];
+    return animation;
+  }
+  function enter(animation, state) {
+    animation.state = state;
+    animation.phaseTicks = 0;
+  }
+  function tickAirborne(state, unit, animation) {
+    if (animation.airborneChunks.length === 0) return;
+    const remaining = [];
+    for (const chunk of animation.airborneChunks) {
+      chunk.remainingTicks -= 1;
+      if (chunk.remainingTicks > 0) {
+        remaining.push(chunk);
+        continue;
+      }
+      const landed = GatheringSystem.commitPayload(state, unit, chunk);
+      if (landed > 0) {
+        animation.carriedChunks = Math.min(CHUNKS_PER_LOAD, animation.carriedChunks + 1);
+      }
+      state.events.emit("payload_attach", state.clock.tick, unit.id, {
+        kind: chunk.kind,
+        amount: chunk.amount
+      });
+    }
+    animation.airborneChunks = remaining;
+  }
+  function isBuildingOnSite(state, unit) {
+    if (!unit.activity || unit.activity.tag !== "constructing") return false;
+    if (unit.destination !== null && unit.destination !== void 0) return false;
+    const building = state.buildings.get(unit.activity.subject);
+    return Boolean(building) && building.constructionProgress < 1;
+  }
+  function isExtractingAtStation(state, unit) {
+    const leg = GatheringSystem.legOf(state, unit);
+    if (leg.leg !== "extract" || !leg.atStation) return false;
+    if (leg.canExtract) return true;
+    return Boolean(unit.pending && unit.pending.amount > 0);
+  }
+  function stepIdle(state, unit, animation) {
+    if (animation.toolHeld !== null) {
+      enter(animation, "releaseTool");
+      return;
+    }
+    if (!unitKind(unit.kind).canGather) return;
+    if (isBuildingOnSite(state, unit)) {
+      enter(animation, "attachTool");
+      return;
+    }
+    const leg = GatheringSystem.legOf(state, unit);
+    if (leg.leg === "deliver" && leg.atTarget && unit.cargo && unit.cargo.amount > 0) {
+      if (animation.airborneChunks.length === 0) enter(animation, "deliver");
+      return;
+    }
+    if (leg.leg === "extract" && leg.atStation && (leg.canExtract || unit.pending && unit.pending.amount > 0)) {
+      enter(animation, "attachTool");
+    }
+  }
+  function stepAttachTool(state, unit, animation) {
+    animation.phaseTicks += 1;
+    if (animation.phaseTicks < ATTACH_TICKS) return;
+    const tool = toolFor(unit);
+    animation.toolHeld = tool;
+    animation.leadHand = animation.loopIndex % 2 === 0 ? "left" : "right";
+    state.events.emit("tool_attach", state.clock.tick, unit.id, { tool });
+    enter(animation, "workLoop");
+  }
+  function fireContact(state, unit, animation) {
+    if (animation.toolHeld === "scraper") {
+      const chunk = GatheringSystem.commitContact(state, unit);
+      if (!chunk) return;
+      state.events.emit("gather_contact", state.clock.tick, unit.id, {
+        kind: chunk.kind,
+        amount: chunk.amount,
+        depositID: chunk.depositID
+      });
+      animation.airborneChunks.push({
+        kind: chunk.kind,
+        amount: chunk.amount,
+        remainingTicks: CHUNK_FLIGHT_TICKS,
+        depositID: chunk.depositID
+      });
+      return;
+    }
+    if (animation.toolHeld === "mallet") {
+      const building = state.buildings.get(unit.activity ? unit.activity.subject : null);
+      if (!building || building.constructionProgress >= 1) return;
+      if (building.installedComponents >= CHUNKS_PER_LOAD) return;
+      building.installedComponents += 1;
+      state.events.emit("construct_contact", state.clock.tick, unit.id, {
+        buildingID: building.id,
+        components: building.installedComponents
+      });
+    }
+  }
+  function stepWorkLoop(state, unit, animation) {
+    animation.phaseTicks += 1;
+    const contactPhase = animation.toolHeld === "mallet" ? CONSTRUCT_CONTACT_PHASE : GATHER_CONTACT_PHASE;
+    const loopTicks = animation.toolHeld === "mallet" ? CONSTRUCT_LOOP_TICKS : GATHER_LOOP_TICKS;
+    if (animation.phaseTicks === contactPhase) fireContact(state, unit, animation);
+    if (animation.phaseTicks < loopTicks) return;
+    animation.loopIndex = (animation.loopIndex + 1) % CHUNKS_PER_LOAD;
+    animation.leadHand = animation.loopIndex % 2 === 0 ? "left" : "right";
+    const continues = animation.toolHeld === "mallet" ? isBuildingOnSite(state, unit) : isExtractingAtStation(state, unit);
+    if (continues) {
+      animation.phaseTicks = 0;
+    } else {
+      enter(animation, "releaseTool");
+    }
+  }
+  function stepReleaseTool(state, unit, animation) {
+    animation.phaseTicks += 1;
+    if (animation.phaseTicks < RELEASE_TICKS) return;
+    const tool = animation.toolHeld;
+    animation.toolHeld = null;
+    animation.leadHand = "none";
+    if (tool !== null) state.events.emit("tool_release", state.clock.tick, unit.id, { tool });
+    enter(animation, "idle");
+  }
+  function stepDeliver(state, unit, animation) {
+    animation.phaseTicks += 1;
+    if (animation.phaseTicks === DELIVER_COMMIT_PHASE) {
+      const released = GatheringSystem.commitDeposit(state, unit);
+      if (released) {
+        state.events.emit("deposit_release", state.clock.tick, unit.id, {
+          kind: released.kind,
+          amount: released.amount
+        });
+      }
+      animation.carriedChunks = 0;
+    }
+    if (animation.phaseTicks >= DELIVER_TICKS) enter(animation, "idle");
+  }
+  function stepCleanup(state, unit, animation) {
+    if (animation.toolHeld !== null) {
+      animation.phaseTicks += 1;
+      if (animation.phaseTicks >= CLEANUP_TICKS) {
+        const tool = animation.toolHeld;
+        animation.toolHeld = null;
+        if (tool !== null) state.events.emit("tool_release", state.clock.tick, unit.id, { tool });
+      }
+      return;
+    }
+    if (animation.airborneChunks.length > 0) return;
+    animation.leadHand = "none";
+    enter(animation, "idle");
+  }
+  var AnimationController = {
+    /** The initial animation block, matching what `populate.js` seeds by hand. */
+    create: createBlock,
+    /**
+     * Advances every unit's substate by one fixed tick, in ascending id order,
+     * and fires the authoritative events whose phase has arrived.
+     *
+     * Runs last in the simulation step, reacting to the state the rule systems
+     * just produced — a citizen whose load completed this tick begins the walk
+     * home with the controller already winding its cycle down, not one tick
+     * later.
+     */
+    step(state, _deltaTime) {
+      for (const id of state.units.orderedIDs()) {
+        const unit = state.units.get(id);
+        if (!unit) continue;
+        const animation = ensureBlock(unit);
+        tickAirborne(state, unit, animation);
+        if (animation.carriedChunks > 0 && !unit.cargo && animation.airborneChunks.length === 0) {
+          animation.carriedChunks = 0;
+        }
+        switch (animation.state) {
+          case "idle":
+            stepIdle(state, unit, animation);
+            break;
+          case "attachTool":
+            stepAttachTool(state, unit, animation);
+            break;
+          case "workLoop":
+            stepWorkLoop(state, unit, animation);
+            break;
+          case "releaseTool":
+            stepReleaseTool(state, unit, animation);
+            break;
+          case "deliver":
+            stepDeliver(state, unit, animation);
+            break;
+          case "cleanup":
+            stepCleanup(state, unit, animation);
+            break;
+          default:
+            enter(animation, "idle");
+            break;
+        }
+      }
+    },
+    /**
+     * Interrupts a unit's work cycle, preserving everything already committed.
+     *
+     * Speculative accrual is abandoned (`abortPending` — nothing had left the
+     * deposit, so nothing is lost). The tool is returned and airborne chunks
+     * still land. Returns true when cleanup is now running — that answer is how
+     * an order learns whether it cut authored work short.
+     */
+    requestInterrupt(state, unit) {
+      const animation = ensureBlock(unit);
+      GatheringSystem.abortPending(unit);
+      const midCycle = animation.state === "attachTool" || animation.state === "workLoop" || animation.state === "releaseTool" || animation.state === "deliver";
+      const owes = animation.toolHeld !== null || animation.airborneChunks.length > 0;
+      if (!midCycle && !owes) {
+        if (animation.state !== "idle") enter(animation, "idle");
+        return false;
+      }
+      enter(animation, "cleanup");
+      return true;
+    },
+    /** True while the controller still owes this unit a tool return or a landing. */
+    isBusy(unit) {
+      const animation = unit.animation;
+      if (!animation) return false;
+      return animation.state !== "idle" || animation.toolHeld !== null || animation.airborneChunks !== void 0 && animation.airborneChunks.length > 0;
+    }
+  };
+
+  // src/sim/snapshot.js
+  var SNAPSHOT_SCHEMA_VERSION = 2;
+  function encodeNumber(value) {
+    if (value === Infinity) return "+inf";
+    if (value === -Infinity) return "-inf";
+    if (Number.isNaN(value)) throw new TypeError("cannot serialise NaN out of simulation state");
+    return value;
+  }
+  function decodeNumber(value) {
+    if (value === "+inf") return Infinity;
+    if (value === "-inf") return -Infinity;
+    if (typeof value !== "number") throw new TypeError(`not a serialised number: ${String(value)}`);
+    return value;
+  }
+  function encodePool(pool2) {
+    const out = {};
+    for (const kind of RESOURCE_KINDS) out[kind] = encodeNumber(pool2[kind]);
+    return out;
+  }
+  function decodePool(raw) {
+    const out = {};
+    for (const kind of RESOURCE_KINDS) out[kind] = decodeNumber(raw[kind]);
+    return out;
+  }
+  function encodePoint(point) {
+    return point ? [point.x, point.z] : null;
+  }
+  function decodePoint(raw) {
+    return raw ? { x: raw[0], z: raw[1] } : null;
+  }
+  function captureSnapshot(state) {
+    return {
+      schemaVersion: SNAPSHOT_SCHEMA_VERSION,
+      seed: `${state.seed.hi.toString(16).padStart(8, "0")}${state.seed.lo.toString(16).padStart(8, "0")}`,
+      mapID: state.mapID,
+      playerFaction: state.playerFaction,
+      tick: state.clock.tick,
+      paused: state.paused,
+      random: state.random.snapshot(),
+      allocator: state.allocator.snapshot(),
+      stock: {
+        sunwoven: encodePool(state.stock.sunwoven),
+        gravemark: encodePool(state.stock.gravemark)
+      },
+      age: { ...state.age },
+      units: state.units.ordered().map(encodeUnit),
+      buildings: state.buildings.ordered().map(encodeBuilding),
+      deposits: state.deposits.ordered().map(encodeDeposit),
+      productionQueues: [...state.productionQueues.keys()].sort((left, right) => left - right).map((buildingID) => {
+        const queue = state.productionQueues.get(buildingID);
+        return {
+          buildingID,
+          heldReason: queue.heldReason,
+          items: queue.items.map((item) => ({
+            kind: item.kind,
+            progressTicks: item.progressTicks,
+            hasStarted: item.hasStarted
+          }))
+        };
+      }),
+      orders: encodeOrders(state.orders)
+    };
+  }
+  function encodeOrders(orders) {
+    return {
+      sequence: orders.sequence,
+      pending: orders.pending.map((order) => ({
+        kind: order.kind,
+        scheduledTick: order.scheduledTick,
+        sequence: order.sequence,
+        payload: JSON.parse(JSON.stringify(order.payload ?? {}))
+      })),
+      script: orders.script.map((entry) => ({
+        kind: entry.kind,
+        scheduledTick: entry.scheduledTick,
+        sequence: entry.sequence,
+        payload: JSON.parse(JSON.stringify(entry.payload ?? {}))
+      }))
+    };
+  }
+  function decodeOrders(raw) {
+    if (!raw || !Array.isArray(raw.pending) || !Array.isArray(raw.script) || !Number.isSafeInteger(raw.sequence)) {
+      throw new TypeError("save snapshot carries malformed order state");
+    }
+    const decode = (entry) => ({
+      kind: entry.kind,
+      scheduledTick: entry.scheduledTick,
+      sequence: entry.sequence,
+      payload: JSON.parse(JSON.stringify(entry.payload ?? {}))
+    });
+    return {
+      sequence: raw.sequence,
+      pending: raw.pending.map(decode),
+      script: raw.script.map(decode)
+    };
+  }
+  function encodeUnit(unit) {
+    return {
+      id: unit.id,
+      faction: unit.faction,
+      kind: unit.kind,
+      position: encodePoint(unit.position),
+      destination: encodePoint(unit.destination),
+      movementPath: unit.movementPath.map(encodePoint),
+      movementPathTarget: encodePoint(unit.movementPathTarget),
+      facing: unit.facing,
+      activity: [unit.activity.tag, unit.activity.subject],
+      life: unit.life,
+      region: unit.region,
+      carrying: [...unit.carrying],
+      cargo: unit.cargo ? [unit.cargo.kind, unit.cargo.amount] : null,
+      assignment: unit.assignment,
+      boardingProgress: unit.boardingProgress,
+      pending: unit.pending === void 0 ? null : unit.pending,
+      animation: {
+        state: unit.animation.state,
+        loopIndex: unit.animation.loopIndex,
+        phaseTicks: unit.animation.phaseTicks,
+        leadHand: unit.animation.leadHand,
+        toolHeld: unit.animation.toolHeld,
+        carriedChunks: unit.animation.carriedChunks,
+        airborneChunks: unit.animation.airborneChunks.map((chunk) => ({
+          kind: chunk.kind,
+          amount: chunk.amount,
+          remainingTicks: chunk.remainingTicks
+        })),
+        // Optional controller fields are carried opaquely so the animation owner
+        // can add substate detail without every save needing a schema bump here.
+        extra: unit.animation.extra ? JSON.parse(JSON.stringify(unit.animation.extra)) : null
+      }
+    };
+  }
+  function decodeUnit(raw) {
+    return {
+      id: raw.id,
+      faction: raw.faction,
+      kind: raw.kind,
+      position: decodePoint(raw.position),
+      destination: decodePoint(raw.destination),
+      movementPath: raw.movementPath.map(decodePoint),
+      movementPathTarget: decodePoint(raw.movementPathTarget),
+      facing: raw.facing,
+      activity: { tag: raw.activity[0], subject: raw.activity[1] },
+      life: raw.life,
+      region: raw.region,
+      carrying: [...raw.carrying],
+      cargo: raw.cargo ? { kind: raw.cargo[0], amount: raw.cargo[1] } : null,
+      assignment: raw.assignment,
+      boardingProgress: raw.boardingProgress,
+      pending: raw.pending ?? null,
+      animation: {
+        state: raw.animation.state,
+        loopIndex: raw.animation.loopIndex,
+        phaseTicks: raw.animation.phaseTicks,
+        leadHand: raw.animation.leadHand,
+        toolHeld: raw.animation.toolHeld,
+        carriedChunks: raw.animation.carriedChunks,
+        airborneChunks: raw.animation.airborneChunks.map((chunk) => ({ ...chunk })),
+        extra: raw.animation.extra ? JSON.parse(JSON.stringify(raw.animation.extra)) : null
+      }
+    };
+  }
+  function encodeBuilding(building) {
+    return {
+      id: building.id,
+      faction: building.faction,
+      kind: building.kind,
+      position: encodePoint(building.position),
+      region: building.region,
+      life: building.life,
+      constructionProgress: building.constructionProgress,
+      installedComponents: building.installedComponents
+    };
+  }
+  function decodeBuilding(raw) {
+    return {
+      id: raw.id,
+      faction: raw.faction,
+      kind: raw.kind,
+      position: decodePoint(raw.position),
+      region: raw.region,
+      life: raw.life,
+      constructionProgress: raw.constructionProgress,
+      installedComponents: raw.installedComponents
+    };
+  }
+  function encodeDeposit(deposit) {
+    return {
+      id: deposit.id,
+      kind: deposit.kind,
+      position: encodePoint(deposit.position),
+      region: deposit.region,
+      remaining: encodeNumber(deposit.remaining),
+      chunksRemaining: deposit.chunksRemaining
+    };
+  }
+  function decodeDeposit(raw) {
+    return {
+      id: raw.id,
+      kind: raw.kind,
+      position: decodePoint(raw.position),
+      region: raw.region,
+      remaining: decodeNumber(raw.remaining),
+      chunksRemaining: raw.chunksRemaining
+    };
+  }
+  function restoreSnapshot(document2) {
+    if (!document2 || typeof document2 !== "object") {
+      throw new TypeError("save snapshot is not an object");
+    }
+    if (document2.schemaVersion !== SNAPSHOT_SCHEMA_VERSION) {
+      throw new TypeError(
+        `save schema version ${document2.schemaVersion} cannot be read by version ${SNAPSHOT_SCHEMA_VERSION}`
+      );
+    }
+    const seed = seedFrom(document2.seed);
+    const state = {
+      seed,
+      mapID: document2.mapID,
+      playerFaction: document2.playerFaction,
+      clock: SimulationClock.restore({ tick: document2.tick }),
+      random: RandomStreams.restore(seed, document2.random),
+      allocator: EntityIDAllocator.restore(document2.allocator),
+      map: WorldMap.create(document2.mapID, seed),
+      stock: {
+        sunwoven: decodePool(document2.stock.sunwoven),
+        gravemark: decodePool(document2.stock.gravemark)
+      },
+      age: { ...document2.age },
+      units: new EntityStore(),
+      buildings: new EntityStore(),
+      deposits: new EntityStore(),
+      productionQueues: /* @__PURE__ */ new Map(),
+      events: new EventLog(),
+      orders: decodeOrders(document2.orders),
+      paused: Boolean(document2.paused)
+    };
+    for (const raw of document2.units) {
+      const unit = decodeUnit(raw);
+      state.units.set(unit.id, unit);
+    }
+    for (const raw of document2.buildings) {
+      const building = decodeBuilding(raw);
+      state.buildings.set(building.id, building);
+    }
+    for (const raw of document2.deposits) {
+      const deposit = decodeDeposit(raw);
+      state.deposits.set(deposit.id, deposit);
+    }
+    for (const entry of document2.productionQueues) {
+      state.productionQueues.set(entry.buildingID, {
+        items: entry.items.map((item) => ({
+          kind: item.kind,
+          progressTicks: item.progressTicks,
+          hasStarted: item.hasStarted
+        })),
+        heldReason: entry.heldReason
+      });
+    }
+    return state;
+  }
+
+  // src/sim/simulation.js
+  var INPUT_LATENCY_TICKS = 2;
+  var ORDER_KINDS = Object.freeze([
+    "move",
+    "gather",
+    "construct",
+    "place",
+    "cancelConstruction",
+    "enqueue",
+    "cancelProduction",
+    "interrupt"
+  ]);
+  var Simulation = class _Simulation {
+    constructor({ seed = 20260803, mapID = "riverlands", playerFaction = "sunwoven" } = {}) {
+      const resolvedSeed = seedFrom(seed);
+      this.state = {
+        seed: resolvedSeed,
+        mapID,
+        playerFaction,
+        clock: new SimulationClock(),
+        random: new RandomStreams(resolvedSeed),
+        allocator: new EntityIDAllocator(),
+        map: WorldMap.create(mapID, resolvedSeed),
+        stock: {
+          sunwoven: clonePool(TUNING.startingResources),
+          gravemark: clonePool(TUNING.startingResources)
+        },
+        age: { sunwoven: "foundation", gravemark: "foundation" },
+        units: new EntityStore(),
+        buildings: new EntityStore(),
+        deposits: new EntityStore(),
+        productionQueues: /* @__PURE__ */ new Map(),
+        events: new EventLog(),
+        /**
+         * Order scheduling state. `pending` holds orders waiting for their
+         * scheduled tick, in arrival order; `sequence` is the monotonic counter
+         * that keeps two orders scheduled for one tick in a fixed order;
+         * `script` is every order ever accepted — the replayable input script.
+         *
+         * This is simulation truth like any other: a match saved with an order
+         * still in flight must apply that order on the same tick after a
+         * restore, or the restored match is a different match. It is therefore
+         * part of the state, saved and hashed with everything else.
+         */
+        orders: { sequence: 0, pending: [], script: [] },
+        paused: false
+      };
+      populate(this.state);
+    }
+    // MARK: - Readouts
+    get tick() {
+      return this.state.clock.tick;
+    }
+    get elapsed() {
+      return this.state.clock.elapsed;
+    }
+    get paused() {
+      return this.state.paused;
+    }
+    /** Canonical fingerprint of the whole world. Two runs that agree here played the same match. */
+    hash() {
+      return worldHash(this.state);
+    }
+    stock(faction) {
+      return this.state.stock[faction];
+    }
+    population(faction) {
+      return ProductionSystem.populationCommitment(this.state, faction);
+    }
+    /**
+     * A stable description of the rules this build runs, for evidence headers.
+     * Every number here is one a determinism report has to state anyway.
+     */
+    static describe() {
+      return {
+        simulationHz: SIMULATION_HZ,
+        stepDuration: STEP_DURATION,
+        maxStepsPerFrame: MAX_STEPS_PER_FRAME,
+        inputLatencyTicks: INPUT_LATENCY_TICKS,
+        worldHashLayoutVersion: WORLD_HASH_LAYOUT_VERSION,
+        snapshotSchemaVersion: SNAPSHOT_SCHEMA_VERSION
+      };
+    }
+    // MARK: - Orders
+    /**
+     * Accepts an order from outside the simulation.
+     *
+     * Nothing is applied here. The order is stamped for a future tick and applied
+     * at that boundary, which is what makes the outcome independent of when the
+     * message actually arrived.
+     */
+    submit(kind, payload = {}) {
+      if (!ORDER_KINDS.includes(kind)) throw new RangeError(`unknown order kind: ${kind}`);
+      const orders = this.state.orders;
+      const order = {
+        kind,
+        payload,
+        scheduledTick: this.state.clock.tick + INPUT_LATENCY_TICKS,
+        sequence: orders.sequence
+      };
+      orders.sequence += 1;
+      orders.pending.push(order);
+      orders.script.push({ kind, payload, scheduledTick: order.scheduledTick, sequence: order.sequence });
+      return order.scheduledTick;
+    }
+    /**
+     * Replays a recorded input script exactly, ignoring arrival time entirely.
+     * The benchmark in #27 and every determinism test drive the runtime this way.
+     */
+    loadInputScript(script) {
+      this.state.orders.pending = script.map((entry) => ({ ...entry }));
+      this.state.orders.script = script.map((entry) => ({ ...entry }));
+      this.state.orders.sequence = script.reduce((max, entry) => Math.max(max, entry.sequence + 1), 0);
+    }
+    /** Applies every order scheduled for the tick about to run, in a fixed order. */
+    applyScheduledOrders() {
+      const tick = this.state.clock.tick;
+      const orders = this.state.orders;
+      const due = orders.pending.filter((order) => order.scheduledTick <= tick);
+      if (due.length === 0) return;
+      orders.pending = orders.pending.filter((order) => order.scheduledTick > tick);
+      due.sort(
+        (left, right) => left.scheduledTick === right.scheduledTick ? left.sequence - right.sequence : left.scheduledTick - right.scheduledTick
+      );
+      for (const order of due) this.applyOrder(order);
+    }
+    applyOrder(order) {
+      const state = this.state;
+      const payload = order.payload;
+      switch (order.kind) {
+        case "move":
+          this.orderMove(payload.unitIDs, payload.point);
+          break;
+        case "gather":
+          GatheringSystem.orderGather(state, payload.unitIDs, payload.depositID);
+          break;
+        case "construct":
+          ConstructionSystem.assignBuilders(state, payload.buildingID, payload.faction, payload.unitIDs);
+          break;
+        case "place":
+          ConstructionSystem.placeBuilding(
+            state,
+            payload.kind,
+            payload.point,
+            payload.faction,
+            payload.unitIDs || []
+          );
+          break;
+        case "cancelConstruction":
+          ConstructionSystem.cancelConstruction(state, payload.buildingID);
+          break;
+        case "enqueue":
+          ProductionSystem.enqueue(state, payload.kind, payload.buildingID);
+          break;
+        case "cancelProduction":
+          ProductionSystem.cancelFront(state, payload.buildingID);
+          break;
+        case "interrupt":
+          for (const id of [...payload.unitIDs || []].sort((left, right) => left - right)) {
+            const unit = state.units.get(id);
+            if (unit) AnimationController.requestInterrupt(state, unit);
+          }
+          break;
+        default:
+          throw new RangeError(`unhandled order kind: ${order.kind}`);
+      }
+    }
+    /**
+     * Ordering several units to one point spreads them so they do not pile onto a
+     * single coordinate. Slots derive from durable ids, never from collection
+     * order, so the same unit keeps the same slot every time.
+     */
+    orderMove(unitIDs, point) {
+      const ordered = [...unitIDs].sort((left, right) => left - right);
+      ordered.forEach((id, index) => {
+        const unit = this.state.units.get(id);
+        if (!unit) return;
+        const offset = formationOffset2(index, ordered.length);
+        const route = MovementSystem.resolveOrder(
+          { x: point.x + offset.x, z: point.z + offset.z },
+          unit,
+          this.state
+        );
+        if (!route) return;
+        unit.assignment = null;
+        unit.destination = route.destination;
+        unit.movementPath = route.waypoints;
+        unit.movementPathTarget = route.destination;
+        unit.activity = { tag: "moving", subject: null };
+        AnimationController.requestInterrupt(this.state, unit);
+      });
+    }
+    // MARK: - Lifecycle
+    setPaused(paused2) {
+      this.state.paused = Boolean(paused2);
+    }
+    /**
+     * Advances simulated time by a frame's worth of real time.
+     *
+     * A paused game does not step. Surplus time beyond `maxStepsPerFrame` is
+     * dropped by the clock rather than replayed as a burst.
+     */
+    update(deltaTime) {
+      if (this.state.paused) return 0;
+      const steps = this.state.clock.advance(deltaTime);
+      const clock = this.state.clock;
+      const base = clock.tick - steps;
+      for (let index = 0; index < steps; index += 1) {
+        clock.tick = base + index + 1;
+        clock.elapsed = clock.tick * clock.stepDuration;
+        this.step();
+      }
+      return steps;
+    }
+    /** Runs whole ticks directly. Tests and the benchmark drive time this way. */
+    runToTick(targetTick) {
+      while (this.state.clock.tick < targetTick) {
+        this.state.clock.tick += 1;
+        this.state.clock.elapsed = this.state.clock.tick * this.state.clock.stepDuration;
+        this.step();
+      }
+      return this.state.clock.tick;
+    }
+    /**
+     * One fixed simulation step. Everything rule-bearing happens here, in this
+     * order, matching the Swift original.
+     */
+    step() {
+      const state = this.state;
+      const seconds = state.clock.stepDuration;
+      this.applyScheduledOrders();
+      const trickle = scalePool(TUNING.coreTrickle, seconds);
+      state.stock.sunwoven = addPools(state.stock.sunwoven, trickle);
+      state.stock.gravemark = addPools(state.stock.gravemark, trickle);
+      GatheringSystem.step(state, seconds);
+      ConstructionSystem.step(state, seconds);
+      MovementSystem.step(state, seconds);
+      ProductionSystem.step(state);
+      AnimationController.step(state, seconds);
+    }
+    // MARK: - Save and restore
+    save() {
+      return captureSnapshot(this.state);
+    }
+    /**
+     * Restores a snapshot into a live simulation.
+     *
+     * The scheduled-order state rides the snapshot like everything else, so an
+     * order in flight when the save was taken lands on its scheduled tick after
+     * the reload — a restored match continues as the same match, which is the
+     * whole contract of saving.
+     */
+    static restore(document2) {
+      const simulation = Object.create(_Simulation.prototype);
+      simulation.state = restoreSnapshot(document2);
+      return simulation;
+    }
+  };
+  function formationOffset2(index, count) {
+    if (count <= 1 || index === 0) return { x: 0, z: 0 };
+    const ring = Math.floor(index / 6) + 1;
+    const slotsInRing = ring * 6;
+    const slot = (index - 1) % slotsInRing;
+    const angle = slot / slotsInRing * 2 * Math.PI;
+    const radius = ring * 2.2;
+    return { x: Math.sin(angle) * radius, z: Math.cos(angle) * radius };
+  }
+
+  // src/sim/session.js
+  var SimulationSession = class {
+    constructor() {
+      this.simulation = null;
+    }
+    get active() {
+      return this.simulation !== null;
+    }
+    get paused() {
+      return this.simulation ? this.simulation.paused : false;
+    }
+    /** The live world hash, or null when no match is owned. */
+    hash() {
+      return this.simulation ? this.simulation.hash() : null;
+    }
+    /**
+     * Starts a fresh match. Any previous simulation is replaced outright — the
+     * shell starts matches only from the menu, so there is nothing to preserve.
+     */
+    start({ faction = "sunwoven", seed, mapID } = {}) {
+      const options = { playerFaction: faction };
+      if (seed !== void 0) options.seed = seed;
+      if (mapID !== void 0) options.mapID = mapID;
+      this.simulation = new Simulation(options);
+      return this.simulation;
+    }
+    /**
+     * Restores a match from a save document. A malformed or foreign-version
+     * document raises from `restoreSnapshot` — the shell turns that into a
+     * fail-closed bridge error, and the previous simulation (if any) stays
+     * owned and untouched.
+     */
+    restore(document2) {
+      const restored = Simulation.restore(document2);
+      this.simulation = restored;
+      return restored;
+    }
+    /**
+     * Feeds one frame's real time to the simulation. Returns how many fixed
+     * steps ran — zero when paused or when no match is owned, so a shell that
+     * calls this before `startGame` cannot manufacture time.
+     */
+    update(deltaTime) {
+      if (!this.simulation) return 0;
+      return this.simulation.update(deltaTime);
+    }
+    setPaused(paused2) {
+      if (this.simulation) this.simulation.setPaused(paused2);
+    }
+    /**
+     * The only path to a save document. Returns null when no match is owned, so
+     * the shell can refuse the save rather than file an empty world over a good
+     * slot.
+     */
+    save() {
+      return this.simulation ? this.simulation.save() : null;
+    }
+    /** Ends runtime ownership. After this, `update` is a no-op and `save` is null. */
+    dispose() {
+      this.simulation = null;
+    }
+  };
 
   // src/main.js
   var canvasRoot = document.getElementById("sunfold-root");
@@ -25389,6 +29729,7 @@ void main() {
   var paused = false;
   var lastFrame = 0;
   var elapsed = 0;
+  var session = new SimulationSession();
   function postEvent(name, payload = {}, options = {}) {
     const message = createEnvelope("event", name, payload, options);
     window.webkit?.messageHandlers?.sunfold?.postMessage(message);
@@ -25399,6 +29740,10 @@ void main() {
   function reportFatal(error) {
     const message = error instanceof Error ? error.message : String(error);
     postEvent("fatalError", { code: "invalidBridgeMessage", message });
+  }
+  function reportSaveFailure(error) {
+    const message = error instanceof Error ? error.message : String(error);
+    postEvent("fatalError", { code: "invalidSaveDocument", message });
   }
   function setDPR() {
     renderer?.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -25459,11 +29804,12 @@ void main() {
     lastFrame = now;
     if (!paused) {
       elapsed += delta;
+      session.update(delta);
       scene.rotation.y = Math.sin(elapsed * 0.18) * 0.025;
     }
     renderer.render(scene, camera);
   }
-  function startGame(payload) {
+  function enterGame(faction) {
     if (!renderer) {
       renderer = new WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
       renderer.outputColorSpace = SRGBColorSpace;
@@ -25474,13 +29820,73 @@ void main() {
     }
     fallback.hidden = true;
     hud.hidden = false;
-    setStatus(`${String(payload.faction || "sunwoven").toUpperCase()} // ONLINE`);
     running = true;
-    paused = false;
-    postEvent("runtimeReady", { renderer: "WebGLRenderer", offline: "true", faction: payload.faction || "sunwoven" });
+    paused = session.paused;
+    setStatus(paused ? "PAUSED" : `${String(faction || "sunwoven").toUpperCase()} // ONLINE`);
+    window.dispatchEvent(new Event(paused ? "sunfold:runtimePaused" : "sunfold:runtimeResumed"));
     cancelAnimationFrame(animationFrame);
     lastFrame = performance.now();
     animationFrame = requestAnimationFrame(frame);
+  }
+  function startGame(payload) {
+    session.start({ faction: payload.faction, seed: payload.seed, mapID: payload.mapID });
+    enterGame(payload.faction);
+    postEvent("runtimeReady", { renderer: "WebGLRenderer", offline: "true", faction: payload.faction || "sunwoven" });
+  }
+  function loadGame(payload) {
+    let document2;
+    try {
+      document2 = JSON.parse(typeof payload.snapshot === "string" ? payload.snapshot : "");
+    } catch (error) {
+      reportSaveFailure(new TypeError(`The save document is not valid JSON: ${error.message}`));
+      return;
+    }
+    let simulation;
+    try {
+      simulation = session.restore(document2);
+    } catch (error) {
+      reportSaveFailure(error);
+      return;
+    }
+    enterGame(simulation.state.playerFaction);
+    postEvent("runtimeReady", {
+      renderer: "WebGLRenderer",
+      offline: "true",
+      faction: simulation.state.playerFaction || "sunwoven"
+    });
+  }
+  function saveGame() {
+    const document2 = session.save();
+    if (!document2) {
+      reportFatal(new TypeError("saveGame arrived with no active simulation."));
+      return;
+    }
+    postEvent(
+      "saveReady",
+      { snapshotID: `sunfold-${document2.mapID}-tick-${document2.tick}`, snapshot: JSON.stringify(document2) },
+      { saveSchemaVersion: SAVE_SCHEMA_VERSION }
+    );
+  }
+  function pauseGame() {
+    paused = true;
+    session.setPaused(true);
+    setStatus("PAUSED");
+    window.dispatchEvent(new Event("sunfold:runtimePaused"));
+    postEvent("runtimePaused");
+  }
+  function resumeGame() {
+    paused = false;
+    session.setPaused(false);
+    setStatus("ONLINE");
+    window.dispatchEvent(new Event("sunfold:runtimeResumed"));
+    postEvent("runtimeResumed");
+  }
+  function returnToMenu() {
+    running = false;
+    session.dispose();
+    hud.hidden = true;
+    cancelAnimationFrame(animationFrame);
+    postEvent("returnedToMenu");
   }
   function receive(message) {
     try {
@@ -25498,25 +29904,19 @@ void main() {
         startGame(message.payload || {});
         break;
       case "pauseGame":
-        paused = true;
-        setStatus("PAUSED");
-        window.dispatchEvent(new Event("sunfold:runtimePaused"));
-        postEvent("runtimePaused");
+        pauseGame();
         break;
       case "resumeGame":
-        paused = false;
-        setStatus("ONLINE");
-        window.dispatchEvent(new Event("sunfold:runtimeResumed"));
-        postEvent("runtimeResumed");
+        resumeGame();
         break;
       case "saveGame":
-        postEvent("saveReady", { snapshotID: "minimal-scene-v1" }, { saveSchemaVersion: SAVE_SCHEMA_VERSION });
+        saveGame();
+        break;
+      case "loadGame":
+        loadGame(message.payload || {});
         break;
       case "returnToMenu":
-        running = false;
-        hud.hidden = true;
-        cancelAnimationFrame(animationFrame);
-        postEvent("returnedToMenu");
+        returnToMenu();
         break;
       default:
         reportFatal(new TypeError(`Unknown command: ${message.name}`));

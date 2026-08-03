@@ -4,21 +4,35 @@ struct ThreeJSRootView: View {
     private enum Phase { case menu, game }
 
     @StateObject private var bridge = ThreeJSBridge()
+    @StateObject private var saves = ThreeJSSaveStore()
     @State private var phase: Phase = ProcessInfo.processInfo.arguments.contains("-sunfoldThreeJSStart") ? .game : .menu
     @State private var faction = "sunwoven"
+    /// The document to resume from, or nil for a fresh match. Set only by the menu.
+    @State private var resumeSnapshot: String?
 
     var body: some View {
         Group {
             switch phase {
             case .menu:
-                ThreeJSMenuView { selectedFaction in
-                    faction = selectedFaction
-                    phase = .game
-                }
+                ThreeJSMenuView(
+                    savedSlot: saves.slot,
+                    onNewGame: { selectedFaction in
+                        faction = selectedFaction
+                        resumeSnapshot = nil
+                        phase = .game
+                    },
+                    onContinue: {
+                        guard let slot = saves.slot else { return }
+                        faction = slot.faction
+                        resumeSnapshot = slot.snapshot
+                        phase = .game
+                    }
+                )
             case .game:
                 ThreeJSGameView(
                     bridge: bridge,
-                    faction: faction
+                    faction: faction,
+                    resumeSnapshot: resumeSnapshot
                 )
             }
         }
@@ -26,16 +40,26 @@ struct ThreeJSRootView: View {
         .preferredColorScheme(.dark)
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
+        .onChange(of: bridge.lastSnapshot) { _, snapshot in
+            // The runtime decided a save exists; Swift only files it. The
+            // document is never inspected here — simulation truth stays on the
+            // other side of the bridge.
+            guard let snapshot else { return }
+            saves.write(snapshot: snapshot, faction: faction)
+        }
         .onChange(of: bridge.lastEvent) { _, event in
             guard event == "returnedToMenu" else { return }
             phase = .menu
+            resumeSnapshot = nil
             bridge.resetForNewDocument()
         }
     }
 }
 
 private struct ThreeJSMenuView: View {
-    let onChoose: (String) -> Void
+    let savedSlot: ThreeJSSaveStore.Slot?
+    let onNewGame: (String) -> Void
+    let onContinue: () -> Void
 
     var body: some View {
         ZStack {
@@ -56,6 +80,21 @@ private struct ThreeJSMenuView: View {
                     factionButton("sunwoven", title: "SUNWOVEN", subtitle: "Shape the living current.", tint: Color(red: 0.29, green: 0.71, blue: 0.71))
                     factionButton("gravemark", title: "GRAVEMARK", subtitle: "Master the pull of stone.", tint: Color(red: 0.65, green: 0.40, blue: 0.22))
                 }
+
+                if let savedSlot {
+                    Button(action: onContinue) {
+                        Text("CONTINUE \(savedSlot.faction.uppercased())")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .tracking(1.6)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                            .background(Color.white.opacity(0.09), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(.white.opacity(0.34), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("threejs-continue")
+                    .accessibilityLabel("Continue saved match")
+                }
             }
             .padding(28)
             .background(Color.black.opacity(0.36), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -67,7 +106,7 @@ private struct ThreeJSMenuView: View {
     }
 
     private func factionButton(_ faction: String, title: String, subtitle: String, tint: Color) -> some View {
-        Button { onChoose(faction) } label: {
+        Button { onNewGame(faction) } label: {
             VStack(spacing: 9) {
                 Circle().fill(tint).frame(width: 28, height: 28).shadow(color: tint.opacity(0.55), radius: 10)
                 Text(title).font(.system(size: 15, weight: .bold, design: .rounded)).tracking(1.2).foregroundStyle(.white)
@@ -87,6 +126,7 @@ private struct ThreeJSMenuView: View {
 private struct ThreeJSGameView: View {
     @ObservedObject var bridge: ThreeJSBridge
     let faction: String
+    let resumeSnapshot: String?
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -114,7 +154,11 @@ private struct ThreeJSGameView: View {
         }
         .onChange(of: bridge.bridgeReady) { _, ready in
             guard ready else { return }
-            bridge.send(.startGame, payload: ["faction": faction, "seed": "20260726"])
+            if let resumeSnapshot {
+                bridge.send(.loadGame, payload: ["snapshot": resumeSnapshot])
+            } else {
+                bridge.send(.startGame, payload: ["faction": faction, "seed": "20260726"])
+            }
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Sunfold Three.js gameplay")

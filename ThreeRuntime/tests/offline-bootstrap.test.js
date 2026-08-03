@@ -42,3 +42,11 @@ test("runtime bridge surface contains only high-level lifecycle messages", () =>
   assert.match(sourceRuntime, /saveReady/);
   assert.doesNotMatch(sourceRuntime, /postEvent\("(?:unit|units|frame|camera|selection|animation)/i);
 });
+
+test("a restored paused match renders paused status before the first frame", () => {
+  assert.match(
+    sourceRuntime,
+    /paused = session\.paused;\s*setStatus\(paused \? "PAUSED"/,
+    "enterGame must derive the initial HUD status from restored simulation state"
+  );
+});
