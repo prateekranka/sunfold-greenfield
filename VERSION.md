@@ -1,10 +1,11 @@
 # Version
 
-**0.3.0** — build 42
+**0.6.1** — build 46
 
 | Field | Value |
 |---|---|
-| Gate | G0 complete · G1 in progress (not passed) · G2 in progress (not passed) |
+| Gate | G0 complete · G1 in progress (not passed) · G2 in progress (not passed) · G3 opened |
+| Play-feel reference | Age of Empires 2 / Rise of Rome, in space (BC-01, 2026-07-31) |
 | Locked map seed | `20260726` |
 | Bundle identifier | `com.sunfold.greenfield` |
 | Built against | iOS 26.5 SDK (Xcode 26.6) |

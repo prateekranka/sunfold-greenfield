@@ -22,6 +22,11 @@ struct Unit: Sendable, Identifiable {
     var position: WorldPoint
     /// Where the unit is walking to. Nil means it has arrived or was never ordered.
     var destination: WorldPoint?
+    /// Deterministic single-unit path, including the final destination. The path
+    /// is simulation state so a route is not rebuilt from frame timing.
+    var movementPath: [WorldPoint] = []
+    /// Destination for which `movementPath` was planned.
+    var movementPathTarget: WorldPoint?
     /// Spawn facing, in radians about Y. Live facing belongs to the presentation
     /// layer's `LocomotionState`, which applies the turn-rate limit and deadband
     /// that stop a unit shivering between adjacent headings. Keeping one owner
@@ -42,6 +47,26 @@ struct Unit: Sendable, Identifiable {
     /// across the round trip is what makes gathering a *loop* rather than a
     /// single errand the player has to re-issue after every delivery.
     var assignment: EntityID?
+    /// 0…1 while climbing onto a transport. Presentation reads this for the
+    /// embark lerp; simulation owns the value.
+    var boardingProgress: Double = 0
+
+    // MARK: - Combat
+
+    /// Player-issued attack target. Persists until cleared or the target dies.
+    var attackOrderTarget: EntityID?
+    /// Current strike target (explicit order or auto-acquired).
+    var attackTarget: EntityID?
+    var attackCooldownRemaining: Int = 0
+    var stance: CombatStance = .guardStance
+    /// Guard stance leash anchor — set when a target is first acquired.
+    var guardAnchor: WorldPoint?
+    /// Attackers that damaged this unit earlier in the current tick (for retaliation).
+    var attackersThisTick: [EntityID] = []
+    /// Most recent attacker still eligible for retaliation priority.
+    var lastDamagedBy: EntityID?
+    /// Set when HP reaches zero; removed at end of tick.
+    var isDead: Bool = false
 
     init(
         id: EntityID,
@@ -64,12 +89,31 @@ struct Unit: Sendable, Identifiable {
         if case .aboard = activity { return true }
         return false
     }
+
+    var isBoarding: Bool {
+        if case .boarding = activity { return true }
+        return false
+    }
+
+    /// Citizens boarding or aboard a transport cannot be pulled into construction.
+    var canBeAssignedToConstruction: Bool {
+        kind.canGather && !isAboard && !isBoarding
+    }
 }
 
 /// A fixed structure.
 struct Building: Sendable, Identifiable {
     let id: EntityID
-    let faction: Faction
+    /// `nil` means neutral — nobody owns it. Today that is the Dominion Spire and
+    /// nothing else.
+    ///
+    /// Optional rather than a third `Faction` case on purpose: a `.neutral`
+    /// faction would flow into every `for faction in Faction.allCases` loop in
+    /// the project — resource stocks, population, the Core trickle — and give the
+    /// Spire a treasury. `nil` makes the compiler ask the ownership question at
+    /// every site that needs an answer, which is how the neutral case gets found
+    /// rather than assumed.
+    let faction: Faction?
     let kind: BuildingKind
     let position: WorldPoint
     let region: RegionID
@@ -78,11 +122,17 @@ struct Building: Sendable, Identifiable {
     /// 0...1 while under construction; 1 once complete.
     var constructionProgress: Double
 
+    // MARK: - Combat (armed buildings)
+
+    var attackTarget: EntityID?
+    var attackCooldownRemaining: Int = 0
+    var isDead: Bool = false
+
     var isComplete: Bool { constructionProgress >= 1 }
 
     init(
         id: EntityID,
-        faction: Faction,
+        faction: Faction?,
         kind: BuildingKind,
         position: WorldPoint,
         region: RegionID,

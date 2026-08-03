@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 /// The app shell: the diorama, the tactical HUD over it, and the debug surface.
@@ -6,7 +7,12 @@ import SwiftUI
 /// The centre of a landscape iPad is where the player's hands are not, and where
 /// the game lives — nothing permanent is allowed to sit there.
 struct RootView: View {
-    @State private var controller: WorldController
+    private struct MatchSession: Identifiable {
+        let id = UUID()
+        let controller: WorldController
+    }
+
+    @State private var session: MatchSession?
     @State private var isDebugExpanded = true
 
     /// The debug surface is developer tooling, not chrome, and a visible telemetry
@@ -16,20 +22,78 @@ struct RootView: View {
     private static let showsDebugOverlay =
         ProcessInfo.processInfo.arguments.contains("-sunfoldDebug")
 
-    init(seed: UInt64, mapID: WorldMapID = .default) {
-        _controller = State(
-            initialValue: WorldController(
-                simulation: SkirmishSimulation(seed: seed, mapID: mapID)
-            )
+    private static let showsPerfOverlay =
+        PerfLaunchFlags.isEnabled && PerfLaunchFlags.showsOverlay
+
+    /// The Gravemark adversary runs by default — without it there is nobody on
+    /// the other side of the map. Pass `-sunfoldNoAdversary` to freeze it, which
+    /// is what a perf capture wants: a still opponent makes the frame times
+    /// comparable between runs.
+    private static let adversaryEnabled =
+        !ProcessInfo.processInfo.arguments.contains("-sunfoldNoAdversary")
+
+    /// Perf launches must enter the match without a human tap. Ordinary launches
+    /// open on the compact civilization choice screen.
+    private static let startsInMatch =
+        PerfLaunchFlags.isEnabled
+        || ProcessInfo.processInfo.arguments.contains("-sunfoldNoAdversary")
+
+    init(seed: UInt64, mapID: WorldMapID = .default, perfDensity: Int? = nil) {
+        self.seed = seed
+        self.mapID = mapID
+        self.perfDensity = perfDensity
+        _session = State(
+            initialValue: Self.startsInMatch
+                ? MatchSession(
+                    controller: WorldController(
+                        simulation: SkirmishSimulation(
+                            seed: seed,
+                            mapID: mapID,
+                            perfDensity: perfDensity,
+                            playerFaction: .sunwoven,
+                            adversaryEnabled: Self.adversaryEnabled
+                        )
+                    )
+                )
+                : nil
         )
     }
 
+    private var controller: WorldController { session!.controller }
     private var simulation: SkirmishSimulation { controller.simulation }
 
     var body: some View {
+        Group {
+            if let session {
+                matchView(session)
+            } else {
+                NewGameView(onChoose: startGame(as:))
+            }
+        }
+        .background(Color(SunfoldPalette.voidDeep))
+        .preferredColorScheme(.dark)
+        .statusBarHidden()
+        .persistentSystemOverlays(.hidden)
+    }
+
+    @ViewBuilder
+    private func matchView(_ session: MatchSession) -> some View {
+        let controller = session.controller
         ZStack(alignment: .topLeading) {
             SunfoldRealityView(controller: controller)
                 .ignoresSafeArea()
+                .id(session.id)
+
+            if !controller.isSceneReady {
+                MatchLoadingView(faction: controller.playerFaction)
+            }
+
+            if Self.showsPerfOverlay {
+                PerfOverlay(harness: PerfHarness.shared, controller: controller)
+                    .padding(.top, 8)
+                    .padding(.trailing, 12)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            }
 
             VStack(spacing: 0) {
                 topStrip
@@ -53,41 +117,72 @@ struct RootView: View {
                 Spacer(minLength: 0)
                 bottomStrip
             }
+
+            if let outcome = simulation.outcome {
+                MatchOverlay(
+                    outcome: outcome,
+                    viewer: controller.playerFaction,
+                    onPlayAgain: { controller.restartMatch() },
+                    onNewGame: showNewGame
+                )
+            }
         }
-        .background(Color(SunfoldPalette.voidDeep))
-        .preferredColorScheme(.dark)
-        .statusBarHidden()
-        .persistentSystemOverlays(.hidden)
+        .animation(.easeOut(duration: 0.25), value: simulation.outcome)
     }
+
+    private func startGame(as faction: Faction) {
+        guard session == nil else { return }
+        session = MatchSession(
+            controller: WorldController(
+                simulation: SkirmishSimulation(
+                    seed: seed,
+                    mapID: mapID,
+                    perfDensity: perfDensity,
+                    playerFaction: faction,
+                    adversaryEnabled: Self.adversaryEnabled
+                )
+            )
+        )
+    }
+
+    private func showNewGame() {
+        session?.controller.dispose()
+        session = nil
+    }
+
+    private let seed: UInt64
+    private let mapID: WorldMapID
+    private let perfDensity: Int?
 
     /// Emblem and speed join the resource rail so the top edge matches concept 01.
     /// Debug stays inset and opt-in so it never contaminates a capture.
     private var topStrip: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top, spacing: 12) {
-                TopBar(simulation: simulation)
+                TopBar(simulation: simulation, controller: controller)
                 if Self.showsDebugOverlay {
                     DebugOverlay(controller: controller, isExpanded: $isDebugExpanded)
                         .padding(.top, 4)
                 }
             }
-            AlertStrip()
+            ObjectiveRail(
+                simulation: simulation,
+                viewer: simulation.playerFaction,
+                onNewGame: showNewGame
+            )
                 .padding(.leading, 4)
         }
         .padding(.horizontal, 16)
     }
 
     /// Map at one thumb, commands at the other, and the selection between them.
-    ///
-    /// The selection panel sits centre-bottom rather than in the corner it used
-    /// to occupy: it is the answer to "did my order land?", and the corner is
-    /// where the eye goes last. It is also the only one of the three that comes
-    /// and goes, so the two anchored panels must not move when it does — hence
-    /// the centre column takes the slack rather than the panels being laid out
-    /// against each other.
     private var bottomStrip: some View {
         HStack(alignment: .bottom, spacing: 14) {
-            Minimap(simulation: simulation, rig: controller.rig)
+            Minimap(
+                simulation: simulation,
+                rig: controller.rig,
+                viewer: simulation.playerFaction
+            )
             Spacer(minLength: 0)
             SelectionPanel(
                 simulation: simulation,

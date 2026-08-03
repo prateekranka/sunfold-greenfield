@@ -42,9 +42,15 @@ enum HUDInk {
     static var textDim: Color { SunfoldPalette.hudTextDim }
     /// The player's own things. Same turquoise as the selection rings in world.
     static var friendly: Color { Color(SunfoldPalette.sunwovenTurquoise) }
+    static func friendly(for faction: Faction) -> Color {
+        Color(faction == .sunwoven ? SunfoldPalette.sunwovenTurquoise : SunfoldPalette.gravemarkMineral)
+    }
     /// Restrained, per the bible: the enemy is marked in their own copper, not
     /// in alarm red. Saturated red stays reserved for genuine pressure.
     static var hostile: Color { Color(SunfoldPalette.gravemarkCopper) }
+    static func hostile(for faction: Faction) -> Color {
+        friendly(for: faction.opponent)
+    }
     /// Life. Green because the approved concept frame draws it green, held well
     /// down in saturation so it never competes with the gold.
     static var life: Color { Color(red: 0.404, green: 0.714, blue: 0.416) }
@@ -249,6 +255,7 @@ struct HUDMeter: View {
 struct HUDIconTile: View {
     let glyph: HUDGlyph.Kind
     var size: CGFloat = HUDMetrics.commandTile
+    /// Visual state only. A dimmed tile may still carry an explanation action.
     var isEnabled: Bool = true
     /// The one action a context most wants. Marked with the player's own
     /// turquoise — the same colour that means "this is yours" in world.
@@ -259,12 +266,16 @@ struct HUDIconTile: View {
 
     var body: some View {
         Group {
-            if let action, isEnabled {
-                Button(action: action) { face }.buttonStyle(.plain)
+            if let action {
+                Button(action: action) {
+                    face
+                }
+                .buttonStyle(.plain)
             } else {
-                face.opacity(0.42)
+                face
             }
         }
+        .opacity(isEnabled ? 1 : 0.42)
         .accessibilityLabel(name)
     }
 
@@ -313,19 +324,20 @@ struct HUDGlyph: Shape {
         // Controls
         case sunburst, pause, play, speed2, speed3
         case compass, reticle, coreMark, expand, pin, alert
+        case pageForward, pageBack
         // Commands
         case move, stop, guardStance, rally, gather
         // Structures
-        case farm, extractor, dwelling, formationYard, outpost, loom
+        case farm, extractor, dwelling, formationYard, lumenSpire, outpost, loom
         // Units
-        case citizen, pathfinder, vanguard, ranged, transport, walker
+        case citizen, pathfinder, vanguard, quarrel, transport, walker
         // Readouts
         case life, population
 
         /// Glyphs built as an outline with something punched out of it.
         var usesEvenOdd: Bool {
             switch self {
-            case .sunburst, .compass, .reticle, .alert, .stop, .loom, .farm, .expand: true
+            case .sunburst, .compass, .reticle, .alert, .stop, .loom, .farm, .expand, .lumenSpire: true
             default: false
             }
         }
@@ -397,6 +409,10 @@ struct HUDGlyph: Shape {
             poly(&p, [(0.5, 0.06), (0.97, 0.90), (0.03, 0.90)])
             p.addRect(CGRect(x: 0.45, y: 0.36, width: 0.10, height: 0.28))
             p.addRect(CGRect(x: 0.45, y: 0.70, width: 0.10, height: 0.10))
+        case .pageForward:
+            poly(&p, [(0.28, 0.10), (0.76, 0.50), (0.28, 0.90), (0.28, 0.70), (0.54, 0.50), (0.28, 0.30)])
+        case .pageBack:
+            poly(&p, [(0.72, 0.10), (0.24, 0.50), (0.72, 0.90), (0.72, 0.70), (0.46, 0.50), (0.72, 0.30)])
 
         case .move:
             // Four-way arrow, drawn as a cross plus four heads; overlapping
@@ -462,6 +478,12 @@ struct HUDGlyph: Shape {
         case .formationYard:
             star(&p, points: 8, outer: 0.44, inner: 0.17, centerY: 0.42)
             p.addRect(CGRect(x: 0.12, y: 0.86, width: 0.76, height: 0.10))
+        case .lumenSpire:
+            // A tall, faceted range tower with an arrow slit; unlike the Yard's
+            // radial star, this silhouette is vertical and pointed.
+            poly(&p, [(0.50, 0.03), (0.72, 0.30), (0.66, 0.84), (0.34, 0.84), (0.28, 0.30)])
+            p.addRect(CGRect(x: 0.44, y: 0.34, width: 0.12, height: 0.27))
+            p.addRect(CGRect(x: 0.20, y: 0.84, width: 0.60, height: 0.10))
         case .outpost:
             poly(&p, [(0.34, 0.20), (0.66, 0.20), (0.76, 0.94), (0.24, 0.94)])
             poly(&p, [(0.44, 0.02), (0.56, 0.02), (0.56, 0.20), (0.44, 0.20)])
@@ -487,7 +509,7 @@ struct HUDGlyph: Shape {
         case .vanguard:
             biped(&p, shoulder: 0.20, hem: 0.28, headRadius: 0.110)
             poly(&p, [(0.06, 0.34), (0.30, 0.28), (0.30, 0.74), (0.06, 0.64)])
-        case .ranged:
+        case .quarrel:
             biped(&p, shoulder: 0.17, hem: 0.25, headRadius: 0.105)
             p.move(to: CGPoint(x: 0.80, y: 0.16))
             p.addQuadCurve(to: CGPoint(x: 0.80, y: 0.86), control: CGPoint(x: 1.06, y: 0.51))
@@ -689,7 +711,7 @@ extension UnitKind {
         case .citizen: .citizen
         case .pathfinder: .pathfinder
         case .vanguard: .vanguard
-        case .ranged: .ranged
+        case .quarrel: .quarrel
         case .lightTransport: .transport
         case .bastionWalker: .walker
         }
@@ -704,8 +726,13 @@ extension BuildingKind {
         case .matterExtractor: .extractor
         case .dwelling: .dwelling
         case .formationYard: .formationYard
+        case .lumenSpire: .lumenSpire
         case .expansionOutpost: .outpost
         case .dawnLoom: .loom
+        // Nobody builds it and nobody selects it, so this glyph appears only in
+        // the minimap legend. The reticle is the closest honest mark for a place
+        // rather than a structure.
+        case .dominionSpire: .reticle
         }
     }
 }

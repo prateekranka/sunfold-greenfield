@@ -85,12 +85,25 @@ final class SelectionModel {
     func orderMove(to point: WorldPoint, in simulation: SkirmishSimulation) {
         let movable = selectedUnits
             .compactMap { simulation.unit($0) }
-            .filter { $0.faction == .sunwoven }
+            .filter { $0.faction == simulation.playerFaction }
             .map(\.id)
         guard !movable.isEmpty else { return }
 
-        simulation.orderMove(movable, to: point)
-        lastOrderMarker = OrderMarker(position: point, issuedAt: simulation.elapsed)
+        let destinations = simulation.orderMove(movable, to: point)
+        if let destination = destinations.first {
+            // Accepted orders use the simulation's resolved endpoint.
+            lastOrderMarker = OrderMarker(
+                position: destination,
+                issuedAt: simulation.elapsed
+            )
+        } else {
+            // A rejected order still leaves a short-lived marker at the point
+            // the player tapped, so denial is visible as well as audible.
+            lastOrderMarker = OrderMarker(
+                position: point,
+                issuedAt: simulation.elapsed
+            )
+        }
     }
 
     /// Puts the selection to work on a deposit.
@@ -98,7 +111,7 @@ final class SelectionModel {
         guard let deposit = simulation.deposit(depositID) else { return }
         let mine = selectedUnits
             .compactMap { simulation.unit($0) }
-            .filter { $0.faction == .sunwoven }
+            .filter { $0.faction == simulation.playerFaction }
             .map(\.id)
         guard !mine.isEmpty else { return }
 
@@ -106,9 +119,97 @@ final class SelectionModel {
         lastOrderMarker = OrderMarker(position: deposit.position, issuedAt: simulation.elapsed)
     }
 
+    /// Incomplete friendly foundation tap: assign only when the selection has
+    /// citizens eligible for construction; otherwise inspect the foundation.
+    /// Never silent-no-op when the selection cannot build.
+    func respondToIncompleteFoundation(_ buildingID: EntityID, in simulation: SkirmishSimulation) {
+        let hasEligibleBuilder = selectedUnits.contains {
+            simulation.unit($0)?.canBeAssignedToConstruction == true
+        }
+        if hasEligibleBuilder {
+            orderConstruct(on: buildingID, in: simulation)
+        } else {
+            selectBuilding(buildingID)
+        }
+    }
+
+    /// Sends eligible selected citizens to finish an incomplete foundation.
+    /// Order-marker feedback is only shown when at least one builder was assigned.
+    func orderConstruct(on buildingID: EntityID, in simulation: SkirmishSimulation) {
+        guard let building = simulation.building(buildingID), !building.isComplete else { return }
+        let mine = selectedUnits
+            .compactMap { simulation.unit($0) }
+            .filter { $0.faction == simulation.playerFaction }
+            .map(\.id)
+        guard !mine.isEmpty else { return }
+
+        let assigned = simulation.orderConstruct(mine, on: buildingID)
+        if assigned > 0 {
+            lastOrderMarker = OrderMarker(position: building.position, issuedAt: simulation.elapsed)
+        }
+    }
+
+    /// Sends selected citizens to board a light transport.
+    func orderBoard(onto transportID: EntityID, in simulation: SkirmishSimulation) {
+        guard let transport = simulation.unit(transportID),
+              transport.kind == .lightTransport,
+              transport.faction == simulation.playerFaction
+        else { return }
+        let boarders = selectedUnits
+            .compactMap { simulation.unit($0) }
+            .filter { $0.faction == simulation.playerFaction && $0.kind.canGather }
+            .map(\.id)
+        guard !boarders.isEmpty else { return }
+
+        simulation.orderBoard(boarders, onto: transportID)
+        lastOrderMarker = OrderMarker(position: transport.position, issuedAt: simulation.elapsed)
+    }
+
     func expireOrderMarker(after lifetime: Double, now: Double) {
         guard let marker = lastOrderMarker else { return }
         if now - marker.issuedAt > lifetime { lastOrderMarker = nil }
+    }
+
+    // MARK: - Production
+
+    @discardableResult
+    func enqueueUnit(
+        _ kind: UnitKind,
+        at buildingID: EntityID,
+        in simulation: SkirmishSimulation
+    ) -> Result<Void, ProductionEnqueueFailure> {
+        guard let building = simulation.building(buildingID),
+              building.faction == simulation.playerFaction
+        else { return .failure(.notTrainable) }
+        return simulation.enqueueUnit(kind, at: buildingID)
+    }
+
+    @discardableResult
+    func cancelProduction(at buildingID: EntityID, in simulation: SkirmishSimulation) -> Bool {
+        guard let building = simulation.building(buildingID),
+              building.faction == simulation.playerFaction
+        else { return false }
+        return simulation.cancelProduction(at: buildingID)
+    }
+
+    /// Issues an attack order when friendly units that can fight are selected.
+    func orderAttack(target: EntityID, in simulation: SkirmishSimulation) {
+        let attackers = selectedUnits
+            .compactMap { simulation.unit($0) }
+            .filter {
+                $0.faction == simulation.playerFaction && $0.kind.canAttack && !$0.isAboard
+            }
+            .map(\.id)
+        guard !attackers.isEmpty else { return }
+
+        simulation.orderAttack(attackers, target: target)
+        if let point = attackTargetPosition(target, in: simulation) {
+            lastOrderMarker = OrderMarker(position: point, issuedAt: simulation.elapsed)
+        }
+    }
+
+    private func attackTargetPosition(_ target: EntityID, in simulation: SkirmishSimulation) -> WorldPoint? {
+        simulation.unit(target)?.position ?? simulation.building(target)?.position
     }
 }
 

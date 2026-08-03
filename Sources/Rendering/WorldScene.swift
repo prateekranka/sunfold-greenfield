@@ -35,6 +35,12 @@ enum WorldScene {
         root.addChild(rig.root)
         root.addChild(makeLighting())
 
+        // Water is one world-space surface. Building it once prevents each
+        // fragment from drawing a separate floor with a separate seam.
+        if let water = VoidWaterMeshFactory.build(map: map) {
+            root.addChild(water)
+        }
+
         for causeway in map.causeways {
             root.addChild(makeCauseway(causeway, map: map))
         }
@@ -103,9 +109,7 @@ enum WorldScene {
 
     // MARK: - Causeways
 
-    /// A broad luminous gravity band. Causeways that a side's Outpost has not yet
-    /// woven render dim, so the player can read a future route without mistaking
-    /// it for a walkable one today.
+    /// A pair of luminous rails marking an established gravity causeway.
     private static func makeCauseway(_ causeway: Causeway, map: WorldMap) -> Entity {
         let from = map.fragment(causeway.from)
         let to = map.fragment(causeway.to)
@@ -116,26 +120,9 @@ enum WorldScene {
         let entity = Entity()
         entity.name = "causeway.\(from.id.rawValue)-\(to.id.rawValue)"
 
-        // Twice calibrated against the rendered build, and a single flat plane
-        // will not do it. The first version's alpha was never applied at all —
-        // `UnlitMaterial` ignores tint alpha until `blending` is set — so it drew
-        // as an opaque gold slab that overwhelmed the fragments it connects. Once
-        // transparency worked, a dim gold over the near-black void simply went
-        // brown: against black, alpha *is* brightness, and dark gold is brown.
-        //
-        // A causeway is a walkable woven span, so it is built like one — a faint
-        // gravity field wide enough to carry units, read by two lit rails at its
-        // edges. The rails carry the light; the field only has to hold the width.
-        //
-        // The field is cool, not gold. Gravity is the cool half of the identity,
-        // and more practically a warm tint at low alpha over a black void is
-        // simply brown — that is what the previous two passes both produced.
-        //
-        // The rails are opaque. At 0.92 alpha they came back grey rather than
-        // luminous: transparent surfaces do not reliably sort above the field
-        // beneath them, so the dim deck composited back over the bright rail. An
-        // opaque material draws in the opaque pass and writes depth, which makes
-        // the read unconditional.
+        // The field used to be a translucent plane. It sorted against the void
+        // and read as a floating slab. The rails below are opaque and carry the
+        // causeway read without introducing another surface over the water.
         let lit = causeway.isAlwaysOpen
         let deckWidth: Float = 6.0
 
@@ -169,24 +156,8 @@ enum WorldScene {
         entity.position = [midpoint.x, -0.35, midpoint.y]
         entity.orientation = simd_quatf(angle: atan2(heading.x, heading.y), axis: [0, 1, 0])
 
-        let field = Entity()
-        field.name = "\(entity.name).field"
-        field.components.set(
-            ModelComponent(
-                mesh: .generatePlane(width: deckWidth, depth: span, cornerRadius: 2.4),
-                materials: [
-                    StructureMaterial.glow(SunfoldPalette.starCool, opacity: 0.16)
-                ]
-            )
-        )
-        entity.addChild(field)
-
         // The rails carry the one piece of gameplay information a causeway has:
-        // woven or not. That is encoded in *brightness*, which makes it the one
-        // place `StructureMaterial.glow`'s default emitter lift is wrong — the
-        // lift normalises the brightest channel to full, so a dimmed gold and a
-        // full gold come out of it as the same colour and an unwoven route would
-        // read as walkable. Only woven routes reach this branch now.
+        // it is woven and open. Only woven routes reach this branch now.
         let railMaterial = StructureMaterial.glow(SunfoldPalette.sunwovenGold)
 
         for side in [Float(-1), Float(1)] {
@@ -227,7 +198,10 @@ enum WorldScene {
         var last: Int?
         for step in 0...steps {
             let point = from + span * (Float(step) / Float(steps))
-            guard map.region(at: point) == nil else { continue }
+            // A causeway is a land route across authored void water. The outer
+            // backdrop is also outside every region, but it is not a crossing
+            // and must never become a deck-shaped slab.
+            guard map.isSubmerged(point) else { continue }
             if first == nil { first = step }
             last = step
         }

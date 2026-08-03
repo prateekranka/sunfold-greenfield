@@ -19,9 +19,79 @@ Rules for this file:
 
 ## In flight
 
+Nothing. CP-C9 closed 2026-08-01; CP-C6 age progression is next.
+
+### CP-C5 — Military roster breadth · CLOSED 2026-08-01
+
+Opened and closed the same day. The army is no longer Vanguard spam: the Formation Yard
+trains Pathfinder and Vanguard, the new Lumen Spire trains Quarrel and is gated behind a
+completed Yard, and the six-unit opening was played end to end on the iPad. Full record
+in `Docs/QA/G3/cp-c5/STATUS.md`.
+
+Proven on device: trainer exclusivity in both directions (the Yard never offers Quarrel,
+the Spire never offers Pathfinder or Vanguard, and unused slots say `No additional unit is
+trained here.`); the prerequisite gate flipping from a named `Requires a completed Formation
+Yard.` to `Lumen Spire. Trains Quarrels. Costs 90 Matter · 45 Lumen.` on **completion**;
+every cost charged to the unit against the Core trickle; `BLOCKED · Move onto clear home
+ground` refusing an illegal site without charging; `Population 10/10.` surfacing a real
+production hold; and one group move of `6 Selected · 1 Pathfinders · 2 Vanguards ·
+3 Quarrels · 345/345` arriving intact. `swift test` 72 → **86 tests, 0 failures**. World
+hash `4f761a7b50d6df3c` at tick 7192, identical across two runs. **The CP-C5 entry here used
+to claim no frozen literal existed anywhere in `Tests/`. That was false:**
+`Tests/AdversaryTests.swift` carried the frozen tuning literals `420` (deposit yield) and
+`89` (Lumen Spire affordability) until CP-C9 replaced both with reads from tuning. What is
+true is the narrower claim — no test now re-states a tuning value it does not own, which is
+what let the `String`-backed `.ranged` → `.quarrel` rename land safely. Approved constants
+still appear as literals in `Tests/EconomyTuningTests.swift`, deliberately: that file is the
+one place the economy's approved values are asserted, and a tuning test that read tuning
+would assert nothing. Host and device agree on the no-input outcome: Gravemark by conquest
+at 5:59.
+
+Two defects were found during review and fixed in scope: the Vanguard's missing `+8 vs
+siege` (R1 B2), and `ProductionSystem.step` dropping a charged queue item with no unit and
+no refund.
+
+**Left open, by name:** the Spire does not accept Lumen drop-off (`acceptsDropOff` is a
+plain `Bool` and cannot express "Lumen only"); faction modifiers absent (CP-C8); R1 §6.4's
+`id.raw % ringSlotCount` spawn rule deliberately not adopted; citizen gathering never
+exercised on device this pass; the ledger pass ran with `-sunfoldNoAdversary` and combat was
+verified separately; not built
+from a clean clone. Three findings recorded rather than fixed: a dimmed tile's
+accessibility label loses the building's identity, the panel reads `1 Pathfinders`, and
+the Vanguard/Quarrel read works by elongated-versus-compact rather than by the vertical
+line `01-UNIT-ROSTER.md:156-176` claims.
+
 | | |
 |---|---|
-| **Checkpoint** | **CP-G2a — Construction** |
+| **Checkpoint** | CP-C5 — Military roster breadth (Directive 3; design `04` §3 calls it CP-G3c) |
+| **Opened** | 2026-08-01 · at `3166af3` |
+| **Owner** | director (orchestrating), Codex implementation agents |
+| **Goal** | An army that is more than Vanguard spam: `Formation Yard → Pathfinder + Vanguard → Lumen Spire → Quarrel`, with a counter read a stranger can see. |
+| **Write scope (exact)** | `.lumenSpire` building (90 Matter / 45 Lumen / 18 s / footprint 3.0 / 210 HP / trains Quarrel / gated behind a completed same-faction Formation Yard). `.ranged` → `.quarrel` rename (R1 B13 — a rename, not a second unit). Formation Yard trains Pathfinder + Vanguard only, and its cost corrected 110 Matter / 40 Lumen → 110 Matter / **20** Lumen per `02-BUILDING-ROSTER.md`. Tier-1 combat profiles wired to `01-UNIT-ROSTER.md` + R1 (Vanguard gains the missing `+8 vs siege` from R1 B2; Quarrel range stays 9.0 per R1 B8). Typed simulation blockers so a prerequisite is enforced in the sim and not only in the HUD. Two-page command grid per `02` §6 with a **visible** on-screen reason for every dimmed tile. Held front production item so a charged queue item can never vanish. Adversary Lumen Spire deferral closed (Yard tick 2400, Spire tick 4800, second-Yard stand-in removed). Files: `Sources/Domain/EntityKinds.swift`, `SkirmishTuning.swift`, `Sources/Simulation/{ConstructionPlacement,SkirmishSimulation,ProductionSystem,Adversary}.swift`, `Sources/HUD/{CommandGrid,HUDStyle}.swift`, `Sources/Rendering/{EntityPresenter,WorldController,Meshes/BuildingMeshes,Meshes/UnitMeshes}.swift`, `Tests/*`, and evidence under `Docs/QA/G3/cp-c5/`. |
+| **Do not touch** | Rebuilding `CombatSystem` or `Adversary` from scratch · CP-C2 / CP-C3 / CP-C4 victory rules · CP-C6 age research · CP-C9 economy retune (**closed 2026-08-01; do not reopen without new evidence**) · faction modifiers (CP-C8) · per-resource drop-off migration · perf campaigns / 60 fps · app icon / P15a · Flowdeck · Tier-2 units and buildings in the simulation. |
+| **Preserved dirty work** | Large foreign dirty surface: `Sources/Diagnostics/`, `Sources/Rendering/FramePacing.swift`, `Sources/Simulation/BoardingSystem.swift`, app icon / `PrivacyInfo.xcprivacy`, perf scripts and `Docs/QA/Perf/`, `Docs/Method/`, `Docs/agents/`, `Docs/research/`, `CONTEXT.md`, and the handoff family. **Never `git add -A`.** Commit by explicit path only; `RootView.swift` carries a perf overlay on top of committed MatchOverlay and must be staged surgically if it is touched at all. |
+| **Evidence** | `Docs/QA/G3/cp-c5/` (live naming wins over the design's `cp-g3c/`). |
+| **Carried open** | The Dominion leak (adversary banks progress crossing the ring) stays **open** — re-measured in CP-C5, not fixed. The 8–10 minute promise stays unmet. The contest rule stays test-only. |
+
+### CP-C4 — CLOSED 2026-08-01
+
+Victory and defeat shipped. Two win paths, a terminal state that stops the world,
+and Play Again — all four played on the iPad. Log entry below;
+full record in `Docs/QA/G3/cp-c4/STATUS.md`.
+
+### CP-C2 / CP-C3 — CLOSED 2026-07-31
+
+CP-C2 combat was implemented and test-proven on 2026-07-31 but deliberately **not**
+closed, because no fight had ever been observed in play — Gravemark had no AI, so
+two hostile units never came into contact. CP-C3 built that adversary and the
+device pass folded into it closed CP-C2 as **CP-C2′** the same day. Both records:
+`Docs/QA/G3/cp-c2/STATUS.md` and `Docs/QA/G3/cp-c3/STATUS.md`.
+
+### CP-G2a — CLOSED 2026-07-31 (historical block below kept for the record)
+
+| | |
+|---|---|
+| **Checkpoint** | CP-G2a — Construction |
 | **Opened** | 2026-07-30 |
 | **Owner** | construction agent |
 | **Write scope (exact)** | Finish shipping Farm / Matter Extractor / Dwelling construction: promote Soft ghost out of prototype chrome; command-grid pick with cost + purpose; drag-ghost legal/illegal; place with cost on commit; citizens construct with linear multi-builder progress; cancel incomplete with `cancelRefundFraction` refund; construction progress readable in HUD/world; completion visual + audio feedback. Files limited to construction path: `Sources/Debug/BuildGhostPrototype.swift` (or its shipping successor), `Sources/Simulation/ConstructionSystem.swift`, construction hooks in `SkirmishSimulation` / `WorldController` / `EntityPresenter` / `CameraGestureLayer` / `CommandGrid` / `RootView` / `SelectionPanel` / `SkirmishTuning` / `EntityKinds` / `WorldEntities` as needed for cancel+purpose+feedback, plus minimal Audio stub for completion cue, and evidence under `Docs/QA/G2/`. |
@@ -33,23 +103,47 @@ Rules for this file:
 | **Proof state** | The isolated staged source snapshot builds for the iPadOS 26.5 simulator; see `Docs/QA/G2/cp-g2a/staged-build-proof.md`. Rendered Farm flow is captured. Focused tests, all three building variants, cancel/deny states, audio, and Reduced Motion remain unproved. Do not call CP-G2a closed. |
 | **Resume here** | Fix the post-place ghost state first. Then prove the bounded interaction matrix on iPadOS 26.5 and request an independent re-review. Do not begin CP-G2b production yet. |
 
+### CP-G2a — resolved 2026-07-31 · closed on its primary defect, remainder re-scoped
+
+**The primary defect is fixed and photographed.** The r2 worktree's fixes were **ported by
+hand rather than merged**, because the same files carry three other agents' in-flight work.
+Place a Farm now and the ghost clears, the camera is immediately usable, and the refund reads
+`+52.5 Matter`. Eight landscape captures on the iPad Air 13 simulator, full write-up:
+`Docs/QA/G2/cp-g2a/r3-resolution.md`.
+
+**Explicitly re-scoped out to CP-G2a′, not silently dropped:** completion audio (not
+verifiable from screenshots — a pause boundary, and I am not substituting a weaker
+measurement), Reduced Motion, the illegal/unaffordable/cancel-placement states, and Matter
+Extractor and Dwelling completion.
+
+**Correction to the CP-G2a-R2 log entry.** It recorded `ConstructionIntegrityTests` at
+**10 of 10 passed**. That was not real test output — that worktree's own
+`IMPLEMENTATION_STATUS.md` records `xcodebuild test` as hook-blocked there. **No test in this
+repository had ever executed.** Fixed the same day under P14: a root `Package.swift` exposes
+`Sources/Domain` + `Sources/Simulation` as a testable `SunfoldCore` module, and **29 tests now
+genuinely run and pass on the host in ~60 s** with no simulator and no app host. Verified by
+the director, not taken from the builder. Evidence: `Docs/QA/G2/p14/test-run.md`.
+
 ---
 
 ## Status at a glance
 
 | | |
 |---|---|
-| **Last checkpoint** | CP-14 — AoE land cut by void water · **closed** |
-| **In flight** | **CP-G2a — Construction** (see above) |
-| **Closed** | 2026-07-28 |
-| **Build** | CP-G2a staged source snapshot: 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5. Focused CP-G2a tests: pending. |
+| **Last checkpoint** | CP-C9 — Economy tuning and nine-minute proof · **shipped** 2026-08-01 |
+| **In flight** | Nothing. CP-C9 closed 2026-08-01; CP-C6 age progression is next. |
+| **Shipped 2026-07-31** | CP-G2a closed · P14 test harness · CP-C1 production · CP-G3a2 traversal · CP-G2b-NAV navigation · P4 pose caching · CP-C2′ combat · CP-C3 adversary |
+| **Shipped 2026-08-01** | CP-C4 victory and defeat · CP-C5 military roster breadth · CP-C9 economy tuning and nine-minute proof |
+| **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **99 tests pass; 2 opt-in long-run tests skipped** under `swift test`. |
 | **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
-| **Current frame** | CP-G2a: `Docs/QA/G2/cp-g2a/13-farm-founded-constructing.png` · `15-farm-complete-fullres.png`. Map baseline: `Docs/QA/AAA/sparse-map1-riverlands.png`. |
-| **Version** | 0.3.0 · build 42 |
-| **Gates** | G0 complete · G1 in progress · G2 in progress — neither passed |
-| **Current direction** | Correct and prove CP-G2a construction. Animation and other G2 slices remain parked. |
-| **Commit boundary** | CP-G2a is isolated from the pre-existing map, movement, boarding, TopBar, SelectionModel, test, and research changes. Those changes remain local and dirty. |
-| **Next checkpoint** | CP-G2a correction and independent re-review. CP-G2b starts only after CP-G2a closes. |
+| **Current frame** | `Docs/QA/G3/cp-c9/device/01-opening-0m01-landscape.png` — the clean 0:01 opening frame with the Core, home terrain, HUD, and starting stock visible. |
+| **Version** | 0.6.1 · build 46 |
+| **Gates** | G0 complete · G1 in progress · G2 in progress · G3 opened — none passed |
+| **Play-feel reference** | **Age of Empires 2 / Rise of Rome, in space** (BC-01, 2026-07-31). Was Age of Empires IV. |
+| **Current direction** | Gameplay and content breadth (Directive 2 + 3). Performance is a guardrail, not a bar. The path to a playable match is complete: combat ✅ → adversary ✅ → victory ✅. Breadth and pacing are what remain. |
+| **Can a match be won or lost?** | **Yes.** Both paths were played to a result on the iPad and photographed: Dominion at 3:55, Conquest at 15:55, defeat by Conquest at 5:59, defeat by resignation, and Play Again back to 0:01. A finished match genuinely stops stepping. **What it is not yet:** inside the 8–10 minute promise (nothing observed landed in that window), and the contest rule has never been exercised in play. |
+| **Commit boundary** | Committed narrowly by explicit path. Other agents' dirty work (`Sources/Rendering/FramePacing.swift`, `Sources/Diagnostics/`, `Sources/Simulation/BoardingSystem.swift`, `scripts/`, `Docs/QA/Perf/`, `Docs/QA/Launch/`, app-icon and launch-gate files) left untouched and uncommitted. At CP-C4 `RootView.swift` carried both CP-C4 work and a perf overlay, so its index entry was staged surgically rather than committing the whole file. |
+| **Next checkpoint** | CP-C6 age progression — Voyager research and the Aether gate, after CP-C9's home-economy closure. |
 
 ---
 
@@ -99,6 +193,25 @@ channels; causeway decks only across water.
 
 ### Decisions that override earlier docs
 
+- **The feel bar (2026-07-31, BC-01) — human-authorised bar change.** The play-feel
+  reference moves from **Age of Empires IV** to **Age of Empires II: The Rise of Rome, in
+  space**. Full old-vs-new table, reason and consequences: `Docs/Gauntlet/00-PLAN.md`
+  §"Bar-change log" → BC-01. In one line: a broad roster of cheap readable units with an
+  explicit counter structure, a broad roster of buildings that each unlock something
+  concrete, tier progression that visibly changes what you can build, villager economy with
+  distinct resources and drop-off buildings, high-contrast readability, short build times, a
+  match that resolves. This is a statement about **game design, not art style** — the 3D
+  RealityKit renderer, the ~55–60° camera and concept 01 as the visual bar are unchanged, as
+  are both civilizations, the seed, landscape-only iPad and the roadmap's out-of-scope list.
+  The roster it demands is specified in `Docs/Design/` and no builder may invent content
+  outside it.
+- **Performance demoted (2026-07-31, BC-02) — human-authorised bar change.** B2 is a
+  **guardrail, not a blocking bar**. It never holds a gameplay checkpoint open. Routine perf
+  work is one cheap `-sunfoldPerf` regression smoke at checkpoint close; a >15% p99
+  regression is logged as a known issue, not fixed, unless the game became visibly
+  unplayable. Device perf, Instruments, thermal sustain and the quality A/B matrix are
+  deferred to end of project. **P0.3, P5, B2a and B2c are deferred — do not start them.**
+  P4 (`findEntity` caching) is the single exception. See BC-02 for the table and the reason.
 - **Composition (2026-07-28, CP-14):** playable maps are **one continent cut by void
   water** (space substitutes for rivers, lakes, inlets). CP-13's overlapping-plate
   silhouette is superseded — it still read as discs on the minimap. Land covers
@@ -148,8 +261,11 @@ accurate about G0/G2 gameplay but they predate the visual work and say nothing a
 ## What this project is
 
 A native iPadOS 26 real-time strategy game in Swift 6 + RealityKit, set in space and
-explicitly benchmarked against **Age of Empires IV**. Landscape-only iPad, an 8–10 minute
-skirmish, fully deterministic from seed `20260726`.
+explicitly benchmarked against **Age of Empires II: The Rise of Rome** for play-feel — the
+human's phrase is *"AoE 2 Rise of Rome, but in space."* (Changed 2026-07-31 from Age of
+Empires IV; the old and new bars sit side by side in `Docs/Gauntlet/00-PLAN.md`
+§"Bar-change log" → BC-01.) Landscape-only iPad, an 8–10 minute skirmish, fully
+deterministic from seed `20260726`. The visual bar is unchanged and remains concept 01.
 
 Five rules are locked and must never be broken:
 
@@ -274,6 +390,34 @@ The subsystems behind all of that:
 
 ### Known open defects and risks
 
+- **The adversary banks Dominion progress by accident.** Measured on device at CP-C4
+  close: with nobody contesting, the objective rail read *"Dominion: you 0 of 45
+  seconds, **enemy 11**"* at the end of the untouched match. CP-C3 routes every wave
+  via the Dominion centre because there is no pathfinder, so waves cross the capture
+  ring on their way to the player's Core and fill the Gravemark timer as they pass.
+  Eleven of forty-five, and that match ended by Conquest first — but nothing caps it,
+  and no schedule asked for it. A slower Conquest or a wave that stalls on the
+  objective could hand Gravemark a Dominion win nobody designed, which is precisely
+  the "killed by something you could not see coming" failure the checkpoint question
+  asks about. **Decide before CP-C5**: route waves around the ring, exclude units in
+  transit from capture, or accept it as emergent and make it legible.
+- **A clean checkout of this branch does not build, and has not since CP-C2.** Found
+  2026-07-31 while verifying the CP-C3 commit in a throwaway worktree. Two call sites are
+  **committed** while the files that define them are **untracked**:
+  `Sources/Rendering/WorldController.swift` calls `PerfHarness` / `PerfLaunchFlags` /
+  `SceneScaleSnapshot` (all in the untracked `Sources/Diagnostics/`, committed at `47b0c33`),
+  and `Sources/Simulation/SkirmishSimulation.swift` calls `BoardingSystem` (untracked
+  `Sources/Simulation/BoardingSystem.swift`, committed at or before `a457011`). Every local
+  build is green because the working tree has the files; anyone who clones gets four
+  `cannot find … in scope` errors. **Not fixed here on purpose** — both belong to other
+  agents' in-flight work, and committing them would be committing foreign changes. Whoever
+  owns the perf and boarding work should commit those files, or the call sites should come
+  back out. This is exactly the failure mode this project keeps hitting: the green build is
+  measuring the working tree, not the repository. **CP-C4 deliberately did not deepen it**
+  (2026-08-01): `Sources/App/RootView.swift` was staged surgically so the commit carries
+  `MatchOverlay` / `ObjectiveRail` but *not* the working tree's `PerfOverlay` block or
+  `perfDensity` pass-through, and `SunfoldRealityView.swift`'s `.sunfoldFramePacing()` hook
+  was left out entirely. That exact committed file set was built green before committing.
 - **`Docs/QA/AAA/round-1-foundation.png` is stale.** Captured at 15:34, *before* the
   chromatic-aberration fix at 15:45 that dropped `aberration` from 0.0022 to 0.0006. Do not
   cite its rainbow fringing as a current defect — that complaint is already fixed in source.
@@ -284,13 +428,14 @@ The subsystems behind all of that:
   build then spins for 180 s and *silently proceeds without running `xcodegen`*. This has
   already bitten once. The lock should carry its owner's pid and be reclaimed when that pid
   is gone, and a failed acquisition should be a loud error rather than a silent skip.
-- **The unit tests have never been executed.** `Tests/DeterminismTests.swift` holds 15 tests
-  covering seeded replay, fixed-step accounting, map symmetry, fragment separation, the
-  transport-only first crossing, dock/staging legality and equal Core trickle. They compile
-  and link on every build, but `xcodebuild test` is hook-blocked, so every result is
-  **Proof Pending**. The planned fix is to extract `Domain` + `Simulation` into a SwiftPM
-  `SunfoldCore` package that `swift test` can run directly — which is the right
-  architecture anyway, since it enforces the simulation/rendering split at module level.
+- ~~**The unit tests have never been executed.**~~ **Fixed under P14 on 2026-07-31.** The
+  planned SwiftPM extraction happened: a root `Package.swift` exposes `Domain` + `Simulation`
+  as `SunfoldCore`, and **72 tests run and pass under `swift test`** (49 at CP-C3) on the host in about a
+  minute, no simulator and no app host. The remaining wrinkle is that `Tests/` is *also*
+  globbed into the Xcode `SunfoldGreenfieldTests` target, which cannot resolve
+  `@testable import SunfoldCore` — so `xcodebuild` on the scheme fails on the test target in
+  a clean checkout while `agent-build.sh` (app target only) is green. **Run tests with
+  `swift test`, never with `xcodebuild test`.**
 - `Sources/Audio/` and `Sources/Accessibility/` exist but are empty. They belong to G7.
 - **`rotate` loses the first call after a launch.** The app is still building its scene, the
   call returns `{"orientation":"LandscapeLeft"}` and nothing turns. Send it twice — a
@@ -309,6 +454,110 @@ The current direction is visual, so these wait.
 ## Checkpoint log
 
 Newest first. Each entry records what changed, what was observed, and what it cost.
+
+> The 2026-07-31 checkpoints (P14, CP-G2a, CP-C1, CP-G3a2, CP-G2b-NAV, P4) keep their
+> full records under `Docs/QA/` rather than here. The entry below follows that
+> practice: a summary and a pointer, not a duplicate.
+
+### CP-C9 — Economy tuning and nine-minute proof · 2026-08-01 · closed
+
+**Goal.** Make the approved home economy pay for the Tier-1 opening without treating
+temporary unaffordability as a stall.
+
+**What shipped.** Home deposits are region-aware: Matter 700 and Lumen 550, with the
+pre-CP-C9 Matter 420 and Lumen 300 preserved outside home. The Dwelling is 55 Matter / 14 s
+with the existing +8 population grant. Deposit placement and deterministic draws are
+unchanged. The nine-minute harness now measures useful capability through the production
+API, separates no-choice stalls from raw affordability delay, records denial episodes,
+reports Pathfinder and the trained army separately, and writes mode/seed/duration-specific
+sample and denial files.
+
+**Observed.** At 9:00 in economy-ceiling mode, seed `20260726`, riverlands: population
+42/42, four completed Dwellings, 12 Citizens, 13 Pathfinders, 9 Vanguards, 8 Quarrels,
+one Light Transport, no Bastion Walker, and **0.000 s** of no-choice stall. Raw affordability
+delay totals 38.650 s, and every denial episode had another productive action available.
+The home Lumen deposit exhausts at **8:18.75**; home Aether is absent by design.
+
+**Device.** The iPad pass showed the shipped 55 Matter copy, the 75% refund, the +8 grant,
+real Matter/Lumen gathering, an adversary defeat at 5:58, and a clean no-adversary run to
+4:01. The full nine-minute arc was not hand-played to completion; the deterministic harness
+proved it twice with byte-identical CSVs. Full record: `Docs/QA/G3/cp-c9/STATUS.md`.
+
+### CP-C4 — Victory and defeat · 2026-08-01 · closed
+
+**Goal.** Make the match able to end. CP-C3 left an opponent that destroyed the
+player's Core at 5:59 while the simulation kept running over the corpse.
+
+**What shipped.** `Sources/Simulation/VictorySystem.swift` — Conquest and Dominion,
+judged after every other system on the same tick, so a Core that falls to this
+tick's combat ends the match on this tick. `MatchOverlay` and `ObjectiveRail` in
+the HUD, `restart()` on `SkirmishSimulation`, and the Dominion Spire as the
+fifteenth `BuildingKind` — neutral, indestructible, owned by nobody.
+
+**Observed.** Played on `75898CE1-…` (iPad Air 13, iPadOS 26.5).
+
+| claim | evidence |
+|---|---|
+| A player can win by Dominion | **VICTORY · DOMINION** at 3:55, rail at `45s / 45s` |
+| A player can win by Conquest | **VICTORY · CONQUEST** at 15:55 |
+| A player can lose, and be told why | **DEFEAT · CONQUEST** at 5:59; **DEFEAT · RESIGNATION** named as itself |
+| The hold requirement escalates | rail reads `0s / 20s` at 15:55 |
+| A finished match stops stepping | clock held at **0:21** across two accessibility reads seven seconds apart |
+| Play Again rewinds the world | clock **0:01**, POP **4/10**, stock back to 180 / 160 / 40 |
+
+**Cost.** 49 → **72 tests**, 0 failures (20 new `VictoryTests`). The CP-C3
+determinism fingerprint is restated rather than weakened: tick 12000 is
+unreachable now that the match ends at tick 7192, so the bar is that two no-input
+runs stop on the same tick with the same outcome and the same hash — which moved
+to `4645f2d24d31018c` because the Spire joined the world and the Dominion deposits
+moved out of its footprint.
+
+**One real defect found on the way.** The Formation Yard, Expansion Outpost and
+Dawn Loom had command tiles since CP-C1 but were missing from
+`ConstructionPlacement.placeableKinds`, so all three did nothing when tapped. The
+Formation Yard is the only building that trains a military unit — the player could
+reach **neither** win path. Fixed, with two tests holding the line.
+
+**Full record.** `Docs/QA/G3/cp-c4/STATUS.md`, including a "What is not proven"
+section: the 8–10 minute promise is met by no observed match (5:59 and 15:55), the
+contest rule has never been exercised in play, and CP-C3's unexplained camera jump
+is still unexplained — CP-C4 moves the camera only on restart.
+
+### CP-C3 — Adversary v0 · and CP-C2′ — Combat, observed · 2026-07-31 · closed
+
+**Goal.** Put somebody on the other side of the map, and use them to prove that
+combat happens — CP-C2 had refused to close on a green test suite alone.
+
+**What shipped.** `Sources/Simulation/Adversary.swift` — a deterministic schedule,
+not a planner: every decision is a pure function of tick and world state, with **no
+random draws at all**, so the tagged `adversary` stream is reserved and unused.
+`Sources/Simulation/WorldHash.swift` — the canonical FNV-1a world fingerprint
+R1 §6.13 asks for, which did not exist before and which the determinism bar is
+defined in terms of.
+
+**Observed.**
+
+| claim | evidence |
+|---|---|
+| Two no-input runs share one world hash at tick 12000 | `a9ee7bc2faeea255` both runs, event logs identical line for line |
+| First wave arrives inside the 3:30–4:30 bar | **4:27** (tick 5340) |
+| Combat happens in play, with no player input | first blood 4:30 · first kill 4:33 · Core destroyed 5:59 · POP 0/10 |
+| The adversary is granted nothing | `plan` takes `stock` by value; `testTheAdversaryMatterLedgerCloses` reconstructs the balance from first principles |
+
+Device evidence on `75898CE1-…` (iPad Air 13, iPadOS 26.5): seven landscape frames
+in `Docs/QA/G3/cp-c3/`, including the selection panel reading
+**Civilization Core · SUNWOVEN · 303 / 600** while it is being hit. That frame is
+what closed CP-C2 as **CP-C2′**.
+
+**Cost.** 39 → **49 tests**, 0 failures. Two schedule decisions the spec did not
+make (a second Formation Yard standing in for the unbuildable Lumen Spire; four
+Dwellings on a population rule) and five spec rows **dropped rather than fudged**
+because the units do not exist yet — all named in `Adversary.deferredFromSpec` and
+in the STATUS doc, per Directive 3.
+
+**Full records.** `Docs/QA/G3/cp-c3/STATUS.md` and `Docs/QA/G3/cp-c2/STATUS.md`,
+including a "What is not proven" section (the wave is not measured as beatable, and
+one unexplained camera jump is logged rather than guessed at).
 
 ### CP-14 — AoE land cut by void water · 2026-07-28 · closed
 

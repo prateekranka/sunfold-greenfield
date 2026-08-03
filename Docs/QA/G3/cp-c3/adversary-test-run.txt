@@ -1,0 +1,64 @@
+Test Suite 'AdversaryTests' started at 2026-07-31 21:54:07.751.
+Test Case '-[SunfoldCoreTests.AdversaryTests testAdversaryGrowsItsEconomyTowardTwelveCitizens]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testAdversaryGrowsItsEconomyTowardTwelveCitizens]' passed (13.828 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testDisabledAdversaryDoesNothingAtAll]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testDisabledAdversaryDoesNothingAtAll]' passed (1.966 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testFirstWaveArrivesOnThePlayersGroundInsideTheBar]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testFirstWaveArrivesOnThePlayersGroundInsideTheBar]' passed (12.717 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testFormationYardIsCommittedAtTwoMinutes]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testFormationYardIsCommittedAtTwoMinutes]' passed (8.565 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheAdversaryMatterLedgerCloses]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheAdversaryMatterLedgerCloses]' passed (8.554 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheWaveDrawsBloodWithoutAnyPlayerInput]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheWaveDrawsBloodWithoutAnyPlayerInput]' passed (12.765 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testTwoNoInputRunsShareOneWorldHashAtTick12000]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testTwoNoInputRunsShareOneWorldHashAtTick12000]' passed (66.485 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testWavesLeaveOnScheduleAndFieldWhatTheTableAsksFor]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testWavesLeaveOnScheduleAndFieldWhatTheTableAsksFor]' passed (24.955 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testWaveTimingLogForTheRecord]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testWaveTimingLogForTheRecord]' passed (30.294 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testWorldHashSeparatesDifferentWorlds]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testWorldHashSeparatesDifferentWorlds]' passed (10.427 seconds).
+Test Suite 'AdversaryTests' passed at 2026-07-31 21:57:18.311.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 190.557 (190.560) seconds
+Test Suite 'SunfoldGreenfieldPackageTests.xctest' passed at 2026-07-31 21:57:18.311.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 190.557 (190.560) seconds
+Test Suite 'Selected tests' passed at 2026-07-31 21:57:18.311.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 190.557 (190.564) seconds
+=== CP-C3 adversary timing · seed 20260726 · map riverlands · NO player input ===
+[0:28] Dwelling committed (population 8/10)
+[2:00] Formation Yard 1 committed
+[4:00] Formation Yard 2 committed
+[4:00] Wave 1 dispatched: 3 Vanguard → Sunwoven Civilization Core #1
+[4:00] Dwelling committed (population 16/18)
+[4:27] Wave 1 ARRIVED on Sunwoven home ground
+[4:30] First blood — a unit is below full life
+[4:33] Sunwoven unit killed (5 → 4)
+[4:36] Sunwoven unit killed (4 → 3)
+[4:37] Sunwoven Core under attack
+[5:30] Wave 2 dispatched: 2 Ranged, 4 Vanguard → Sunwoven Civilization Core #1
+[5:30] Dwelling committed (population 24/26)
+[5:54] Wave 2 ARRIVED on Sunwoven home ground
+[5:59] Sunwoven Core DESTROYED
+[6:01] Sunwoven unit killed (3 → 2)
+[6:04] Sunwoven unit killed (2 → 1)
+[7:00] Wave 3 dispatched: 3 Ranged, 4 Vanguard → no target
+[7:00] Dwelling committed (population 32/34)
+[8:30] Wave 4 dispatched: 4 Ranged, 5 Vanguard → no target
+[10:00] Wave 5 dispatched: 5 Vanguard → no target
+=== Gravemark at 10:00 ===
+population 42/42 · 12 citizens · 30 soldiers
+stock 4310.24 Provisions · 160 Matter · 50 Lumen
+home Matter left in the ground: 0
+home Lumen left in the ground: 0
+=== world hash at tick 12000: a9ee7bc2faeea255 ===
+=== deferred from R1 §5 (not shipped in this roster) ===
+· wave 3 · 2 Lancer — `UnitKind` has no `.lancer` case (CP-C5)
+· wave 4 · 2 Lancer, 1 Bastion Walker — no `.lancer`; nothing trains `.bastionWalker` (CP-C5)
+· tick 4800 · Lumen Spire — `BuildingKind` has no `.lumenSpire` case (CP-C5)
+· tick 7200 · Dawn Loom, then Voyager when affordable — the building exists but the research does not, so committing 130 Matter to it would only starve the waves (CP-C6)
+· tick 9600 · Stride Yard — `BuildingKind` has no `.strideYard` case (CP-C7)
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

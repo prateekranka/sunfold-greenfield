@@ -3,7 +3,7 @@ import RealityKit
 import UIKit
 import simd
 
-/// The five buildable structures of the Foundation slice.
+/// The six buildable structures of the Foundation slice.
 ///
 /// Every pair is authored so the Sunwoven and Gravemark versions separate on
 /// **silhouette**, not on tint — the black-and-white thumbnail test:
@@ -14,6 +14,7 @@ import simd
 /// | Matter Extractor | airy splayed-leg derrick | squat plated housing with a diagonal drill boom |
 /// | Dwelling | conical fabric yurt with a porch | mono-pitch bunker with a vent stack |
 /// | Formation Yard | open canopy on four masts | long armoured hall between two gate towers |
+/// | Lumen Spire | open target halo and suspended lumen shard | armoured aperture and roof crystal |
 /// | Expansion Outpost | standing woven-light ring | tapered anchor pylon with three claws |
 ///
 /// Origins are the footprint centre, bases sit at y = 0, and every asymmetric
@@ -47,6 +48,13 @@ enum BuildingMeshes {
         switch faction {
         case .sunwoven: sunwovenYard(seed: seed)
         case .gravemark: gravemarkYard(seed: seed)
+        }
+    }
+
+    static func lumenSpire(faction: Faction, seed: UInt64) -> Entity {
+        switch faction {
+        case .sunwoven: sunwovenLumenSpire(seed: seed)
+        case .gravemark: gravemarkLumenSpire(seed: seed)
         }
     }
 
@@ -765,6 +773,195 @@ enum BuildingMeshes {
                 StructureZone("plate", plate, StructureMaterial.matte(SunfoldPalette.gravemarkSurface)),
                 StructureZone("copper", copper, StructureMaterial.matte(SunfoldPalette.gravemarkCopper, roughness: 0.85)),
                 StructureZone("seam", glow, StructureMaterial.glow(SunfoldPalette.gravemarkMineral, opacity: 0.85)),
+            ]
+        )
+    }
+
+    // MARK: - Lumen Spire
+
+    /// Roughly 6 m wide and 4.4 m tall, ~115 triangles. The design specifies
+    /// the 3.0 m footprint radius and the Quarrel unlock, but no height or
+    /// silhouette. This open target pavilion keeps the Spire below the Yard's
+    /// mass while making lumen its strongest visual cue.
+    private static func sunwovenLumenSpire(seed: UInt64) -> Entity {
+        var random = DeterministicRandom.stream(
+            seed: seed,
+            tag: "building.lumenSpire.sunwoven"
+        )
+
+        let radius = BuildingKind.lumenSpire.footprintRadius
+        var stone = StructureBuilder()
+        var gold = StructureBuilder()
+        var ivory = StructureBuilder()
+        var glow = StructureBuilder()
+
+        // The mesh datum follows the gameplay footprint instead of carrying a
+        // second authored radius. The open centre is deliberate: this is a
+        // range, not a second barracks-shaped mass.
+        stone.addSolid(
+            lower: StructureGeometry.ring(sides: 8, radius: radius * 0.94, y: 0),
+            upper: StructureGeometry.ring(sides: 8, radius: radius * 0.84, y: 0.34),
+            capTop: false
+        )
+
+        let ringY = random.float(in: 2.72...2.82)
+        let mastTop = random.float(in: 3.92...4.06)
+        for side in [Float(-1), Float(1)] {
+            let foot = SIMD2<Float>(side * radius * 0.56, 0)
+            let head = SIMD2<Float>(side * radius * 0.34, 0)
+            gold.addSolid(
+                lower: StructureGeometry.ring(sides: 4, radius: 0.22, y: 0.34, phase: .pi / 4, center: foot),
+                upper: StructureGeometry.ring(sides: 4, radius: 0.14, y: mastTop, phase: .pi / 4, center: head),
+                capTop: false
+            )
+
+            // A slim brace ties each leaning mast into the target frame.
+            gold.addRib(
+                from: [foot.x, 1.20, foot.y],
+                to: [head.x, ringY + 0.68, head.y],
+                axis: .zero,
+                halfWidth: 0.06,
+                taper: 0.70,
+                proud: 0.03
+            )
+        }
+
+        // A shallow woven target sail gives the open pavilion a readable face
+        // without competing with the luminous ring.
+        ivory.addQuad(
+            [-radius * 0.31, 0.72, 0.14],
+            [ radius * 0.31, 0.72, 0.14],
+            [ radius * 0.39, 1.78, 0.14],
+            [-radius * 0.39, 1.78, 0.14],
+            facing: [0, 0, 1]
+        )
+
+        // The horizontal aperture is the range read; the suspended shard is
+        // the lumen read. Both sit well inside the gameplay footprint.
+        gold.addStandingRing(
+            center: [0, ringY, 0.08],
+            outerRadius: radius * 0.43,
+            innerRadius: radius * 0.35,
+            halfThickness: 0.13,
+            segments: 8
+        )
+        glow.addShard(
+            ring: StructureGeometry.ring(sides: 6, radius: 0.27, y: ringY, phase: .pi / 6),
+            top: [0, 4.38, 0.12],
+            bottom: [0, ringY - 0.58, 0.12]
+        )
+
+        return StructureAssembly.entity(
+            named: "lumenSpire.sunwoven",
+            zones: [
+                StructureZone("plinth", stone, StructureMaterial.matte(SunfoldPalette.sunwovenSurface)),
+                StructureZone("frame", gold, StructureMaterial.matte(SunfoldPalette.sunwovenGold, roughness: 0.86)),
+                StructureZone("sail", ivory, StructureMaterial.matte(SunfoldPalette.sunwovenIvory, roughness: 0.88)),
+                StructureZone("lumen", glow, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.90)),
+            ]
+        )
+    }
+
+    /// Roughly 6 m wide and 4.4 m tall, ~130 triangles. The design specifies
+    /// the 3.0 m footprint radius and the Quarrel unlock, but no height or
+    /// silhouette. This compact armoured aperture is the Gravemark counterpart
+    /// to the Sunwoven open pavilion.
+    private static func gravemarkLumenSpire(seed: UInt64) -> Entity {
+        var random = DeterministicRandom.stream(
+            seed: seed,
+            tag: "building.lumenSpire.gravemark"
+        )
+
+        let radius = BuildingKind.lumenSpire.footprintRadius
+        var rock = StructureBuilder()
+        var plate = StructureBuilder()
+        var copper = StructureBuilder()
+        var glow = StructureBuilder()
+
+        rock.addSolid(
+            lower: StructureGeometry.ring(sides: 6, radius: radius * 0.94, y: 0),
+            upper: StructureGeometry.ring(sides: 6, radius: radius * 0.84, y: 0.42),
+            capTop: false
+        )
+
+        let bodyFoot = StructureGeometry.rectangle(
+            width: radius * 1.34,
+            depth: radius * 1.08,
+            y: 0.42
+        )
+        let bodyTop = StructureGeometry.rectangle(
+            width: radius * 1.18,
+            depth: radius * 0.98,
+            y: 2.62,
+            center: [-0.16, -0.04]
+        )
+        plate.addSolid(lower: bodyFoot, upper: bodyTop, capTop: false)
+
+        // Low shoulders make this a smaller, denser building than the Yard.
+        let roofTopY = random.float(in: 3.38...3.52)
+        plate.addSolid(
+            lower: StructureGeometry.rectangle(width: radius * 1.22, depth: radius * 1.02, y: 2.62),
+            upper: StructureGeometry.rectangle(
+                width: radius * 0.84,
+                depth: radius * 0.76,
+                y: roofTopY,
+                center: [0.34, -0.04]
+            )
+        )
+        for side in [Float(-1), Float(1)] {
+            let foot = SIMD2<Float>(side * radius * 0.70, 0)
+            let head = SIMD2<Float>(side * radius * 0.56, 0)
+            plate.addSolid(
+                lower: StructureGeometry.ring(sides: 4, radius: 0.30, y: 0.42, phase: .pi / 4, center: foot),
+                upper: StructureGeometry.ring(sides: 4, radius: 0.18, y: 2.94, phase: .pi / 4, center: head),
+                capTop: false
+            )
+        }
+
+        // A copper target frame sits on the front face. It reads as a range at
+        // distance, while the narrow crystal above it carries the lumen cue.
+        let apertureY = random.float(in: 2.48...2.60)
+        copper.addStandingRing(
+            center: [0, apertureY, radius * 0.55],
+            outerRadius: radius * 0.34,
+            innerRadius: radius * 0.25,
+            halfThickness: 0.14,
+            segments: 6
+        )
+        copper.addBand(
+            lower: StructureGeometry.rectangle(width: radius * 1.16, depth: radius * 1.00, y: 2.18),
+            upper: StructureGeometry.rectangle(width: radius * 1.12, depth: radius * 0.96, y: 2.42),
+            pivot: [0, 2.30, 0]
+        )
+        for face in [1, 3] {
+            glow.addFacePanel(
+                lower: bodyFoot,
+                upper: bodyTop,
+                face: face,
+                inset: 0.34,
+                from: 0.26,
+                to: 0.72,
+                proud: 0.05
+            )
+        }
+        glow.addShard(
+            ring: StructureGeometry.ring(sides: 6, radius: 0.24, y: apertureY, phase: .pi / 6, center: [0, radius * 0.69]),
+            top: [0, apertureY + 0.54, radius * 0.69],
+            bottom: [0, apertureY - 0.54, radius * 0.69]
+        )
+        glow.addShard(
+            ring: StructureGeometry.ring(sides: 4, radius: 0.24, y: roofTopY, phase: .pi / 4),
+            top: [0, 4.42, 0],
+            bottom: [0, roofTopY - 0.42, 0]
+        )
+
+        return StructureAssembly.entity(
+            named: "lumenSpire.gravemark",
+            zones: [
+                StructureZone("plinth", rock, StructureMaterial.matte(SunfoldPalette.gravemarkRock, roughness: 0.97)),
+                StructureZone("plate", plate, StructureMaterial.matte(SunfoldPalette.gravemarkSurface)),
+                StructureZone("copper", copper, StructureMaterial.matte(SunfoldPalette.gravemarkCopper, roughness: 0.85)),
+                StructureZone("lumen", glow, StructureMaterial.glow(SunfoldPalette.gravemarkMineral, opacity: 0.88)),
             ]
         )
     }

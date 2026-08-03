@@ -103,12 +103,15 @@ struct SelectionPanel: View {
             if case .constructing(building.id) = $0.activity { return true }
             return false
         }.count
+        let queue = simulation.productionQueue(for: building.id)
 
         return card {
-            title(building.kind.displayName, trailing: building.faction.displayName)
+            title(building.kind.displayName, trailing: building.faction?.displayName ?? "Neutral")
             Text(building.kind.purpose).hudLabel()
             if building.isComplete {
-                if building.kind.acceptsDropOff {
+                if !building.kind.trains.isEmpty {
+                    productionQueueRow(queue, buildingID: building.id)
+                } else if building.kind.acceptsDropOff {
                     Text("Accepts deliveries").hudLabel()
                 } else if building.kind.populationGrant > 0 {
                     Text("+\(building.kind.populationGrant) population").hudLabel()
@@ -147,7 +150,29 @@ struct SelectionPanel: View {
 
     private func refundLabel(for kind: BuildingKind) -> String {
         let refund = simulation.tuning.cost(for: kind) * simulation.tuning.cancelRefundFraction
-        return "+\(Int(refund.matter.rounded())) Matter"
+        return "+\(ResourcePool.displayAmount(refund.matter)) Matter"
+    }
+
+    private func productionQueueRow(_ queue: ProductionQueue, buildingID: EntityID) -> some View {
+        Group {
+            if let front = queue.front {
+                Text("Training \(front.kind.displayName)")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(SunfoldPalette.hudText)
+                HUDMeter(
+                    fraction: simulation.productionProgress(for: buildingID),
+                    tint: SunfoldPalette.hudAccent
+                )
+                let pending = queue.count - 1
+                if pending > 0 {
+                    Text("\(pending) more in queue")
+                        .hudLabel()
+                }
+            } else {
+                Text("No units training")
+                    .hudLabel()
+            }
+        }
     }
 
     /// A node the player tapped with nothing selected. Answers the two questions
@@ -156,7 +181,7 @@ struct SelectionPanel: View {
     private func depositCard(_ deposit: Deposit) -> some View {
         let tint = Color(SunfoldPalette.resourceTint(deposit.kind))
         let workers = simulation.units.values.count {
-            $0.faction == .sunwoven && $0.assignment == deposit.id
+            $0.faction == simulation.playerFaction && $0.assignment == deposit.id
         }
 
         return card {

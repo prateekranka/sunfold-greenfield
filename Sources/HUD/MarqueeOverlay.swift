@@ -12,8 +12,9 @@ import SwiftUI
 struct MarqueeOverlay: View {
     let rect: CGRect?
     let hitCount: Int
+    var viewer: Faction = .sunwoven
 
-    private var tint: Color { Color(SunfoldPalette.sunwovenTurquoise) }
+    private var tint: Color { HUDInk.friendly(for: viewer) }
 
     var body: some View {
         GeometryReader { _ in

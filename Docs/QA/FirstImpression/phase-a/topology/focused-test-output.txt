@@ -1,0 +1,45 @@
+Focused XCTest requested:
+xcodebuild test -project SunfoldGreenfield.xcodeproj -scheme SunfoldGreenfield -destination 'platform=iOS Simulator,id=75898CE1-A691-4973-817A-973D4249A38F' -derivedDataPath build-agents/luna-topology-test -only-testing:SunfoldGreenfieldTests/TopologyTests/testRiverlandsVoidWaterIsOneConnectedNavigableNetwork
+
+Result: blocked before XCTest execution by the existing test-target module mismatch.
+Exact build error:
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/AdversaryTests.swift:3:18: error: Unable to resolve module dependency: 'SunfoldCore'
+
+The requested test was attempted with two isolated derived-data paths. No CoreSimulator
+error occurred. The required app compile was also attempted with
+./scripts/agent-build.sh luna-topology, but it failed on unrelated concurrent code:
+Sources/Simulation/SkirmishSimulation.swift:613:32: error: extra argument 'playerFaction' in call
+
+Headless equivalent, using the same WorldMap field and the same 1 m / 0.75 m flood-fill
+logic:
+
+grid=234×229 navigable=12365
+components=4 sizes=[3916, 3802, 2490, 2157] outer=12365
+Riverlands topology: rasterComponents=4, exteriorJoinedComponents=1, sizes=[3916, 3802, 2490, 2157], channelsReachOuter=true
+component[0] size=3916 centroid=SIMD2<Float>(87.97597, -75.40682) box=17.258774...116.25877,-114.31348...-12.313477 perimeter=true
+component[1] size=3802 centroid=SIMD2<Float>(-89.37752, 76.4444) box=-116.74123...-15.741226,14.686523...113.68652 perimeter=true
+component[2] size=2490 centroid=SIMD2<Float>(-81.44074, -96.56881) box=-116.74123...6.258774,-114.31348...-41.313477 perimeter=true
+component[3] size=2157 centroid=SIMD2<Float>(86.23821, 95.62345) box=3.2587738...116.25877,37.686523...113.68652 perimeter=true
+channel sunwovenHome→sunwovenExpansion sample=Optional(SIMD2<Float>(-25.785898, 19.938198)) outer=true
+dock sunwovenHome→sunwovenExpansion point=SIMD2<Float>(-24.758526, 21.443611) navigable=true outer=true
+channel gravemarkHome→gravemarkExpansion sample=Optional(SIMD2<Float>(27.2597, -19.773582)) outer=true
+dock gravemarkHome→gravemarkExpansion point=SIMD2<Float>(25.717497, -22.222) navigable=true outer=true
+
+Before change (earlier aligned-grid probe):
+
+components=7 sizes=[3573, 3475, 2597, 2376, 448, 331, 51]
+The four perimeter regions were joined only by the virtual exterior. The Sunwoven
+river plus tarn occupied a 448-cell interior component. The Grave river occupied a
+331-cell interior component. The pool occupied a 51-cell interior component.
+Both named channels reported outer=false.
+
+Earlier aligned-grid probe after extending only the river mouths:
+
+components=5 sizes=[3953, 3914, 2597, 2376, 51]
+The pool remained the only isolated 51-cell interior component.
+
+Earlier aligned-grid probe after adding the curved pool outlet:
+
+components=4 sizes=[4042, 3914, 2597, 2376]
+All four raster components touch the perimeter. The exterior-joined component count
+is exactly 1, and both named channels report outer=true.

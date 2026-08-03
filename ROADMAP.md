@@ -34,9 +34,15 @@ loop with per-node work stations; the tactical HUD (resource rail, selection
 panel, load meter, deposit inspection); selection lasso and double-tap
 select-all-of-kind.
 
+Also done 2026-07-31: **construction** (place, pay, build, cancel with refund —
+CP-G2a, `Docs/QA/G2/cp-g2a/r3-resolution.md`) and **production** (per-building
+queue, cost on enqueue, cancel refund, population reservation — CP-C1,
+`Docs/QA/G3/cp-c1/`). Camera navigation is real: minimap tap and drag, Go to
+Core, Face north (CP-G2b-NAV). Land units can finally leave the region they
+spawned in (CP-G3a2) — until that fix no unit had ever crossed a region
+boundary, which quietly made G3, Conquest and Dominion all unreachable.
+
 Still open in this gate:
-- Construction — Farm, Matter Extractor, Dwelling: placement, cost, build progress.
-- Production — train a Citizen or Pathfinder from the Core, with a queue.
 - Objective rail and the 30 / 60 / 90-second hint ladder.
 - A timed first-time pass from boot to a completed building.
 - A deposit selection ring in the world; inspection currently updates the panel
@@ -63,10 +69,20 @@ and Vanguard, and show stable formation motion.
 
 ### G5 — Two complete win paths
 
-Dominion control with contest pause and 15/30/45-second milestones, ending in an
+Dominion control with **contest decay** and 15/30/45-second milestones, ending in an
 in-world transformation before the overlay. Conquest with Core damage thresholds
 at 75/50/25% and a structural calamity before the overlay. Restart and Play Again
 reset every deterministic system. Compare against concepts 03 and 04.
+
+> **"Contest pause" was superseded** by `Docs/Design/05-RESOLUTIONS-R1.md` §3 (B10.3):
+> an enemy in the ring drains the holder's timer at half the fill rate. A pause
+> deadlocks forever if both sides keep one unit standing there.
+>
+> **CP-C4 (2026-08-01) landed the rules, not the gate.** Both win paths, the
+> milestones, the 75/50/25 beats, the terminal state and Play Again all ship and
+> were played on device. Still owed to G5: the **in-world transformation** before
+> the Dominion overlay and the **structural calamity** before the Conquest one —
+> today both are an alert line and a falling Core meter, not an event in the world.
 
 ### G6 — Natural 8–10 minute calibration
 

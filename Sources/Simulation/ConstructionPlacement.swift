@@ -21,11 +21,27 @@ enum ConstructionPlacement {
         var placeUntil: Double = 0
     }
 
-    /// G2 land buildings only.
-    static var placeableKinds: [BuildingKind] { [.farm, .matterExtractor, .dwelling] }
+    /// Everything a citizen may put down.
+    ///
+    /// The Formation Yard, Expansion Outpost and Dawn Loom were added to the
+    /// command grid by CP-C1 and **not** added here, so all three tiles read as
+    /// affordable, lit and live, and tapping them did nothing at all —
+    /// `beginBuildGhost` bounced off this list without a word. Found on device
+    /// during CP-C4, trying to build the Yard that trains the Vanguard that
+    /// captures the Dominion: the player could not reach *either* win path,
+    /// because the only military building in the game was unbuildable.
+    ///
+    /// The Civilization Core is not here because nobody builds one, and the
+    /// Dominion Spire is not here because nobody owns one.
+    static var placeableKinds: [BuildingKind] {
+        [.farm, .matterExtractor, .dwelling, .formationYard, .lumenSpire, .expansionOutpost, .dawnLoom]
+    }
 
-    /// How far outside Core / deposit / building discs a ghost must stay.
-    private static let clearance: Float = 0.75
+    /// How far outside Core / deposit / building footprints a ghost must stay.
+    ///
+    /// This covers the visible selection/plinth edge without making the next
+    /// legal placement ring needlessly wide.
+    static let placementClearance: Float = 0.75
     /// Land field must clear this everywhere under the footprint.
     private static let minLand: Float = 0.2
 
@@ -38,7 +54,10 @@ enum ConstructionPlacement {
         }
     }
 
-    /// Conservative radius for distance checks against circular blockers.
+    /// Conservative radius for callers that need the shared circular truth.
+    ///
+    /// Farm placement uses its authored rectangle below. Movement continues to
+    /// use the circular `BuildingKind.footprintRadius` contract from FI-03.
     static func collisionRadius(for kind: BuildingKind) -> Float {
         if let half = halfExtents(for: kind) {
             return simd_length(half)
@@ -46,30 +65,75 @@ enum ConstructionPlacement {
         return kind.footprintRadius
     }
 
-    /// True when the entire footprint sits on Sunwoven home land, clear of void
-    /// and other footprints. Green only when every sample passes.
+    /// True when the entire footprint sits on the player's home land, clear of
+    /// void and other footprints. Green only when every sample passes.
     static func isLegal(
         kind: BuildingKind,
         at point: WorldPoint,
         in simulation: SkirmishSimulation
     ) -> Bool {
         let map = simulation.map
-        let radius = collisionRadius(for: kind)
+        let homeRegion = simulation.playerFaction.homeRegion
 
         for sample in footprintSamples(kind: kind, center: point) {
             guard map.landField(at: sample) > minLand else { return false }
-            guard map.region(at: sample) == .sunwovenHome else { return false }
+            guard map.region(at: sample) == homeRegion else { return false }
         }
 
+        let candidate = footprint(for: kind, centeredAt: point)
         for building in simulation.buildings.values {
-            let need = collisionRadius(for: building.kind) + radius + clearance
-            if simd_distance(building.position, point) < need { return false }
+            let blocker = footprint(for: building.kind, centeredAt: building.position)
+            if overlaps(candidate, blocker, clearance: placementClearance) { return false }
         }
         for deposit in simulation.deposits.values {
-            let need = Deposit.workRadius + radius + clearance
-            if simd_distance(deposit.position, point) < need { return false }
+            let blocker = Footprint.circle(center: deposit.position, radius: Deposit.workRadius)
+            if overlaps(candidate, blocker, clearance: placementClearance) { return false }
         }
         return true
+    }
+
+    private enum Footprint {
+        case circle(center: WorldPoint, radius: Float)
+        case rectangle(center: WorldPoint, halfExtents: SIMD2<Float>)
+    }
+
+    private static func footprint(
+        for kind: BuildingKind,
+        centeredAt center: WorldPoint
+    ) -> Footprint {
+        if let half = halfExtents(for: kind) {
+            return .rectangle(center: center, halfExtents: half)
+        }
+        return .circle(center: center, radius: kind.footprintRadius)
+    }
+
+    /// Tests complete footprint overlap, including the placement clearance.
+    ///
+    /// Most structures use the FI-03 circular truth. Farms retain their actual
+    /// authored 7 × 7 m rectangle, so a diagonal bounding circle cannot make a
+    /// cardinal approach look blocked too early or let a corner clip through.
+    private static func overlaps(
+        _ lhs: Footprint,
+        _ rhs: Footprint,
+        clearance: Float
+    ) -> Bool {
+        switch (lhs, rhs) {
+        case let (.circle(aCenter, aRadius), .circle(bCenter, bRadius)):
+            return simd_distance(aCenter, bCenter) < aRadius + bRadius + clearance
+
+        case let (.rectangle(rectCenter, rectHalf), .circle(circleCenter, circleRadius)),
+             let (.circle(circleCenter, circleRadius), .rectangle(rectCenter, rectHalf)):
+            let delta = circleCenter - rectCenter
+            let dx = max(abs(delta.x) - rectHalf.x, 0)
+            let dz = max(abs(delta.y) - rectHalf.y, 0)
+            let reach = circleRadius + clearance
+            return dx * dx + dz * dz < reach * reach
+
+        case let (.rectangle(aCenter, aHalf), .rectangle(bCenter, bHalf)):
+            let delta = bCenter - aCenter
+            return abs(delta.x) < aHalf.x + bHalf.x + clearance
+                && abs(delta.y) < aHalf.y + bHalf.y + clearance
+        }
     }
 
     /// Centre + edge/corner samples so green means the full plot fits.
@@ -99,7 +163,7 @@ enum ConstructionPlacement {
         let radius = kind.footprintRadius
         var points: [WorldPoint] = [center]
         for ring in [radius * 0.5, radius] as [Float] {
-            let steps = ring == radius ? 16 : 8
+            let steps = ring == radius ? 32 : 16
             for index in 0..<steps {
                 let angle = Float(index) / Float(steps) * 2 * .pi
                 points.append(center + WorldPoint(cos(angle) * ring, sin(angle) * ring))

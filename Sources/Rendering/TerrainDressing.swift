@@ -124,7 +124,8 @@ enum TerrainDressing {
         // exactly on the bank still has half its crown over the channel, and the
         // bank wall is the one place on the plate where that is unmistakable.
         let rim = RimProfile(radii: rimRadii, fallback: fragment.radius) { local in
-            map.waterDepth(at: fragment.center + local) > -1.6
+            let point = fragment.center + local
+            return !map.isLand(point) || map.waterDepth(at: point) > -1.6
         }
 
         // Local-space keep-clear, so the scatter never has to think in world space.

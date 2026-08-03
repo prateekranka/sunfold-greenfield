@@ -1,0 +1,239 @@
+Building for debugging...
+[0/2] Write swift-version--58304C5D6DBC2206.txt
+Build complete! (0.11s)
+Test Suite 'All tests' started at 2026-08-01 11:12:41.244.
+Test Suite 'SunfoldGreenfieldPackageTests.xctest' started at 2026-08-01 11:12:41.246.
+Test Suite 'AdversaryTests' started at 2026-08-01 11:12:41.246.
+Test Case '-[SunfoldCoreTests.AdversaryTests testAdversaryGrowsItsEconomyTowardTwelveCitizens]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testAdversaryGrowsItsEconomyTowardTwelveCitizens]' passed (11.209 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testArmyTrainingUsesCompletedBuildingTrainerRoster]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testArmyTrainingUsesCompletedBuildingTrainerRoster]' passed (10.764 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testDisabledAdversaryDoesNothingAtAll]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testDisabledAdversaryDoesNothingAtAll]' passed (1.697 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testFirstWaveArrivesOnThePlayersGroundInsideTheBar]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testFirstWaveArrivesOnThePlayersGroundInsideTheBar]' passed (10.059 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testFormationYardIntentIsDueAtTick2400AndOnlyOnce]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testFormationYardIntentIsDueAtTick2400AndOnlyOnce]' passed (4.327 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testFormationYardIsCommittedAtTwoMinutes]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testFormationYardIsCommittedAtTwoMinutes]' passed (6.595 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testLumenSpireIsDueAt4800AndDefersUntilReady]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testLumenSpireIsDueAt4800AndDefersUntilReady]' passed (5.578 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheAdversaryMatterLedgerCloses]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheAdversaryMatterLedgerCloses]' passed (6.855 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheWaveDrawsBloodWithoutAnyPlayerInput]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheWaveDrawsBloodWithoutAnyPlayerInput]' passed (10.140 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheWaveTableIsWhatTheSpecAsksForAllTheWayToWaveFive]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testTheWaveTableIsWhatTheSpecAsksForAllTheWayToWaveFive]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testTwoNoInputRunsShareOneWorldHashForTheWholeMatch]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testTwoNoInputRunsShareOneWorldHashForTheWholeMatch]' passed (27.803 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testWavesLeaveOnScheduleAndFieldWhatTheTableAsksFor]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testWavesLeaveOnScheduleAndFieldWhatTheTableAsksFor]' passed (14.036 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testWaveTimingLogForTheRecord]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testWaveTimingLogForTheRecord]' passed (14.301 seconds).
+Test Case '-[SunfoldCoreTests.AdversaryTests testWorldHashSeparatesDifferentWorlds]' started.
+Test Case '-[SunfoldCoreTests.AdversaryTests testWorldHashSeparatesDifferentWorlds]' passed (9.667 seconds).
+Test Suite 'AdversaryTests' passed at 2026-08-01 11:14:54.280.
+	 Executed 14 tests, with 0 failures (0 unexpected) in 133.031 (133.034) seconds
+Test Suite 'CombatTests' started at 2026-08-01 11:14:54.280.
+Test Case '-[SunfoldCoreTests.CombatTests testCombatDamageHelperMatchesSpec]' started.
+Test Case '-[SunfoldCoreTests.CombatTests testCombatDamageHelperMatchesSpec]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.CombatTests testCombatDeterminismWithIdenticalOrders]' started.
+Test Case '-[SunfoldCoreTests.CombatTests testCombatDeterminismWithIdenticalOrders]' passed (0.003 seconds).
+Test Case '-[SunfoldCoreTests.CombatTests testCombatFrameRateIndependence]' started.
+Test Case '-[SunfoldCoreTests.CombatTests testCombatFrameRateIndependence]' passed (2.461 seconds).
+Test Case '-[SunfoldCoreTests.CombatTests testDamageFormulaBonusDamagePair]' started.
+Test Case '-[SunfoldCoreTests.CombatTests testDamageFormulaBonusDamagePair]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.CombatTests testDamageFormulaMinimumFloor]' started.
+Test Case '-[SunfoldCoreTests.CombatTests testDamageFormulaMinimumFloor]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.CombatTests testDamageFormulaStandardMatchup]' started.
+Test Case '-[SunfoldCoreTests.CombatTests testDamageFormulaStandardMatchup]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.CombatTests testDestroyedProductionBuildingRefundsQueue]' started.
+Test Case '-[SunfoldCoreTests.CombatTests testDestroyedProductionBuildingRefundsQueue]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.CombatTests testUnitDeathFreesPopulation]' started.
+Test Case '-[SunfoldCoreTests.CombatTests testUnitDeathFreesPopulation]' passed (0.000 seconds).
+Test Suite 'CombatTests' passed at 2026-08-01 11:14:56.748.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 2.466 (2.468) seconds
+Test Suite 'ConstructionIntegrityTests' started at 2026-08-01 11:14:56.748.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testAddingBuildersDoesNotDropAlreadyAssignedOnSameSite]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testAddingBuildersDoesNotDropAlreadyAssignedOnSameSite]' passed (1.034 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testBoardingAndAboardCitizensCannotBeAssigned]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testBoardingAndAboardCitizensCannotBeAssigned]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testBuildersStayAssignedUntilFoundationCompletes]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testBuildersStayAssignedUntilFoundationCompletes]' passed (1.102 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testCancelRefundUsesExactFractionalMatter]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testCancelRefundUsesExactFractionalMatter]' passed (1.082 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testConstructionAssignmentDepositsCarriedLoadToStock]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testConstructionAssignmentDepositsCarriedLoadToStock]' passed (1.165 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testEveryBuildingWithAPriceCanActuallyBePlaced]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testEveryBuildingWithAPriceCanActuallyBePlaced]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testLightTransportOnlySelectionInspectsIncompleteFarm]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testLightTransportOnlySelectionInspectsIncompleteFarm]' passed (1.030 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testNothingFreeIsPlaceable]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testNothingFreeIsPlaceable]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testOrderConstructSetsMarkerOnlyWhenBuildersAssigned]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testOrderConstructSetsMarkerOnlyWhenBuildersAssigned]' passed (1.055 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testRefundLabelPreservesFractionalMatter]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testRefundLabelPreservesFractionalMatter]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testStalledFoundationAcceptsBuildersAgain]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testStalledFoundationAcceptsBuildersAgain]' passed (1.122 seconds).
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testTwoFoundationsHaveIndependentBuilderCaps]' started.
+Test Case '-[SunfoldCoreTests.ConstructionIntegrityTests testTwoFoundationsHaveIndependentBuilderCaps]' passed (1.191 seconds).
+Test Suite 'ConstructionIntegrityTests' passed at 2026-08-01 11:15:05.532.
+	 Executed 12 tests, with 0 failures (0 unexpected) in 8.782 (8.784) seconds
+Test Suite 'DeterminismTests' started at 2026-08-01 11:15:05.532.
+Test Case '-[SunfoldCoreTests.DeterminismTests testBothFactionsReceiveTheIdenticalCoreTrickle]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testBothFactionsReceiveTheIdenticalCoreTrickle]' passed (1.073 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testClockDropsBacklogInsteadOfFastForwarding]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testClockDropsBacklogInsteadOfFastForwarding]' passed (0.001 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testClockRunsFixedStepsRegardlessOfFrameRate]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testClockRunsFixedStepsRegardlessOfFrameRate]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testCoastlineTracesClosedLoops]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testCoastlineTracesClosedLoops]' passed (6.968 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testCoresAreEquidistantFromTheDominion]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testCoresAreEquidistantFromTheDominion]' passed (3.436 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testDifferentSeedsDiverge]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testDifferentSeedsDiverge]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testEveryLandmassCarriesAPlateCentre]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testEveryLandmassCarriesAPlateCentre]' passed (6.398 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testHomeReachesExpansionOnlyByVoidUntilOutpostIsWoven]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testHomeReachesExpansionOnlyByVoidUntilOutpostIsWoven]' passed (3.536 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testLandCoversMostOfThePlayableMap]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testLandCoversMostOfThePlayableMap]' passed (11.163 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testLandmassIsContiguous]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testLandmassIsContiguous]' passed (3.263 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testLandUnitCannotWalkAcrossVoidWater]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testLandUnitCannotWalkAcrossVoidWater]' passed (7.768 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testLandUnitWalksFromHomeToDominionOverContinuousLand]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testLandUnitWalksFromHomeToDominionOverContinuousLand]' passed (1.059 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testNeitherSideIsHandedMoreGround]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testNeitherSideIsHandedMoreGround]' passed (11.569 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testPauseStopsSimulatedTime]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testPauseStopsSimulatedTime]' passed (1.073 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testPlateCentresAreDryLand]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testPlateCentresAreDryLand]' passed (3.307 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testSameSeedReplaysIdentically]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testSameSeedReplaysIdentically]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testStagingPointIsOnLandAndDockIsInVoid]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testStagingPointIsOnLandAndDockIsInVoid]' passed (3.214 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testTaggedStreamsAreIndependent]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testTaggedStreamsAreIndependent]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testTransportCrossingsHaveWaterToCross]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testTransportCrossingsHaveWaterToCross]' passed (3.136 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testUnitFloatStaysInRange]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testUnitFloatStaysInRange]' passed (0.006 seconds).
+Test Case '-[SunfoldCoreTests.DeterminismTests testZeroSeedIsNotDegenerate]' started.
+Test Case '-[SunfoldCoreTests.DeterminismTests testZeroSeedIsNotDegenerate]' passed (0.001 seconds).
+Test Suite 'DeterminismTests' passed at 2026-08-01 11:16:12.509.
+	 Executed 21 tests, with 0 failures (0 unexpected) in 66.973 (66.977) seconds
+Test Suite 'RosterTests' started at 2026-08-01 11:16:12.509.
+Test Case '-[SunfoldCoreTests.RosterTests testCompletedProductionItemHoldsAtPopulationCapThenSpawnsWhenCapRises]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testCompletedProductionItemHoldsAtPopulationCapThenSpawnsWhenCapRises]' passed (1.071 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testDominionCaptureUsesExplicitUnitList]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testDominionCaptureUsesExplicitUnitList]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testFormationYardAndLumenSpireTrainingRosters]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testFormationYardAndLumenSpireTrainingRosters]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testFormationYardCostUsesTwentyLumen]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testFormationYardCostUsesTwentyLumen]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testLumenSpireCostAndBuildTime]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testLumenSpireCostAndBuildTime]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testLumenSpireRequiresCompletedSameFactionFormationYard]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testLumenSpireRequiresCompletedSameFactionFormationYard]' passed (4.647 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testPlaceBuildingRefusesLumenSpireWithoutPrerequisite]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testPlaceBuildingRefusesLumenSpireWithoutPrerequisite]' passed (1.043 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testPlacingLumenSpireDeductsExactLedger]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testPlacingLumenSpireDeductsExactLedger]' passed (1.069 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testQuarrelAndVanguardCounterDamageUsesCombatSystem]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testQuarrelAndVanguardCounterDamageUsesCombatSystem]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testQuarrelProfileMatchesRoster]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testQuarrelProfileMatchesRoster]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.RosterTests testVanguardProfileIncludesOnlyRequiredBonuses]' started.
+Test Case '-[SunfoldCoreTests.RosterTests testVanguardProfileIncludesOnlyRequiredBonuses]' passed (0.000 seconds).
+Test Suite 'RosterTests' passed at 2026-08-01 11:16:20.341.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 7.831 (7.832) seconds
+Test Suite 'VictoryTests' started at 2026-08-01 11:16:20.341.
+Test Case '-[SunfoldCoreTests.VictoryTests testAFinishedMatchStopsSteppingEntirely]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testAFinishedMatchStopsSteppingEntirely]' passed (1.034 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testAnUntouchedMatchAgainstTheAdversaryNowResolves]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testAnUntouchedMatchAgainstTheAdversaryNowResolves]' passed (14.302 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testAUnitAboardATransportHoldsNothing]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testAUnitAboardATransportHoldsNothing]' passed (0.017 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testAWorldWithoutCoresNeverResolvesByConquest]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testAWorldWithoutCoresNeverResolvesByConquest]' passed (0.006 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testCitizensAndPathfindersCannotHoldTheDominion]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testCitizensAndPathfindersCannotHoldTheDominion]' passed (0.033 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testContestedProgressDecaysAtHalfTheFillRateRatherThanPausing]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testContestedProgressDecaysAtHalfTheFillRateRatherThanPausing]' passed (0.010 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testCorePressureBeatsFireOnceEachOnTheWayDown]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testCorePressureBeatsFireOnceEachOnTheWayDown]' passed (0.001 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testDestroyingACoreEndsTheMatchByConquestBothWays]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testDestroyingACoreEndsTheMatchByConquestBothWays]' passed (0.001 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testDominionMilestonesAnnounceOnceEach]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testDominionMilestonesAnnounceOnceEach]' passed (0.013 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testMutualOccupationDrainsBothSidesAndCannotDeadlock]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testMutualOccupationDrainsBothSidesAndCannotDeadlock]' passed (0.023 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testNothingEverAcquiresTheSpireAsATarget]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testNothingEverAcquiresTheSpireAsATarget]' passed (0.046 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testOneUncontestedVanguardWinsTheDominionInFortyFiveSeconds]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testOneUncontestedVanguardWinsTheDominionInFortyFiveSeconds]' passed (0.017 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testProgressSurvivesABriefAbsenceAndIsLostAfterEight]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testProgressSurvivesABriefAbsenceAndIsLostAfterEight]' passed (0.010 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testResigningIsADefeatNamedHonestly]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testResigningIsADefeatNamedHonestly]' passed (1.154 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testRestartRewindsTheMatchToItsOpeningState]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testRestartRewindsTheMatchToItsOpeningState]' passed (1.252 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testTheDominionSpireStandsAtTheContestedCentreAndBelongsToNobody]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testTheDominionSpireStandsAtTheContestedCentreAndBelongsToNobody]' passed (1.026 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testTheHoldRequirementShortensAsTheMatchRunsLong]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testTheHoldRequirementShortensAsTheMatchRunsLong]' passed (0.000 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testTheSameHoldWinsLaterThanItWouldHaveEarlier]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testTheSameHoldWinsLaterThanItWouldHaveEarlier]' passed (0.011 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testTheSpireCannotBeDamagedEvenWhenOrderedAttackedPointBlank]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testTheSpireCannotBeDamagedEvenWhenOrderedAttackedPointBlank]' passed (0.013 seconds).
+Test Case '-[SunfoldCoreTests.VictoryTests testTwoRunsReachTheSameVictoryStateFromOneSeed]' started.
+Test Case '-[SunfoldCoreTests.VictoryTests testTwoRunsReachTheSameVictoryStateFromOneSeed]' passed (9.769 seconds).
+Test Suite 'VictoryTests' passed at 2026-08-01 11:16:49.082.
+	 Executed 20 tests, with 0 failures (0 unexpected) in 28.737 (28.741) seconds
+Test Suite 'SunfoldGreenfieldPackageTests.xctest' passed at 2026-08-01 11:16:49.083.
+	 Executed 86 tests, with 0 failures (0 unexpected) in 247.820 (247.836) seconds
+Test Suite 'All tests' passed at 2026-08-01 11:16:49.083.
+	 Executed 86 tests, with 0 failures (0 unexpected) in 247.820 (247.839) seconds
+=== CP-C3 adversary timing · seed 20260726 · map riverlands · NO player input ===
+[0:28] Dwelling committed (population 8/10)
+[2:00] Formation Yard committed
+[4:00] Lumen Spire committed
+[4:00] Wave 1 dispatched: 3 Vanguard → Sunwoven Civilization Core #1
+[4:00] Dwelling committed (population 16/18)
+[4:27] Wave 1 ARRIVED on Sunwoven home ground
+[4:30] First blood — a unit is below full life
+[4:33] Sunwoven unit killed (5 → 4)
+[4:36] Sunwoven unit killed (4 → 3)
+[4:37] Sunwoven Core under attack
+[5:30] Wave 2 dispatched: 2 Quarrel, 4 Vanguard → Sunwoven Civilization Core #1
+[5:30] Dwelling committed (population 24/26)
+[5:54] Wave 2 ARRIVED on Sunwoven home ground
+[5:59] Sunwoven Core DESTROYED
+=== Gravemark at 5:59 ===
+population 28/34 · 12 citizens · 12 soldiers
+stock 1737.5 Provisions · 240.11 Matter · 160.96 Lumen
+home Matter left in the ground: 141
+home Lumen left in the ground: 0
+=== world hash at tick 7192: 4f761a7b50d6df3c ===
+=== deferred from R1 §5 (not shipped in this roster) ===
+· wave 3 · 2 Lancer — `UnitKind` has no `.lancer` case (CP-C7)
+· wave 4 · 2 Lancer, 1 Bastion Walker — no `.lancer`; nothing trains `.bastionWalker` (CP-C7)
+· tick 7200 · Dawn Loom, then Voyager when affordable — the building exists but the research does not, so committing 130 Matter to it would only starve the waves (CP-C6)
+· tick 9600 · Stride Yard — `BuildingKind` has no `.strideYard` case (CP-C7)
+
+CP-C4 · seed 20260726 · riverlands · no player input
+  outcome : Gravemark wins by conquest at 5:59  (tick 7192)
+  summary : Sunwoven's Civilization Core was destroyed.
+  alerts  :
+    [4:57] Sunwoven Core at 75%
+    [5:18] Sunwoven Core at 50%
+    [5:38] Sunwoven Core at 25%
+    [5:59] Gravemark wins by Conquest
+
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

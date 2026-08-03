@@ -14,7 +14,7 @@ struct PlacementPanel: View {
     }
 
     private var canAfford: Bool {
-        simulation.stock(for: .sunwoven).covers(cost)
+        simulation.stock(for: simulation.playerFaction).covers(cost)
     }
 
     var body: some View {
@@ -30,7 +30,9 @@ struct PlacementPanel: View {
                 Text(session.isLegal ? "READY" : "BLOCKED")
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .tracking(0.6)
-                    .foregroundStyle(session.isLegal ? HUDInk.friendly : HUDInk.warning)
+                    .foregroundStyle(
+                        session.isLegal ? HUDInk.friendly(for: simulation.playerFaction) : HUDInk.warning
+                    )
             }
 
             Text(session.kind.purpose)
