@@ -34,7 +34,9 @@ and future versions fail closed before a message reaches gameplay code.
 
 Swift sends `startGame`, `pauseGame`, `resumeGame`, `saveGame` and
 `returnToMenu`. JavaScript sends `runtimeLoaded`, `runtimeReady`, `runtimePaused`,
-`runtimeResumed`, `saveReady`, `returnedToMenu` and `fatalError`.
+`runtimeResumed`, `saveReady`, `battleFinished`, `returnedToMenu` and
+`fatalError`. `battleFinished` carries only the winning faction and terminal
+reason.
 
 The bridge carries lifecycle, setup, save and terminal events only. It never sends
 per-frame unit positions, camera state, selection state, animation state, HUD
@@ -69,3 +71,9 @@ xcodegen generate
 
 The fallback remains available for comparison but is outside this experiment's
 active runtime path.
+
+Durable bootstrap evidence is stored outside the repository under
+`/Users/prateekranka/.codex/evidence/sunfold-threejs-21/` and
+`/Users/prateekranka/.codex/evidence/sunfold-interactive-ios-route/`. Debug builds
+print one `[ThreeJSBridge]` line per command or event. Each line contains only the
+direction, message name, protocol version and payload-key names.

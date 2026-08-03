@@ -24,6 +24,11 @@ test("runtime fallback clears when the runtime marks itself ready", () => {
   assert.match(generatedHTML, /#runtime-fallback\[hidden\]/);
 });
 
+test("runtime HUD buttons remain interactive above the WebGL canvas", () => {
+  assert.match(sourceHTML, /#runtime-hud button \{[^}]*pointer-events: auto;/);
+  assert.match(generatedHTML, /#runtime-hud button \{[^}]*pointer-events: auto;/);
+});
+
 test("runtime uses bundled WebGLRenderer and contains no remote fetch path", () => {
   assert.match(sourceRuntime, /new THREE\.WebGLRenderer/);
   assert.doesNotMatch(sourceRuntime, /fetch\s*\(|XMLHttpRequest|https?:\/\//i);

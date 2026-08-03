@@ -54,6 +54,15 @@ test("snapshots carry a distinct save schema version", () => {
   );
 });
 
+test("battle completion is a versioned terminal event", () => {
+  const result = createEnvelope("event", "battleFinished", {
+    winner: "sunwoven",
+    reason: "victory"
+  });
+  assert.deepEqual(validateEnvelope(result), { valid: true, reason: null });
+  assert.equal(result.saveSchemaVersion, undefined);
+});
+
 test("payloads stay high-level and reject unit or frame state", () => {
   for (const payload of [
     { units: "80" },

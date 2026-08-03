@@ -24,6 +24,11 @@ targets:
     platform: iOS
     sources:
       - path: Sources
+        excludes:
+          - App/ThreeJSExperimentApp.swift
+          - App/ThreeJSRootView.swift
+          - App/ThreeJSInfo.plist
+          - ThreeJS
       - path: Resources
         buildPhase: resources
     settings:

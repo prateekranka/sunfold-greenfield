@@ -43,6 +43,7 @@ enum ThreeJSBridgeProtocol {
         "runtimePaused",
         "runtimeResumed",
         "saveReady",
+        "battleFinished",
         "returnedToMenu",
         "fatalError",
         "pauseRequested",
@@ -72,6 +73,7 @@ enum ThreeJSBridgeProtocol {
         case "runtimeLoaded": allowedPayloadKeys = ["offline", "renderer"]
         case "runtimeReady": allowedPayloadKeys = ["offline", "renderer", "faction"]
         case "saveReady": allowedPayloadKeys = ["snapshotID"]
+        case "battleFinished": allowedPayloadKeys = ["winner", "reason"]
         case "fatalError": allowedPayloadKeys = ["code", "message"]
         default: allowedPayloadKeys = []
         }
@@ -223,15 +225,22 @@ final class ThreeJSBridge: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     private func record(direction: String, envelope: ThreeJSBridgeEnvelope) {
+        let payloadKeys = envelope.payload.keys.sorted()
         trace.append(
             ThreeJSBridgeTrace(
                 direction: direction,
                 name: envelope.name,
                 protocolVersion: envelope.protocolVersion,
                 saveSchemaVersion: envelope.saveSchemaVersion,
-                payloadKeys: envelope.payload.keys.sorted()
+                payloadKeys: payloadKeys
             )
         )
         if trace.count > 64 { trace.removeFirst(trace.count - 64) }
+#if DEBUG
+        print(
+            "[ThreeJSBridge] direction=\(direction) name=\(envelope.name) " +
+            "protocolVersion=\(envelope.protocolVersion) payloadKeys=\(payloadKeys.joined(separator: ","))"
+        )
+#endif
     }
 }
