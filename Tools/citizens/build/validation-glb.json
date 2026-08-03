@@ -1,0 +1,382 @@
+{
+  "glbs": {
+    "citizen": {
+      "all_expected_present": true,
+      "animation_count": 18,
+      "bone_nodes": 32,
+      "clip_names": [
+        "slender_construct_finish_L",
+        "slender_construct_finish_R",
+        "slender_construct_loop_L",
+        "slender_construct_loop_R",
+        "slender_construct_start_L",
+        "slender_construct_start_R",
+        "slender_deposit",
+        "slender_gather_finish_L",
+        "slender_gather_finish_R",
+        "slender_gather_loop_L",
+        "slender_gather_loop_R",
+        "slender_gather_start_L",
+        "slender_gather_start_R",
+        "slender_idle",
+        "slender_idle_loaded",
+        "slender_reverse",
+        "slender_walk_inplace",
+        "slender_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 18,
+      "expected_prefix": "slender_",
+      "file": "citizen_slender.glb",
+      "image_count": 0,
+      "joint_count": 27,
+      "joint_lists": [
+        27
+      ],
+      "material_count": 4,
+      "mesh_count": 4,
+      "meshes": [
+        {
+          "name": "slender_body_mesh",
+          "triangle_count": 276,
+          "vertex_count": 552
+        },
+        {
+          "name": "slender_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_carrier_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        }
+      ],
+      "missing_expected_clips": [],
+      "node_count": 32,
+      "scene_count": 1,
+      "skin_count": 1,
+      "skinned_mesh_count": 2,
+      "skinned_meshes": [
+        "slender_body",
+        "slender_carrier"
+      ],
+      "sockets_present": [
+        "socket_tool_R",
+        "socket_tool_L",
+        "socket_carrier"
+      ],
+      "texture_count": 0,
+      "total_triangles": 336,
+      "total_vertices": 672,
+      "unexpected_clips": []
+    },
+    "citizen_broad": {
+      "all_expected_present": true,
+      "animation_count": 18,
+      "bone_nodes": 32,
+      "clip_names": [
+        "broad_construct_finish_L",
+        "broad_construct_finish_R",
+        "broad_construct_loop_L",
+        "broad_construct_loop_R",
+        "broad_construct_start_L",
+        "broad_construct_start_R",
+        "broad_deposit",
+        "broad_gather_finish_L",
+        "broad_gather_finish_R",
+        "broad_gather_loop_L",
+        "broad_gather_loop_R",
+        "broad_gather_start_L",
+        "broad_gather_start_R",
+        "broad_idle",
+        "broad_idle_loaded",
+        "broad_reverse",
+        "broad_walk_inplace",
+        "broad_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 18,
+      "expected_prefix": "broad_",
+      "file": "citizen_broad.glb",
+      "image_count": 0,
+      "joint_count": 27,
+      "joint_lists": [
+        27
+      ],
+      "material_count": 4,
+      "mesh_count": 4,
+      "meshes": [
+        {
+          "name": "broad_body_mesh",
+          "triangle_count": 276,
+          "vertex_count": 552
+        },
+        {
+          "name": "broad_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_carrier_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        }
+      ],
+      "missing_expected_clips": [],
+      "node_count": 32,
+      "scene_count": 1,
+      "skin_count": 1,
+      "skinned_mesh_count": 2,
+      "skinned_meshes": [
+        "broad_body",
+        "broad_carrier"
+      ],
+      "sockets_present": [
+        "socket_tool_R",
+        "socket_tool_L",
+        "socket_carrier"
+      ],
+      "texture_count": 0,
+      "total_triangles": 336,
+      "total_vertices": 672,
+      "unexpected_clips": []
+    },
+    "lab": {
+      "all_expected_present": true,
+      "animation_count": 36,
+      "bone_nodes": 59,
+      "clip_names": [
+        "broad_construct_finish_L",
+        "broad_construct_finish_R",
+        "broad_construct_loop_L",
+        "broad_construct_loop_R",
+        "broad_construct_start_L",
+        "broad_construct_start_R",
+        "broad_deposit",
+        "broad_gather_finish_L",
+        "broad_gather_finish_R",
+        "broad_gather_loop_L",
+        "broad_gather_loop_R",
+        "broad_gather_start_L",
+        "broad_gather_start_R",
+        "broad_idle",
+        "broad_idle_loaded",
+        "broad_reverse",
+        "broad_walk_inplace",
+        "broad_walk_loaded_inplace",
+        "slender_construct_finish_L",
+        "slender_construct_finish_R",
+        "slender_construct_loop_L",
+        "slender_construct_loop_R",
+        "slender_construct_start_L",
+        "slender_construct_start_R",
+        "slender_deposit",
+        "slender_gather_finish_L",
+        "slender_gather_finish_R",
+        "slender_gather_loop_L",
+        "slender_gather_loop_R",
+        "slender_gather_start_L",
+        "slender_gather_start_R",
+        "slender_idle",
+        "slender_idle_loaded",
+        "slender_reverse",
+        "slender_walk_inplace",
+        "slender_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 36,
+      "expected_prefix": null,
+      "file": "neutral_lab.glb",
+      "image_count": 0,
+      "joint_count": 27,
+      "joint_lists": [
+        27,
+        27
+      ],
+      "material_count": 30,
+      "mesh_count": 30,
+      "meshes": [
+        {
+          "name": "broad_body_mesh",
+          "triangle_count": 276,
+          "vertex_count": 552
+        },
+        {
+          "name": "broad_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_carrier_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "broad_construction_frame_0_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_construction_frame_1_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_construction_frame_2_mesh",
+          "triangle_count": 36,
+          "vertex_count": 72
+        },
+        {
+          "name": "broad_deposit_target_pad_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "broad_deposit_target_ring_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "broad_ground_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "broad_rest_L_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_rest_R_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_source_pile_0_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "broad_source_pile_1_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "broad_source_pile_2_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_body_mesh",
+          "triangle_count": 276,
+          "vertex_count": 552
+        },
+        {
+          "name": "slender_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_carrier_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_construction_frame_0_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_construction_frame_1_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_construction_frame_2_mesh",
+          "triangle_count": 36,
+          "vertex_count": 72
+        },
+        {
+          "name": "slender_deposit_target_pad_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "slender_deposit_target_ring_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_ground_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "slender_rest_L_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_rest_R_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_source_pile_0_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_source_pile_1_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_source_pile_2_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        }
+      ],
+      "missing_expected_clips": [],
+      "node_count": 86,
+      "scene_count": 1,
+      "skin_count": 2,
+      "skinned_mesh_count": 4,
+      "skinned_meshes": [
+        "broad_body",
+        "broad_carrier",
+        "slender_body",
+        "slender_carrier"
+      ],
+      "sockets_present": [
+        "socket_tool_R",
+        "socket_tool_L",
+        "socket_carrier"
+      ],
+      "texture_count": 0,
+      "total_triangles": 1784,
+      "total_vertices": 3216,
+      "unexpected_clips": []
+    }
+  },
+  "manifest": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/manifest/event-markers.json",
+  "schema": "sunfold.lab.glb-inventory/1"
+}

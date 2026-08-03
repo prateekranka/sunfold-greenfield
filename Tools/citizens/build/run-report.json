@@ -1,0 +1,16 @@
+{
+  "generator": "Tools/citizens/build_lab.py",
+  "blender": "5.2.0 LTS",
+  "blender_build": "fbe6228777e7",
+  "python": "3.13.13",
+  "fps": 30,
+  "outputs": {
+    "blend": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/assets/neutral_lab.blend",
+    "citizen_glb": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/ThreeRuntime/assets/lab/citizen_slender.glb",
+    "lab_glb": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/ThreeRuntime/assets/lab/neutral_lab.glb",
+    "manifest": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/manifest/event-markers.json",
+    "renders": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/build/renders",
+    "citizen_glb_sha256": "25919974bc2182e7a2a67647adeb55256edbdfd8a8fd6b96a6d3570219e4577d",
+    "lab_glb_sha256": "e7cca62f56a72c06c481d9df8a1dd240482f8f97495deaaafd474b731a3ec3e3"
+  }
+}

@@ -1,0 +1,623 @@
+{
+  "schema": "sunfold.lab.import-validation/1",
+  "manifest": "Tools/citizens/manifest/event-markers.json",
+  "three_version": "178",
+  "glbs": {
+    "citizen": {
+      "file": "citizen_slender.glb",
+      "animation_count": 18,
+      "clips": [
+        "slender_construct_finish_L",
+        "slender_construct_finish_R",
+        "slender_construct_loop_L",
+        "slender_construct_loop_R",
+        "slender_construct_start_L",
+        "slender_construct_start_R",
+        "slender_deposit",
+        "slender_gather_finish_L",
+        "slender_gather_finish_R",
+        "slender_gather_loop_L",
+        "slender_gather_loop_R",
+        "slender_gather_start_L",
+        "slender_gather_start_R",
+        "slender_idle",
+        "slender_idle_loaded",
+        "slender_reverse",
+        "slender_walk_inplace",
+        "slender_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 18,
+      "all_expected_present": true,
+      "missing_expected": [],
+      "unexpected": [],
+      "skeleton": {
+        "bone_names": [
+          "accessory_strap",
+          "calf_L",
+          "calf_R",
+          "chest",
+          "clavicle_L",
+          "clavicle_R",
+          "foot_L",
+          "foot_R",
+          "hand_L",
+          "hand_R",
+          "head",
+          "hips",
+          "lowerarm_L",
+          "lowerarm_R",
+          "neck",
+          "root",
+          "socket_carrier",
+          "socket_tool_L",
+          "socket_tool_R",
+          "spine_01",
+          "spine_02",
+          "thigh_L",
+          "thigh_R",
+          "toe_L",
+          "toe_R",
+          "upperarm_L",
+          "upperarm_R"
+        ],
+        "bone_count": 27,
+        "skinned_meshes": [
+          "slender_body",
+          "slender_carrier"
+        ],
+        "skinned_mesh_count": 2,
+        "socket_tool_R": true,
+        "socket_tool_L": true,
+        "socket_carrier": true
+      },
+      "tool_children": {
+        "socket_tool_R": {
+          "tool_present": true,
+          "children": [
+            "slender_scraper"
+          ]
+        },
+        "socket_tool_L": {
+          "tool_present": true,
+          "children": [
+            "slender_mallet"
+          ]
+        }
+      },
+      "root_motion": {
+        "slender_walk_inplace": {
+          "duration_s": 1.2,
+          "max_root_translation_m": 0,
+          "in_place": true
+        },
+        "slender_walk_loaded_inplace": {
+          "duration_s": 1.2,
+          "max_root_translation_m": 0,
+          "in_place": true
+        },
+        "slender_gather_loop_R": {
+          "duration_s": 1.2,
+          "max_root_translation_m": 0,
+          "in_place": true
+        }
+      },
+      "accessory_motion": {
+        "slender_deposit": {
+          "accessory_strap_tracked": true,
+          "socket_tool_R_tracked": true
+        },
+        "slender_walk_loaded_inplace": {
+          "accessory_strap_tracked": true,
+          "socket_tool_R_tracked": true
+        },
+        "slender_gather_loop_R": {
+          "accessory_strap_tracked": true,
+          "socket_tool_R_tracked": true
+        }
+      }
+    },
+    "citizen_broad": {
+      "file": "citizen_broad.glb",
+      "animation_count": 18,
+      "clips": [
+        "broad_construct_finish_L",
+        "broad_construct_finish_R",
+        "broad_construct_loop_L",
+        "broad_construct_loop_R",
+        "broad_construct_start_L",
+        "broad_construct_start_R",
+        "broad_deposit",
+        "broad_gather_finish_L",
+        "broad_gather_finish_R",
+        "broad_gather_loop_L",
+        "broad_gather_loop_R",
+        "broad_gather_start_L",
+        "broad_gather_start_R",
+        "broad_idle",
+        "broad_idle_loaded",
+        "broad_reverse",
+        "broad_walk_inplace",
+        "broad_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 18,
+      "all_expected_present": true,
+      "missing_expected": [],
+      "unexpected": [],
+      "skeleton": {
+        "bone_names": [
+          "accessory_strap",
+          "calf_L",
+          "calf_R",
+          "chest",
+          "clavicle_L",
+          "clavicle_R",
+          "foot_L",
+          "foot_R",
+          "hand_L",
+          "hand_R",
+          "head",
+          "hips",
+          "lowerarm_L",
+          "lowerarm_R",
+          "neck",
+          "root",
+          "socket_carrier",
+          "socket_tool_L",
+          "socket_tool_R",
+          "spine_01",
+          "spine_02",
+          "thigh_L",
+          "thigh_R",
+          "toe_L",
+          "toe_R",
+          "upperarm_L",
+          "upperarm_R"
+        ],
+        "bone_count": 27,
+        "skinned_meshes": [
+          "broad_body",
+          "broad_carrier"
+        ],
+        "skinned_mesh_count": 2,
+        "socket_tool_R": true,
+        "socket_tool_L": true,
+        "socket_carrier": true
+      },
+      "tool_children": {
+        "socket_tool_R": {
+          "tool_present": true,
+          "children": [
+            "broad_scraper"
+          ]
+        },
+        "socket_tool_L": {
+          "tool_present": true,
+          "children": [
+            "broad_mallet"
+          ]
+        }
+      },
+      "root_motion": {
+        "broad_walk_inplace": {
+          "duration_s": 1.2,
+          "max_root_translation_m": 0,
+          "in_place": true
+        },
+        "broad_walk_loaded_inplace": {
+          "duration_s": 1.2,
+          "max_root_translation_m": 0,
+          "in_place": true
+        },
+        "broad_gather_loop_R": {
+          "duration_s": 1.2,
+          "max_root_translation_m": 0,
+          "in_place": true
+        }
+      },
+      "accessory_motion": {
+        "broad_deposit": {
+          "accessory_strap_tracked": true,
+          "socket_tool_R_tracked": true
+        },
+        "broad_walk_loaded_inplace": {
+          "accessory_strap_tracked": true,
+          "socket_tool_R_tracked": true
+        },
+        "broad_gather_loop_R": {
+          "accessory_strap_tracked": true,
+          "socket_tool_R_tracked": true
+        }
+      }
+    },
+    "lab": {
+      "file": "neutral_lab.glb",
+      "animation_count": 36,
+      "clips": [
+        "broad_construct_finish_L",
+        "broad_construct_finish_R",
+        "broad_construct_loop_L",
+        "broad_construct_loop_R",
+        "broad_construct_start_L",
+        "broad_construct_start_R",
+        "broad_deposit",
+        "broad_gather_finish_L",
+        "broad_gather_finish_R",
+        "broad_gather_loop_L",
+        "broad_gather_loop_R",
+        "broad_gather_start_L",
+        "broad_gather_start_R",
+        "broad_idle",
+        "broad_idle_loaded",
+        "broad_reverse",
+        "broad_walk_inplace",
+        "broad_walk_loaded_inplace",
+        "slender_construct_finish_L",
+        "slender_construct_finish_R",
+        "slender_construct_loop_L",
+        "slender_construct_loop_R",
+        "slender_construct_start_L",
+        "slender_construct_start_R",
+        "slender_deposit",
+        "slender_gather_finish_L",
+        "slender_gather_finish_R",
+        "slender_gather_loop_L",
+        "slender_gather_loop_R",
+        "slender_gather_start_L",
+        "slender_gather_start_R",
+        "slender_idle",
+        "slender_idle_loaded",
+        "slender_reverse",
+        "slender_walk_inplace",
+        "slender_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 36,
+      "all_expected_present": true,
+      "missing_expected": [],
+      "unexpected": [],
+      "skeleton": {
+        "bone_names": [
+          "accessory_strap",
+          "accessory_strap_1",
+          "calf_L",
+          "calf_L_1",
+          "calf_R",
+          "calf_R_1",
+          "chest",
+          "chest_1",
+          "clavicle_L",
+          "clavicle_L_1",
+          "clavicle_R",
+          "clavicle_R_1",
+          "foot_L",
+          "foot_L_1",
+          "foot_R",
+          "foot_R_1",
+          "hand_L",
+          "hand_L_1",
+          "hand_R",
+          "hand_R_1",
+          "head",
+          "head_1",
+          "hips",
+          "hips_1",
+          "lowerarm_L",
+          "lowerarm_L_1",
+          "lowerarm_R",
+          "lowerarm_R_1",
+          "neck",
+          "neck_1",
+          "root",
+          "root_1",
+          "socket_carrier",
+          "socket_carrier_1",
+          "socket_tool_L",
+          "socket_tool_L_1",
+          "socket_tool_R",
+          "socket_tool_R_1",
+          "spine_01",
+          "spine_01_1",
+          "spine_02",
+          "spine_02_1",
+          "thigh_L",
+          "thigh_L_1",
+          "thigh_R",
+          "thigh_R_1",
+          "toe_L",
+          "toe_L_1",
+          "toe_R",
+          "toe_R_1",
+          "upperarm_L",
+          "upperarm_L_1",
+          "upperarm_R",
+          "upperarm_R_1"
+        ],
+        "bone_count": 54,
+        "skinned_meshes": [
+          "broad_body",
+          "broad_carrier",
+          "slender_body",
+          "slender_carrier"
+        ],
+        "skinned_mesh_count": 4,
+        "socket_tool_R": true,
+        "socket_tool_L": true,
+        "socket_carrier": true
+      },
+      "tool_children": null,
+      "root_motion": null,
+      "accessory_motion": null
+    }
+  },
+  "marker_schedule": [
+    {
+      "clip": "slender_deposit",
+      "name": "deposit_release",
+      "frame": 40,
+      "time_s": 1.3333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_gather_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_gather_loop_R",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_gather_loop_R",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12,
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_gather_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_gather_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_gather_loop_L",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_gather_loop_L",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12,
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_gather_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_construct_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_construct_loop_L",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_construct_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_construct_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_construct_loop_R",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "slender_construct_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_deposit",
+      "name": "deposit_release",
+      "frame": 40,
+      "time_s": 1.3333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_gather_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_gather_loop_R",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_gather_loop_R",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12,
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_gather_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_gather_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_gather_loop_L",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_gather_loop_L",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12,
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_gather_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_construct_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_construct_loop_L",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_construct_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_construct_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_construct_loop_R",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored",
+      "in_clip_range": true
+    },
+    {
+      "clip": "broad_construct_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored",
+      "in_clip_range": true
+    }
+  ],
+  "marker_events_covered": [
+    "construct_contact",
+    "deposit_release",
+    "gather_contact",
+    "payload_attach",
+    "tool_attach",
+    "tool_release"
+  ],
+  "marker_in_range": true,
+  "locked_pose": {
+    "clip": "slender_gather_loop_R",
+    "frame": 12,
+    "imported_path": "Tools/citizens/build/locked-pose-imported.json"
+  },
+  "mismatch": {
+    "passed": true,
+    "max_bone_position_error_m": 0.000001414214,
+    "skin_vertex_max_error_m": 0.000001414214,
+    "skin_vertex_mean_error_m": 1.285699e-7,
+    "skin_vertex_count": 184,
+    "report_path": "Tools/citizens/build/mismatch-report.json"
+  }
+}

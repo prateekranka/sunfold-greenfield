@@ -1,0 +1,155 @@
+{
+  "schema": "sunfold.lab.mismatch/1",
+  "clip": "slender_gather_loop_R",
+  "frame": 12,
+  "bone_count_compared": 27,
+  "max_bone_position_error_m": 0.000001414214,
+  "worst_position_bone": "socket_tool_L",
+  "skin_vertex": {
+    "compared": 184,
+    "source_count": 184,
+    "imported_count": 552,
+    "max_error_m": 0.000001414214,
+    "mean_error_m": 1.285699e-7,
+    "worst_vertex_index": 41
+  },
+  "quaternion_gate": "informational",
+  "passed": true,
+  "per_bone": [
+    {
+      "bone": "socket_tool_L",
+      "position_error_m": 0.000001414214,
+      "quaternion_error_rad": 1.282411
+    },
+    {
+      "bone": "hand_L",
+      "position_error_m": 0.000001,
+      "quaternion_error_rad": 3.002543
+    },
+    {
+      "bone": "lowerarm_R",
+      "position_error_m": 0.000001,
+      "quaternion_error_rad": 3.092772
+    },
+    {
+      "bone": "toe_L",
+      "position_error_m": 0.000001,
+      "quaternion_error_rad": 1.641746
+    },
+    {
+      "bone": "toe_R",
+      "position_error_m": 0.000001,
+      "quaternion_error_rad": 1.641746
+    },
+    {
+      "bone": "accessory_strap",
+      "position_error_m": 0,
+      "quaternion_error_rad": 1.420921
+    },
+    {
+      "bone": "calf_L",
+      "position_error_m": 0,
+      "quaternion_error_rad": 1.636614
+    },
+    {
+      "bone": "calf_R",
+      "position_error_m": 0,
+      "quaternion_error_rad": 1.646929
+    },
+    {
+      "bone": "chest",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.039638
+    },
+    {
+      "bone": "clavicle_L",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.082832
+    },
+    {
+      "bone": "clavicle_R",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.016092
+    },
+    {
+      "bone": "foot_L",
+      "position_error_m": 0,
+      "quaternion_error_rad": 2.94668
+    },
+    {
+      "bone": "foot_R",
+      "position_error_m": 0,
+      "quaternion_error_rad": 2.94668
+    },
+    {
+      "bone": "hand_R",
+      "position_error_m": 0,
+      "quaternion_error_rad": 2.959115
+    },
+    {
+      "bone": "head",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.039638
+    },
+    {
+      "bone": "hips",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.141593
+    },
+    {
+      "bone": "lowerarm_L",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.002541
+    },
+    {
+      "bone": "neck",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.039638
+    },
+    {
+      "bone": "root",
+      "position_error_m": 0,
+      "quaternion_error_rad": 1.570796
+    },
+    {
+      "bone": "socket_carrier",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.039638
+    },
+    {
+      "bone": "socket_tool_R",
+      "position_error_m": 0,
+      "quaternion_error_rad": 2.934219
+    },
+    {
+      "bone": "spine_01",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.141593
+    },
+    {
+      "bone": "spine_02",
+      "position_error_m": 0,
+      "quaternion_error_rad": 3.039638
+    },
+    {
+      "bone": "thigh_L",
+      "position_error_m": 0,
+      "quaternion_error_rad": 1.563528
+    },
+    {
+      "bone": "thigh_R",
+      "position_error_m": 0,
+      "quaternion_error_rad": 1.578196
+    },
+    {
+      "bone": "upperarm_L",
+      "position_error_m": 0,
+      "quaternion_error_rad": 2.48462
+    },
+    {
+      "bone": "upperarm_R",
+      "position_error_m": 0,
+      "quaternion_error_rad": 2.475994
+    }
+  ]
+}

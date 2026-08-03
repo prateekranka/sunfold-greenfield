@@ -1,0 +1,40 @@
+{
+  "schema": "sunfold.citizen.references/1",
+  "status": "locked technical-spike references",
+  "sharedEnvelope": {
+    "authoredHeightMeters": 1.8,
+    "presentationScale": 1.25,
+    "civilizationCoreFootprintRadiusMeters": 5.5
+  },
+  "citizens": [
+    {
+      "name": "Foundation Sunwoven Weaver",
+      "canonicalReference": "Docs/Concepts/01-sunwoven-foundation-opening.png",
+      "spikeProportion": "spike_slender",
+      "constructionViews": {
+        "sheet": "Tools/citizens/build/reference-sheets/sunwoven-construction-sheet.png",
+        "front": "Tools/citizens/build/renders/turnaround-slender-front.png",
+        "side": "Tools/citizens/build/renders/turnaround-slender-side.png",
+        "rear": "Tools/citizens/build/renders/turnaround-slender-rear.png",
+        "threeQuarter": "Tools/citizens/build/renders/turnaround-slender-threequarter.png"
+      },
+      "lockedTraits": ["slender proportion", "back basket", "woven slip harness"],
+      "conservativeInference": ["two shoulder loops", "one lower retaining strap", "functional basket fasteners"]
+    },
+    {
+      "name": "Foundation Gravemark Mason",
+      "canonicalReference": "Docs/Concepts/05-gravemark-player-perspective.png",
+      "spikeProportion": "spike_broad",
+      "constructionViews": {
+        "sheet": "Tools/citizens/build/reference-sheets/gravemark-construction-sheet.png",
+        "front": "Tools/citizens/build/renders/turnaround-broad-front.png",
+        "side": "Tools/citizens/build/renders/turnaround-broad-side.png",
+        "rear": "Tools/citizens/build/renders/turnaround-broad-rear.png",
+        "threeQuarter": "Tools/citizens/build/renders/turnaround-broad-threequarter.png"
+      },
+      "lockedTraits": ["broad proportion", "fixed backpack hopper", "grounded weight"],
+      "conservativeInference": ["functional hopper closure", "load-bearing straps", "no added decorative language"]
+    }
+  ],
+  "scopeNote": "Each sheet places the approved canonical unit-row crop beside the shared-rig construction envelope. The neutral turnarounds document proportion and axes only; tickets #24 and #25 must author faction silhouette, clothing, materials, straps, closures, and production topology from the canonical crop without treating the mannequin as concept art."
+}
