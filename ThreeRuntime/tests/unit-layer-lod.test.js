@@ -24,10 +24,7 @@ const registry = createRegistry(
 
 const glbPath = resolve(here, "../assets/units/citizen_villager.glb");
 const library = new GltfUnitLibrary();
-library.registerBuffer(
-  "units/citizen_villager.glb",
-  `data:model/gltf-binary;base64,${readFileSync(glbPath).toString("base64")}`
-);
+library.buffers.set("units/citizen_villager.glb", readFileSync(glbPath).buffer.slice(readFileSync(glbPath).byteOffset, readFileSync(glbPath).byteOffset + readFileSync(glbPath).byteLength));
 
 function makeCamera(distance) {
   const camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.1, 500);
@@ -63,7 +60,8 @@ test("citizen view switches gltf → procedural when zoomed out, with hysteresis
   const view = layer.views.get(1);
   assert.ok(view, "view created");
   assert.equal(view.tiers[0].kind, "gltf", "closest tier is the skinned model");
-  assert.equal(view.tiers[1].kind, "procedural", "sprite tier skipped headless");
+  const proceduralTier = view.tiers.findIndex((tier) => tier.kind === "procedural");
+  assert.ok(proceduralTier > 0, "procedural tier remains the debug floor");
   assert.equal(view.activeTier, 0, "close camera → gltf active");
   assert.equal(view.userData.procedural, false);
   assert.equal(view.tiers[0].object.root.visible, true);
@@ -87,9 +85,9 @@ test("citizen view switches gltf → procedural when zoomed out, with hysteresis
   far.updateProjectionMatrix();
   layer.camera = far;
   await syncAndSettle(layer, state, far);
-  assert.equal(view.activeTier, 1, "far camera → procedural tier");
+  assert.equal(view.tiers[view.activeTier].kind, "procedural", "far camera → procedural tier");
   assert.equal(view.tiers[0].object.root.visible, false, "gltf hidden");
-  assert.equal(view.tiers[1].object.visible, true, "procedural visible");
+  assert.equal(view.tiers[view.activeTier].object.visible, true, "procedural visible");
 
   // Hysteresis: just inside the 0.06 boundary (fraction ≈ 0.050) stays on
   // the procedural tier instead of thrashing back to gltf.
@@ -99,7 +97,7 @@ test("citizen view switches gltf → procedural when zoomed out, with hysteresis
   nearish.updateProjectionMatrix();
   layer.camera = nearish;
   await syncAndSettle(layer, state, nearish);
-  assert.equal(view.activeTier, 1, "inside deadband → stays procedural");
+  assert.equal(view.tiers[view.activeTier].kind, "procedural", "inside the deadband → stays procedural");
   assert.equal(view.tiers[0].object.root.visible, false);
 
   // Well inside the gltf band (fraction ≈ 0.07 → past 0.0672) → back to gltf.
@@ -111,7 +109,7 @@ test("citizen view switches gltf → procedural when zoomed out, with hysteresis
   await syncAndSettle(layer, state, close);
   assert.equal(view.activeTier, 0, "close again → gltf resumes");
   assert.equal(view.tiers[0].object.root.visible, true);
-  assert.equal(view.tiers[1].object.visible, false);
+  assert.equal(view.tiers.find((tier) => tier.kind === "procedural").object.visible, false);
 
   layer.dispose();
   assert.equal(scene.children.length, 0);

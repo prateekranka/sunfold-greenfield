@@ -17,6 +17,17 @@ import pathfinderScoutGlb from "../assets/units/pathfinder_scout.glb";
 import spaceVillagerAtlasManifest from "../assets/citizens/sprites/space-villager/atlas-manifest.json";
 import spaceVillagerAtlasPng from "../assets/citizens/sprites/space-villager/runtime-atlas.png";
 
+const FOUNDATION_CITIZEN_BENCHMARK = Object.freeze({
+  unitCount: 48,
+  zooms: ["default", "medium", "closestPermitted"],
+  cameraMovement: true,
+  selectionRings: true,
+  resourcePacks: true,
+  shadows: true,
+  targetFps: 60,
+  spawnHitchMs: 0
+});
+
 // Logical unit-art registry (Fidelity Ladder). Every unit resolves through
 // asset ids (sunwoven.citizen.foundation, …) with procedural.* debug fallbacks.
 const assetRegistry = createRegistry(assetRegistryData);
@@ -30,8 +41,11 @@ gltfLibrary.registerBuffer("units/citizen_villager.glb", citizenVillagerGlb);
 gltfLibrary.registerBuffer("units/pathfinder_scout.glb", pathfinderScoutGlb);
 
 // Debug override: ?art=procedural renders every unit as its primitive
-// stand-in, so the fallback path is visible and testable on device.
+// stand-in; ?art=sprite pins the directionalSprite tier (golden 16-direction
+// sheet for the Sunwoven citizen) so the fallback path and the sprite
+// presentation are both visible and testable on device.
 const forceProceduralArt = new URLSearchParams(location.search).get("art") === "procedural";
+const forceSpriteArt = new URLSearchParams(location.search).get("art") === "sprite";
 
 // Kick off prototype preloading immediately — while the loading screen shows.
 gltfLibrary.preload(
@@ -147,6 +161,7 @@ function makeScene() {
     camera,
     proceduralFactory: createProceduralUnit,
     forceProcedural: forceProceduralArt,
+    forceArt: forceSpriteArt ? "sprite" : null,
     manifests: {
       "sunwoven.citizen.foundation": {
         manifest: {

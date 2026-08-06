@@ -99,6 +99,21 @@ test("resolveEntry prefers authored art, falls through to procedural", () => {
   assert.equal(gravCitizen.entry.id, "procedural.citizen");
 });
 
+test("Sunwoven Foundation Citizen is the authored experiment asset", () => {
+  const entry = registry.entries["sunwoven.citizen.foundation"];
+  assert.equal(entry.representation, "directionalSprite");
+  assert.equal(entry.spriteSheet, "sunwoven-golden");
+  assert.deepEqual(entry.clips, ["idle", "walk", "gather", "carry"]);
+  // The golden sheet is the shipping in-world presentation; the skinned GLB
+  // is the close-gameplay LOD and the procedural stand-in the debug fallback.
+  assert.deepEqual(
+    entry.lods.map((lod) => lod.kind),
+    ["gltf", "sprite", "procedural"]
+  );
+  assert.equal(entry.lods[0].gltf, "units/citizen_villager.glb");
+  assert.equal(entry.lods[1].spriteSheet, "sunwoven-golden");
+});
+
 test("assetIdForUnit maps sim units to logical ids", () => {
   assert.equal(
     assetIdForUnit({ faction: "sunwoven", kind: "citizen" }, { sunwoven: "foundation" }),

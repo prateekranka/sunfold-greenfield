@@ -12,19 +12,22 @@
 
 import * as THREE from "three";
 import { SpriteUnit } from "./sprite-unit.js";
+import { GoldenSpriteUnit, isGoldenManifest } from "./golden-unit.js";
 import { resolveChain } from "../asset-registry.js";
 import { projectedScreenFraction, lodTarget } from "../gltf-units.js";
 
 /** Map sim activity → logical clip names. */
 export function clipForUnit(unit) {
   if (!unit) return "idle";
+  const tag = unit.activity?.tag;
+  // Carrying wins over movement: the carrier clip already encodes the walk.
+  if (tag === "carrying" || unit.carrying) return "carry";
   const moving =
     (unit.movementPath && unit.movementPath.length > 0) ||
     (unit.destination &&
       (Math.abs(unit.destination.x - unit.position.x) > 0.05 ||
         Math.abs(unit.destination.z - unit.position.z) > 0.05));
   if (moving) return "walk";
-  const tag = unit.activity?.tag;
   if (tag === "gathering") return "gather";
   if (tag === "constructing") return "build";
   return "idle";
@@ -34,6 +37,9 @@ const FACTION_RING_COLORS = Object.freeze({
   sunwoven: 0xe2b866,
   gravemark: 0xb87333
 });
+
+/** One manifest fetch per sheet — spawn bursts resolve from this cache. */
+const manifestFetchCache = new Map();
 
 /** Faint ownership ring under units whose entry carries factionMask. */
 function factionRing(faction, radius) {
@@ -50,6 +56,62 @@ function factionRing(faction, radius) {
   ring.position.y = 0.015;
   ring.name = "faction-ring";
   return ring;
+}
+
+/** AoE2-style selection ring for `unit.selected`. */
+const selectionRingMaterial = new THREE.MeshBasicMaterial({
+  color: 0x7dff7d,
+  transparent: true,
+  opacity: 0.55,
+  depthWrite: false
+});
+
+function selectionRing(radius) {
+  const ring = new THREE.Mesh(
+    new THREE.RingGeometry(radius * 0.72, radius, 40),
+    selectionRingMaterial
+  );
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = 0.02;
+  ring.name = "selection-ring";
+  return ring;
+}
+
+let _blobShadowTexture = null;
+let _blobShadowMaterial = null;
+
+/** Lazy: canvas creation needs a DOM, which Node tests do not have. */
+function getBlobShadowMaterial() {
+  if (_blobShadowMaterial) return _blobShadowMaterial;
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createRadialGradient(32, 32, 4, 32, 32, 30);
+  gradient.addColorStop(0, "rgba(0, 0, 0, 0.55)");
+  gradient.addColorStop(0.7, "rgba(0, 0, 0, 0.28)");
+  gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 64, 64);
+  _blobShadowTexture = new THREE.CanvasTexture(canvas);
+  _blobShadowTexture.colorSpace = THREE.NoColorSpace;
+  _blobShadowMaterial = new THREE.MeshBasicMaterial({
+    map: _blobShadowTexture,
+    transparent: true,
+    depthWrite: false
+  });
+  return _blobShadowMaterial;
+}
+
+function blobShadow(radius) {
+  const material = getBlobShadowMaterial();
+  if (!material) return null;
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(radius * 2, radius * 2), material);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = 0.01;
+  mesh.name = "blob-shadow";
+  return mesh;
 }
 
 /**
@@ -210,6 +272,10 @@ class UnitView {
  * @param {THREE.Camera} [opts.camera] for LOD switching by projected size
  * @param {({kind: string, faction: string, height: number}) => THREE.Group} [opts.proceduralFactory]
  * @param {boolean} [opts.forceProcedural] debug: render every unit procedurally
+ * @param {"sprite"|"procedural"|null} [opts.forceArt] debug: pin one representation
+ * @param {boolean} [opts.blobShadows] soft blob shadow under every unit
+ * @param {string} [opts.spriteRoot] prefix before `sprites/<sheet>/` for the
+ *   manifest/texture fetch path (dev labs serve assets under /assets/citizens/)
  */
 export class UnitPresentationLayer {
   constructor({
@@ -220,7 +286,10 @@ export class UnitPresentationLayer {
     gltfLibrary = null,
     camera = null,
     proceduralFactory = null,
-    forceProcedural = false
+    forceProcedural = false,
+    forceArt = null,
+    blobShadows = false,
+    spriteRoot = ""
   }) {
     this.scene = scene;
     this.registry = registry;
@@ -230,6 +299,9 @@ export class UnitPresentationLayer {
     this.camera = camera;
     this.proceduralFactory = proceduralFactory;
     this.forceProcedural = Boolean(forceProcedural);
+    this.forceArt = forceArt ?? (forceProcedural ? "procedural" : null);
+    this.blobShadows = Boolean(blobShadows);
+    this.spriteRoot = spriteRoot;
     /** @type {Map<number, UnitView>} */
     this.views = new Map();
     this.ready = false;
@@ -267,7 +339,10 @@ export class UnitPresentationLayer {
 
   /** Build all available LOD tiers for an entry (missing sources are skipped). */
   async _buildTiers(entry, unit) {
-    const lods = entry.lods;
+    let lods = entry.lods;
+    if (this.forceArt === "sprite") {
+      lods = (lods ?? []).filter((lod) => lod.kind === "sprite");
+    }
     if (!Array.isArray(lods) || lods.length === 0) {
       const tier = await this._buildSingleTier(entry, unit);
       return tier ? { tiers: [tier], ladder: [0] } : { tiers: [], ladder: [] };
@@ -321,20 +396,40 @@ export class UnitPresentationLayer {
     return null;
   }
 
-  /** @returns {Promise<SpriteUnit | null>} */
+  /** @returns {Promise<SpriteUnit | GoldenSpriteUnit | null>} */
   async _buildSpriteTier(entry) {
     const override = this.manifests[entry.id];
     const sheet = entry.spriteSheet;
     if (!override && !sheet) return null;
-    const basePath = override ? override.basePath ?? "" : `sprites/${sheet}/`;
+    const basePath = override
+      ? override.basePath ?? ""
+      : `${this.spriteRoot}sprites/${sheet}/`;
+    const bundled = override ? override.manifest ?? override : null;
     try {
-      const view = new SpriteUnit(override ? override.manifest ?? override : undefined, { basePath });
-      view._entry = entry;
-      if (override) {
-        await view.applyManifest(override.manifest ?? override);
+      let view;
+      if (bundled) {
+        view = isGoldenManifest(bundled)
+          ? new GoldenSpriteUnit(bundled, { basePath })
+          : new SpriteUnit(bundled, { basePath });
+        await view.applyManifest(bundled);
       } else {
-        await view.loadManifest(`${basePath}atlas-manifest.json`);
+        // Fetch the manifest once per sheet; every unit reuses the cache so a
+        // spawn burst resolves in microtasks instead of network round-trips.
+        let fetched = manifestFetchCache.get(basePath);
+        if (!fetched) {
+          const res = await fetch(`${basePath}atlas-manifest.json`);
+          if (!res.ok) {
+            throw new Error(`sprite manifest ${basePath}atlas-manifest.json → HTTP ${res.status}`);
+          }
+          fetched = await res.json();
+          manifestFetchCache.set(basePath, fetched);
+        }
+        view = isGoldenManifest(fetched)
+          ? new GoldenSpriteUnit(fetched, { basePath })
+          : new SpriteUnit(fetched, { basePath });
+        await view.applyManifest(fetched);
       }
+      view._entry = entry;
       view.group.userData.entryId = entry.id;
       return view;
     } catch (error) {
@@ -407,6 +502,8 @@ export class UnitPresentationLayer {
       view.maybeSwitchLod(this.camera, unit);
       view.update(dt);
       this._syncFactionRing(view, unit);
+      this._syncSelectionRing(view, unit);
+      this._syncBlobShadow(view, unit);
     }
     for (const [id, view] of this.views) {
       if (live.has(id)) continue;
@@ -429,6 +526,34 @@ export class UnitPresentationLayer {
       view.container.remove(ring);
       ring.geometry.dispose();
       ring.material.dispose();
+    }
+  }
+
+  /** AoE2-style selection ring for units flagged `selected`. */
+  _syncSelectionRing(view, unit) {
+    const wants = Boolean(unit.selected);
+    let ring = view.container.getObjectByName("selection-ring");
+    if (wants && !ring) {
+      const radius = Math.max(0.9, (view.entry?.scaleMeters ?? 1.8) * 0.62);
+      ring = selectionRing(radius);
+      view.container.add(ring);
+    } else if (!wants && ring) {
+      view.container.remove(ring);
+      ring.geometry.dispose();
+    }
+  }
+
+  /** Soft blob shadow under every unit when enabled (AoE2-style). */
+  _syncBlobShadow(view, unit) {
+    const wants = this.blobShadows;
+    let shadow = view.container.getObjectByName("blob-shadow");
+    if (wants && !shadow) {
+      const radius = Math.max(0.6, (view.entry?.scaleMeters ?? 1.8) * 0.48);
+      shadow = blobShadow(radius);
+      if (shadow) view.container.add(shadow);
+    } else if (!wants && shadow) {
+      view.container.remove(shadow);
+      shadow.geometry.dispose();
     }
   }
 

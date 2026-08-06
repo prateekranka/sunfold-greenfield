@@ -66,7 +66,8 @@ export function resolveChain(registry, id) {
 /**
  * Best entry to realise for an id without attempting IO:
  * - directionalSprite entries with a spriteSheet are authored art;
- * - directionalSprite entries without a source fall through to the next link;
+ * - gltf entries with a gltf source are authored art;
+ * - entries without a source fall through to the next link;
  * - procedural entries are the terminal debug stand-in.
  * Returns `{ entry, source }` or null when nothing in the chain is realisable.
  * @param {ReturnType<typeof createRegistry>} registry
@@ -76,6 +77,10 @@ export function resolveEntry(registry, id) {
   for (const entry of resolveChain(registry, id)) {
     if (entry.representation === "directionalSprite") {
       if (entry.spriteSheet) return { entry, source: "authored" };
+      continue;
+    }
+    if (entry.representation === "gltf") {
+      if (entry.gltf) return { entry, source: "authored" };
       continue;
     }
     if (entry.representation === "procedural") {

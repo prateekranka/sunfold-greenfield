@@ -4,15 +4,11 @@
   "entries": {
     "sunwoven.citizen.foundation": {
       "id": "sunwoven.citizen.foundation",
-      "representation": "gltf",
+      "representation": "directionalSprite",
       "scaleMeters": 1.8,
-      "clips": [
-        "idle",
-        "walk",
-        "gather"
-      ],
+      "clips": ["idle", "walk", "gather", "carry"],
       "factionMask": true,
-      "gltf": "units/sunwoven_foundation_citizen.glb",
+      "spriteSheet": "sunwoven-golden",
       "fallback": "procedural.citizen",
       "clipMap": {
         "gather": "gather_loop"
@@ -30,12 +26,12 @@
       "lods": [
         {
           "kind": "gltf",
-          "gltf": "units/sunwoven_foundation_citizen.glb",
+          "gltf": "units/citizen_villager.glb",
           "minScreenFraction": 0.06
         },
         {
           "kind": "sprite",
-          "spriteSheet": "sunwoven-villager",
+          "spriteSheet": "sunwoven-golden",
           "minScreenFraction": 0.022
         },
         {
@@ -46,14 +42,11 @@
     },
     "sunwoven.citizen.voyager": {
       "id": "sunwoven.citizen.voyager",
-      "representation": "gltf",
+      "representation": "directionalSprite",
       "scaleMeters": 1.8,
-      "clips": [
-        "idle",
-        "walk",
-        "gather"
-      ],
+      "clips": ["idle", "walk", "gather", "carry"],
       "factionMask": true,
+      "spriteSheet": "sunwoven-golden",
       "fallback": "sunwoven.citizen.foundation",
       "clipMap": {
         "gather": "gather_loop"
@@ -71,20 +64,19 @@
       "lods": [
         {
           "kind": "gltf",
-          "gltf": "units/sunwoven_foundation_citizen.glb",
+          "gltf": "units/citizen_villager.glb",
           "minScreenFraction": 0.06
         },
         {
           "kind": "sprite",
-          "spriteSheet": "sunwoven-villager",
+          "spriteSheet": "sunwoven-golden",
           "minScreenFraction": 0.022
         },
         {
           "kind": "procedural",
           "minScreenFraction": 0.0
         }
-      ],
-      "gltf": "units/sunwoven_foundation_citizen.glb"
+      ]
     },
     "sunwoven.pathfinder.foundation": {
       "id": "sunwoven.pathfinder.foundation",
