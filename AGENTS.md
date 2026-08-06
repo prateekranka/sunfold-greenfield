@@ -79,12 +79,34 @@ agent.
 
 `Docs/Concepts/01-sunwoven-foundation-opening.png` is the approved AAA target frame
 and the reference for blind A/B judging. `Docs/Concepts/00-visual-bible.md` holds the
-locked art direction: camera pitch, HUD geometry, faction palettes, lighting rules.
+locked art direction: camera pitch, HUD geometry, faction palettes, lighting rules,
+and the **Fidelity Ladder** — stylised miniature-quality RTS art with strong
+silhouettes at default zoom, authored PBR textures, rounded and bevelled forms where
+the faction language requires them, restrained emissive accents, and scalable LODs.
+Procedural primitives are debug fallbacks only.
 
-The bible's "low-poly fidelity ceiling" section describes the *original* placeholder
-scope and is superseded — the target is now the fidelity of concept 01 itself.
-Everything else in the bible (camera, HUD geometry, palettes, faction identity,
-fragment-to-void ratio, sparse starfield) still holds.
+The ladder has four tiers: hero/concept artwork (key art, never rendered in-game),
+close gameplay model (selection, inspection), normal gameplay representation (the
+default camera frame — this is what ships), and distant LOD (crowds, far edges,
+minimap density). Everything else in the bible (camera, HUD geometry, palettes,
+faction identity, fragment-to-void ratio, sparse starfield) still holds.
+
+**Unit art resolves through the asset registry** (`ThreeRuntime/assets/asset-registry.json`).
+Sim units map to logical ids (`sunwoven.citizen.foundation`, `gravemark.bastionWalker.voyager`,
+tier from `state.age[faction]`) via `assetIdForUnit`; authored directionalSprite sheets load
+first, `procedural.*` entries are visible debug fallbacks for missing art and simulation
+tests — never the shipping visual target (`?art=procedural` forces them on device). Do not
+construct unit geometry directly in the runtime: add a registry entry with a `spriteSheet`
+source (or a `gltf` source) instead, and let the fallback chain absorb missing assets.
+
+**GLB prototypes** (`ThreeRuntime/assets/units/*.glb`) are the close-gameplay LOD tier:
+bundled as data: URLs and parsed with `GLTFLoader.parse` (CSP `connect-src 'none'` safe),
+preloaded during the loading screen (`GltfUnitLibrary.preload`), and cloned per unit with
+`SkeletonUtils.clone` + a per-instance `AnimationMixer` (`GltfUnitLibrary.instantiate`).
+Each instance gets ≤2 material instances (`materialSlots`). `lods` entries switch tiers by
+projected screen size (`minScreenFraction`, `gltf-units.js` `lodTarget`). New authored units:
+put the GLB in `assets/units/`, add `lods` + `materialSlots` + `clipMap` to the registry
+entry, and register the bundled buffer in `src/main.js`.
 
 ## Verified rendering facts — established in the rendered build, do not re-litigate
 

@@ -1,0 +1,511 @@
+{
+  "schema": "sunfold.asset-registry/1",
+  "note": "Logical unit-art registry (Fidelity Ladder). The runtime maps a sim unit to an id via assetIdForUnit (faction.kind.tier, tier from state.age[faction]) and follows the fallback chain until a representation can actually load. procedural.* entries are visible debug fallbacks for simulation tests and missing art \u2014 never the shipping visual target. Authored art lands by adding a spriteSheet (or gltf) source to the authored entry. spriteSheet names resolve to sprites/<sheet>/ in the shipped ThreeRuntime bundle.",
+  "entries": {
+    "sunwoven.citizen.foundation": {
+      "id": "sunwoven.citizen.foundation",
+      "representation": "gltf",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "gather"
+      ],
+      "factionMask": true,
+      "gltf": "units/sunwoven_foundation_citizen.glb",
+      "fallback": "procedural.citizen",
+      "clipMap": {
+        "gather": "gather_loop"
+      },
+      "materialSlots": [
+        {
+          "name": "primary",
+          "match": "ivory|saffron|turq|leather|skin|eye|sash|skirt|wrap|robe"
+        },
+        {
+          "name": "accent",
+          "match": "gold|gem|line"
+        }
+      ],
+      "lods": [
+        {
+          "kind": "gltf",
+          "gltf": "units/sunwoven_foundation_citizen.glb",
+          "minScreenFraction": 0.06
+        },
+        {
+          "kind": "sprite",
+          "spriteSheet": "sunwoven-villager",
+          "minScreenFraction": 0.022
+        },
+        {
+          "kind": "procedural",
+          "minScreenFraction": 0.0
+        }
+      ]
+    },
+    "sunwoven.citizen.voyager": {
+      "id": "sunwoven.citizen.voyager",
+      "representation": "gltf",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "gather"
+      ],
+      "factionMask": true,
+      "fallback": "sunwoven.citizen.foundation",
+      "clipMap": {
+        "gather": "gather_loop"
+      },
+      "materialSlots": [
+        {
+          "name": "primary",
+          "match": "ivory|saffron|turq|leather|skin|eye|sash|skirt|wrap|robe"
+        },
+        {
+          "name": "accent",
+          "match": "gold|gem|line"
+        }
+      ],
+      "lods": [
+        {
+          "kind": "gltf",
+          "gltf": "units/sunwoven_foundation_citizen.glb",
+          "minScreenFraction": 0.06
+        },
+        {
+          "kind": "sprite",
+          "spriteSheet": "sunwoven-villager",
+          "minScreenFraction": 0.022
+        },
+        {
+          "kind": "procedural",
+          "minScreenFraction": 0.0
+        }
+      ],
+      "gltf": "units/sunwoven_foundation_citizen.glb"
+    },
+    "sunwoven.pathfinder.foundation": {
+      "id": "sunwoven.pathfinder.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.pathfinder",
+      "materialSlots": [
+        {
+          "name": "primary",
+          "match": "pf_ivory|pf_saffron|pf_turq|pf_leather|pf_skin|pf_eye"
+        },
+        {
+          "name": "accent",
+          "match": "pf_gold"
+        }
+      ],
+      "lods": [
+        {
+          "kind": "gltf",
+          "gltf": "units/pathfinder_scout.glb",
+          "minScreenFraction": 0.06
+        },
+        {
+          "kind": "procedural",
+          "minScreenFraction": 0.0
+        }
+      ]
+    },
+    "sunwoven.pathfinder.voyager": {
+      "id": "sunwoven.pathfinder.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "sunwoven.pathfinder.foundation",
+      "materialSlots": [
+        {
+          "name": "primary",
+          "match": "pf_ivory|pf_saffron|pf_turq|pf_leather|pf_skin|pf_eye"
+        },
+        {
+          "name": "accent",
+          "match": "pf_gold"
+        }
+      ],
+      "lods": [
+        {
+          "kind": "gltf",
+          "gltf": "units/pathfinder_scout.glb",
+          "minScreenFraction": 0.06
+        },
+        {
+          "kind": "procedural",
+          "minScreenFraction": 0.0
+        }
+      ]
+    },
+    "sunwoven.vanguard.foundation": {
+      "id": "sunwoven.vanguard.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "build",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.vanguard"
+    },
+    "sunwoven.vanguard.voyager": {
+      "id": "sunwoven.vanguard.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "build",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "sunwoven.vanguard.foundation"
+    },
+    "sunwoven.quarrel.foundation": {
+      "id": "sunwoven.quarrel.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.7,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.quarrel"
+    },
+    "sunwoven.quarrel.voyager": {
+      "id": "sunwoven.quarrel.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.7,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "sunwoven.quarrel.foundation"
+    },
+    "sunwoven.lightTransport.foundation": {
+      "id": "sunwoven.lightTransport.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.lightTransport"
+    },
+    "sunwoven.lightTransport.voyager": {
+      "id": "sunwoven.lightTransport.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "sunwoven.lightTransport.foundation"
+    },
+    "sunwoven.bastionWalker.foundation": {
+      "id": "sunwoven.bastionWalker.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 2.6,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.bastionWalker"
+    },
+    "sunwoven.bastionWalker.voyager": {
+      "id": "sunwoven.bastionWalker.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 2.6,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "sunwoven.bastionWalker.foundation"
+    },
+    "gravemark.citizen.foundation": {
+      "id": "gravemark.citizen.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "gather",
+        "build",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.citizen"
+    },
+    "gravemark.citizen.voyager": {
+      "id": "gravemark.citizen.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "gather",
+        "build",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "gravemark.citizen.foundation"
+    },
+    "gravemark.pathfinder.foundation": {
+      "id": "gravemark.pathfinder.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.pathfinder"
+    },
+    "gravemark.pathfinder.voyager": {
+      "id": "gravemark.pathfinder.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "gravemark.pathfinder.foundation"
+    },
+    "gravemark.vanguard.foundation": {
+      "id": "gravemark.vanguard.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "build",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.vanguard"
+    },
+    "gravemark.vanguard.voyager": {
+      "id": "gravemark.vanguard.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "build",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "gravemark.vanguard.foundation"
+    },
+    "gravemark.quarrel.foundation": {
+      "id": "gravemark.quarrel.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.7,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.quarrel"
+    },
+    "gravemark.quarrel.voyager": {
+      "id": "gravemark.quarrel.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.7,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "gravemark.quarrel.foundation"
+    },
+    "gravemark.lightTransport.foundation": {
+      "id": "gravemark.lightTransport.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.lightTransport"
+    },
+    "gravemark.lightTransport.voyager": {
+      "id": "gravemark.lightTransport.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "gravemark.lightTransport.foundation"
+    },
+    "gravemark.bastionWalker.foundation": {
+      "id": "gravemark.bastionWalker.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 2.6,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.bastionWalker"
+    },
+    "gravemark.bastionWalker.voyager": {
+      "id": "gravemark.bastionWalker.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 2.6,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "gravemark.bastionWalker.foundation"
+    },
+    "gravemark.stoneguard.foundation": {
+      "id": "gravemark.stoneguard.foundation",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "build",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "procedural.stoneguard"
+    },
+    "gravemark.stoneguard.voyager": {
+      "id": "gravemark.stoneguard.voyager",
+      "representation": "directionalSprite",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "build",
+        "death"
+      ],
+      "factionMask": true,
+      "fallback": "gravemark.stoneguard.foundation"
+    },
+    "procedural.citizen": {
+      "id": "procedural.citizen",
+      "representation": "procedural",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "gather",
+        "build",
+        "death"
+      ],
+      "factionMask": true
+    },
+    "procedural.pathfinder": {
+      "id": "procedural.pathfinder",
+      "representation": "procedural",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true
+    },
+    "procedural.vanguard": {
+      "id": "procedural.vanguard",
+      "representation": "procedural",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "build",
+        "death"
+      ],
+      "factionMask": true
+    },
+    "procedural.quarrel": {
+      "id": "procedural.quarrel",
+      "representation": "procedural",
+      "scaleMeters": 1.7,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true
+    },
+    "procedural.lightTransport": {
+      "id": "procedural.lightTransport",
+      "representation": "procedural",
+      "scaleMeters": 1.8,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true
+    },
+    "procedural.bastionWalker": {
+      "id": "procedural.bastionWalker",
+      "representation": "procedural",
+      "scaleMeters": 2.6,
+      "clips": [
+        "idle",
+        "walk",
+        "death"
+      ],
+      "factionMask": true
+    },
+    "procedural.stoneguard": {
+      "id": "procedural.stoneguard",
+      "representation": "procedural",
+      "scaleMeters": 1.9,
+      "clips": [
+        "idle",
+        "walk",
+        "build",
+        "death"
+      ],
+      "factionMask": true
+    }
+  }
+}

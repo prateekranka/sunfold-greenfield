@@ -33,11 +33,13 @@ match has phases — open, expand, contest — not one continuous panic. Every v
 within a beat. `Docs/research/aoe4-play-feel-reference.md` is the reference, moment by moment.
 
 **The art.** `Docs/Concepts/00-visual-bible.md` holds camera pitch (~55–60°), HUD geometry,
-faction palettes and lighting rules. The bible's "low-poly fidelity ceiling" section is
-**superseded** — the fidelity target is concept 01 itself. Its land/void ratio is
-**superseded** for map generation by CP-14's 75–80% land, but the *frame* must still read as
-an object lit in space. `AGENTS.md` §"Verified rendering facts" is settled knowledge; do not
-re-derive it.
+faction palettes, lighting rules and the **Fidelity Ladder**: stylised miniature-quality RTS
+art — strong silhouettes at default zoom, authored PBR textures, rounded and bevelled forms
+where the faction language requires them, restrained emissive accents, scalable LODs.
+Procedural primitives are debug fallbacks only; in-game frames ship at the *normal gameplay
+representation* tier. Its land/void ratio is **superseded** for map generation by CP-14's
+75–80% land, but the *frame* must still read as an object lit in space. `AGENTS.md`
+§"Verified rendering facts" is settled knowledge; do not re-derive it.
 
 **The controls.** Landscape iPad touch. Pan, pinch-zoom, two-finger yaw, return-north.
 Tap to select, tap ground to move, lasso for groups, double-tap for all of a kind. Bottom

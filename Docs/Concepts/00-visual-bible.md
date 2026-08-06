@@ -37,13 +37,23 @@ HUD must sit outside or lightly over void/edge — never obscure the central gam
 
 ---
 
-## Low-Poly Fidelity Ceiling
+## Fidelity Ladder
 
-- Generic asset-pack RTS look: simple materials, flat/soft PBR, limited texel detail  
-- Clear silhouette buildings; no hand-painted premium final art  
-- Units readable at mid zoom via equipment + faction color accents  
-- Target density: early screen ~8–20 units; battle screen ~40–80 total across both sides — still “60 FPS plausible”  
-- Soft selection rings; life bars only on selected / damaged  
+Stylised miniature-quality RTS art. Strong silhouettes at default zoom, authored PBR
+textures, rounded and bevelled forms where the faction language requires them,
+restrained emissive accents, and scalable LODs. Procedural primitives are permitted
+only as debug fallbacks.
+
+| Tier | Where it is used | Bar |
+|------|------------------|-----|
+| Hero / concept artwork | Key art, store listing, narrative beats | Promo-grade composition; never rendered in-game |
+| Close gameplay model | Selection, inspection, unlock / build previews | Highest in-game tier: authored PBR, full silhouette read, rounded and bevelled forms per faction language |
+| Normal gameplay representation | The default camera frame at mid zoom | Strong silhouette at default zoom, authored materials, restrained emissive accents — this is what ships |
+| Distant LOD | Crowds, far map edges, minimap density | Simplified geometry and shared textures; silhouette holds when zoomed out |
+
+Target density: early screen ~8–20 units; battle screen ~40–80 total across both
+sides — still “60 FPS plausible”. Soft selection rings; life bars only on selected /
+damaged.
 
 ---
 
@@ -127,7 +137,7 @@ Neither good nor evil. ~60% shared RTS grammar, ~40% differentiated.
 
 - [ ] Same camera pitch & mid-zoom band  
 - [ ] Same HUD placement  
-- [ ] Low-poly placeholder, not promo poster  
+- [ ] Frame ships at the normal gameplay representation tier — no placeholder geometry, no hero-art finish  
 - [ ] Buildings on land; ships in void  
 - [ ] Correct civ / age / narrative beat  
 - [ ] Achievable density  
