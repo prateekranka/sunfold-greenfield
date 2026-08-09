@@ -7,6 +7,7 @@ import { createRtsCamera, RtsCameraController, RTS_CAMERA } from "./rts-camera.j
 import { FACINGS_16 } from "./sprites/facing.js";
 import { createRtsMapWorld } from "./rts-maps/rts-map-world.js";
 import manifest from "../assets/citizens/sprites/village-manbun-wanderer/atlas-manifest.json";
+import guardManifest from "../assets/citizens/sprites/lumen-guard/atlas-manifest.json";
 
 const MAP_ID = "helios-rift";
 const LOCAL_PLAYER = 0;
@@ -14,6 +15,12 @@ const MOVE_SPEED = 4.2;
 const GATHER_RANGE = 2.2;
 const BRIDGE_REPAIR_RANGE = 4.5;
 const BRIDGE_REPAIR_COST = 50;
+const HELIOS_CAMERA = Object.freeze({
+  minDistance: RTS_CAMERA.minDistance,
+  maxDistance: 110,
+  fovDegrees: 50,
+  far: 240
+});
 
 const root = document.getElementById("proof-root");
 const status = document.getElementById("status");
@@ -27,14 +34,20 @@ renderer.setPixelRatio(1);
 root.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x050711);
-scene.fog = new THREE.Fog(0x050711, 55, 110);
+scene.background = new THREE.Color(0x020612);
+scene.fog = new THREE.Fog(0x020612, 72, 140);
 
-const camera = createRtsCamera(1);
+const camera = createRtsCamera(1, HELIOS_CAMERA);
 const mapWorld = createRtsMapWorld(MAP_ID, scene);
 const HALF = mapWorld.definition.bounds.halfExtent;
 
 const camCtrl = new RtsCameraController(camera, renderer.domElement, {
+  target: new THREE.Vector3(0, 0, 0),
+  distance: HELIOS_CAMERA.maxDistance,
+  minDistance: HELIOS_CAMERA.minDistance,
+  maxDistance: HELIOS_CAMERA.maxDistance,
+  fovDegrees: HELIOS_CAMERA.fovDegrees,
+  far: HELIOS_CAMERA.far,
   panRadius: HALF + 6,
   zoomSmooth: 18,
   panSmooth: 20
@@ -50,13 +63,16 @@ function resize() {
 resize();
 window.addEventListener("resize", resize);
 
-scene.add(new THREE.HemisphereLight(0xffe8c0, 0x14172b, 0.9));
-const key = new THREE.DirectionalLight(0xffd090, 1.6);
-key.position.set(-12, 22, 8);
+scene.add(new THREE.HemisphereLight(0xd7e4ff, 0x080d18, 1.0));
+const key = new THREE.DirectionalLight(0xffd09a, 1.8);
+key.position.set(-18, 30, 14);
 scene.add(key);
-const fill = new THREE.DirectionalLight(0x60c8c0, 0.45);
-fill.position.set(10, 12, -6);
+const fill = new THREE.DirectionalLight(0x6ac8d0, 0.55);
+fill.position.set(14, 16, -12);
 scene.add(fill);
+const rim = new THREE.DirectionalLight(0x5574ae, 0.3);
+rim.position.set(16, 10, 20);
+scene.add(rim);
 
 const selectionMat = new THREE.MeshBasicMaterial({
   color: 0x3ecfc0,
@@ -96,6 +112,11 @@ function addBlobShadow(parent) {
 const bundled = {
   ...manifest,
   atlas: { ...manifest.atlas, image: "runtime-atlas.png" }
+};
+
+const guardBundled = {
+  ...guardManifest,
+  atlas: { ...guardManifest.atlas, image: "runtime-atlas.png" }
 };
 
 /** @type {{ unit: SpriteUnit, playerId: number, selected: boolean, ring: THREE.Mesh, hp: number, path: {x:number,z:number}[], pathIdx: number, activity: string, gatherTarget: string | null, stock: Record<string, number> }[]} */
@@ -177,6 +198,52 @@ async function spawnCitizens() {
   for (const c of citizens) c.ring.visible = c.selected;
 }
 
+/** Four Lumen Guards mixed into Helios — shared guard atlas, combat silhouette. */
+async function spawnGuards() {
+  const warmer = new SpriteUnit(guardBundled, { basePath: "sprites/lumen-guard/" });
+  await warmer.applyManifest(guardBundled);
+  await warmer._loadAtlasTexture();
+  await warmer.setState("idle");
+  warmer.freezeStanding(0);
+  const sharedAtlas = warmer._atlasTexture;
+  if (!sharedAtlas) return;
+
+  const spawn = mapWorld.spawns.find((s) => s.playerId === LOCAL_PLAYER) || mapWorld.spawns[0];
+  if (!spawn) return;
+
+  for (let i = 0; i < 4; i += 1) {
+    const unit = new SpriteUnit(guardBundled, { basePath: "sprites/lumen-guard/" });
+    unit.useSharedAtlas(sharedAtlas);
+    await unit.applyManifest(guardBundled);
+    await unit.setState("idle");
+    unit.freezeStanding(0);
+    const px = spawn.position.x + 6 + i * 1.4;
+    const pz = spawn.position.z - 4 - (i % 2) * 1.2;
+    unit.setPosition({ x: px, y: 0, z: pz });
+    unit.setFacing((i * 4) % FACINGS_16.length);
+
+    const rootGroup = unit.group;
+    const ring = addSelectionRing(rootGroup);
+    addBlobShadow(rootGroup);
+    scene.add(rootGroup);
+
+    citizens.push({
+      unit,
+      playerId: LOCAL_PLAYER,
+      selected: false,
+      ring,
+      hp: 140,
+      path: [],
+      pathIdx: 0,
+      activity: "idle",
+      gatherTarget: null,
+      stock: {},
+      _uid: 900 + i,
+      _isGuard: true
+    });
+  }
+}
+
 function setSelected(c, on) {
   if (c.playerId !== LOCAL_PLAYER) return;
   c.selected = on;
@@ -221,14 +288,28 @@ function groundHit(clientX, clientY) {
   return raycaster.ray.intersectPlane(plane, hit) ? hit : null;
 }
 
+function bridgeEndpoints(bridge) {
+  return {
+    from: bridge.visual?.from ?? bridge.from,
+    to: bridge.visual?.to ?? bridge.to
+  };
+}
+
+function bridgeMidpoint(bridge) {
+  const { from, to } = bridgeEndpoints(bridge);
+  return {
+    x: (from.x + to.x) / 2,
+    z: (from.z + to.z) / 2
+  };
+}
+
 function nearestBrokenBridge(x, z) {
   let best = null;
   let bestD = BRIDGE_REPAIR_RANGE;
   for (const b of mapWorld.definition.bridges) {
     if (mapWorld.bridgeStates.get(b.id)) continue;
-    const mx = (b.from.x + b.to.x) / 2;
-    const mz = (b.from.z + b.to.z) / 2;
-    const d = Math.hypot(x - mx, z - mz);
+    const midpoint = bridgeMidpoint(b);
+    const d = Math.hypot(x - midpoint.x, z - midpoint.z);
     if (d < bestD) {
       bestD = d;
       best = b;
@@ -303,7 +384,8 @@ renderer.domElement.addEventListener("pointerdown", (ev) => {
       orderMoveSelected(res.position.x, res.position.z, res);
       showToast(`Gather ${res.kind} @ ${res.id}`);
     } else if (bridge) {
-      orderMoveSelected((bridge.from.x + bridge.to.x) / 2, (bridge.from.z + bridge.to.z) / 2, null, bridge);
+      const midpoint = bridgeMidpoint(bridge);
+      orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
     } else {
       orderMoveSelected(hit.x, hit.z);
     }
@@ -322,7 +404,10 @@ document.getElementById("repair-bridge")?.addEventListener("click", () => {
   const sel = citizens.find((c) => c.selected && c.playerId === LOCAL_PLAYER);
   const p = sel?.unit.group.position ?? camCtrl.target;
   const bridge = nearestBrokenBridge(p.x, p.z);
-  if (bridge) orderMoveSelected((bridge.from.x + bridge.to.x) / 2, (bridge.from.z + bridge.to.z) / 2, null, bridge);
+  if (bridge) {
+    const midpoint = bridgeMidpoint(bridge);
+    orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
+  }
   else showToast("No broken bridge in range");
 });
 
@@ -454,8 +539,8 @@ function updateStatus() {
   if (flareBanner) flareBanner.style.display = flare ? "block" : "none";
 }
 
-camCtrl.panTo(0, -10, { immediate: true });
-camCtrl.setDistance(RTS_CAMERA.defaultDistance * 1.55, { immediate: true });
+camCtrl.panTo(0, 0, { immediate: true });
+camCtrl.setDistance(HELIOS_CAMERA.maxDistance, { immediate: true });
 
 let last = performance.now();
 let minimapAcc = MINIMAP_INTERVAL;
@@ -548,6 +633,7 @@ function frame(now) {
 }
 
 spawnCitizens()
+  .then(() => spawnGuards())
   .then(() => {
     updateStatus();
     drawMinimap();

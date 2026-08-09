@@ -18,7 +18,10 @@ if (!jwt) {
 
 let completionJwt = '';
 
-const site = resolve(dirname(fileURLToPath(import.meta.url)), '../../Docs/QA/helios-rift-play/site');
+const site = resolve(
+  process.env.HELIOS_PLAY_SITE_DIR ||
+    resolve(dirname(fileURLToPath(import.meta.url)), '../../Docs/QA/helios-rift-play/site'),
+);
 
 function walk(dir) {
   const out = [];

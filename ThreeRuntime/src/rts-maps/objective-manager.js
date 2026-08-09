@@ -25,25 +25,53 @@ export function spawnObjectives(specs, parent) {
     const g = new THREE.Group();
     g.name = `objective-${spec.id}`;
     g.position.set(spec.position.x, 0, spec.position.z);
+    const visual = spec.visual ?? {};
+    const captureZone = visual.captureZone ?? {};
+    const captureZoneRadius =
+      visual.captureZoneRadius ?? visual.captureRadius ?? captureZone.radius ?? spec.captureRadius;
+    const captureZoneColor =
+      visual.captureZoneColor ?? visual.captureColor ?? captureZone.color ?? 0xffffff;
+    const captureZoneOpacity =
+      visual.captureZoneOpacity ?? visual.captureOpacity ?? captureZone.opacity ?? 0.2;
 
     if (spec.type === "solar_core") {
+      const light = visual.light ?? {};
+      const coreRadius = visual.radius ?? 2.8;
+      const coronaRadius = visual.coronaRadius ?? 4.2;
+      const coreColor = visual.coreColor ?? visual.color ?? TERRAIN_PALETTE.solarCore;
+      const coronaColor = visual.coronaColor ?? TERRAIN_PALETTE.solar;
+      const beamColor = visual.beamColor ?? TERRAIN_PALETTE.energy;
+      const coreOpacity = visual.coreOpacity ?? 0.85;
+      const coronaOpacity = visual.coronaOpacity ?? 0.25;
+      const beamHeight = visual.beamHeight ?? 6;
+      const beamOpacity = visual.beamOpacity ?? 0.5;
+      const hasEmissive = visual.emissive !== undefined || visual.emissiveIntensity !== undefined;
+      const coreMaterial = hasEmissive
+        ? new THREE.MeshStandardMaterial({
+            color: coreColor,
+            emissive: visual.emissive ?? coreColor,
+            emissiveIntensity: visual.emissiveIntensity ?? 1,
+            transparent: true,
+            opacity: coreOpacity
+          })
+        : new THREE.MeshBasicMaterial({
+            color: coreColor,
+            transparent: true,
+            opacity: coreOpacity
+          });
       const core = new THREE.Mesh(
-        new THREE.SphereGeometry(2.8, 24, 16),
-        new THREE.MeshBasicMaterial({
-          color: TERRAIN_PALETTE.solarCore,
-          transparent: true,
-          opacity: 0.85
-        })
+        new THREE.SphereGeometry(coreRadius, 24, 16),
+        coreMaterial
       );
       core.position.y = 3.2;
       g.add(core);
 
       const corona = new THREE.Mesh(
-        new THREE.SphereGeometry(4.2, 16, 12),
+        new THREE.SphereGeometry(coronaRadius, 16, 12),
         new THREE.MeshBasicMaterial({
-          color: TERRAIN_PALETTE.solar,
+          color: coronaColor,
           transparent: true,
-          opacity: 0.25,
+          opacity: coronaOpacity,
           depthWrite: false
         })
       );
@@ -52,19 +80,33 @@ export function spawnObjectives(specs, parent) {
       g.add(corona);
 
       const beam = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.15, 0.4, 6, 8),
-        new THREE.MeshBasicMaterial({ color: TERRAIN_PALETTE.energy, transparent: true, opacity: 0.5 })
+        new THREE.CylinderGeometry(0.15, 0.4, beamHeight, 8),
+        new THREE.MeshBasicMaterial({ color: beamColor, transparent: true, opacity: beamOpacity })
       );
       beam.position.y = 0.3;
       g.add(beam);
+
+      const lightColor = visual.lightColor ?? light.color;
+      const lightIntensity = visual.lightIntensity ?? light.intensity;
+      if (lightColor !== undefined || lightIntensity !== undefined) {
+        const pointLight = new THREE.PointLight(
+          lightColor ?? coronaColor,
+          Math.min(lightIntensity ?? 1, 2.5),
+          Math.min(visual.lightDistance ?? light.distance ?? 20, 24),
+          Math.min(visual.lightDecay ?? light.decay ?? 2, 2)
+        );
+        pointLight.position.y = 3.2;
+        pointLight.name = "solar-light";
+        g.add(pointLight);
+      }
     }
 
     const zone = new THREE.Mesh(
-      new THREE.RingGeometry(spec.captureRadius * 0.85, spec.captureRadius, 48),
+      new THREE.RingGeometry(captureZoneRadius * 0.85, captureZoneRadius, 48),
       new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+        color: captureZoneColor,
         transparent: true,
-        opacity: 0.2,
+        opacity: captureZoneOpacity,
         side: THREE.DoubleSide,
         depthWrite: false
       })

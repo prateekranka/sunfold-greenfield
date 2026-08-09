@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased — Helios Rift Broken Ring
+
+The Three.js Broken Ring is now the active product track. The inherited map source was
+rebuilt and played before new visual work. It preserves four ring sectors, four broken
+bridge gaps, four expansion islets, the solar objective, resources, 12 live units, and the
+minimap.
+
+### Added
+
+- A dedicated Broken Ring visual contract and reference-versus-render evidence.
+- Packaged Lumen Guard web assets and a standalone Guard proof used by the Helios build.
+- A dev-only deployment path for `dev.helios.contenthelper.in`.
+
+### Changed
+
+- Helios geometry now uses four authored annular sectors, aligned bridge visuals and path
+  targets, raised understructure, debris clearance, spawn pads, landmarks, and resource
+  islets.
+- The Helios proof starts in a full-map overview and supports its wider world bounds.
+
+### Proof pending
+
+- The live map is still materially darker, flatter, and more top-down than the approved
+  reference. The solar core is not yet the frame's dominant landmark.
+- The in-app Browser HUD reported 30 FPS with 12 units. No 60 FPS claim is made.
+- The rebuilt takeover source has not yet been deployed to the dev domain.
+
 ## 0.6.1 — 2026-08-01 — the economy pays for the game
 
 The build where home deposits pay for a real Tier-1 opening. CP-C9 follows

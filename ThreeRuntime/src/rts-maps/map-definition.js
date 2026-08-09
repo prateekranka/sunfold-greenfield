@@ -27,6 +27,7 @@
  * @property {PlatformSpec[]} platforms
  * @property {DebrisSpec[]} [debris]
  * @property {{ color?: number, emissive?: number }} [palette]
+ * @property {TerrainVisualSpec} [visual]
  */
 
 /** @typedef {{ id: string, center: { x: number, z: number }, radius: number, arc?: number, yaw?: number, height?: number }} PlatformSpec */
@@ -58,6 +59,29 @@
  * @property {{ x: number, z: number }} position
  * @property {number} captureRadius
  * @property {Record<string, unknown>} [effects]
+ * @property {ObjectiveVisualSpec} [visual]
+ */
+
+/**
+ * Presentation-only solar objective values. Gameplay capture and effects stay
+ * on ObjectiveSpec and are not changed by this optional visual contract.
+ * @typedef {object} ObjectiveVisualSpec
+ * @property {number} [radius]
+ * @property {number} [coronaRadius]
+ * @property {number} [coreColor]
+ * @property {number} [coronaColor]
+ * @property {number} [beamColor]
+ * @property {number} [coreOpacity]
+ * @property {number} [coronaOpacity]
+ * @property {number} [emissive]
+ * @property {number} [emissiveIntensity]
+ * @property {number} [lightColor]
+ * @property {number} [lightIntensity]
+ * @property {number} [lightDistance]
+ * @property {number} [lightDecay]
+ * @property {{ color?: number, intensity?: number, distance?: number, decay?: number }} [light]
+ * @property {{ innerRadius?: number, outerRadius?: number, color?: number, opacity?: number }} [captureZone]
+ * @property {{ radiusTop?: number, radiusBottom?: number, height?: number, color?: number, opacity?: number }} [beam]
  */
 
 /**
@@ -69,6 +93,34 @@
  * @property {{ x: number, z: number }} to
  * @property {boolean} [startsEnabled]
  * @property {{ type: string, cost: string, importance?: string }} [metadata]
+ * @property {{ from: { x: number, z: number }, to: { x: number, z: number }, surfaceY?: number, width?: number, deckWidth?: number, understructureWidth?: number, disabledStubLength?: number, palette?: Record<string, number> }} [visual]
+ */
+
+/**
+ * Optional terrain treatment data. Renderers can use it for presentation.
+ * Navigation can opt into matching fragment bounds and bridge endpoints while
+ * retaining the map's logical IDs and connectivity.
+ * @typedef {object} TerrainVisualSpec
+ * @property {string} [style]
+ * @property {{ x: number, z: number }} [center]
+ * @property {number} [seed]
+ * @property {number} [innerRadius]
+ * @property {number} [outerRadius]
+ * @property {number} [fragmentSpan]
+ * @property {number} [surfaceY]
+ * @property {number} [debrisClearance]
+ * @property {Record<string, number>} [palette]
+ * @property {{ id: string, centerAngle: number, span?: number, innerRadius?: number, outerRadius?: number }[]} [fragments]
+ * @property {number} [platformDepth]
+ * @property {number} [understructureDepth]
+ * @property {number} [deckInset]
+ * @property {number} [panelCount]
+ * @property {number} [conduitCount]
+ * @property {{ count?: number, innerRadius?: number, outerRadius?: number, height?: number }} [starfield]
+ * @property {{ id: string, position: { x: number, z: number }, radius?: number, color?: number, label?: string }[]} [spawnPads]
+ * @property {{ id: string, position: { x: number, z: number }, radius?: number, color?: number, label?: string }[]} [landmarks]
+ * @property {{ id: string, position: { x: number, z: number }, radius?: number, color?: number }[]} [resourceZones]
+ * @property {{ count?: number, innerRadius?: number, coreRadius?: number, outerRadius?: number, ringClearance?: number }} [debrisField]
  */
 
 /**

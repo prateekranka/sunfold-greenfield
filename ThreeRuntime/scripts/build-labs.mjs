@@ -11,7 +11,8 @@ await mkdir(outDir, { recursive: true });
 const entries = [
   ["src/citizen-crowd-lab.js", "citizen-crowd-lab.bundle.js", "src/citizen-crowd-lab.html", "citizen-crowd-lab.html"],
   ["src/citizen-rts-proof.js", "citizen-rts-proof.bundle.js", "src/citizen-rts-proof.html", "citizen-rts-proof.html"],
-  ["src/helios-rift-proof.js", "helios-rift-proof.bundle.js", "src/helios-rift-proof.html", "helios-rift-proof.html"]
+  ["src/helios-rift-proof.js", "helios-rift-proof.bundle.js", "src/helios-rift-proof.html", "helios-rift-proof.html"],
+  ["src/lumen-guard-proof.js", "lumen-guard-proof.bundle.js", "src/lumen-guard-proof.html", "lumen-guard-proof.html"]
 ];
 
 for (const [entry, outfile, htmlSrc, htmlDst] of entries) {

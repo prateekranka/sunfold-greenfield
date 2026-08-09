@@ -164,10 +164,12 @@
         "idle",
         "walk",
         "build",
-        "death"
+        "death",
+        "attack"
       ],
       "factionMask": true,
-      "fallback": "procedural.vanguard"
+      "fallback": "procedural.vanguard",
+      "spriteSheet": "lumen-guard"
     },
     "sunwoven.vanguard.voyager": {
       "id": "sunwoven.vanguard.voyager",
@@ -526,6 +528,18 @@
       ],
       "atlas": "citizens/sprites/village-manbun-wanderer/runtime-atlas.png",
       "manifest": "citizens/sprites/village-manbun-wanderer/atlas-manifest.json",
+      "status": "packaged",
+      "updatedAt": "2026-08-09"
+    },
+    "lumen-guard": {
+      "unit": "lumen-guard",
+      "spriteSheet": "lumen-guard",
+      "clips": [
+        "idle",
+        "attack"
+      ],
+      "atlas": "citizens/sprites/lumen-guard/runtime-atlas.png",
+      "manifest": "citizens/sprites/lumen-guard/atlas-manifest.json",
       "status": "packaged",
       "updatedAt": "2026-08-09"
     }

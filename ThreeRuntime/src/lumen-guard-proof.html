@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sunfold — Lumen Guard v1 proof</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #1a1520; color: #e8e0d0; font: 13px/1.4 ui-monospace, Menlo, monospace; }
+    #proof-root { position: absolute; inset: 0; }
+    #hud {
+      position: absolute; left: 12px; top: 12px; z-index: 2;
+      background: rgba(18,14,28,0.82); padding: 10px 12px; border: 1px solid #7a6848; max-width: 440px;
+    }
+    #hud strong { color: #e2b866; }
+    button { margin: 4px 4px 0 0; cursor: pointer; }
+    .hint { margin-top: 8px; opacity: 0.75; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <div id="proof-root"></div>
+  <div id="hud">
+    <div><strong>Lumen Guard v1</strong> — combat silhouette proof</div>
+    <div id="status">loading…</div>
+    <div id="fps" style="margin-top:4px;color:#9dcea0;">FPS —</div>
+    <div>
+      <button id="start-activities" type="button">Start activities</button>
+      <button id="toggle-rotate" type="button">toggle slow cam rotate (off)</button>
+    </div>
+    <div class="hint">
+      4 idle · 4 walk · 4 attack — Foundation shield+spear ref. Shared atlas GPU path.
+      Press <kbd>A</kbd> or Start. Wheel: zoom · drag: pan.
+    </div>
+  </div>
+  <script src="./lumen-guard-proof.bundle.js"></script>
+</body>
+</html>

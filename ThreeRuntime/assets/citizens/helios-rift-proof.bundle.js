@@ -13095,6 +13095,196 @@
       return new this.constructor().copy(this);
     }
   };
+  var LineBasicMaterial = class extends Material {
+    /**
+     * Constructs a new line basic material.
+     *
+     * @param {Object} [parameters] - An object with one or more properties
+     * defining the material's appearance. Any property of the material
+     * (including any property from inherited materials) can be passed
+     * in here. Color values can be passed any type of value accepted
+     * by {@link Color#set}.
+     */
+    constructor(parameters) {
+      super();
+      this.isLineBasicMaterial = true;
+      this.type = "LineBasicMaterial";
+      this.color = new Color(16777215);
+      this.map = null;
+      this.linewidth = 1;
+      this.linecap = "round";
+      this.linejoin = "round";
+      this.fog = true;
+      this.setValues(parameters);
+    }
+    copy(source) {
+      super.copy(source);
+      this.color.copy(source.color);
+      this.map = source.map;
+      this.linewidth = source.linewidth;
+      this.linecap = source.linecap;
+      this.linejoin = source.linejoin;
+      this.fog = source.fog;
+      return this;
+    }
+  };
+  var _vStart = /* @__PURE__ */ new Vector3();
+  var _vEnd = /* @__PURE__ */ new Vector3();
+  var _inverseMatrix$1 = /* @__PURE__ */ new Matrix4();
+  var _ray$1 = /* @__PURE__ */ new Ray();
+  var _sphere$1 = /* @__PURE__ */ new Sphere();
+  var _intersectPointOnRay = /* @__PURE__ */ new Vector3();
+  var _intersectPointOnSegment = /* @__PURE__ */ new Vector3();
+  var Line = class extends Object3D {
+    /**
+     * Constructs a new line.
+     *
+     * @param {BufferGeometry} [geometry] - The line geometry.
+     * @param {Material|Array<Material>} [material] - The line material.
+     */
+    constructor(geometry = new BufferGeometry(), material = new LineBasicMaterial()) {
+      super();
+      this.isLine = true;
+      this.type = "Line";
+      this.geometry = geometry;
+      this.material = material;
+      this.morphTargetDictionary = void 0;
+      this.morphTargetInfluences = void 0;
+      this.updateMorphTargets();
+    }
+    copy(source, recursive) {
+      super.copy(source, recursive);
+      this.material = Array.isArray(source.material) ? source.material.slice() : source.material;
+      this.geometry = source.geometry;
+      return this;
+    }
+    /**
+     * Computes an array of distance values which are necessary for rendering dashed lines.
+     * For each vertex in the geometry, the method calculates the cumulative length from the
+     * current point to the very beginning of the line.
+     *
+     * @return {Line} A reference to this line.
+     */
+    computeLineDistances() {
+      const geometry = this.geometry;
+      if (geometry.index === null) {
+        const positionAttribute = geometry.attributes.position;
+        const lineDistances = [0];
+        for (let i = 1, l = positionAttribute.count; i < l; i++) {
+          _vStart.fromBufferAttribute(positionAttribute, i - 1);
+          _vEnd.fromBufferAttribute(positionAttribute, i);
+          lineDistances[i] = lineDistances[i - 1];
+          lineDistances[i] += _vStart.distanceTo(_vEnd);
+        }
+        geometry.setAttribute("lineDistance", new Float32BufferAttribute(lineDistances, 1));
+      } else {
+        console.warn("THREE.Line.computeLineDistances(): Computation only possible with non-indexed BufferGeometry.");
+      }
+      return this;
+    }
+    /**
+     * Computes intersection points between a casted ray and this line.
+     *
+     * @param {Raycaster} raycaster - The raycaster.
+     * @param {Array<Object>} intersects - The target array that holds the intersection points.
+     */
+    raycast(raycaster, intersects2) {
+      const geometry = this.geometry;
+      const matrixWorld = this.matrixWorld;
+      const threshold = raycaster.params.Line.threshold;
+      const drawRange = geometry.drawRange;
+      if (geometry.boundingSphere === null) geometry.computeBoundingSphere();
+      _sphere$1.copy(geometry.boundingSphere);
+      _sphere$1.applyMatrix4(matrixWorld);
+      _sphere$1.radius += threshold;
+      if (raycaster.ray.intersectsSphere(_sphere$1) === false) return;
+      _inverseMatrix$1.copy(matrixWorld).invert();
+      _ray$1.copy(raycaster.ray).applyMatrix4(_inverseMatrix$1);
+      const localThreshold = threshold / ((this.scale.x + this.scale.y + this.scale.z) / 3);
+      const localThresholdSq = localThreshold * localThreshold;
+      const step = this.isLineSegments ? 2 : 1;
+      const index = geometry.index;
+      const attributes = geometry.attributes;
+      const positionAttribute = attributes.position;
+      if (index !== null) {
+        const start = Math.max(0, drawRange.start);
+        const end = Math.min(index.count, drawRange.start + drawRange.count);
+        for (let i = start, l = end - 1; i < l; i += step) {
+          const a = index.getX(i);
+          const b = index.getX(i + 1);
+          const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, i);
+          if (intersect2) {
+            intersects2.push(intersect2);
+          }
+        }
+        if (this.isLineLoop) {
+          const a = index.getX(end - 1);
+          const b = index.getX(start);
+          const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, end - 1);
+          if (intersect2) {
+            intersects2.push(intersect2);
+          }
+        }
+      } else {
+        const start = Math.max(0, drawRange.start);
+        const end = Math.min(positionAttribute.count, drawRange.start + drawRange.count);
+        for (let i = start, l = end - 1; i < l; i += step) {
+          const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, i, i + 1, i);
+          if (intersect2) {
+            intersects2.push(intersect2);
+          }
+        }
+        if (this.isLineLoop) {
+          const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, end - 1, start, end - 1);
+          if (intersect2) {
+            intersects2.push(intersect2);
+          }
+        }
+      }
+    }
+    /**
+     * Sets the values of {@link Line#morphTargetDictionary} and {@link Line#morphTargetInfluences}
+     * to make sure existing morph targets can influence this 3D object.
+     */
+    updateMorphTargets() {
+      const geometry = this.geometry;
+      const morphAttributes = geometry.morphAttributes;
+      const keys = Object.keys(morphAttributes);
+      if (keys.length > 0) {
+        const morphAttribute = morphAttributes[keys[0]];
+        if (morphAttribute !== void 0) {
+          this.morphTargetInfluences = [];
+          this.morphTargetDictionary = {};
+          for (let m = 0, ml = morphAttribute.length; m < ml; m++) {
+            const name = morphAttribute[m].name || String(m);
+            this.morphTargetInfluences.push(0);
+            this.morphTargetDictionary[name] = m;
+          }
+        }
+      }
+    }
+  };
+  function checkIntersection(object, raycaster, ray, thresholdSq, a, b, i) {
+    const positionAttribute = object.geometry.attributes.position;
+    _vStart.fromBufferAttribute(positionAttribute, a);
+    _vEnd.fromBufferAttribute(positionAttribute, b);
+    const distSq = ray.distanceSqToSegment(_vStart, _vEnd, _intersectPointOnRay, _intersectPointOnSegment);
+    if (distSq > thresholdSq) return;
+    _intersectPointOnRay.applyMatrix4(object.matrixWorld);
+    const distance = raycaster.ray.origin.distanceTo(_intersectPointOnRay);
+    if (distance < raycaster.near || distance > raycaster.far) return;
+    return {
+      distance,
+      // What do we want? intersection point on the ray or on the segment??
+      // point: raycaster.ray.at( distance ),
+      point: _intersectPointOnSegment.clone().applyMatrix4(object.matrixWorld),
+      index: i,
+      face: null,
+      faceIndex: null,
+      barycoord: null,
+      object
+    };
+  }
   var PointsMaterial = class extends Material {
     /**
      * Constructs a new points material.
@@ -13507,6 +13697,43 @@
      */
     static fromJSON(data) {
       return new _CylinderGeometry(data.radiusTop, data.radiusBottom, data.height, data.radialSegments, data.heightSegments, data.openEnded, data.thetaStart, data.thetaLength);
+    }
+  };
+  var ConeGeometry = class _ConeGeometry extends CylinderGeometry {
+    /**
+     * Constructs a new cone geometry.
+     *
+     * @param {number} [radius=1] - Radius of the cone base.
+     * @param {number} [height=1] - Height of the cone.
+     * @param {number} [radialSegments=32] - Number of segmented faces around the circumference of the cone.
+     * @param {number} [heightSegments=1] - Number of rows of faces along the height of the cone.
+     * @param {boolean} [openEnded=false] - Whether the base of the cone is open or capped.
+     * @param {number} [thetaStart=0] - Start angle for first segment, in radians.
+     * @param {number} [thetaLength=Math.PI*2] - The central angle, often called theta, of the circular sector, in radians.
+     * The default value results in a complete cone.
+     */
+    constructor(radius = 1, height = 1, radialSegments = 32, heightSegments = 1, openEnded = false, thetaStart = 0, thetaLength = Math.PI * 2) {
+      super(0, radius, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength);
+      this.type = "ConeGeometry";
+      this.parameters = {
+        radius,
+        height,
+        radialSegments,
+        heightSegments,
+        openEnded,
+        thetaStart,
+        thetaLength
+      };
+    }
+    /**
+     * Factory method for creating an instance of this class from the given
+     * JSON object.
+     *
+     * @param {Object} data - A JSON object representing the serialized geometry.
+     * @return {ConeGeometry} A new instance.
+     */
+    static fromJSON(data) {
+      return new _ConeGeometry(data.radius, data.height, data.radialSegments, data.heightSegments, data.openEnded, data.thetaStart, data.thetaLength);
     }
   };
   var PolyhedronGeometry = class _PolyhedronGeometry extends BufferGeometry {
@@ -16578,6 +16805,91 @@
       return new _TorusGeometry(data.radius, data.tube, data.radialSegments, data.tubularSegments, data.arc);
     }
   };
+  var MeshStandardMaterial = class extends Material {
+    /**
+     * Constructs a new mesh standard material.
+     *
+     * @param {Object} [parameters] - An object with one or more properties
+     * defining the material's appearance. Any property of the material
+     * (including any property from inherited materials) can be passed
+     * in here. Color values can be passed any type of value accepted
+     * by {@link Color#set}.
+     */
+    constructor(parameters) {
+      super();
+      this.isMeshStandardMaterial = true;
+      this.type = "MeshStandardMaterial";
+      this.defines = { "STANDARD": "" };
+      this.color = new Color(16777215);
+      this.roughness = 1;
+      this.metalness = 0;
+      this.map = null;
+      this.lightMap = null;
+      this.lightMapIntensity = 1;
+      this.aoMap = null;
+      this.aoMapIntensity = 1;
+      this.emissive = new Color(0);
+      this.emissiveIntensity = 1;
+      this.emissiveMap = null;
+      this.bumpMap = null;
+      this.bumpScale = 1;
+      this.normalMap = null;
+      this.normalMapType = TangentSpaceNormalMap;
+      this.normalScale = new Vector2(1, 1);
+      this.displacementMap = null;
+      this.displacementScale = 1;
+      this.displacementBias = 0;
+      this.roughnessMap = null;
+      this.metalnessMap = null;
+      this.alphaMap = null;
+      this.envMap = null;
+      this.envMapRotation = new Euler();
+      this.envMapIntensity = 1;
+      this.wireframe = false;
+      this.wireframeLinewidth = 1;
+      this.wireframeLinecap = "round";
+      this.wireframeLinejoin = "round";
+      this.flatShading = false;
+      this.fog = true;
+      this.setValues(parameters);
+    }
+    copy(source) {
+      super.copy(source);
+      this.defines = { "STANDARD": "" };
+      this.color.copy(source.color);
+      this.roughness = source.roughness;
+      this.metalness = source.metalness;
+      this.map = source.map;
+      this.lightMap = source.lightMap;
+      this.lightMapIntensity = source.lightMapIntensity;
+      this.aoMap = source.aoMap;
+      this.aoMapIntensity = source.aoMapIntensity;
+      this.emissive.copy(source.emissive);
+      this.emissiveMap = source.emissiveMap;
+      this.emissiveIntensity = source.emissiveIntensity;
+      this.bumpMap = source.bumpMap;
+      this.bumpScale = source.bumpScale;
+      this.normalMap = source.normalMap;
+      this.normalMapType = source.normalMapType;
+      this.normalScale.copy(source.normalScale);
+      this.displacementMap = source.displacementMap;
+      this.displacementScale = source.displacementScale;
+      this.displacementBias = source.displacementBias;
+      this.roughnessMap = source.roughnessMap;
+      this.metalnessMap = source.metalnessMap;
+      this.alphaMap = source.alphaMap;
+      this.envMap = source.envMap;
+      this.envMapRotation.copy(source.envMapRotation);
+      this.envMapIntensity = source.envMapIntensity;
+      this.wireframe = source.wireframe;
+      this.wireframeLinewidth = source.wireframeLinewidth;
+      this.wireframeLinecap = source.wireframeLinecap;
+      this.wireframeLinejoin = source.wireframeLinejoin;
+      this.flatShading = source.flatShading;
+      this.fog = source.fog;
+      return this;
+    }
+  };
   var MeshDepthMaterial = class extends Material {
     /**
      * Constructs a new mesh depth material.
@@ -17918,6 +18230,127 @@
       object.camera = this.camera.toJSON(false).object;
       delete object.camera.matrix;
       return object;
+    }
+  };
+  var _projScreenMatrix = /* @__PURE__ */ new Matrix4();
+  var _lightPositionWorld = /* @__PURE__ */ new Vector3();
+  var _lookTarget = /* @__PURE__ */ new Vector3();
+  var PointLightShadow = class extends LightShadow {
+    /**
+     * Constructs a new point light shadow.
+     */
+    constructor() {
+      super(new PerspectiveCamera(90, 1, 0.5, 500));
+      this.isPointLightShadow = true;
+      this._frameExtents = new Vector2(4, 2);
+      this._viewportCount = 6;
+      this._viewports = [
+        // These viewports map a cube-map onto a 2D texture with the
+        // following orientation:
+        //
+        //  xzXZ
+        //   y Y
+        //
+        // X - Positive x direction
+        // x - Negative x direction
+        // Y - Positive y direction
+        // y - Negative y direction
+        // Z - Positive z direction
+        // z - Negative z direction
+        // positive X
+        new Vector4(2, 1, 1, 1),
+        // negative X
+        new Vector4(0, 1, 1, 1),
+        // positive Z
+        new Vector4(3, 1, 1, 1),
+        // negative Z
+        new Vector4(1, 1, 1, 1),
+        // positive Y
+        new Vector4(3, 0, 1, 1),
+        // negative Y
+        new Vector4(1, 0, 1, 1)
+      ];
+      this._cubeDirections = [
+        new Vector3(1, 0, 0),
+        new Vector3(-1, 0, 0),
+        new Vector3(0, 0, 1),
+        new Vector3(0, 0, -1),
+        new Vector3(0, 1, 0),
+        new Vector3(0, -1, 0)
+      ];
+      this._cubeUps = [
+        new Vector3(0, 1, 0),
+        new Vector3(0, 1, 0),
+        new Vector3(0, 1, 0),
+        new Vector3(0, 1, 0),
+        new Vector3(0, 0, 1),
+        new Vector3(0, 0, -1)
+      ];
+    }
+    /**
+     * Update the matrices for the camera and shadow, used internally by the renderer.
+     *
+     * @param {Light} light - The light for which the shadow is being rendered.
+     * @param {number} [viewportIndex=0] - The viewport index.
+     */
+    updateMatrices(light, viewportIndex = 0) {
+      const camera2 = this.camera;
+      const shadowMatrix = this.matrix;
+      const far = light.distance || camera2.far;
+      if (far !== camera2.far) {
+        camera2.far = far;
+        camera2.updateProjectionMatrix();
+      }
+      _lightPositionWorld.setFromMatrixPosition(light.matrixWorld);
+      camera2.position.copy(_lightPositionWorld);
+      _lookTarget.copy(camera2.position);
+      _lookTarget.add(this._cubeDirections[viewportIndex]);
+      camera2.up.copy(this._cubeUps[viewportIndex]);
+      camera2.lookAt(_lookTarget);
+      camera2.updateMatrixWorld();
+      shadowMatrix.makeTranslation(-_lightPositionWorld.x, -_lightPositionWorld.y, -_lightPositionWorld.z);
+      _projScreenMatrix.multiplyMatrices(camera2.projectionMatrix, camera2.matrixWorldInverse);
+      this._frustum.setFromProjectionMatrix(_projScreenMatrix);
+    }
+  };
+  var PointLight = class extends Light {
+    /**
+     * Constructs a new point light.
+     *
+     * @param {(number|Color|string)} [color=0xffffff] - The light's color.
+     * @param {number} [intensity=1] - The light's strength/intensity measured in candela (cd).
+     * @param {number} [distance=0] - Maximum range of the light. `0` means no limit.
+     * @param {number} [decay=2] - The amount the light dims along the distance of the light.
+     */
+    constructor(color, intensity, distance = 0, decay = 2) {
+      super(color, intensity);
+      this.isPointLight = true;
+      this.type = "PointLight";
+      this.distance = distance;
+      this.decay = decay;
+      this.shadow = new PointLightShadow();
+    }
+    /**
+     * The light's power. Power is the luminous power of the light measured in lumens (lm).
+     * Changing the power will also change the light's intensity.
+     *
+     * @type {number}
+     */
+    get power() {
+      return this.intensity * 4 * Math.PI;
+    }
+    set power(power) {
+      this.intensity = power / (4 * Math.PI);
+    }
+    dispose() {
+      this.shadow.dispose();
+    }
+    copy(source, recursive) {
+      super.copy(source, recursive);
+      this.distance = source.distance;
+      this.decay = source.decay;
+      this.shadow = source.shadow.clone();
+      return this;
     }
   };
   var OrthographicCamera = class extends Camera {
@@ -27388,7 +27821,7 @@ void main() {
       let _clippingEnabled = false;
       let _localClippingEnabled = false;
       const _currentProjectionMatrix = new Matrix4();
-      const _projScreenMatrix = new Matrix4();
+      const _projScreenMatrix2 = new Matrix4();
       const _vector3 = new Vector3();
       const _vector4 = new Vector4();
       const _emptyScene = { background: null, fog: null, environment: null, overrideMaterial: null, isScene: true };
@@ -27897,8 +28330,8 @@ void main() {
         currentRenderState = renderStates.get(scene2, renderStateStack.length);
         currentRenderState.init(camera2);
         renderStateStack.push(currentRenderState);
-        _projScreenMatrix.multiplyMatrices(camera2.projectionMatrix, camera2.matrixWorldInverse);
-        _frustum.setFromProjectionMatrix(_projScreenMatrix);
+        _projScreenMatrix2.multiplyMatrices(camera2.projectionMatrix, camera2.matrixWorldInverse);
+        _frustum.setFromProjectionMatrix(_projScreenMatrix2);
         _localClippingEnabled = this.localClippingEnabled;
         _clippingEnabled = clipping.init(this.clippingPlanes, _localClippingEnabled);
         currentRenderList = renderLists.get(scene2, renderListStack.length);
@@ -27984,7 +28417,7 @@ void main() {
           } else if (object.isSprite) {
             if (!object.frustumCulled || _frustum.intersectsSprite(object)) {
               if (sortObjects) {
-                _vector4.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix);
+                _vector4.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix2);
               }
               const geometry = objects.update(object);
               const material = object.material;
@@ -28004,7 +28437,7 @@ void main() {
                   if (geometry.boundingSphere === null) geometry.computeBoundingSphere();
                   _vector4.copy(geometry.boundingSphere.center);
                 }
-                _vector4.applyMatrix4(object.matrixWorld).applyMatrix4(_projScreenMatrix);
+                _vector4.applyMatrix4(object.matrixWorld).applyMatrix4(_projScreenMatrix2);
               }
               if (Array.isArray(material)) {
                 const groups = geometry.groups;
@@ -29091,7 +29524,7 @@ void main() {
     }
     /**
      * Gameplay API alias: `unit.setState("walk")` → clip switch.
-     * Accepted states: idle | walk | carry | gather | build (sheet-dependent).
+     * Accepted states: idle | walk | carry | gather | build | attack (sheet-dependent).
      * @param {string} state
      * @param {number} [facing]
      */
@@ -29613,24 +30046,24 @@ void main() {
     const z = horiz * Math.cos(YAW);
     return new Vector3(x, y, z);
   }
-  function applyRtsCamera(camera2, target, distance = RTS_CAMERA.defaultDistance) {
+  function applyRtsCamera(camera2, target, distance = RTS_CAMERA.defaultDistance, presentation = {}) {
     const look = target.clone();
     look.y = RTS_CAMERA.targetHeight;
     camera2.position.copy(look).add(rtsCameraOffset(distance));
     camera2.lookAt(look);
-    camera2.fov = RTS_CAMERA.fovDegrees;
+    camera2.fov = presentation.fovDegrees ?? RTS_CAMERA.fovDegrees;
     camera2.near = RTS_CAMERA.near;
-    camera2.far = RTS_CAMERA.far;
+    camera2.far = presentation.far ?? RTS_CAMERA.far;
     camera2.updateProjectionMatrix();
   }
-  function createRtsCamera(aspect2 = 16 / 9) {
+  function createRtsCamera(aspect2 = 16 / 9, presentation = {}) {
     const camera2 = new PerspectiveCamera(
-      RTS_CAMERA.fovDegrees,
+      presentation.fovDegrees ?? RTS_CAMERA.fovDegrees,
       aspect2,
       RTS_CAMERA.near,
-      RTS_CAMERA.far
+      presentation.far ?? RTS_CAMERA.far
     );
-    applyRtsCamera(camera2, new Vector3(0, 0, 0));
+    applyRtsCamera(camera2, new Vector3(0, 0, 0), RTS_CAMERA.defaultDistance, presentation);
     return camera2;
   }
   var RtsCameraController = class {
@@ -29640,6 +30073,10 @@ void main() {
      * @param {{
      *   target?: THREE.Vector3,
      *   distance?: number,
+     *   minDistance?: number,
+     *   maxDistance?: number,
+     *   fovDegrees?: number,
+     *   far?: number,
      *   panRadius?: number,
      *   zoomSmooth?: number,
      *   panSmooth?: number,
@@ -29653,6 +30090,10 @@ void main() {
       this.domElement = domElement;
       this.target = opts.target?.clone() ?? new Vector3(0, 0, 0);
       this.distance = opts.distance ?? RTS_CAMERA.defaultDistance;
+      this.minDistance = opts.minDistance ?? RTS_CAMERA.minDistance;
+      this.maxDistance = opts.maxDistance ?? RTS_CAMERA.maxDistance;
+      this.fovDegrees = opts.fovDegrees ?? RTS_CAMERA.fovDegrees;
+      this.far = opts.far ?? RTS_CAMERA.far;
       this._desiredTarget = this.target.clone();
       this._desiredDistance = this.distance;
       this._panVel = new Vector3();
@@ -29717,8 +30158,8 @@ void main() {
         const factor = 1 + raw * (e.ctrlKey ? 0.012 : 115e-5);
         this._desiredDistance = MathUtils.clamp(
           this._desiredDistance * factor,
-          RTS_CAMERA.minDistance,
-          RTS_CAMERA.maxDistance
+          this.minDistance,
+          this.maxDistance
         );
       };
       this._onContextMenu = (e) => {
@@ -29768,8 +30209,8 @@ void main() {
       this._desiredTarget.y = 0;
       this._desiredDistance = MathUtils.clamp(
         this._desiredDistance,
-        RTS_CAMERA.minDistance,
-        RTS_CAMERA.maxDistance
+        this.minDistance,
+        this.maxDistance
       );
     }
     /**
@@ -29795,8 +30236,8 @@ void main() {
     setDistance(distance, opts = {}) {
       this._desiredDistance = MathUtils.clamp(
         distance,
-        RTS_CAMERA.minDistance,
-        RTS_CAMERA.maxDistance
+        this.minDistance,
+        this.maxDistance
       );
       if (opts.immediate) {
         this.distance = this._desiredDistance;
@@ -29832,15 +30273,15 @@ void main() {
       if (this._keys.has("=") || this._keys.has("+")) {
         this._desiredDistance = MathUtils.clamp(
           this._desiredDistance * (1 - 1.1 * t),
-          RTS_CAMERA.minDistance,
-          RTS_CAMERA.maxDistance
+          this.minDistance,
+          this.maxDistance
         );
       }
       if (this._keys.has("-") || this._keys.has("_")) {
         this._desiredDistance = MathUtils.clamp(
           this._desiredDistance * (1 + 1.1 * t),
-          RTS_CAMERA.minDistance,
-          RTS_CAMERA.maxDistance
+          this.minDistance,
+          this.maxDistance
         );
       }
       if (!this._dragging && this._panVel.lengthSq() > 1e-6) {
@@ -29887,7 +30328,10 @@ void main() {
       return out;
     }
     update() {
-      applyRtsCamera(this.camera, this.target, this.distance);
+      applyRtsCamera(this.camera, this.target, this.distance, {
+        fovDegrees: this.fovDegrees,
+        far: this.far
+      });
     }
     dispose() {
       this.domElement.removeEventListener("pointerdown", this._onPointerDown);
@@ -29951,6 +30395,89 @@ void main() {
   var bECore = bridgeEnds("frag-e", "core-platform");
   var bSCore = bridgeEnds("frag-s", "core-platform");
   var bWCore = bridgeEnds("frag-w", "core-platform");
+  var RING_VISUAL = {
+    style: "broken-ring",
+    center: { x: 0, z: 0 },
+    seed: 2749,
+    innerRadius: 23.5,
+    outerRadius: 45,
+    fragmentSpan: 1.38,
+    surfaceY: 0,
+    understructureDepth: 1.8,
+    platformDepth: 1.8,
+    deckInset: 0.78,
+    panelCount: 6,
+    conduitCount: 4,
+    starfield: { count: 520, innerRadius: 74, outerRadius: 106, height: 42 },
+    palette: {
+      understructure: 725015,
+      basalt: 1514789,
+      basaltEdge: 2699836,
+      deck: 5857642,
+      deckLight: 7766154,
+      seam: 2436406,
+      gold: 15312713,
+      goldBright: 16764786,
+      conduit: 3528910,
+      conduitBright: 8650737,
+      spawn: 3313151,
+      resource: 4118965,
+      rock: 1712941,
+      crystal: 4646370,
+      star: 12048639,
+      void: 198674
+    },
+    fragments: [
+      { id: "frag-n", centerAngle: -Math.PI / 2 },
+      { id: "frag-e", centerAngle: 0 },
+      { id: "frag-s", centerAngle: Math.PI / 2 },
+      { id: "frag-w", centerAngle: Math.PI }
+    ],
+    spawnPads: [
+      { id: "spawn-n", position: { x: 0, z: -32 }, radius: 2.05, color: 3247359 },
+      { id: "spawn-e", position: { x: 32, z: 0 }, radius: 2.05, color: 3247359 },
+      { id: "spawn-s", position: { x: 0, z: 32 }, radius: 2.05, color: 3247359 },
+      { id: "spawn-w", position: { x: -32, z: 0 }, radius: 2.05, color: 3247359 }
+    ],
+    landmarks: [
+      { id: "key-n", position: { x: 0, z: -24.5 }, radius: 1.65, color: 15312713, label: "key" },
+      { id: "key-e", position: { x: 24.5, z: 0 }, radius: 1.65, color: 15312713, label: "key" },
+      { id: "key-s", position: { x: 0, z: 24.5 }, radius: 1.65, color: 15312713, label: "key" },
+      { id: "key-w", position: { x: -24.5, z: 0 }, radius: 1.65, color: 15312713, label: "key" }
+    ],
+    resourceZones: [
+      { id: "zone-home-n", position: { x: -4, z: -29 }, radius: 1.5, color: 4118965 },
+      { id: "zone-home-e", position: { x: 29, z: 4 }, radius: 1.5, color: 4118965 },
+      { id: "zone-home-s", position: { x: 4, z: 29 }, radius: 1.5, color: 4118965 },
+      { id: "zone-home-w", position: { x: -29, z: -4 }, radius: 1.5, color: 4118965 },
+      { id: "zone-isle-ne", position: { x: 22, z: -22 }, radius: 2.1, color: 4646370 },
+      { id: "zone-isle-se", position: { x: 22, z: 22 }, radius: 2.1, color: 4646370 },
+      { id: "zone-isle-sw", position: { x: -22, z: 22 }, radius: 2.1, color: 4646370 },
+      { id: "zone-isle-nw", position: { x: -22, z: -22 }, radius: 2.1, color: 4646370 }
+    ],
+    debrisField: { count: 110, coreRadius: 10, outerRadius: 67, ringClearance: 2.4 }
+  };
+  var visualBridge = (from, to, widthValues = {}) => ({
+    from,
+    to,
+    surfaceY: RING_VISUAL.surfaceY,
+    palette: RING_VISUAL.palette,
+    ...widthValues
+  });
+  var visualRingPoint = (angle) => {
+    const radius = RING_VISUAL.outerRadius - 0.9;
+    return { x: Math.cos(angle) * radius, z: Math.sin(angle) * radius };
+  };
+  var visualGapBridge = (fromAngle, toAngle) => visualBridge(visualRingPoint(fromAngle), visualRingPoint(toAngle), {
+    width: 3.6,
+    deckWidth: 2.95,
+    understructureWidth: 3.6
+  });
+  var visualCoreBridge = (from, to) => visualBridge(from, to, {
+    width: 2.35,
+    deckWidth: 1.9,
+    understructureWidth: 2.35
+  });
   var HELIOS_RIFT = {
     id: "helios-rift",
     name: "Helios Rift",
@@ -29968,7 +30495,8 @@ void main() {
         { id: "deb-4", center: { x: -16, z: -42 }, radius: 2 },
         { id: "deb-5", center: { x: 48, z: 28 }, radius: 1.6 }
       ],
-      palette: { platform: 9075298, energy: 4116416, solar: 16752688 }
+      palette: { platform: 9075298, energy: 4116416, solar: 16752688 },
+      visual: RING_VISUAL
     },
     spawns: [
       { playerId: 0, platformId: "frag-n", position: { x: 0, z: -RING_R + 2 }, yaw: Math.PI / 2, startingCitizens: 8 },
@@ -29993,6 +30521,34 @@ void main() {
         type: "solar_core",
         position: { x: 0, z: 0 },
         captureRadius: 10,
+        visual: {
+          radius: 1.65,
+          coronaRadius: 2.75,
+          coreColor: 16777168,
+          coronaColor: 16747042,
+          beamColor: 3528910,
+          coreOpacity: 0.96,
+          coronaOpacity: 0.18,
+          captureZone: {
+            innerRadius: 8.9,
+            outerRadius: 9.35,
+            color: 15902282,
+            opacity: 0.08
+          },
+          beam: {
+            radiusTop: 0.08,
+            radiusBottom: 0.18,
+            height: 4.2,
+            color: 7464668,
+            opacity: 0.1
+          },
+          emissive: 16777114,
+          emissiveIntensity: 2.4,
+          lightColor: 16751164,
+          lightIntensity: 1.35,
+          lightDistance: 16,
+          lightDecay: 2
+        },
         effects: { energyBonus: 1.25, techAcceleration: 1.15 }
       }
     ],
@@ -30002,6 +30558,7 @@ void main() {
         fromPlatformId: "frag-n",
         toPlatformId: "frag-e",
         ...bNE,
+        visual: visualGapBridge(-Math.PI / 2 + RING_VISUAL.fragmentSpan / 2, -RING_VISUAL.fragmentSpan / 2),
         startsEnabled: true,
         metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "medium" }
       },
@@ -30010,6 +30567,7 @@ void main() {
         fromPlatformId: "frag-e",
         toPlatformId: "frag-s",
         ...bES,
+        visual: visualGapBridge(RING_VISUAL.fragmentSpan / 2, Math.PI / 2 - RING_VISUAL.fragmentSpan / 2),
         startsEnabled: false,
         metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
       },
@@ -30018,6 +30576,7 @@ void main() {
         fromPlatformId: "frag-s",
         toPlatformId: "frag-w",
         ...bSW,
+        visual: visualGapBridge(Math.PI / 2 + RING_VISUAL.fragmentSpan / 2, Math.PI - RING_VISUAL.fragmentSpan / 2),
         startsEnabled: true,
         metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "medium" }
       },
@@ -30026,6 +30585,7 @@ void main() {
         fromPlatformId: "frag-w",
         toPlatformId: "frag-n",
         ...bWN,
+        visual: visualGapBridge(Math.PI + RING_VISUAL.fragmentSpan / 2, -Math.PI / 2 - RING_VISUAL.fragmentSpan / 2),
         startsEnabled: false,
         metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
       },
@@ -30034,6 +30594,7 @@ void main() {
         fromPlatformId: "frag-n",
         toPlatformId: "core-platform",
         ...bNCore,
+        visual: visualCoreBridge({ x: 0, z: -24 }, { x: 0, z: -10 }),
         startsEnabled: true,
         metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
       },
@@ -30042,6 +30603,7 @@ void main() {
         fromPlatformId: "frag-e",
         toPlatformId: "core-platform",
         ...bECore,
+        visual: visualCoreBridge({ x: 24, z: 0 }, { x: 10, z: 0 }),
         startsEnabled: false,
         metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
       },
@@ -30050,6 +30612,7 @@ void main() {
         fromPlatformId: "frag-s",
         toPlatformId: "core-platform",
         ...bSCore,
+        visual: visualCoreBridge({ x: 0, z: 24 }, { x: 0, z: 10 }),
         startsEnabled: true,
         metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
       },
@@ -30058,6 +30621,7 @@ void main() {
         fromPlatformId: "frag-w",
         toPlatformId: "core-platform",
         ...bWCore,
+        visual: visualCoreBridge({ x: -24, z: 0 }, { x: -10, z: 0 }),
         startsEnabled: false,
         metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
       }
@@ -30172,13 +30736,14 @@ void main() {
         this.nodes.set(nid, { id: nid, x: o.position.x, z: o.position.z });
       }
       for (const b of def.bridges) {
+        const { from, to } = getBridgeEndpoints(b);
         const mid = {
           id: `bridge-mid-${b.id}`,
-          x: (b.from.x + b.to.x) / 2,
-          z: (b.from.z + b.to.z) / 2
+          x: (from.x + to.x) / 2,
+          z: (from.z + to.z) / 2
         };
         this.nodes.set(mid.id, mid);
-        const len = Math.hypot(b.to.x - b.from.x, b.to.z - b.from.z);
+        const len = Math.hypot(to.x - from.x, to.z - from.z);
         const enabled = b.startsEnabled !== false;
         this.addEdge(`edge-${b.id}-a`, b.fromPlatformId, mid.id, len * 0.5, b.id, enabled);
         this.addEdge(`edge-${b.id}-b`, mid.id, b.toPlatformId, len * 0.5, b.id, enabled);
@@ -30315,6 +30880,17 @@ void main() {
       };
     }
   };
+  function getBridgeEndpoints(bridge) {
+    const visualFrom = bridge.visual?.from;
+    const visualTo = bridge.visual?.to;
+    if (isCoordinate(visualFrom) && isCoordinate(visualTo)) {
+      return { from: visualFrom, to: visualTo };
+    }
+    return { from: bridge.from, to: bridge.to };
+  }
+  function isCoordinate(point) {
+    return Number.isFinite(point?.x) && Number.isFinite(point?.z);
+  }
 
   // src/rts-maps/terrain-generator.js
   var PALETTE = {
@@ -30328,12 +30904,44 @@ void main() {
     bridge: 10127984,
     bridgeBroken: 5918792
   };
+  var HELIOS_DEBRIS_GEOMETRY = new IcosahedronGeometry(1, 0);
+  var HELIOS_DEBRIS_CRYSTAL_GEOMETRY = new ConeGeometry(1, 1, 5);
   function buildTerrain(terrain, bridges = []) {
     const group = new Group();
     group.name = "rts-terrain";
     const platformMeshes = /* @__PURE__ */ new Map();
     const bridgeMeshes = /* @__PURE__ */ new Map();
     const palette = { ...PALETTE, ...terrain.palette };
+    const visual = terrain.visual?.style === "broken-ring" ? terrain.visual : null;
+    const visualPalette = visual ? { ...palette, ...visual.palette } : palette;
+    const visualMaterials = visual ? createHeliosMaterials(visualPalette) : null;
+    if (visual) addHeliosStarfield(group, visual, visualPalette, visualMaterials);
+    else addLegacyStarfield(group);
+    for (const p of terrain.platforms) {
+      const mesh = visual ? makeHeliosPlatform(p, visual, visualPalette, visualMaterials) : makePlatform(p, palette);
+      platformMeshes.set(p.id, mesh);
+      group.add(mesh);
+    }
+    for (const d of terrain.debris ?? []) {
+      group.add(visual ? makeHeliosDebris(d, visual, visualMaterials) : makeDebris(d, palette));
+    }
+    if (visual) {
+      addHeliosDebrisField(group, visual, visualMaterials);
+      addHeliosMarkers(group, visual, visualPalette, visualMaterials);
+    }
+    for (const b of bridges) {
+      const bg = makeBridge(
+        b,
+        visual ? visualPalette : palette,
+        b.startsEnabled !== false,
+        visualMaterials
+      );
+      bridgeMeshes.set(b.id, bg);
+      group.add(bg);
+    }
+    return { group, platformMeshes, bridgeMeshes };
+  }
+  function addLegacyStarfield(group) {
     const starGeo = new BufferGeometry();
     const starCount = 400;
     const positions = new Float32Array(starCount * 3);
@@ -30346,25 +30954,473 @@ void main() {
       positions[i * 3 + 2] = Math.sin(theta) * r;
     }
     starGeo.setAttribute("position", new BufferAttribute(positions, 3));
-    const stars = new Points(
-      starGeo,
-      new PointsMaterial({ color: 13945e3, size: 0.35, sizeAttenuation: true })
+    group.add(
+      new Points(
+        starGeo,
+        new PointsMaterial({ color: 13945e3, size: 0.35, sizeAttenuation: true })
+      )
     );
-    group.add(stars);
-    for (const p of terrain.platforms) {
-      const mesh = makePlatform(p, palette);
-      platformMeshes.set(p.id, mesh);
-      group.add(mesh);
+  }
+  function createHeliosMaterials(palette) {
+    const metal = (color, roughness, metalness = 0.8, extra = {}) => new MeshStandardMaterial({ color, roughness, metalness, ...extra });
+    const glow = (color, intensity = 1.1, opacity = 1) => new MeshStandardMaterial({
+      color,
+      emissive: color,
+      emissiveIntensity: intensity,
+      roughness: 0.32,
+      metalness: 0.35,
+      transparent: opacity < 1,
+      opacity
+    });
+    return {
+      understructure: metal(palette.understructure ?? 725015, 0.9, 0.9),
+      basalt: metal(palette.basalt ?? 1514789, 0.84, 0.86),
+      basaltEdge: metal(palette.basaltEdge ?? 2699836, 0.74, 0.9),
+      deck: metal(palette.deck ?? 5857642, 0.66, 0.92),
+      deckLight: metal(palette.deckLight ?? 7766154, 0.58, 0.94),
+      seam: metal(palette.seam ?? 2436406, 0.9, 0.62),
+      gold: glow(palette.gold ?? 15312713, 0.9),
+      goldBright: glow(palette.goldBright ?? 16764786, 1.45),
+      conduit: glow(palette.conduit ?? 3528910, 1.15, 0.86),
+      conduitBright: glow(palette.conduitBright ?? 8650737, 1.75),
+      spawn: glow(palette.spawn ?? 3313151, 1.2, 0.88),
+      resource: glow(palette.resource ?? 4118965, 1.2, 0.9),
+      crystal: glow(palette.crystal ?? 4646370, 1.45),
+      rock: metal(palette.rock ?? 1712941, 0.95, 0.78),
+      goldLine: line(palette.gold ?? 15312713, 0.78),
+      seamLine: line(palette.seam ?? 2436406, 0.9),
+      conduitLine: line(palette.conduit ?? 3528910, 0.8),
+      conduitBrightLine: line(palette.conduitBright ?? 8650737, 0.96),
+      star: new PointsMaterial({
+        color: palette.star ?? 12048639,
+        size: 0.28,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.82,
+        depthWrite: false
+      }),
+      starBright: new PointsMaterial({
+        color: palette.goldBright ?? 16764786,
+        size: 0.48,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.92,
+        depthWrite: false
+      }),
+      voidRing: new MeshBasicMaterial({
+        color: palette.void ?? 198674,
+        transparent: true,
+        opacity: 0.52,
+        depthWrite: false
+      })
+    };
+    function line(color, opacity) {
+      return new LineBasicMaterial({
+        color,
+        transparent: opacity < 1,
+        opacity,
+        depthWrite: false
+      });
     }
-    for (const d of terrain.debris ?? []) {
-      group.add(makeDebris(d, palette));
+  }
+  function addHeliosStarfield(group, visual, palette, materials) {
+    const field = visual.starfield ?? {};
+    const count = field.count ?? 520;
+    const innerRadius = field.innerRadius ?? 74;
+    const outerRadius = field.outerRadius ?? 106;
+    const height = field.height ?? 42;
+    const random = seededRandom2((visual.seed ?? 1) ^ 20903);
+    const starPositions = [];
+    const brightPositions = [];
+    for (let i = 0; i < count; i += 1) {
+      const theta = random() * Math.PI * 2;
+      const radius = innerRadius + Math.sqrt(random()) * (outerRadius - innerRadius);
+      const y = (random() - 0.46) * height;
+      const target = i % 13 === 0 ? brightPositions : starPositions;
+      target.push(new Vector3(Math.cos(theta) * radius, y, Math.sin(theta) * radius));
     }
-    for (const b of bridges) {
-      const bg = makeBridge(b, palette, b.startsEnabled !== false);
-      bridgeMeshes.set(b.id, bg);
-      group.add(bg);
+    const stars = makePoints(starPositions, materials.star);
+    const bright = makePoints(brightPositions, materials.starBright);
+    group.add(stars, bright);
+    disableCosmeticRaycast(stars);
+    disableCosmeticRaycast(bright);
+  }
+  function makePoints(points, material) {
+    const geometry = new BufferGeometry().setFromPoints(points);
+    return new Points(geometry, material);
+  }
+  function makeHeliosPlatform(spec, visual, palette, materials) {
+    const fragment2 = visual.fragments?.find((entry) => entry.id === spec.id);
+    let platform;
+    if (fragment2) {
+      platform = makeHeliosRingFragment(spec, visual, fragment2, materials);
+    } else if (spec.id.startsWith("isle-")) {
+      platform = makeHeliosIslet(spec, materials, (visual.seed ?? 1) + hashString(spec.id));
+    } else if (spec.id === "core-platform") {
+      platform = makeHeliosCoreVoid(spec, materials);
+    } else {
+      platform = makePlatform(spec, palette);
     }
-    return { group, platformMeshes, bridgeMeshes };
+    platform.userData.logicalPlatformId = spec.id;
+    disableCosmeticRaycast(platform);
+    return platform;
+  }
+  function makeHeliosRingFragment(spec, visual, fragment2, materials) {
+    const g = new Group();
+    g.name = `platform-${spec.id}`;
+    g.position.set(visual.center?.x ?? 0, 0, visual.center?.z ?? 0);
+    g.rotation.y = -(fragment2.centerAngle ?? 0);
+    const span = fragment2.span ?? visual.fragmentSpan ?? Math.PI * 0.42;
+    const inner = fragment2.innerRadius ?? visual.innerRadius ?? spec.radius * 1.9;
+    const outer = fragment2.outerRadius ?? visual.outerRadius ?? spec.radius * 3.9;
+    const underDepth = visual.understructureDepth ?? visual.platformDepth ?? 1.8;
+    const panelCount = visual.panelCount ?? 6;
+    const conduitCount = visual.conduitCount ?? 4;
+    const surfaceY = visual.surfaceY ?? 0.04;
+    const start = -span / 2 + 0.035;
+    const end = span / 2 - 0.035;
+    const midRadius = (inner + outer) * 0.5;
+    const under = new Mesh(
+      makeAnnularSectorGeometry(inner, outer, span, underDepth, 30),
+      materials.understructure
+    );
+    under.position.y = surfaceY - underDepth * 0.5 - 0.18;
+    g.add(under);
+    const armorDepth = 0.28;
+    const armor = new Mesh(
+      makeAnnularSectorGeometry(inner + 0.18, outer - 0.18, span - 0.025, armorDepth, 30),
+      materials.basaltEdge
+    );
+    armor.position.y = surfaceY - armorDepth * 0.5 - 0.06;
+    g.add(armor);
+    const deckInset = visual.deckInset ?? 0.78;
+    const deckDepth = 0.14;
+    const deck = new Mesh(
+      makeAnnularSectorGeometry(inner + deckInset, outer - deckInset, span - 0.04, deckDepth, 30),
+      materials.deck
+    );
+    deck.position.y = surfaceY - deckDepth * 0.5;
+    g.add(deck);
+    const highlightDepth = 0.025;
+    const deckHighlight = new Mesh(
+      makeAnnularSectorGeometry(inner + deckInset + 0.16, outer - deckInset - 0.2, span - 0.075, highlightDepth, 30),
+      materials.deckLight
+    );
+    deckHighlight.position.y = surfaceY + highlightDepth * 0.5;
+    g.add(deckHighlight);
+    addArcLine(g, outer - 0.24, start, end, surfaceY + 0.035, materials.goldLine, 24);
+    addArcLine(g, inner + 0.24, start, end, surfaceY + 0.035, materials.goldLine, 24);
+    addArcLine(g, midRadius, start + 0.04, end - 0.04, surfaceY + 0.04, materials.seamLine, 24);
+    for (let i = 0; i <= panelCount; i += 1) {
+      const a = MathUtils.lerp(start, end, i / panelCount);
+      addRadialBar(
+        g,
+        a,
+        inner + deckInset + 0.2,
+        outer - deckInset - 0.2,
+        0.08,
+        0.055,
+        materials.seam,
+        surfaceY + 0.045
+      );
+      if (i > 0 && i < panelCount) {
+        const ribY = surfaceY - underDepth * 0.55;
+        addEdgeRib(g, outer - 0.2, a, 0.72, 0.72, materials.basaltEdge, ribY);
+        addEdgeRib(g, inner + 0.2, a, 0.62, 0.72, materials.basaltEdge, ribY);
+      }
+    }
+    const random = seededRandom2((visual.seed ?? 1) + hashString(spec.id));
+    for (let i = 0; i < conduitCount; i += 1) {
+      const a = MathUtils.lerp(start + 0.1, end - 0.22, random());
+      const length = 0.16 + random() * 0.25;
+      const radius = inner + 2.1 + random() * (outer - inner - 4.2);
+      const material = i % 3 === 0 ? materials.conduitBrightLine : materials.conduitLine;
+      const meshMaterial = i % 3 === 0 ? materials.conduitBright : materials.conduit;
+      addArcLine(g, radius, a, Math.min(end, a + length), surfaceY + 0.065, material, 8);
+      addRadialBar(
+        g,
+        a + length,
+        radius - 0.42,
+        radius + 0.42,
+        0.045,
+        0.05,
+        meshMaterial,
+        surfaceY + 0.07
+      );
+    }
+    for (const a of [start, end]) {
+      addHeliosSocket(g, outer - 0.55, a, 0.52, materials, surfaceY);
+      addHeliosSocket(g, inner + 0.7, a, 0.38, materials, surfaceY);
+    }
+    g.userData.visualStyle = "broken-ring-fragment";
+    g.userData.platformSpec = spec;
+    return g;
+  }
+  function makeAnnularSectorGeometry(inner, outer, span, depth, segments) {
+    const start = -span / 2;
+    const step = span / segments;
+    const halfDepth = depth * 0.5;
+    const positions = [];
+    const indices = [];
+    for (let i = 0; i <= segments; i += 1) {
+      const angle = start + step * i;
+      const c = Math.cos(angle);
+      const s = Math.sin(angle);
+      positions.push(
+        c * outer,
+        halfDepth,
+        s * outer,
+        c * inner,
+        halfDepth,
+        s * inner,
+        c * outer,
+        -halfDepth,
+        s * outer,
+        c * inner,
+        -halfDepth,
+        s * inner
+      );
+    }
+    const quad = (a, b, c, d) => indices.push(a, b, c, a, c, d);
+    for (let i = 0; i < segments; i += 1) {
+      const a = i * 4;
+      const b = (i + 1) * 4;
+      quad(a + 1, b + 1, b, a);
+      quad(a + 2, b + 2, b + 3, a + 3);
+      quad(a, b, b + 2, a + 2);
+      quad(a + 3, b + 3, b + 1, a + 1);
+    }
+    const last2 = segments * 4;
+    quad(0, 2, 3, 1);
+    quad(last2 + 1, last2 + 3, last2 + 2, last2);
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    return geometry;
+  }
+  function addArcLine(parent, radius, start, end, y, material, segments = 16) {
+    const points = [];
+    for (let i = 0; i <= segments; i += 1) {
+      const angle = MathUtils.lerp(start, end, i / segments);
+      points.push(new Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius));
+    }
+    const line = new Line(new BufferGeometry().setFromPoints(points), material);
+    parent.add(line);
+    return line;
+  }
+  function addRadialBar(parent, angle, inner, outer, width, height, material, y = 0.06) {
+    const length = Math.max(0.1, outer - inner);
+    const bar = new Mesh(new BoxGeometry(width, height, length), material);
+    bar.position.set(Math.cos(angle) * (inner + outer) * 0.5, y, Math.sin(angle) * (inner + outer) * 0.5);
+    bar.rotation.y = Math.PI / 2 - angle;
+    parent.add(bar);
+    return bar;
+  }
+  function addEdgeRib(parent, radius, angle, width, height, material, y) {
+    const rib = new Mesh(new BoxGeometry(width, height, 0.62), material);
+    rib.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+    rib.rotation.y = Math.PI / 2 - angle;
+    parent.add(rib);
+    return rib;
+  }
+  function addHeliosSocket(parent, radius, angle, size, materials, surfaceY = 0.04) {
+    const socket = new Group();
+    socket.position.set(Math.cos(angle) * radius, surfaceY + 0.03, Math.sin(angle) * radius);
+    const cap = new Mesh(new CylinderGeometry(size, size * 0.9, 0.12, 10), materials.gold);
+    socket.add(cap);
+    const ring = new Mesh(
+      new TorusGeometry(size * 0.92, Math.max(0.05, size * 0.12), 6, 12),
+      materials.goldBright
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 0.045;
+    socket.add(ring);
+    parent.add(socket);
+    return socket;
+  }
+  function makeHeliosCoreVoid(spec, materials) {
+    const g = new Group();
+    g.name = `platform-${spec.id}`;
+    g.position.set(spec.center.x, -0.96, spec.center.z);
+    const ring = new Mesh(new RingGeometry(6.4, 8.45, 48), materials.voidRing);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.04;
+    g.add(ring);
+    g.userData.visualStyle = "central-void-support";
+    return g;
+  }
+  function makeHeliosIslet(spec, materials, seed) {
+    const g = new Group();
+    g.name = `platform-${spec.id}`;
+    g.position.set(spec.center.x, -1.05, spec.center.z);
+    const random = seededRandom2(seed);
+    const radius = spec.radius;
+    const rock = new Mesh(new IcosahedronGeometry(1, 1), materials.rock);
+    rock.scale.set(radius * 1.05, radius * 0.34, radius * 0.92);
+    rock.rotation.set(random() * 0.3, random() * Math.PI * 2, random() * 0.25);
+    g.add(rock);
+    const cap = new Mesh(
+      new CylinderGeometry(radius * 0.84, radius * 0.96, 0.26, 9),
+      materials.basaltEdge
+    );
+    cap.position.y = radius * 0.28;
+    cap.rotation.y = random() * 0.4;
+    g.add(cap);
+    for (let i = 0; i < 3; i += 1) {
+      const angle = random() * Math.PI * 2;
+      const crystal = new Mesh(
+        new ConeGeometry(0.28 + random() * 0.1, 0.72 + random() * 0.28, 5),
+        materials.crystal
+      );
+      crystal.position.set(Math.cos(angle) * (0.55 + random() * 0.6), radius * 0.28 + 0.35, Math.sin(angle) * (0.55 + random() * 0.6));
+      crystal.rotation.z = (random() - 0.5) * 0.45;
+      crystal.rotation.x = (random() - 0.5) * 0.45;
+      g.add(crystal);
+    }
+    g.userData.visualStyle = "mineral-islet";
+    return g;
+  }
+  function addHeliosMarkers(group, visual, palette, materials) {
+    const markers = new Group();
+    markers.name = "helios-visual-markers";
+    const surfaceY = visual.surfaceY ?? 0.04;
+    for (const pad of visual.spawnPads ?? []) {
+      const g = new Group();
+      g.name = `spawn-pad-${pad.id}`;
+      g.position.set(pad.position.x, surfaceY, pad.position.z);
+      const radius = pad.radius ?? 2;
+      const color = pad.color ?? palette.spawn;
+      const material = color === palette.spawn ? materials.spawn : createMarkerMaterial(color, materials.spawn);
+      const base = new Mesh(new CylinderGeometry(radius, radius * 0.93, 0.12, 20), material);
+      g.add(base);
+      const ring = new Mesh(new TorusGeometry(radius * 0.98, 0.1, 6, 20), materials.conduit);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.09;
+      g.add(ring);
+      markers.add(g);
+    }
+    for (const landmark of visual.landmarks ?? []) {
+      const g = new Group();
+      g.name = `landmark-${landmark.id}`;
+      g.position.set(landmark.position.x, surfaceY, landmark.position.z);
+      const radius = landmark.radius ?? 1.5;
+      const material = landmark.color === palette.gold || landmark.color === void 0 ? materials.gold : createMarkerMaterial(landmark.color, materials.gold);
+      const base = new Mesh(new CylinderGeometry(radius, radius * 0.86, 0.18, 12), material);
+      g.add(base);
+      const ring = new Mesh(new TorusGeometry(radius * 0.92, 0.1, 6, 16), materials.goldBright);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.13;
+      g.add(ring);
+      const post = new Mesh(new CylinderGeometry(0.16, 0.2, 0.5, 8), materials.goldBright);
+      post.position.y = 0.3;
+      g.add(post);
+      markers.add(g);
+    }
+    for (const zone of visual.resourceZones ?? []) {
+      const g = new Group();
+      g.name = `resource-zone-${zone.id}`;
+      const isletElevation = zone.id.startsWith("zone-isle-") ? 0.58 : 0;
+      g.position.set(zone.position.x, surfaceY + isletElevation, zone.position.z);
+      const radius = zone.radius ?? 1.5;
+      const color = zone.color ?? palette.resource;
+      const material = color === palette.resource ? materials.resource : createMarkerMaterial(color, materials.resource);
+      const ring = new Mesh(new TorusGeometry(radius, 0.08, 6, 18), material);
+      ring.rotation.x = Math.PI / 2;
+      g.add(ring);
+      const marker = new Mesh(new ConeGeometry(radius * 0.18, radius * 0.75, 5), material);
+      marker.position.y = 0.42;
+      marker.rotation.z = 0.18;
+      g.add(marker);
+      markers.add(g);
+    }
+    disableCosmeticRaycast(markers);
+    group.add(markers);
+  }
+  function createMarkerMaterial(color, fallback) {
+    if (color === void 0 || color === null) return fallback;
+    return new MeshStandardMaterial({
+      color,
+      emissive: color,
+      emissiveIntensity: 0.85,
+      roughness: 0.35,
+      metalness: 0.5,
+      transparent: true,
+      opacity: 0.9
+    });
+  }
+  function addHeliosDebrisField(group, visual, materials) {
+    const field = visual.debrisField ?? {};
+    const count = field.count ?? 96;
+    const coreRadius = field.coreRadius ?? field.innerRadius ?? 10;
+    const ringInnerRadius = visual.innerRadius ?? 23.5;
+    const ringOuterRadius = visual.outerRadius ?? 45;
+    const ringClearance = field.ringClearance ?? visual.debrisClearance ?? 2.4;
+    const innerMin = coreRadius + ringClearance;
+    const innerMax = ringInnerRadius - ringClearance;
+    const outerMin = ringOuterRadius + ringClearance;
+    const outerMax = field.outerRadius ?? 67;
+    const innerSpan = Math.max(0, innerMax - innerMin);
+    const outerSpan = Math.max(0, outerMax - outerMin);
+    const random = seededRandom2((visual.seed ?? 1) ^ 2654435769);
+    const rocks = new Group();
+    rocks.name = "helios-debris-field";
+    for (let i = 0; i < count; i += 1) {
+      const theta = random() * Math.PI * 2;
+      const size = 0.22 + random() * 0.82;
+      const useInnerPocket = innerSpan > 0 && (outerSpan <= 0 || random() < 0.36);
+      const radius = useInnerPocket ? innerMin + Math.sqrt(random()) * innerSpan : outerMin + Math.sqrt(random()) * outerSpan;
+      const rock = new Mesh(HELIOS_DEBRIS_GEOMETRY, materials.rock);
+      rock.position.set(Math.cos(theta) * radius, -1.7 + random() * 3.4, Math.sin(theta) * radius);
+      rock.scale.set(size * (0.75 + random() * 0.6), size * (0.55 + random() * 0.5), size * (0.72 + random() * 0.55));
+      rock.rotation.set(random() * Math.PI, random() * Math.PI, random() * Math.PI);
+      rocks.add(rock);
+      if (i % 11 === 0) {
+        const crystal = new Mesh(HELIOS_DEBRIS_CRYSTAL_GEOMETRY, materials.crystal);
+        crystal.position.copy(rock.position);
+        crystal.position.y += size * 0.55;
+        crystal.scale.set(size * 0.22, size * 0.9, size * 0.22);
+        crystal.rotation.z = (random() - 0.5) * 0.5;
+        rocks.add(crystal);
+      }
+    }
+    disableCosmeticRaycast(rocks);
+    group.add(rocks);
+  }
+  function makeHeliosDebris(spec, visual, materials) {
+    const g = new Group();
+    g.name = `debris-${spec.id}`;
+    const position = safeDebrisPosition(spec, visual);
+    g.position.set(position.x, -0.55 + spec.radius % 3 * 0.22, position.z);
+    const rock = new Mesh(HELIOS_DEBRIS_GEOMETRY, materials.rock);
+    rock.scale.set(spec.radius * 1.15, spec.radius * 0.72, spec.radius * 0.95);
+    rock.rotation.set(spec.radius * 0.13, spec.radius * 0.61, spec.radius * 0.19);
+    g.add(rock);
+    if (spec.radius > 1.8) {
+      const crystal = new Mesh(new ConeGeometry(0.3, 0.9, 5), materials.crystal);
+      crystal.position.y = spec.radius * 0.65;
+      g.add(crystal);
+    }
+    g.userData.visualStyle = "debris-rock";
+    g.userData.safeDebrisPosition = position;
+    disableCosmeticRaycast(g);
+    return g;
+  }
+  function safeDebrisPosition(spec, visual) {
+    const ringInnerRadius = visual.innerRadius ?? 23.5;
+    const ringOuterRadius = visual.outerRadius ?? 45;
+    const field = visual.debrisField ?? {};
+    const coreRadius = field.coreRadius ?? field.innerRadius ?? 10;
+    const clearance = Math.max(field.ringClearance ?? visual.debrisClearance ?? 2.4, spec.radius * 1.4);
+    const currentRadius = Math.hypot(spec.center.x, spec.center.z);
+    const innerMin = coreRadius + clearance;
+    const innerMax = ringInnerRadius - clearance;
+    const outerMin = ringOuterRadius + clearance;
+    if (currentRadius >= innerMin && currentRadius <= innerMax) return { ...spec.center };
+    let targetRadius = outerMin;
+    if (currentRadius < innerMin && innerMax > innerMin) targetRadius = innerMin + Math.min(1.5, (innerMax - innerMin) * 0.35);
+    const angle = currentRadius > 1e-6 ? Math.atan2(spec.center.z, spec.center.x) : seededRandom2(hashString(spec.id))() * Math.PI * 2;
+    return { x: Math.cos(angle) * targetRadius, z: Math.sin(angle) * targetRadius };
   }
   function makePlatform(spec, palette) {
     const g = new Group();
@@ -30392,14 +31448,14 @@ void main() {
     const deck = new Mesh(geo, mat);
     deck.position.y = 0.02;
     g.add(deck);
-    const rim = new Mesh(
+    const rim2 = new Mesh(
       new TorusGeometry(radius * 0.92, 0.06, 6, segments, arc),
       new MeshBasicMaterial({ color: palette.platformEdge, transparent: true, opacity: 0.85 })
     );
-    rim.rotation.x = Math.PI / 2;
-    if (arc < Math.PI * 1.9) rim.rotation.z = -arc / 2;
-    rim.position.y = 0.12;
-    g.add(rim);
+    rim2.rotation.x = Math.PI / 2;
+    if (arc < Math.PI * 1.9) rim2.rotation.z = -arc / 2;
+    rim2.position.y = 0.12;
+    g.add(rim2);
     const veinMat = new MeshBasicMaterial({
       color: palette.energy,
       transparent: true,
@@ -30429,7 +31485,10 @@ void main() {
     g.add(rock);
     return g;
   }
-  function makeBridge(spec, palette, enabled) {
+  function makeBridge(spec, palette, enabled, visualMaterials = null) {
+    if (spec.visual?.from && spec.visual?.to) {
+      return makeHeliosBridge(spec, palette, enabled, visualMaterials);
+    }
     const g = new Group();
     g.name = `bridge-${spec.id}`;
     const dx = spec.to.x - spec.from.x;
@@ -30474,6 +31533,97 @@ void main() {
     }
     g.userData.bridgeId = spec.id;
     g.userData.enabled = enabled;
+    g.userData.spec = spec;
+    return g;
+  }
+  function makeHeliosBridge(spec, palette, enabled, visualMaterials = null) {
+    const materials = visualMaterials ?? createHeliosMaterials({ ...palette, ...spec.visual?.palette });
+    const from = spec.visual?.from ?? spec.from;
+    const to = spec.visual?.to ?? spec.to;
+    const dx = to.x - from.x;
+    const dz = to.z - from.z;
+    const len = Math.hypot(dx, dz);
+    const midX = (from.x + to.x) * 0.5;
+    const midZ = (from.z + to.z) * 0.5;
+    const yaw = Math.atan2(dx, dz);
+    const surfaceY = spec.visual?.surfaceY ?? 0.04;
+    const bridgeWidth = spec.visual?.width ?? 3.8;
+    const understructureWidth = spec.visual?.understructureWidth ?? bridgeWidth;
+    const fullDeckWidth = spec.visual?.deckWidth ?? bridgeWidth * 0.82;
+    const g = new Group();
+    g.name = `bridge-${spec.id}`;
+    g.position.set(midX, 0, midZ);
+    g.rotation.y = yaw;
+    const underStubLength = Math.min(len * 0.26, spec.visual?.disabledStubLength ?? 4.8);
+    const underSegments = enabled ? [{ center: 0, length: len }] : [
+      { center: -len * 0.5 + underStubLength * 0.5, length: underStubLength },
+      { center: len * 0.5 - underStubLength * 0.5, length: underStubLength }
+    ];
+    for (const segment of underSegments) {
+      const under = new Mesh(
+        new BoxGeometry(understructureWidth, 0.85, segment.length),
+        materials.understructure
+      );
+      under.position.set(0, surfaceY - 0.5, segment.center);
+      under.name = enabled ? "bridge-understructure" : "bridge-understructure-stub";
+      g.add(under);
+    }
+    const enabledPieces = enabled ? 4 : 2;
+    const gap = enabled ? Math.min(0.2, len * 0.04) : len * 0.2;
+    const pieceLen = Math.max(0.35, (len - gap * (enabledPieces - 1)) / enabledPieces);
+    const deckWidth = enabled ? fullDeckWidth : fullDeckWidth * 0.88;
+    for (let i = 0; i < enabledPieces; i += 1) {
+      const deck = new Mesh(
+        new BoxGeometry(deckWidth, 0.12, pieceLen),
+        enabled ? materials.deck : materials.basaltEdge
+      );
+      deck.position.z = -len * 0.5 + pieceLen * 0.5 + i * (pieceLen + gap);
+      deck.position.y = surfaceY - 0.06;
+      g.add(deck);
+    }
+    if (enabled) {
+      const railOffset = Math.max(0.55, deckWidth * 0.5 - 0.12);
+      for (const side of [-railOffset, railOffset]) {
+        const rail = new Mesh(new BoxGeometry(0.08, 0.18, len * 0.88), materials.gold);
+        rail.position.set(side, surfaceY + 0.12, 0);
+        g.add(rail);
+      }
+      const conduit = new Mesh(new BoxGeometry(0.075, 0.08, len * 0.74), materials.conduit);
+      conduit.position.y = surfaceY + 0.04;
+      g.add(conduit);
+    } else {
+      const spark = new Mesh(new SphereGeometry(0.28, 8, 6), materials.conduitBright);
+      spark.name = "bridge-spark";
+      spark.position.y = surfaceY + 0.3;
+      g.add(spark);
+      for (const side of [-1, 1]) {
+        const repairLight = new Mesh(new CylinderGeometry(0.22, 0.22, 0.1, 8), materials.goldBright);
+        repairLight.position.set(0, surfaceY + 0.08, side * len * 0.22);
+        g.add(repairLight);
+      }
+    }
+    const socketRadius = Math.min(0.42, bridgeWidth * 0.12);
+    const capRadius = Math.min(0.2, bridgeWidth * 0.056);
+    for (const z of [-len * 0.5, len * 0.5]) {
+      const socket = new Mesh(
+        new CylinderGeometry(socketRadius, socketRadius * 1.14, 0.16, 10),
+        materials.gold
+      );
+      socket.position.set(0, surfaceY + 0.06, z);
+      g.add(socket);
+      const cap = new Mesh(
+        new CylinderGeometry(capRadius * 0.9, capRadius, 0.2, 8),
+        materials.goldBright
+      );
+      cap.position.set(0, surfaceY + 0.19, z);
+      g.add(cap);
+    }
+    g.userData.bridgeId = spec.id;
+    g.userData.enabled = enabled;
+    g.userData.spec = spec;
+    g.userData.materials = materials;
+    g.userData.understructureMode = enabled ? "continuous" : "terminal-stubs";
+    disableCosmeticRaycast(g);
     return g;
   }
   function setBridgeVisual(bridgeGroup, enabled, palette = PALETTE) {
@@ -30481,10 +31631,39 @@ void main() {
     bridgeGroup.clear();
     const spec = bridgeGroup.userData.spec;
     if (!spec) return;
-    const rebuilt = makeBridge(spec, palette, enabled);
+    const visualPalette = spec.visual?.palette ? { ...palette, ...spec.visual.palette } : palette;
+    const rebuilt = makeBridge(spec, visualPalette, enabled, bridgeGroup.userData.materials ?? null);
+    bridgeGroup.userData.spec = spec;
+    bridgeGroup.userData.materials = rebuilt.userData.materials ?? bridgeGroup.userData.materials;
+    bridgeGroup.userData.understructureMode = rebuilt.userData.understructureMode;
     while (rebuilt.children.length) {
       bridgeGroup.add(rebuilt.children[0]);
     }
+  }
+  function disableCosmeticRaycast(root2) {
+    root2.traverse((object) => {
+      if (!object.isMesh && !object.isLine && !object.isPoints) return;
+      object.raycast = () => {
+      };
+      object.userData.cosmetic = true;
+    });
+    root2.userData.cosmetic = true;
+    return root2;
+  }
+  function seededRandom2(seed) {
+    let value = seed >>> 0 || 1;
+    return () => {
+      value = value * 1664525 + 1013904223 >>> 0;
+      return value / 4294967296;
+    };
+  }
+  function hashString(value) {
+    let hash = 2166136261;
+    for (let i = 0; i < value.length; i += 1) {
+      hash ^= value.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
   }
 
   // src/rts-maps/resource-spawner.js
@@ -30555,23 +31734,46 @@ void main() {
       const g = new Group();
       g.name = `objective-${spec.id}`;
       g.position.set(spec.position.x, 0, spec.position.z);
+      const visual = spec.visual ?? {};
+      const captureZone = visual.captureZone ?? {};
+      const captureZoneRadius = visual.captureZoneRadius ?? visual.captureRadius ?? captureZone.radius ?? spec.captureRadius;
+      const captureZoneColor = visual.captureZoneColor ?? visual.captureColor ?? captureZone.color ?? 16777215;
+      const captureZoneOpacity = visual.captureZoneOpacity ?? visual.captureOpacity ?? captureZone.opacity ?? 0.2;
       if (spec.type === "solar_core") {
+        const light = visual.light ?? {};
+        const coreRadius = visual.radius ?? 2.8;
+        const coronaRadius = visual.coronaRadius ?? 4.2;
+        const coreColor = visual.coreColor ?? visual.color ?? PALETTE.solarCore;
+        const coronaColor = visual.coronaColor ?? PALETTE.solar;
+        const beamColor = visual.beamColor ?? PALETTE.energy;
+        const coreOpacity = visual.coreOpacity ?? 0.85;
+        const coronaOpacity = visual.coronaOpacity ?? 0.25;
+        const beamHeight = visual.beamHeight ?? 6;
+        const beamOpacity = visual.beamOpacity ?? 0.5;
+        const hasEmissive = visual.emissive !== void 0 || visual.emissiveIntensity !== void 0;
+        const coreMaterial = hasEmissive ? new MeshStandardMaterial({
+          color: coreColor,
+          emissive: visual.emissive ?? coreColor,
+          emissiveIntensity: visual.emissiveIntensity ?? 1,
+          transparent: true,
+          opacity: coreOpacity
+        }) : new MeshBasicMaterial({
+          color: coreColor,
+          transparent: true,
+          opacity: coreOpacity
+        });
         const core = new Mesh(
-          new SphereGeometry(2.8, 24, 16),
-          new MeshBasicMaterial({
-            color: PALETTE.solarCore,
-            transparent: true,
-            opacity: 0.85
-          })
+          new SphereGeometry(coreRadius, 24, 16),
+          coreMaterial
         );
         core.position.y = 3.2;
         g.add(core);
         const corona = new Mesh(
-          new SphereGeometry(4.2, 16, 12),
+          new SphereGeometry(coronaRadius, 16, 12),
           new MeshBasicMaterial({
-            color: PALETTE.solar,
+            color: coronaColor,
             transparent: true,
-            opacity: 0.25,
+            opacity: coronaOpacity,
             depthWrite: false
           })
         );
@@ -30579,18 +31781,31 @@ void main() {
         corona.name = "corona";
         g.add(corona);
         const beam = new Mesh(
-          new CylinderGeometry(0.15, 0.4, 6, 8),
-          new MeshBasicMaterial({ color: PALETTE.energy, transparent: true, opacity: 0.5 })
+          new CylinderGeometry(0.15, 0.4, beamHeight, 8),
+          new MeshBasicMaterial({ color: beamColor, transparent: true, opacity: beamOpacity })
         );
         beam.position.y = 0.3;
         g.add(beam);
+        const lightColor = visual.lightColor ?? light.color;
+        const lightIntensity = visual.lightIntensity ?? light.intensity;
+        if (lightColor !== void 0 || lightIntensity !== void 0) {
+          const pointLight = new PointLight(
+            lightColor ?? coronaColor,
+            Math.min(lightIntensity ?? 1, 2.5),
+            Math.min(visual.lightDistance ?? light.distance ?? 20, 24),
+            Math.min(visual.lightDecay ?? light.decay ?? 2, 2)
+          );
+          pointLight.position.y = 3.2;
+          pointLight.name = "solar-light";
+          g.add(pointLight);
+        }
       }
       const zone = new Mesh(
-        new RingGeometry(spec.captureRadius * 0.85, spec.captureRadius, 48),
+        new RingGeometry(captureZoneRadius * 0.85, captureZoneRadius, 48),
         new MeshBasicMaterial({
-          color: 16777215,
+          color: captureZoneColor,
           transparent: true,
-          opacity: 0.2,
+          opacity: captureZoneOpacity,
           side: DoubleSide,
           depthWrite: false
         })
@@ -30787,16 +32002,19 @@ void main() {
         const half = this.definition.bounds.halfExtent;
         if (Math.hypot(x, z) > half + 8) return false;
         for (const p of this.definition.terrain.platforms) {
+          if (!usesCircularPlatformFallback(p, this.definition.terrain)) continue;
           const d = Math.hypot(x - p.center.x, z - p.center.z);
           if (d <= p.radius + 1.5) return true;
         }
+        if (isHeliosAnnularWalkable(x, z, this.definition.terrain)) return true;
         for (const b of this.definition.bridges) {
           if (!this.bridgeStates.get(b.id)) continue;
+          const { from, to } = getBridgeEndpoints2(b);
           const t = 0.5;
-          const mx = b.from.x * (1 - t) + b.to.x * t;
-          const mz = b.from.z * (1 - t) + b.to.z * t;
-          const dLine = pointToSegmentDist(x, z, b.from.x, b.from.z, b.to.x, b.to.z);
-          if (dLine < 2.2 && Math.hypot(x - mx, z - mz) < Math.hypot(b.to.x - b.from.x, b.to.z - b.from.z) * 0.55) {
+          const mx = from.x * (1 - t) + to.x * t;
+          const mz = from.z * (1 - t) + to.z * t;
+          const dLine = pointToSegmentDist(x, z, from.x, from.z, to.x, to.z);
+          if (dLine < 2.2 && Math.hypot(x - mx, z - mz) < Math.hypot(to.x - from.x, to.z - from.z) * 0.55) {
             return true;
           }
         }
@@ -30816,6 +32034,50 @@ void main() {
     const cx = ax + t * abx;
     const cz = az + t * abz;
     return Math.hypot(px2 - cx, pz2 - cz);
+  }
+  function getBridgeEndpoints2(bridge) {
+    const visualFrom = bridge.visual?.from;
+    const visualTo = bridge.visual?.to;
+    if (isCoordinate2(visualFrom) && isCoordinate2(visualTo)) {
+      return { from: visualFrom, to: visualTo };
+    }
+    return { from: bridge.from, to: bridge.to };
+  }
+  function isCoordinate2(point) {
+    return Number.isFinite(point?.x) && Number.isFinite(point?.z);
+  }
+  function usesCircularPlatformFallback(platform, terrain) {
+    if (platform.id === "core-platform" || platform.id.startsWith("isle-")) return true;
+    const visual = terrain.visual;
+    if (visual?.style !== "broken-ring" || !Array.isArray(visual.fragments)) return true;
+    return !visual.fragments.some((fragment2) => fragment2?.id === platform.id);
+  }
+  function isHeliosAnnularWalkable(x, z, terrain) {
+    const visual = terrain.visual;
+    if (visual?.style !== "broken-ring" || !Array.isArray(visual.fragments)) return false;
+    const centerX = visual.center?.x ?? 0;
+    const centerZ = visual.center?.z ?? 0;
+    if (!Number.isFinite(centerX) || !Number.isFinite(centerZ)) return false;
+    for (const fragment2 of visual.fragments) {
+      if (!fragment2 || typeof fragment2.id !== "string") continue;
+      const platform = terrain.platforms.find((entry) => entry.id === fragment2.id);
+      if (!platform || fragment2.id === "core-platform" || fragment2.id.startsWith("isle-")) continue;
+      const innerRadius = Number.isFinite(fragment2.innerRadius) ? fragment2.innerRadius : Number.isFinite(visual.innerRadius) ? visual.innerRadius : platform.radius * 1.9;
+      const outerRadius = Number.isFinite(fragment2.outerRadius) ? fragment2.outerRadius : Number.isFinite(visual.outerRadius) ? visual.outerRadius : platform.radius * 3.9;
+      const span = Number.isFinite(fragment2.span) ? fragment2.span : Number.isFinite(visual.fragmentSpan) ? visual.fragmentSpan : Math.PI * 0.42;
+      if (!Number.isFinite(fragment2.centerAngle) || !Number.isFinite(innerRadius) || !Number.isFinite(outerRadius) || !Number.isFinite(span) || innerRadius < 0 || outerRadius <= innerRadius || span <= 0) continue;
+      const dx = x - centerX;
+      const dz = z - centerZ;
+      const radius = Math.hypot(dx, dz);
+      if (radius < innerRadius || radius > outerRadius) continue;
+      const angle = Math.atan2(dz, dx);
+      const delta = Math.atan2(
+        Math.sin(angle - fragment2.centerAngle),
+        Math.cos(angle - fragment2.centerAngle)
+      );
+      if (Math.abs(delta) <= span * 0.5) return true;
+    }
+    return false;
   }
 
   // assets/citizens/sprites/village-manbun-wanderer/atlas-manifest.json
@@ -30919,6 +32181,91 @@ void main() {
     }
   };
 
+  // assets/citizens/sprites/lumen-guard/atlas-manifest.json
+  var atlas_manifest_default2 = {
+    schema: "sunfold.sprite-manifest/1",
+    unit: "lumen-guard",
+    characterName: "Lumen Guard",
+    playback: "atlas",
+    frameWidth: 256,
+    frameHeight: 256,
+    fps: 10,
+    mirrorAtRuntime: false,
+    premultipliedAlpha: true,
+    anchor: {
+      x: 0.5,
+      y: 0.899414,
+      semantics: "feet_baseline_center_top_origin",
+      threeJsCenterBottomOrigin: {
+        x: 0.5,
+        y: 0.100586
+      },
+      note: "plane footroom = 1 - anchor.y \u2248 0.10; equivalent to center.set(0.5, 0.10)"
+    },
+    unitHeightMeters: 1.75,
+    worldHeight: 2.45,
+    facings: [
+      "S",
+      "SSE",
+      "SE",
+      "ESE",
+      "E",
+      "ENE",
+      "NE",
+      "NNE",
+      "N",
+      "NNW",
+      "NW",
+      "WNW",
+      "W",
+      "WSW",
+      "SW",
+      "SSW"
+    ],
+    directionCount: 16,
+    facingConvention: "FACINGS_16 clockwise from south (+Z), 22.5\xB0; use yawToFacing16",
+    atlas: {
+      image: "runtime-atlas.png",
+      width: 2048,
+      height: 8192,
+      columns: 8,
+      rows: 32,
+      layout: "facing-grid",
+      runtimeCellPx: 256
+    },
+    clips: {
+      idle: {
+        frames: 1,
+        fps: 1,
+        loop: true,
+        source: "walk_f0_hold",
+        originRow: 0
+      },
+      walk: {
+        frames: 8,
+        fps: 10,
+        loop: true,
+        source: "real",
+        originRow: 0
+      },
+      attack: {
+        frames: 8,
+        fps: 10,
+        loop: true,
+        source: "real",
+        originRow: 16
+      }
+    },
+    provenance: {
+      walk: "Guard_Walk_16dir_8frames_256.png",
+      attack: "Guard_Attack_16dir_8frames_256.png",
+      equipmentContract: "assets/sprites/lumen-guard/citizen_equipment_states.json",
+      geminiUsed: false,
+      note: "walk 0-15, attack 16-31; fixed feet; no per-pose recenter",
+      packedBy: "pack-unit-combined-atlas.py"
+    }
+  };
+
   // src/helios-rift-proof.js
   var MAP_ID = "helios-rift";
   var LOCAL_PLAYER = 0;
@@ -30926,6 +32273,12 @@ void main() {
   var GATHER_RANGE = 2.2;
   var BRIDGE_REPAIR_RANGE = 4.5;
   var BRIDGE_REPAIR_COST = 50;
+  var HELIOS_CAMERA = Object.freeze({
+    minDistance: RTS_CAMERA.minDistance,
+    maxDistance: 110,
+    fovDegrees: 50,
+    far: 240
+  });
   var root = document.getElementById("proof-root");
   var status = document.getElementById("status");
   var fpsEl = document.getElementById("fps");
@@ -30936,12 +32289,18 @@ void main() {
   renderer.setPixelRatio(1);
   root.appendChild(renderer.domElement);
   var scene = new Scene();
-  scene.background = new Color(329489);
-  scene.fog = new Fog(329489, 55, 110);
-  var camera = createRtsCamera(1);
+  scene.background = new Color(132626);
+  scene.fog = new Fog(132626, 72, 140);
+  var camera = createRtsCamera(1, HELIOS_CAMERA);
   var mapWorld = createRtsMapWorld(MAP_ID, scene);
   var HALF = mapWorld.definition.bounds.halfExtent;
   var camCtrl = new RtsCameraController(camera, renderer.domElement, {
+    target: new Vector3(0, 0, 0),
+    distance: HELIOS_CAMERA.maxDistance,
+    minDistance: HELIOS_CAMERA.minDistance,
+    maxDistance: HELIOS_CAMERA.maxDistance,
+    fovDegrees: HELIOS_CAMERA.fovDegrees,
+    far: HELIOS_CAMERA.far,
     panRadius: HALF + 6,
     zoomSmooth: 18,
     panSmooth: 20
@@ -30955,13 +32314,16 @@ void main() {
   }
   resize();
   window.addEventListener("resize", resize);
-  scene.add(new HemisphereLight(16771264, 1316651, 0.9));
-  var key = new DirectionalLight(16765072, 1.6);
-  key.position.set(-12, 22, 8);
+  scene.add(new HemisphereLight(14148863, 527640, 1));
+  var key = new DirectionalLight(16765082, 1.8);
+  key.position.set(-18, 30, 14);
   scene.add(key);
-  var fill = new DirectionalLight(6342848, 0.45);
-  fill.position.set(10, 12, -6);
+  var fill = new DirectionalLight(6998224, 0.55);
+  fill.position.set(14, 16, -12);
   scene.add(fill);
+  var rim = new DirectionalLight(5600430, 0.3);
+  rim.position.set(16, 10, 20);
+  scene.add(rim);
   var selectionMat = new MeshBasicMaterial({
     color: 4116416,
     transparent: true,
@@ -30997,6 +32359,10 @@ void main() {
   var bundled = {
     ...atlas_manifest_default,
     atlas: { ...atlas_manifest_default.atlas, image: "runtime-atlas.png" }
+  };
+  var guardBundled = {
+    ...atlas_manifest_default2,
+    atlas: { ...atlas_manifest_default2.atlas, image: "runtime-atlas.png" }
   };
   var citizens = [];
   var playerStock = { energy_materials: 120, matter: 80, lumen: 40, aether: 0 };
@@ -31068,6 +32434,46 @@ void main() {
     }
     for (const c of citizens) c.ring.visible = c.selected;
   }
+  async function spawnGuards() {
+    const warmer = new SpriteUnit(guardBundled, { basePath: "sprites/lumen-guard/" });
+    await warmer.applyManifest(guardBundled);
+    await warmer._loadAtlasTexture();
+    await warmer.setState("idle");
+    warmer.freezeStanding(0);
+    const sharedAtlas = warmer._atlasTexture;
+    if (!sharedAtlas) return;
+    const spawn = mapWorld.spawns.find((s) => s.playerId === LOCAL_PLAYER) || mapWorld.spawns[0];
+    if (!spawn) return;
+    for (let i = 0; i < 4; i += 1) {
+      const unit = new SpriteUnit(guardBundled, { basePath: "sprites/lumen-guard/" });
+      unit.useSharedAtlas(sharedAtlas);
+      await unit.applyManifest(guardBundled);
+      await unit.setState("idle");
+      unit.freezeStanding(0);
+      const px2 = spawn.position.x + 6 + i * 1.4;
+      const pz2 = spawn.position.z - 4 - i % 2 * 1.2;
+      unit.setPosition({ x: px2, y: 0, z: pz2 });
+      unit.setFacing(i * 4 % FACINGS_16.length);
+      const rootGroup = unit.group;
+      const ring = addSelectionRing(rootGroup);
+      addBlobShadow(rootGroup);
+      scene.add(rootGroup);
+      citizens.push({
+        unit,
+        playerId: LOCAL_PLAYER,
+        selected: false,
+        ring,
+        hp: 140,
+        path: [],
+        pathIdx: 0,
+        activity: "idle",
+        gatherTarget: null,
+        stock: {},
+        _uid: 900 + i,
+        _isGuard: true
+      });
+    }
+  }
   function setSelected(c, on) {
     if (c.playerId !== LOCAL_PLAYER) return;
     c.selected = on;
@@ -31109,14 +32515,26 @@ void main() {
     const hit = new Vector3();
     return raycaster.ray.intersectPlane(plane, hit) ? hit : null;
   }
+  function bridgeEndpoints(bridge) {
+    return {
+      from: bridge.visual?.from ?? bridge.from,
+      to: bridge.visual?.to ?? bridge.to
+    };
+  }
+  function bridgeMidpoint(bridge) {
+    const { from, to } = bridgeEndpoints(bridge);
+    return {
+      x: (from.x + to.x) / 2,
+      z: (from.z + to.z) / 2
+    };
+  }
   function nearestBrokenBridge(x, z) {
     let best = null;
     let bestD = BRIDGE_REPAIR_RANGE;
     for (const b of mapWorld.definition.bridges) {
       if (mapWorld.bridgeStates.get(b.id)) continue;
-      const mx = (b.from.x + b.to.x) / 2;
-      const mz = (b.from.z + b.to.z) / 2;
-      const d = Math.hypot(x - mx, z - mz);
+      const midpoint = bridgeMidpoint(b);
+      const d = Math.hypot(x - midpoint.x, z - midpoint.z);
       if (d < bestD) {
         bestD = d;
         best = b;
@@ -31185,7 +32603,8 @@ void main() {
         orderMoveSelected(res.position.x, res.position.z, res);
         showToast(`Gather ${res.kind} @ ${res.id}`);
       } else if (bridge) {
-        orderMoveSelected((bridge.from.x + bridge.to.x) / 2, (bridge.from.z + bridge.to.z) / 2, null, bridge);
+        const midpoint = bridgeMidpoint(bridge);
+        orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
       } else {
         orderMoveSelected(hit.x, hit.z);
       }
@@ -31202,8 +32621,10 @@ void main() {
     const sel = citizens.find((c) => c.selected && c.playerId === LOCAL_PLAYER);
     const p = sel?.unit.group.position ?? camCtrl.target;
     const bridge = nearestBrokenBridge(p.x, p.z);
-    if (bridge) orderMoveSelected((bridge.from.x + bridge.to.x) / 2, (bridge.from.z + bridge.to.z) / 2, null, bridge);
-    else showToast("No broken bridge in range");
+    if (bridge) {
+      const midpoint = bridgeMidpoint(bridge);
+      orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
+    } else showToast("No broken bridge in range");
   });
   document.getElementById("show-hints")?.addEventListener("click", () => {
     console.log("AI Hints:", mapWorld.getFreshAIHints());
@@ -31312,8 +32733,8 @@ void main() {
     status.textContent = `P0: ${p0} Citizens \xB7 selected=${sel} \xB7 core=${coreOwner === null ? "neutral" : `P${coreOwner}`} \xB7 bridges down=${brokenBridges} \xB7 stock energy=${playerStock.energy_materials} \xB7 ` + (flare ? "FLARE!" : "stable");
     if (flareBanner) flareBanner.style.display = flare ? "block" : "none";
   }
-  camCtrl.panTo(0, -10, { immediate: true });
-  camCtrl.setDistance(RTS_CAMERA.defaultDistance * 1.55, { immediate: true });
+  camCtrl.panTo(0, 0, { immediate: true });
+  camCtrl.setDistance(HELIOS_CAMERA.maxDistance, { immediate: true });
   var last = performance.now();
   var minimapAcc = MINIMAP_INTERVAL;
   var gatherAcc = 0;
@@ -31394,7 +32815,7 @@ void main() {
     }
     renderer.render(scene, camera);
   }
-  spawnCitizens().then(() => {
+  spawnCitizens().then(() => spawnGuards()).then(() => {
     updateStatus();
     drawMinimap();
     globalThis.__heliosRiftProof = {

@@ -45,6 +45,95 @@ const bECore = bridgeEnds("frag-e", "core-platform");
 const bSCore = bridgeEnds("frag-s", "core-platform");
 const bWCore = bridgeEnds("frag-w", "core-platform");
 
+// Broken Ring coordinates drive the Helios visual and optional navigation
+// alignment. Logical platform and bridge IDs stay unchanged.
+const RING_VISUAL = {
+  style: "broken-ring",
+  center: { x: 0, z: 0 },
+  seed: 2749,
+  innerRadius: 23.5,
+  outerRadius: 45,
+  fragmentSpan: 1.38,
+  surfaceY: 0,
+  understructureDepth: 1.8,
+  platformDepth: 1.8,
+  deckInset: 0.78,
+  panelCount: 6,
+  conduitCount: 4,
+  starfield: { count: 520, innerRadius: 74, outerRadius: 106, height: 42 },
+  palette: {
+    understructure: 0x0b1017,
+    basalt: 0x171d25,
+    basaltEdge: 0x29323c,
+    deck: 0x59616a,
+    deckLight: 0x76808a,
+    seam: 0x252d36,
+    gold: 0xe9a749,
+    goldBright: 0xffcf72,
+    conduit: 0x35d8ce,
+    conduitBright: 0x83fff1,
+    spawn: 0x328dff,
+    resource: 0x3ed9b5,
+    rock: 0x1a232d,
+    crystal: 0x46e5e2,
+    star: 0xb7d8ff,
+    void: 0x030812
+  },
+  fragments: [
+    { id: "frag-n", centerAngle: -Math.PI / 2 },
+    { id: "frag-e", centerAngle: 0 },
+    { id: "frag-s", centerAngle: Math.PI / 2 },
+    { id: "frag-w", centerAngle: Math.PI }
+  ],
+  spawnPads: [
+    { id: "spawn-n", position: { x: 0, z: -32 }, radius: 2.05, color: 0x318cff },
+    { id: "spawn-e", position: { x: 32, z: 0 }, radius: 2.05, color: 0x318cff },
+    { id: "spawn-s", position: { x: 0, z: 32 }, radius: 2.05, color: 0x318cff },
+    { id: "spawn-w", position: { x: -32, z: 0 }, radius: 2.05, color: 0x318cff }
+  ],
+  landmarks: [
+    { id: "key-n", position: { x: 0, z: -24.5 }, radius: 1.65, color: 0xe9a749, label: "key" },
+    { id: "key-e", position: { x: 24.5, z: 0 }, radius: 1.65, color: 0xe9a749, label: "key" },
+    { id: "key-s", position: { x: 0, z: 24.5 }, radius: 1.65, color: 0xe9a749, label: "key" },
+    { id: "key-w", position: { x: -24.5, z: 0 }, radius: 1.65, color: 0xe9a749, label: "key" }
+  ],
+  resourceZones: [
+    { id: "zone-home-n", position: { x: -4, z: -29 }, radius: 1.5, color: 0x3ed9b5 },
+    { id: "zone-home-e", position: { x: 29, z: 4 }, radius: 1.5, color: 0x3ed9b5 },
+    { id: "zone-home-s", position: { x: 4, z: 29 }, radius: 1.5, color: 0x3ed9b5 },
+    { id: "zone-home-w", position: { x: -29, z: -4 }, radius: 1.5, color: 0x3ed9b5 },
+    { id: "zone-isle-ne", position: { x: 22, z: -22 }, radius: 2.1, color: 0x46e5e2 },
+    { id: "zone-isle-se", position: { x: 22, z: 22 }, radius: 2.1, color: 0x46e5e2 },
+    { id: "zone-isle-sw", position: { x: -22, z: 22 }, radius: 2.1, color: 0x46e5e2 },
+    { id: "zone-isle-nw", position: { x: -22, z: -22 }, radius: 2.1, color: 0x46e5e2 }
+  ],
+  debrisField: { count: 110, coreRadius: 10, outerRadius: 67, ringClearance: 2.4 }
+};
+
+const visualBridge = (from, to, widthValues = {}) => ({
+  from,
+  to,
+  surfaceY: RING_VISUAL.surfaceY,
+  palette: RING_VISUAL.palette,
+  ...widthValues
+});
+const visualRingPoint = (angle) => {
+  const radius = RING_VISUAL.outerRadius - 0.9;
+  return { x: Math.cos(angle) * radius, z: Math.sin(angle) * radius };
+};
+const visualGapBridge = (fromAngle, toAngle) =>
+  visualBridge(visualRingPoint(fromAngle), visualRingPoint(toAngle), {
+    width: 3.6,
+    deckWidth: 2.95,
+    understructureWidth: 3.6
+  });
+const visualCoreBridge = (from, to) =>
+  visualBridge(from, to, {
+    width: 2.35,
+    deckWidth: 1.9,
+    understructureWidth: 2.35
+  });
+
 export const HELIOS_RIFT = {
   id: "helios-rift",
   name: "Helios Rift",
@@ -62,7 +151,8 @@ export const HELIOS_RIFT = {
       { id: "deb-4", center: { x: -16, z: -42 }, radius: 2.0 },
       { id: "deb-5", center: { x: 48, z: 28 }, radius: 1.6 }
     ],
-    palette: { platform: 0x8a7a62, energy: 0x3ecfc0, solar: 0xffa030 }
+    palette: { platform: 0x8a7a62, energy: 0x3ecfc0, solar: 0xffa030 },
+    visual: RING_VISUAL
   },
   spawns: [
     { playerId: 0, platformId: "frag-n", position: { x: 0, z: -RING_R + 2 }, yaw: Math.PI / 2, startingCitizens: 8 },
@@ -87,6 +177,34 @@ export const HELIOS_RIFT = {
       type: "solar_core",
       position: { x: 0, z: 0 },
       captureRadius: 10,
+      visual: {
+        radius: 1.65,
+        coronaRadius: 2.75,
+        coreColor: 0xffffd0,
+        coronaColor: 0xff8a22,
+        beamColor: 0x35d8ce,
+        coreOpacity: 0.96,
+        coronaOpacity: 0.18,
+        captureZone: {
+          innerRadius: 8.9,
+          outerRadius: 9.35,
+          color: 0xf2a64a,
+          opacity: 0.08
+        },
+        beam: {
+          radiusTop: 0.08,
+          radiusBottom: 0.18,
+          height: 4.2,
+          color: 0x71e6dc,
+          opacity: 0.1
+        },
+        emissive: 0xffff9a,
+        emissiveIntensity: 2.4,
+        lightColor: 0xff9a3c,
+        lightIntensity: 1.35,
+        lightDistance: 16,
+        lightDecay: 2
+      },
       effects: { energyBonus: 1.25, techAcceleration: 1.15 }
     }
   ],
@@ -96,6 +214,7 @@ export const HELIOS_RIFT = {
       fromPlatformId: "frag-n",
       toPlatformId: "frag-e",
       ...bNE,
+      visual: visualGapBridge(-Math.PI / 2 + RING_VISUAL.fragmentSpan / 2, -RING_VISUAL.fragmentSpan / 2),
       startsEnabled: true,
       metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "medium" }
     },
@@ -104,6 +223,7 @@ export const HELIOS_RIFT = {
       fromPlatformId: "frag-e",
       toPlatformId: "frag-s",
       ...bES,
+      visual: visualGapBridge(RING_VISUAL.fragmentSpan / 2, Math.PI / 2 - RING_VISUAL.fragmentSpan / 2),
       startsEnabled: false,
       metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
     },
@@ -112,6 +232,7 @@ export const HELIOS_RIFT = {
       fromPlatformId: "frag-s",
       toPlatformId: "frag-w",
       ...bSW,
+      visual: visualGapBridge(Math.PI / 2 + RING_VISUAL.fragmentSpan / 2, Math.PI - RING_VISUAL.fragmentSpan / 2),
       startsEnabled: true,
       metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "medium" }
     },
@@ -120,6 +241,7 @@ export const HELIOS_RIFT = {
       fromPlatformId: "frag-w",
       toPlatformId: "frag-n",
       ...bWN,
+      visual: visualGapBridge(Math.PI + RING_VISUAL.fragmentSpan / 2, -Math.PI / 2 - RING_VISUAL.fragmentSpan / 2),
       startsEnabled: false,
       metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
     },
@@ -128,6 +250,7 @@ export const HELIOS_RIFT = {
       fromPlatformId: "frag-n",
       toPlatformId: "core-platform",
       ...bNCore,
+      visual: visualCoreBridge({ x: 0, z: -24 }, { x: 0, z: -10 }),
       startsEnabled: true,
       metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
     },
@@ -136,6 +259,7 @@ export const HELIOS_RIFT = {
       fromPlatformId: "frag-e",
       toPlatformId: "core-platform",
       ...bECore,
+      visual: visualCoreBridge({ x: 24, z: 0 }, { x: 10, z: 0 }),
       startsEnabled: false,
       metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
     },
@@ -144,6 +268,7 @@ export const HELIOS_RIFT = {
       fromPlatformId: "frag-s",
       toPlatformId: "core-platform",
       ...bSCore,
+      visual: visualCoreBridge({ x: 0, z: 24 }, { x: 0, z: 10 }),
       startsEnabled: true,
       metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
     },
@@ -152,6 +277,7 @@ export const HELIOS_RIFT = {
       fromPlatformId: "frag-w",
       toPlatformId: "core-platform",
       ...bWCore,
+      visual: visualCoreBridge({ x: -24, z: 0 }, { x: -10, z: 0 }),
       startsEnabled: false,
       metadata: { type: "repairable_bridge", cost: "energy_materials", importance: "high" }
     }

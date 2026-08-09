@@ -49,13 +49,14 @@ export class PathGraph {
     }
 
     for (const b of def.bridges) {
+      const { from, to } = getBridgeEndpoints(b);
       const mid = {
         id: `bridge-mid-${b.id}`,
-        x: (b.from.x + b.to.x) / 2,
-        z: (b.from.z + b.to.z) / 2
+        x: (from.x + to.x) / 2,
+        z: (from.z + to.z) / 2
       };
       this.nodes.set(mid.id, mid);
-      const len = Math.hypot(b.to.x - b.from.x, b.to.z - b.from.z);
+      const len = Math.hypot(to.x - from.x, to.z - from.z);
       const enabled = b.startsEnabled !== false;
       this.addEdge(`edge-${b.id}-a`, b.fromPlatformId, mid.id, len * 0.5, b.id, enabled);
       this.addEdge(`edge-${b.id}-b`, mid.id, b.toPlatformId, len * 0.5, b.id, enabled);
@@ -206,4 +207,17 @@ export class PathGraph {
       edges: this.edges.map((e) => ({ ...e }))
     };
   }
+}
+
+function getBridgeEndpoints(bridge) {
+  const visualFrom = bridge.visual?.from;
+  const visualTo = bridge.visual?.to;
+  if (isCoordinate(visualFrom) && isCoordinate(visualTo)) {
+    return { from: visualFrom, to: visualTo };
+  }
+  return { from: bridge.from, to: bridge.to };
+}
+
+function isCoordinate(point) {
+  return Number.isFinite(point?.x) && Number.isFinite(point?.z);
 }

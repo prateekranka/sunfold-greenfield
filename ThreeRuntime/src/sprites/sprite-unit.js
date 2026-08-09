@@ -174,7 +174,7 @@ export class SpriteUnit {
 
   /**
    * Gameplay API alias: `unit.setState("walk")` → clip switch.
-   * Accepted states: idle | walk | carry | gather | build (sheet-dependent).
+   * Accepted states: idle | walk | carry | gather | build | attack (sheet-dependent).
    * @param {string} state
    * @param {number} [facing]
    */

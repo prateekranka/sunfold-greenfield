@@ -19,7 +19,23 @@ Rules for this file:
 
 ## In flight
 
-Nothing. CP-C9 closed 2026-08-01; CP-C6 age progression is next.
+### Helios Rift — Broken Ring reference parity · ACTIVE 2026-08-09
+
+The user made the Three.js Helios Rift battlefield the active game direction. Resume from
+the existing Broken Ring and Lumen Guard work. Do not restart the map or resume the native
+CP-C6 sequence unless the user changes direction.
+
+| | |
+|---|---|
+| **Goal** | Match the approved Broken Ring reference at the real gameplay camera while preserving a playable four-sector RTS map. |
+| **Current proof** | The takeover source builds and runs with 12 units, four broken bridges, the solar objective, resources, minimap, and no browser console warnings or errors. |
+| **Current mismatch** | The ring topology reads, but the live scene is too dark, flat, and top-down. The solar core is too small and subdued. The observed in-app Browser HUD reports 30 FPS, so 60 FPS is not yet proven. |
+| **Write scope** | `ThreeRuntime/src/helios-rift-proof.js`, `ThreeRuntime/src/rts-camera.js`, `ThreeRuntime/src/rts-maps/`, required Helios/Lumen Guard web assets and proofs, dev-only deploy tooling, and Helios evidence/devlog files. |
+| **Do not touch** | Production `helios.contenthelper.in`, unrelated native systems, other maps, completed dirty art, secrets, ownership, or access. |
+| **Reference** | Dedicated 1672×941 Broken Ring image from Codex task `019fe6b7-3b48-7be0-b1b3-caf0d1eb4bf8`; the original three-map board supplies gameplay semantics. |
+| **Evidence** | `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/` and `Docs/QA/ThreeJS/helios-broken-ring-aaa/DEVLOG.md`. |
+| **Cadence** | One bounded visual correction per commit. Push each validated commit. Deploy and verify each accepted cycle at `dev.helios.contenthelper.in`. |
+| **Next correction** | Composition readability: camera pitch/framing, fog/exposure, platform depth cues, and solar-core authority. |
 
 ### CP-C5 — Military roster breadth · CLOSED 2026-08-01
 
@@ -131,19 +147,19 @@ the director, not taken from the builder. Evidence: `Docs/QA/G2/p14/test-run.md`
 | | |
 |---|---|
 | **Last checkpoint** | CP-C9 — Economy tuning and nine-minute proof · **shipped** 2026-08-01 |
-| **In flight** | Nothing. CP-C9 closed 2026-08-01; CP-C6 age progression is next. |
+| **In flight** | Helios Rift — Broken Ring reference parity. The native CP-C6 sequence is paused. |
 | **Shipped 2026-07-31** | CP-G2a closed · P14 test harness · CP-C1 production · CP-G3a2 traversal · CP-G2b-NAV navigation · P4 pose caching · CP-C2′ combat · CP-C3 adversary |
 | **Shipped 2026-08-01** | CP-C4 victory and defeat · CP-C5 military roster breadth · CP-C9 economy tuning and nine-minute proof |
 | **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **99 tests pass; 2 opt-in long-run tests skipped** under `swift test`. |
 | **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
-| **Current frame** | `Docs/QA/G3/cp-c9/device/01-opening-0m01-landscape.png` — the clean 0:01 opening frame with the Core, home terrain, HUD, and starting stock visible. |
+| **Current frame** | Helios comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/reference-vs-current-default.png`. The prior native CP-C9 frame remains historical evidence. |
 | **Version** | 0.6.1 · build 46 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress · G3 opened — none passed |
 | **Play-feel reference** | **Age of Empires 2 / Rise of Rome, in space** (BC-01, 2026-07-31). Was Age of Empires IV. |
-| **Current direction** | Gameplay and content breadth (Directive 2 + 3). Performance is a guardrail, not a bar. The path to a playable match is complete: combat ✅ → adversary ✅ → victory ✅. Breadth and pacing are what remain. |
+| **Current direction** | Three.js Helios Rift. Match the approved Broken Ring at gameplay scale before adding parallel maps or systems. Preserve the native campaign work as history. |
 | **Can a match be won or lost?** | **Yes.** Both paths were played to a result on the iPad and photographed: Dominion at 3:55, Conquest at 15:55, defeat by Conquest at 5:59, defeat by resignation, and Play Again back to 0:01. A finished match genuinely stops stepping. **What it is not yet:** inside the 8–10 minute promise (nothing observed landed in that window), and the contest rule has never been exercised in play. |
 | **Commit boundary** | Committed narrowly by explicit path. Other agents' dirty work (`Sources/Rendering/FramePacing.swift`, `Sources/Diagnostics/`, `Sources/Simulation/BoardingSystem.swift`, `scripts/`, `Docs/QA/Perf/`, `Docs/QA/Launch/`, app-icon and launch-gate files) left untouched and uncommitted. At CP-C4 `RootView.swift` carried both CP-C4 work and a perf overlay, so its index entry was staged surgically rather than committing the whole file. |
-| **Next checkpoint** | CP-C6 age progression — Voyager research and the Aether gate, after CP-C9's home-economy closure. |
+| **Next checkpoint** | Broken Ring composition readability, then a new rendered comparison and dev-only deployment. |
 
 ---
 

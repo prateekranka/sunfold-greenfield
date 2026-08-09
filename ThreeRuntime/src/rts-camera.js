@@ -46,30 +46,32 @@ export function rtsCameraOffset(distance = RTS_CAMERA.defaultDistance) {
  * @param {THREE.PerspectiveCamera} camera
  * @param {THREE.Vector3} target ground-plane look-at (y = targetHeight applied)
  * @param {number} [distance]
+ * @param {{ fovDegrees?: number, far?: number }} [presentation]
  */
-export function applyRtsCamera(camera, target, distance = RTS_CAMERA.defaultDistance) {
+export function applyRtsCamera(camera, target, distance = RTS_CAMERA.defaultDistance, presentation = {}) {
   const look = target.clone();
   look.y = RTS_CAMERA.targetHeight;
   camera.position.copy(look).add(rtsCameraOffset(distance));
   camera.lookAt(look);
-  camera.fov = RTS_CAMERA.fovDegrees;
+  camera.fov = presentation.fovDegrees ?? RTS_CAMERA.fovDegrees;
   camera.near = RTS_CAMERA.near;
-  camera.far = RTS_CAMERA.far;
+  camera.far = presentation.far ?? RTS_CAMERA.far;
   camera.updateProjectionMatrix();
 }
 
 /**
  * @param {number} aspect width / height
+ * @param {{ fovDegrees?: number, far?: number }} [presentation]
  * @returns {THREE.PerspectiveCamera}
  */
-export function createRtsCamera(aspect = 16 / 9) {
+export function createRtsCamera(aspect = 16 / 9, presentation = {}) {
   const camera = new THREE.PerspectiveCamera(
-    RTS_CAMERA.fovDegrees,
+    presentation.fovDegrees ?? RTS_CAMERA.fovDegrees,
     aspect,
     RTS_CAMERA.near,
-    RTS_CAMERA.far
+    presentation.far ?? RTS_CAMERA.far
   );
-  applyRtsCamera(camera, new THREE.Vector3(0, 0, 0));
+  applyRtsCamera(camera, new THREE.Vector3(0, 0, 0), RTS_CAMERA.defaultDistance, presentation);
   return camera;
 }
 
@@ -85,6 +87,10 @@ export class RtsCameraController {
    * @param {{
    *   target?: THREE.Vector3,
    *   distance?: number,
+   *   minDistance?: number,
+   *   maxDistance?: number,
+   *   fovDegrees?: number,
+   *   far?: number,
    *   panRadius?: number,
    *   zoomSmooth?: number,
    *   panSmooth?: number,
@@ -99,6 +105,10 @@ export class RtsCameraController {
 
     this.target = opts.target?.clone() ?? new THREE.Vector3(0, 0, 0);
     this.distance = opts.distance ?? RTS_CAMERA.defaultDistance;
+    this.minDistance = opts.minDistance ?? RTS_CAMERA.minDistance;
+    this.maxDistance = opts.maxDistance ?? RTS_CAMERA.maxDistance;
+    this.fovDegrees = opts.fovDegrees ?? RTS_CAMERA.fovDegrees;
+    this.far = opts.far ?? RTS_CAMERA.far;
 
     /** @type {THREE.Vector3} smoothed look-at (XZ); y ignored */
     this._desiredTarget = this.target.clone();
@@ -179,8 +189,8 @@ export class RtsCameraController {
       const factor = 1 + raw * (e.ctrlKey ? 0.012 : 0.00115);
       this._desiredDistance = THREE.MathUtils.clamp(
         this._desiredDistance * factor,
-        RTS_CAMERA.minDistance,
-        RTS_CAMERA.maxDistance
+        this.minDistance,
+        this.maxDistance
       );
     };
     this._onContextMenu = (e) => {
@@ -247,8 +257,8 @@ export class RtsCameraController {
     this._desiredTarget.y = 0;
     this._desiredDistance = THREE.MathUtils.clamp(
       this._desiredDistance,
-      RTS_CAMERA.minDistance,
-      RTS_CAMERA.maxDistance
+      this.minDistance,
+      this.maxDistance
     );
   }
 
@@ -276,8 +286,8 @@ export class RtsCameraController {
   setDistance(distance, opts = {}) {
     this._desiredDistance = THREE.MathUtils.clamp(
       distance,
-      RTS_CAMERA.minDistance,
-      RTS_CAMERA.maxDistance
+      this.minDistance,
+      this.maxDistance
     );
     if (opts.immediate) {
       this.distance = this._desiredDistance;
@@ -318,15 +328,15 @@ export class RtsCameraController {
     if (this._keys.has("=") || this._keys.has("+")) {
       this._desiredDistance = THREE.MathUtils.clamp(
         this._desiredDistance * (1 - 1.1 * t),
-        RTS_CAMERA.minDistance,
-        RTS_CAMERA.maxDistance
+        this.minDistance,
+        this.maxDistance
       );
     }
     if (this._keys.has("-") || this._keys.has("_")) {
       this._desiredDistance = THREE.MathUtils.clamp(
         this._desiredDistance * (1 + 1.1 * t),
-        RTS_CAMERA.minDistance,
-        RTS_CAMERA.maxDistance
+        this.minDistance,
+        this.maxDistance
       );
     }
 
@@ -380,7 +390,10 @@ export class RtsCameraController {
   }
 
   update() {
-    applyRtsCamera(this.camera, this.target, this.distance);
+    applyRtsCamera(this.camera, this.target, this.distance, {
+      fovDegrees: this.fovDegrees,
+      far: this.far
+    });
   }
 
   dispose() {
