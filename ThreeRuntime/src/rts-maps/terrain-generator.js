@@ -97,7 +97,7 @@ function addLegacyStarfield(group) {
  * Helios material bundle. One material instance is shared by every matching
  * cosmetic mesh in this map, which keeps the dense ring inexpensive.
  */
-function createHeliosMaterials(palette) {
+function createHeliosMaterials(palette, seed = 2749) {
   const metal = (color, roughness, metalness = 0.8, extra = {}) =>
     new THREE.MeshStandardMaterial({ color, roughness, metalness, ...extra });
   const glow = (color, intensity = 1.1, opacity = 1, metalness = 0.3, roughness = 0.28) =>
@@ -111,13 +111,40 @@ function createHeliosMaterials(palette) {
       opacity
     });
 
+  // One small deterministic field texture drives every Broken Ring terrain
+  // material in world space. This keeps the surface continuous across sectors
+  // and avoids the per-pixel cost of evaluating several noise octaves on iPad.
+  const terrainField = makeHeliosTerrainFieldTexture(seed);
+  const terrainDeck = makeHeliosTerrainMaterial(terrainField, {
+    variant: "sunworn-deck",
+    shadow: palette.terrainShadow ?? 0x2d2f31,
+    warm: palette.terrainWarm ?? 0x55534f,
+    sunlit: palette.terrainSunlit ?? 0x817c70,
+    cool: palette.terrainCool ?? 0x33464d,
+    roughness: 0.86,
+    metalness: 0.12,
+    bumpStrength: 0.34
+  });
+  const terrainArmor = makeHeliosTerrainMaterial(terrainField, {
+    variant: "gravity-weathered-armor",
+    shadow: palette.terrainArmorShadow ?? 0x191e23,
+    warm: palette.terrainArmorWarm ?? 0x31363a,
+    sunlit: palette.terrainArmorSunlit ?? 0x515457,
+    cool: palette.terrainArmorCool ?? 0x243940,
+    roughness: 0.92,
+    metalness: 0.16,
+    bumpStrength: 0.48
+  });
+
   return {
     understructure: metal(palette.understructure ?? 0x0b1017, 0.68, 0.72),
-    basalt: metal(palette.basalt ?? 0x171d25, 0.9, 0.2, { flatShading: true }),
-    basaltEdge: metal(palette.basaltEdge ?? 0x29323c, 0.78, 0.36, { flatShading: true }),
-    deckShadow: metal(palette.deckShadow ?? 0x252c33, 0.88, 0.16),
-    deck: metal(palette.deck ?? 0x59616a, 0.74, 0.22),
-    deckLight: metal(palette.deckLight ?? 0x76808a, 0.62, 0.3),
+    basalt: terrainArmor,
+    basaltEdge: terrainArmor,
+    deckShadow: terrainDeck,
+    deck: terrainDeck,
+    // All deck cells share one world-space material. Geometry and seams remain,
+    // but the old alternating light/dark striping no longer defines the land.
+    deckLight: terrainDeck,
     seam: metal(palette.seam ?? 0x252d36, 0.9, 0.18),
     gold: glow(palette.gold ?? 0xe9a749, 0.95, 1, 0.82, 0.3),
     goldBright: glow(palette.goldBright ?? 0xffcf72, 1.55, 1, 0.74, 0.22),
@@ -163,6 +190,281 @@ function createHeliosMaterials(palette) {
       depthWrite: false
     });
   }
+}
+
+function makeHeliosTerrainFieldTexture(seed, size = 256) {
+  const data = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y += 1) {
+    const v = y / size;
+    for (let x = 0; x < size; x += 1) {
+      const u = x / size;
+      const broad = periodicFbm(u, v, 3, 4, seed);
+      const warpX = periodicFbm(u + 0.19, v - 0.11, 5, 3, seed ^ 0x632be59b) - 0.5;
+      const warpY = periodicFbm(u - 0.07, v + 0.23, 5, 3, seed ^ 0x85157af5) - 0.5;
+      const weather = periodicFbm(
+        u + warpX * 0.12,
+        v + warpY * 0.12,
+        7,
+        4,
+        seed ^ 0x9e3779b9
+      );
+      const ridgeSource = periodicFbm(u + warpY * 0.08, v - warpX * 0.08, 11, 3, seed ^ 0x68bc21eb);
+      const ridge = 1 - Math.abs(ridgeSource * 2 - 1);
+      const grain = periodicValueNoise(u, v, 41, seed ^ 0x27d4eb2d);
+      const index = (y * size + x) * 4;
+      data[index] = Math.round(THREE.MathUtils.clamp(broad, 0, 1) * 255);
+      data[index + 1] = Math.round(THREE.MathUtils.clamp(weather, 0, 1) * 255);
+      data[index + 2] = Math.round(THREE.MathUtils.clamp(ridge, 0, 1) * 255);
+      data[index + 3] = Math.round(THREE.MathUtils.clamp(grain, 0, 1) * 255);
+    }
+  }
+
+  const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+  texture.name = "helios-world-terrain-field";
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  texture.colorSpace = THREE.NoColorSpace;
+  texture.anisotropy = 4;
+  texture.needsUpdate = true;
+  texture.userData = { seed, size, channels: ["broad", "weather", "ridge", "grain"] };
+  return texture;
+}
+
+function makeHeliosTerrainMaterial(fieldTexture, options) {
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: options.roughness,
+    metalness: options.metalness
+  });
+  const colors = {
+    shadow: new THREE.Color(options.shadow),
+    warm: new THREE.Color(options.warm),
+    sunlit: new THREE.Color(options.sunlit),
+    cool: new THREE.Color(options.cool)
+  };
+
+  material.name = `helios-terrain-${options.variant}`;
+  material.userData.sunfoldTerrainSurface = {
+    version: 1,
+    variant: options.variant,
+    fieldTexture: fieldTexture.name,
+    fieldTextureSize: fieldTexture.image.width,
+    mapping: "world-xz",
+    geometryDisplacement: false,
+    bumpStrength: options.bumpStrength
+  };
+  material.customProgramCacheKey = () => `sunfold-helios-terrain-v1-${options.variant}`;
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.sunfoldTerrainField = { value: fieldTexture };
+    shader.uniforms.sunfoldTerrainShadow = { value: colors.shadow };
+    shader.uniforms.sunfoldTerrainWarm = { value: colors.warm };
+    shader.uniforms.sunfoldTerrainSunlit = { value: colors.sunlit };
+    shader.uniforms.sunfoldTerrainCool = { value: colors.cool };
+    shader.uniforms.sunfoldTerrainRoughness = { value: options.roughness };
+    shader.uniforms.sunfoldTerrainMetalness = { value: options.metalness };
+    shader.uniforms.sunfoldTerrainBumpStrength = { value: options.bumpStrength };
+
+    shader.vertexShader = replaceShaderChunk(
+      shader.vertexShader,
+      "#include <common>",
+      `#include <common>
+varying vec3 vSunfoldTerrainWorldPosition;
+varying vec3 vSunfoldTerrainWorldNormal;`
+    );
+    shader.vertexShader = replaceShaderChunk(
+      shader.vertexShader,
+      "#include <normal_vertex>",
+      `#include <normal_vertex>
+vSunfoldTerrainWorldNormal = normalize(inverseTransformDirection(transformedNormal, viewMatrix));`
+    );
+    shader.vertexShader = replaceShaderChunk(
+      shader.vertexShader,
+      "#include <project_vertex>",
+      `vec4 sunfoldTerrainWorldPosition = vec4(transformed, 1.0);
+#ifdef USE_BATCHING
+  sunfoldTerrainWorldPosition = batchingMatrix * sunfoldTerrainWorldPosition;
+#endif
+#ifdef USE_INSTANCING
+  sunfoldTerrainWorldPosition = instanceMatrix * sunfoldTerrainWorldPosition;
+#endif
+vSunfoldTerrainWorldPosition = (modelMatrix * sunfoldTerrainWorldPosition).xyz;
+#include <project_vertex>`
+    );
+
+    shader.fragmentShader = replaceShaderChunk(
+      shader.fragmentShader,
+      "#include <common>",
+      `#include <common>
+varying vec3 vSunfoldTerrainWorldPosition;
+varying vec3 vSunfoldTerrainWorldNormal;
+uniform sampler2D sunfoldTerrainField;
+uniform vec3 sunfoldTerrainShadow;
+uniform vec3 sunfoldTerrainWarm;
+uniform vec3 sunfoldTerrainSunlit;
+uniform vec3 sunfoldTerrainCool;
+uniform float sunfoldTerrainRoughness;
+uniform float sunfoldTerrainMetalness;
+uniform float sunfoldTerrainBumpStrength;
+
+vec3 sunfoldPerturbTerrainNormal(
+  vec3 surfacePosition,
+  vec3 surfaceNormal,
+  float terrainHeight,
+  float strength,
+  float direction
+) {
+  vec2 heightDerivative = vec2(dFdx(terrainHeight), dFdy(terrainHeight));
+  vec3 sigmaX = dFdx(surfacePosition);
+  vec3 sigmaY = dFdy(surfacePosition);
+  vec3 r1 = cross(sigmaY, surfaceNormal);
+  vec3 r2 = cross(surfaceNormal, sigmaX);
+  float determinant = dot(sigmaX, r1) * direction;
+  vec3 gradient = sign(determinant) * (heightDerivative.x * r1 + heightDerivative.y * r2);
+  return normalize(abs(determinant) * surfaceNormal - strength * gradient);
+}`
+    );
+    shader.fragmentShader = replaceShaderChunk(
+      shader.fragmentShader,
+      "#include <map_fragment>",
+      `#include <map_fragment>
+vec2 sunfoldTerrainBroadUv = vSunfoldTerrainWorldPosition.xz * 0.0185;
+mat2 sunfoldTerrainRotation = mat2(0.8192, -0.5736, 0.5736, 0.8192);
+vec2 sunfoldTerrainDetailUv = sunfoldTerrainRotation * vSunfoldTerrainWorldPosition.xz * 0.105;
+vec4 sunfoldTerrainBroad = texture2D(sunfoldTerrainField, sunfoldTerrainBroadUv);
+vec4 sunfoldTerrainDetail = texture2D(sunfoldTerrainField, sunfoldTerrainDetailUv);
+vec4 sunfoldTerrainMicro = texture2D(
+  sunfoldTerrainField,
+  sunfoldTerrainDetailUv * 2.73 + vec2(0.173, 0.419)
+);
+float sunfoldTerrainSlope = smoothstep(
+  0.08,
+  0.86,
+  1.0 - abs(normalize(vSunfoldTerrainWorldNormal).y)
+);
+float sunfoldTerrainWeather = mix(sunfoldTerrainBroad.g, sunfoldTerrainDetail.g, 0.72);
+float sunfoldTerrainRidge = mix(sunfoldTerrainBroad.b, sunfoldTerrainDetail.b, 0.64);
+float sunfoldTerrainGrain = mix(sunfoldTerrainDetail.a, sunfoldTerrainMicro.g, 0.56);
+float sunfoldTerrainHeight =
+  sunfoldTerrainBroad.r * 0.11 +
+  sunfoldTerrainWeather * 0.34 +
+  sunfoldTerrainRidge * 0.22 +
+  sunfoldTerrainGrain * 0.18 +
+  sunfoldTerrainMicro.b * 0.15;
+vec3 sunfoldTerrainColor = mix(
+  sunfoldTerrainShadow,
+  sunfoldTerrainWarm,
+  smoothstep(0.12, 0.62, sunfoldTerrainBroad.r)
+);
+sunfoldTerrainColor = mix(
+  sunfoldTerrainColor,
+  sunfoldTerrainSunlit,
+  smoothstep(0.58, 0.94, sunfoldTerrainWeather) * 0.48 * (1.0 - sunfoldTerrainSlope * 0.68)
+);
+float sunfoldGravityWear = clamp(
+  sunfoldTerrainSlope * 0.72 + smoothstep(0.72, 0.98, sunfoldTerrainRidge) * 0.24,
+  0.0,
+  0.82
+);
+sunfoldTerrainColor = mix(sunfoldTerrainColor, sunfoldTerrainCool, sunfoldGravityWear);
+sunfoldTerrainColor *= 0.94 + sunfoldTerrainGrain * 0.10;
+diffuseColor.rgb = sunfoldTerrainColor;`
+    );
+    shader.fragmentShader = replaceShaderChunk(
+      shader.fragmentShader,
+      "#include <roughnessmap_fragment>",
+      `#include <roughnessmap_fragment>
+roughnessFactor = clamp(
+  sunfoldTerrainRoughness + (sunfoldTerrainWeather - 0.5) * 0.12 + sunfoldTerrainSlope * 0.05,
+  0.58,
+  0.98
+);`
+    );
+    shader.fragmentShader = replaceShaderChunk(
+      shader.fragmentShader,
+      "#include <metalnessmap_fragment>",
+      `#include <metalnessmap_fragment>
+metalnessFactor = clamp(
+  sunfoldTerrainMetalness + sunfoldTerrainRidge * 0.035 - sunfoldTerrainSlope * 0.025,
+  0.04,
+  0.24
+);`
+    );
+    shader.fragmentShader = replaceShaderChunk(
+      shader.fragmentShader,
+      "#include <normal_fragment_maps>",
+      `#include <normal_fragment_maps>
+normal = sunfoldPerturbTerrainNormal(
+  -vViewPosition,
+  normal,
+  sunfoldTerrainHeight,
+  sunfoldTerrainBumpStrength,
+  faceDirection
+);`
+    );
+  };
+  return material;
+}
+
+function replaceShaderChunk(source, marker, replacement) {
+  if (!source.includes(marker)) {
+    throw new Error(`Helios terrain shader marker missing: ${marker}`);
+  }
+  return source.replace(marker, replacement);
+}
+
+function periodicFbm(u, v, baseCells, octaves, seed) {
+  let value = 0;
+  let amplitude = 0.5;
+  let normalization = 0;
+  let cells = baseCells;
+  for (let octave = 0; octave < octaves; octave += 1) {
+    value += periodicValueNoise(u, v, cells, seed + octave * 0x9e3779b9) * amplitude;
+    normalization += amplitude;
+    amplitude *= 0.5;
+    cells *= 2;
+  }
+  return value / Math.max(0.0001, normalization);
+}
+
+function periodicValueNoise(u, v, cells, seed) {
+  const x = wrap01(u) * cells;
+  const y = wrap01(v) * cells;
+  const x0 = Math.floor(x);
+  const y0 = Math.floor(y);
+  const tx = smoothInterpolation(x - x0);
+  const ty = smoothInterpolation(y - y0);
+  const x1 = (x0 + 1) % cells;
+  const y1 = (y0 + 1) % cells;
+  const ix0 = ((x0 % cells) + cells) % cells;
+  const iy0 = ((y0 % cells) + cells) % cells;
+  const a = terrainHash(ix0, iy0, seed);
+  const b = terrainHash(x1, iy0, seed);
+  const c = terrainHash(ix0, y1, seed);
+  const d = terrainHash(x1, y1, seed);
+  return THREE.MathUtils.lerp(
+    THREE.MathUtils.lerp(a, b, tx),
+    THREE.MathUtils.lerp(c, d, tx),
+    ty
+  );
+}
+
+function terrainHash(x, y, seed) {
+  let value = (x * 0x1f123bb5) ^ (y * 0x5f356495) ^ seed;
+  value = Math.imul(value ^ (value >>> 16), 0x45d9f3b);
+  value = Math.imul(value ^ (value >>> 16), 0x45d9f3b);
+  value ^= value >>> 16;
+  return (value >>> 0) / 0xffffffff;
+}
+
+function smoothInterpolation(value) {
+  return value * value * (3 - 2 * value);
+}
+
+function wrap01(value) {
+  return value - Math.floor(value);
 }
 
 function addHeliosStarfield(group, visual, palette, materials) {
@@ -228,7 +530,6 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
   const armorBlockCount = visual.armorBlockCount ?? panelCount * 2 + 1;
   const armorBandWidth = visual.armorBandWidth ?? 1.5;
   const wallJitter = visual.wallJitter ?? 0.48;
-  const deckPanelGap = visual.deckPanelGap ?? 0.12;
   const crackCount = visual.cracksPerFragment ?? panelCount;
   const conduitCount = visual.conduitCount ?? 4;
   const surfaceY = visual.surfaceY ?? 0.04;
@@ -350,17 +651,6 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
   deck.position.y = surfaceY - deckDepth * 0.5;
   g.add(deck);
 
-  addHeliosDeckPanels(
-    g,
-    inner + deckInset + 0.18,
-    outer - deckInset - 0.2,
-    start,
-    end,
-    panelCount,
-    deckPanelGap,
-    materials,
-    surfaceY
-  );
   addHeliosDeckCracks(
     g,
     inner + deckInset + 0.5,
@@ -379,21 +669,28 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
 
   for (let i = 0; i <= panelCount; i += 1) {
     const a = THREE.MathUtils.lerp(start, end, i / panelCount);
-    addRadialBar(
-      g,
-      a,
-      inner + deckInset + 0.2,
-      outer - deckInset - 0.2,
-      0.08,
-      0.055,
-      materials.seam,
-      surfaceY + 0.045
-    );
     if (i > 0 && i < panelCount && i % 2 === 0) {
       const lightY = surfaceY - underDepth * 0.42;
       addEdgeRib(g, outer - 0.58, a, 0.12, underDepth * 0.32, materials.gold, lightY);
       addEdgeRib(g, inner + 0.58, a, 0.12, underDepth * 0.32, materials.gold, lightY);
     }
+  }
+
+  // Three hairline structural inlays retain an authored spacecraft rhythm
+  // without dividing the terrain into alternating deck strips.
+  const terrainSeamCount = 3;
+  for (let i = 1; i <= terrainSeamCount; i += 1) {
+    const a = THREE.MathUtils.lerp(start, end, i / (terrainSeamCount + 1));
+    addRadialBar(
+      g,
+      a,
+      inner + deckInset + 0.34,
+      outer - deckInset - 0.34,
+      0.032,
+      0.018,
+      materials.seam,
+      surfaceY + 0.035
+    );
   }
 
   addHeliosArmorBlocks(
@@ -433,9 +730,11 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
   g.userData.visualStyle = "broken-ring-fragment";
   g.userData.visualDetail = {
     armorBlocks: armorBlockCount * 2,
-    deckPanels: panelCount,
+    deckPanels: 0,
     deckCracks: crackCount,
-    layeredArmorBands: 4
+    layeredArmorBands: 4,
+    terrainSeams: terrainSeamCount,
+    materialDrivenSurface: true
   };
   g.userData.platformSpec = spec;
   return g;
@@ -546,37 +845,6 @@ function makeJaggedAnnularSectorGeometry(
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
   return geometry;
-}
-
-function addHeliosDeckPanels(parent, inner, outer, start, end, panelCount, gap, materials, surfaceY) {
-  const slotSpan = (end - start) / panelCount;
-  const panelSpan = Math.max(0.03, slotSpan - gap);
-  const geometry = makeAnnularSectorGeometry(inner, outer, panelSpan, 0.065, 6);
-  const lightCount = Array.from({ length: panelCount }, (_, i) => i).filter((i) => i % 3 === 1).length;
-  const materialGroups = [
-    new THREE.InstancedMesh(geometry, materials.deck, panelCount - lightCount),
-    new THREE.InstancedMesh(geometry, materials.deckLight, lightCount)
-  ];
-  const used = [0, 0];
-  const dummy = new THREE.Object3D();
-
-  for (let i = 0; i < panelCount; i += 1) {
-    const materialIndex = i % 3 === 1 ? 1 : 0;
-    const angle = start + slotSpan * (i + 0.5);
-    dummy.position.set(0, surfaceY + 0.02 + (i % 3 === 1 ? 0.012 : 0), 0);
-    dummy.rotation.set(0, angle, 0);
-    dummy.scale.set(1, 1, 1);
-    dummy.updateMatrix();
-    materialGroups[materialIndex].setMatrixAt(used[materialIndex], dummy.matrix);
-    used[materialIndex] += 1;
-  }
-
-  for (let i = 0; i < materialGroups.length; i += 1) {
-    const mesh = materialGroups[i];
-    mesh.name = i === 0 ? "deck-panels-dark" : "deck-panels-light";
-    mesh.instanceMatrix.needsUpdate = true;
-    parent.add(mesh);
-  }
 }
 
 function addHeliosDeckCracks(parent, inner, outer, start, end, count, material, y, random) {
