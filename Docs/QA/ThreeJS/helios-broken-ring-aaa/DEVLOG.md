@@ -398,7 +398,7 @@ enforce legal platform and bridge movement before adding buildings, training, or
 
 ## Cycle 06 — land-unit void exclusion · 2026-08-10
 
-Status: **Done locally; dev delivery pending**
+Status: **Done and deployed**
 
 ### Player-visible defect
 
@@ -459,6 +459,19 @@ Status: **Done locally; dev delivery pending**
 - Flare route recovery: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-06-flare-bridge-restore-final.json`
 - Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-06-ground-navigation-tests-final.stdout.txt`
 - Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-cycle-06-land-legality-final.stdout.txt`
+
+### Dev delivery
+
+- Commit `fdc8267` is visible on `origin/main`.
+- Worker version `4e87a23c-ec73-467c-918e-a69e2f3af98b` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-06&v=fdc8267`.
+- The committed bundle, deploy-site bundle, and hosted bundle SHA-256 values all equal
+  `e175c7d42f31a3a1b22cdbaea6dc26e62714c49b103693eba1b8060bd146cc7b`.
+- The hosted void command produced `Land units need stable ground`, left all 12 unit paths
+  empty, kept every unit on valid ground, and showed FPS 60.
+- Hosted frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-06-void-rejected-fps60.jpg`
+- Hosted bundle hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-06-bundle-hashes.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/deploy-cycle-06.stdout.txt`
 
 ### Next cycle
 

@@ -91,6 +91,12 @@ minimap.
 - Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
   `45bdbeeb23398b583bc96282ee49eef7185992767b38b968d38399e15a2599b3`. The hosted
   frame showed the molten core, 12 Citizens, FPS 60, and no startup error.
+- Land-legality commit `fdc8267` is deployed only to `dev.helios.contenthelper.in` as Worker
+  version `4e87a23c-ec73-467c-918e-a69e2f3af98b`.
+- Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `e175c7d42f31a3a1b22cdbaea6dc26e62714c49b103693eba1b8060bd146cc7b`. A hosted
+  open-void command produced the stable-ground message, left all 12 paths empty, kept every
+  unit on valid ground, and reported FPS 60.
 
 ### Proof pending
 
@@ -109,7 +115,7 @@ minimap.
   gate stayed below 17.8 ms after redundant animation resets were removed.
 - The molten core is a partial reference match. Its fissures remain smoother than the
   reference. The map still lacks substantial crystal islets, dense debris, and nebula depth.
-- Cycle 06 land legality is validated locally and awaits its isolated development deployment.
+- Cycle 06 land legality is deployed and verified on the development host.
 - The current build still uses placeholder bases and a debug HUD. Blender-authored buildings,
   damage states, and the iPad-first training HUD remain separate checkpoints.
 - Per user direction, Cycle 05 has no additional iPad touch check.
