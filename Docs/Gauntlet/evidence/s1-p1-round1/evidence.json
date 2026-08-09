@@ -1,0 +1,667 @@
+{
+ "villager": {
+  "anims": {
+   "idle": {
+    "frames": 4,
+    "motion_energy": {
+     "S": {
+      "mean": 11.947,
+      "max": 12.191,
+      "min": 11.624
+     },
+     "SW": {
+      "mean": 14.332,
+      "max": 14.392,
+      "min": 14.209
+     },
+     "W": {
+      "mean": 11.425,
+      "max": 12.444,
+      "min": 10.29
+     },
+     "NW": {
+      "mean": 11.004,
+      "max": 11.777,
+      "min": 10.217
+     },
+     "N": {
+      "mean": 8.064,
+      "max": 8.831,
+      "min": 7.618
+     },
+     "NE": {
+      "mean": 8.812,
+      "max": 9.161,
+      "min": 8.564
+     },
+     "E": {
+      "mean": 10.192,
+      "max": 10.791,
+      "min": 9.541
+     },
+     "SE": {
+      "mean": 11.994,
+      "max": 12.739,
+      "min": 11.344
+     }
+    },
+    "silhouette": {
+     "S": {
+      "w": 34,
+      "h": 52,
+      "aspect": 0.654,
+      "top_gap": 71,
+      "bottom_gap": 5,
+      "torso_width": 25
+     },
+     "SW": {
+      "w": 29,
+      "h": 51,
+      "aspect": 0.569,
+      "top_gap": 68,
+      "bottom_gap": 9,
+      "torso_width": 20
+     },
+     "W": {
+      "w": 27,
+      "h": 50,
+      "aspect": 0.54,
+      "top_gap": 68,
+      "bottom_gap": 10,
+      "torso_width": 20
+     },
+     "NW": {
+      "w": 30,
+      "h": 49,
+      "aspect": 0.612,
+      "top_gap": 71,
+      "bottom_gap": 8,
+      "torso_width": 20
+     },
+     "N": {
+      "w": 34,
+      "h": 49,
+      "aspect": 0.694,
+      "top_gap": 75,
+      "bottom_gap": 4,
+      "torso_width": 25
+     },
+     "NE": {
+      "w": 29,
+      "h": 48,
+      "aspect": 0.604,
+      "top_gap": 73,
+      "bottom_gap": 7,
+      "torso_width": 21
+     },
+     "E": {
+      "w": 27,
+      "h": 51,
+      "aspect": 0.529,
+      "top_gap": 70,
+      "bottom_gap": 7,
+      "torso_width": 20
+     },
+     "SE": {
+      "w": 30,
+      "h": 51,
+      "aspect": 0.588,
+      "top_gap": 70,
+      "bottom_gap": 7,
+      "torso_width": 20
+     }
+    }
+   },
+   "walk": {
+    "frames": 8,
+    "motion_energy": {
+     "S": {
+      "mean": 19.884,
+      "max": 23.647,
+      "min": 15.673
+     },
+     "SW": {
+      "mean": 30.719,
+      "max": 34.326,
+      "min": 25.612
+     },
+     "W": {
+      "mean": 32.871,
+      "max": 38.597,
+      "min": 26.578
+     },
+     "NW": {
+      "mean": 30.115,
+      "max": 39.211,
+      "min": 18.468
+     },
+     "N": {
+      "mean": 21.826,
+      "max": 30.66,
+      "min": 14.274
+     },
+     "NE": {
+      "mean": 27.236,
+      "max": 32.851,
+      "min": 20.72
+     },
+     "E": {
+      "mean": 29.892,
+      "max": 33.212,
+      "min": 24.46
+     },
+     "SE": {
+      "mean": 27.128,
+      "max": 31.381,
+      "min": 22.27
+     }
+    },
+    "silhouette": {
+     "S": {
+      "w": 34,
+      "h": 54,
+      "aspect": 0.63,
+      "top_gap": 69,
+      "bottom_gap": 5,
+      "torso_width": 28
+     },
+     "SW": {
+      "w": 29,
+      "h": 52,
+      "aspect": 0.558,
+      "top_gap": 67,
+      "bottom_gap": 9,
+      "torso_width": 20
+     },
+     "W": {
+      "w": 28,
+      "h": 50,
+      "aspect": 0.56,
+      "top_gap": 68,
+      "bottom_gap": 10,
+      "torso_width": 20
+     },
+     "NW": {
+      "w": 30,
+      "h": 47,
+      "aspect": 0.638,
+      "top_gap": 73,
+      "bottom_gap": 8,
+      "torso_width": 22
+     },
+     "N": {
+      "w": 34,
+      "h": 47,
+      "aspect": 0.723,
+      "top_gap": 77,
+      "bottom_gap": 4,
+      "torso_width": 20
+     },
+     "NE": {
+      "w": 29,
+      "h": 47,
+      "aspect": 0.617,
+      "top_gap": 74,
+      "bottom_gap": 7,
+      "torso_width": 21
+     },
+     "E": {
+      "w": 28,
+      "h": 50,
+      "aspect": 0.56,
+      "top_gap": 71,
+      "bottom_gap": 7,
+      "torso_width": 20
+     },
+     "SE": {
+      "w": 30,
+      "h": 52,
+      "aspect": 0.577,
+      "top_gap": 69,
+      "bottom_gap": 7,
+      "torso_width": 20
+     }
+    }
+   },
+   "gather": {
+    "frames": 8,
+    "motion_energy": {
+     "S": {
+      "mean": 32.079,
+      "max": 70.296,
+      "min": 14.36
+     },
+     "SW": {
+      "mean": 42.447,
+      "max": 75.003,
+      "min": 20.997
+     },
+     "W": {
+      "mean": 37.469,
+      "max": 74.442,
+      "min": 16.551
+     },
+     "NW": {
+      "mean": 26.314,
+      "max": 56.479,
+      "min": 13.359
+     },
+     "N": {
+      "mean": 18.171,
+      "max": 37.723,
+      "min": 7.348
+     },
+     "NE": {
+      "mean": 28.225,
+      "max": 59.77,
+      "min": 12.547
+     },
+     "E": {
+      "mean": 35.925,
+      "max": 70.291,
+      "min": 12.812
+     },
+     "SE": {
+      "mean": 34.896,
+      "max": 71.32,
+      "min": 16.743
+     }
+    },
+    "silhouette": {
+     "S": {
+      "w": 34,
+      "h": 49,
+      "aspect": 0.694,
+      "top_gap": 76,
+      "bottom_gap": 3,
+      "torso_width": 22
+     },
+     "SW": {
+      "w": 29,
+      "h": 55,
+      "aspect": 0.527,
+      "top_gap": 72,
+      "bottom_gap": 1,
+      "torso_width": 23
+     },
+     "W": {
+      "w": 31,
+      "h": 55,
+      "aspect": 0.564,
+      "top_gap": 68,
+      "bottom_gap": 5,
+      "torso_width": 20
+     },
+     "NW": {
+      "w": 37,
+      "h": 53,
+      "aspect": 0.698,
+      "top_gap": 67,
+      "bottom_gap": 8,
+      "torso_width": 22
+     },
+     "N": {
+      "w": 34,
+      "h": 55,
+      "aspect": 0.618,
+      "top_gap": 69,
+      "bottom_gap": 4,
+      "torso_width": 28
+     },
+     "NE": {
+      "w": 29,
+      "h": 52,
+      "aspect": 0.558,
+      "top_gap": 69,
+      "bottom_gap": 7,
+      "torso_width": 20
+     },
+     "E": {
+      "w": 31,
+      "h": 51,
+      "aspect": 0.608,
+      "top_gap": 70,
+      "bottom_gap": 7,
+      "torso_width": 25
+     },
+     "SE": {
+      "w": 37,
+      "h": 47,
+      "aspect": 0.787,
+      "top_gap": 74,
+      "bottom_gap": 7,
+      "torso_width": 24
+     }
+    }
+   }
+  },
+  "walk_symmetry_f1_vs_f5": {
+   "S": 8.072,
+   "SW": 11.556,
+   "W": 11.479,
+   "NW": 20.066,
+   "N": 15.562,
+   "NE": 15.215,
+   "E": 8.004,
+   "SE": 5.744
+  },
+  "pole_lean": {
+   "S": {
+    "com_x": 62.7,
+    "com_y": 98.0,
+    "standard_extension_px": 6,
+    "bbox_top": 69
+   },
+   "N": {
+    "com_x": 64.4,
+    "com_y": 101.8
+   }
+  },
+  "gather": {
+   "node_gold_contact": 226,
+   "node_gold_rest": 49,
+   "lowest_skin_contact": 123,
+   "feet_row_contact": 128,
+   "lowest_skin_rest": 114
+  },
+  "chroma_hygiene": {
+   "non_green_outside_bbox": 509,
+   "green_inside_unit_band": 6321,
+   "green_share_outside": 0.9478
+  },
+  "palette_census_walk_S_f1": {
+   "saffron_gold": 0.172,
+   "teal": 0.023,
+   "ivory_robe": 0.475,
+   "skin": 0.0,
+   "gray_shadow": 0.05,
+   "dark": 0.023
+  }
+ },
+ "pathfinder": {
+  "anims": {
+   "idle": {
+    "frames": 4,
+    "motion_energy": {
+     "S": {
+      "mean": 10.95,
+      "max": 11.303,
+      "min": 10.468
+     },
+     "SW": {
+      "mean": 11.836,
+      "max": 13.469,
+      "min": 10.196
+     },
+     "W": {
+      "mean": 9.66,
+      "max": 11.091,
+      "min": 8.223
+     },
+     "NW": {
+      "mean": 7.82,
+      "max": 8.598,
+      "min": 7.073
+     },
+     "N": {
+      "mean": 3.953,
+      "max": 4.014,
+      "min": 3.894
+     },
+     "NE": {
+      "mean": 6.444,
+      "max": 6.883,
+      "min": 6.214
+     },
+     "E": {
+      "mean": 9.0,
+      "max": 10.207,
+      "min": 7.724
+     },
+     "SE": {
+      "mean": 10.145,
+      "max": 10.419,
+      "min": 10.035
+     }
+    },
+    "silhouette": {
+     "S": {
+      "w": 34,
+      "h": 100,
+      "aspect": 0.34,
+      "top_gap": 28,
+      "bottom_gap": 0,
+      "torso_width": 13
+     },
+     "SW": {
+      "w": 25,
+      "h": 98,
+      "aspect": 0.255,
+      "top_gap": 30,
+      "bottom_gap": 0,
+      "torso_width": 14
+     },
+     "W": {
+      "w": 35,
+      "h": 99,
+      "aspect": 0.354,
+      "top_gap": 27,
+      "bottom_gap": 2,
+      "torso_width": 15
+     },
+     "NW": {
+      "w": 41,
+      "h": 101,
+      "aspect": 0.406,
+      "top_gap": 19,
+      "bottom_gap": 8,
+      "torso_width": 11
+     },
+     "N": {
+      "w": 34,
+      "h": 113,
+      "aspect": 0.301,
+      "top_gap": 11,
+      "bottom_gap": 4,
+      "torso_width": 3
+     },
+     "NE": {
+      "w": 25,
+      "h": 119,
+      "aspect": 0.21,
+      "top_gap": 2,
+      "bottom_gap": 7,
+      "torso_width": 3
+     },
+     "E": {
+      "w": 35,
+      "h": 118,
+      "aspect": 0.297,
+      "top_gap": 3,
+      "bottom_gap": 7,
+      "torso_width": 3
+     },
+     "SE": {
+      "w": 40,
+      "h": 107,
+      "aspect": 0.374,
+      "top_gap": 14,
+      "bottom_gap": 7,
+      "torso_width": 3
+     }
+    }
+   },
+   "walk": {
+    "frames": 8,
+    "motion_energy": {
+     "S": {
+      "mean": 16.148,
+      "max": 21.224,
+      "min": 13.049
+     },
+     "SW": {
+      "mean": 22.368,
+      "max": 25.736,
+      "min": 18.526
+     },
+     "W": {
+      "mean": 22.378,
+      "max": 27.385,
+      "min": 18.926
+     },
+     "NW": {
+      "mean": 18.571,
+      "max": 23.485,
+      "min": 12.706
+     },
+     "N": {
+      "mean": 10.549,
+      "max": 18.823,
+      "min": 3.769
+     },
+     "NE": {
+      "mean": 17.867,
+      "max": 23.388,
+      "min": 12.416
+     },
+     "E": {
+      "mean": 20.556,
+      "max": 23.87,
+      "min": 18.411
+     },
+     "SE": {
+      "mean": 17.114,
+      "max": 20.224,
+      "min": 13.235
+     }
+    },
+    "silhouette": {
+     "S": {
+      "w": 34,
+      "h": 100,
+      "aspect": 0.34,
+      "top_gap": 28,
+      "bottom_gap": 0,
+      "torso_width": 13
+     },
+     "SW": {
+      "w": 27,
+      "h": 98,
+      "aspect": 0.276,
+      "top_gap": 30,
+      "bottom_gap": 0,
+      "torso_width": 14
+     },
+     "W": {
+      "w": 37,
+      "h": 99,
+      "aspect": 0.374,
+      "top_gap": 27,
+      "bottom_gap": 2,
+      "torso_width": 15
+     },
+     "NW": {
+      "w": 41,
+      "h": 101,
+      "aspect": 0.406,
+      "top_gap": 19,
+      "bottom_gap": 8,
+      "torso_width": 11
+     },
+     "N": {
+      "w": 34,
+      "h": 113,
+      "aspect": 0.301,
+      "top_gap": 11,
+      "bottom_gap": 4,
+      "torso_width": 3
+     },
+     "NE": {
+      "w": 27,
+      "h": 119,
+      "aspect": 0.227,
+      "top_gap": 2,
+      "bottom_gap": 7,
+      "torso_width": 3
+     },
+     "E": {
+      "w": 37,
+      "h": 118,
+      "aspect": 0.314,
+      "top_gap": 3,
+      "bottom_gap": 7,
+      "torso_width": 3
+     },
+     "SE": {
+      "w": 41,
+      "h": 107,
+      "aspect": 0.383,
+      "top_gap": 14,
+      "bottom_gap": 7,
+      "torso_width": 3
+     }
+    }
+   }
+  },
+  "walk_symmetry_f1_vs_f5": {
+   "S": 5.201,
+   "SW": 6.419,
+   "W": 9.821,
+   "NW": 13.828,
+   "N": 8.993,
+   "NE": 12.238,
+   "E": 7.795,
+   "SE": 7.454
+  },
+  "pole_lean": {
+   "S": {
+    "com_x": 58.2,
+    "com_y": 94.6,
+    "standard_extension_px": 47,
+    "bbox_top": 28
+   },
+   "N": {
+    "com_x": 68.3,
+    "com_y": 88.6
+   }
+  },
+  "chroma_hygiene": {
+   "non_green_outside_bbox": 737,
+   "green_inside_unit_band": 6191,
+   "green_share_outside": 0.9245
+  },
+  "palette_census_walk_S_f1": {
+   "saffron_gold": 0.208,
+   "teal": 0.008,
+   "ivory_robe": 0.384,
+   "skin": 0.0,
+   "gray_shadow": 0.078,
+   "dark": 0.012
+  }
+ },
+ "activity_separation": {
+  "villager": {
+   "idle_vs_walk": 12.728,
+   "idle_vs_gather": 50.252,
+   "walk_vs_gather": 53.103
+  },
+  "pathfinder": {
+   "idle_vs_walk": 3.997
+  }
+ },
+ "meta": {
+  "seed": 20260726,
+  "cell": 128,
+  "directions": [
+   "S",
+   "SW",
+   "W",
+   "NW",
+   "N",
+   "NE",
+   "E",
+   "SE"
+  ],
+  "extracted": "neutral \u2014 no builder commentary"
+ }
+}

@@ -1,5 +1,13 @@
 # Citizen RTS sprite proof — ChatGPT QA pack
 
+```
+Citizen_v1 FROZEN
+clips: idle, walk, carry, gather, build
+Do not regenerate art — next unit is Lumen Guard (silhouette test)
+```
+
+**Pipeline:** humanoids = sprites; machines/buildings = GLB.
+
 Milestone 1 in-app proof: **AoE-style 2D sprite Citizens** over a simple **3D Sunwoven biome**, running in Chromium at `http://localhost:4177/citizen-rts-proof`.
 
 ## Clip mix / controls
@@ -11,6 +19,7 @@ Milestone 1 in-app proof: **AoE-style 2D sprite Citizens** over a simple **3D Su
 - **Middle/right-drag or WASD/arrows:** pan
 - **Minimap (bottom-right):** click/drag to jump camera
 - HUD shows live **FPS**, status, zoom, atlas size
+- **Facing/HP debug overlays:** off by default. Enable with `?debugFacing=true`
 
 ## Sprite / atlas anchor
 

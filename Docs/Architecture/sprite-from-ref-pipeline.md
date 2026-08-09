@@ -149,4 +149,4 @@ npx --yes serve assets/citizens -p 4177
 
 - `milestone-1-sprite-citizen-proof.md` — Man-Bun RTS proof that this pipeline packages
 - `aoe2-sprite-pipeline.md` — broader AoE2 presentation notes (Weaver / Villager)
-- `assets/sprites/village-manbun-wanderer/PRODUCTION_STATUS.md` — production lock + Gather/Build regen notes
+- `assets/sprites/village-manbun-wanderer/PRODUCTION_STATUS.md` — **Citizen_v1 FROZEN** (idle/walk/carry/gather/build); do not regenerate; next unit Lumen Guard

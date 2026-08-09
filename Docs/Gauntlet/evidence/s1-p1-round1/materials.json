@@ -1,0 +1,16 @@
+{
+  "strips": {
+    "strip-A": "gather",
+    "strip-B": "walk",
+    "strip-C": "idle"
+  },
+  "gifs": [
+    "gif-idle.gif",
+    "gif-walk.gif",
+    "gif-gather.gif"
+  ],
+  "contacts": [
+    "contact-villager.png",
+    "contact-pathfinder.png"
+  ]
+}

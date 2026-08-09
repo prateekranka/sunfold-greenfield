@@ -1,0 +1,58 @@
+[
+  {
+    "path": "/",
+    "file": "index.html",
+    "key": "index",
+    "type": "text/html; charset=utf-8",
+    "b64Len": 12772,
+    "bytesLen": 9577
+  },
+  {
+    "path": "/assets/01-overview-zoomed-out.png",
+    "file": "assets/01-overview-zoomed-out.png",
+    "key": "01-overview",
+    "type": "image/png",
+    "b64Len": 102488,
+    "bytesLen": 76864
+  },
+  {
+    "path": "/assets/02-starting-position.png",
+    "file": "assets/02-starting-position.png",
+    "key": "02-starting",
+    "type": "image/png",
+    "b64Len": 122588,
+    "bytesLen": 91939
+  },
+  {
+    "path": "/assets/03-solar-core-centre.png",
+    "file": "assets/03-solar-core-centre.png",
+    "key": "03-core",
+    "type": "image/png",
+    "b64Len": 93328,
+    "bytesLen": 69995
+  },
+  {
+    "path": "/assets/04-resource-area.png",
+    "file": "assets/04-resource-area.png",
+    "key": "04-resource",
+    "type": "image/png",
+    "b64Len": 142800,
+    "bytesLen": 107100
+  },
+  {
+    "path": "/assets/05-gameplay-zoom.png",
+    "file": "assets/05-gameplay-zoom.png",
+    "key": "05-gameplay",
+    "type": "image/png",
+    "b64Len": 151876,
+    "bytesLen": 113906
+  },
+  {
+    "path": "/assets/helios-rift-preview.mp4",
+    "file": "assets/helios-rift-preview.mp4",
+    "key": "preview-mp4",
+    "type": "video/mp4",
+    "b64Len": 172912,
+    "bytesLen": 129682
+  }
+]

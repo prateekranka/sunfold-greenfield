@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Helios Rift — Phase 1 Review Pack</title>
+  <meta name="description" content="Helios Rift Phase 1 playable RTS map proof — iPad-first design critique pack for Sunfold / AoE Space Edition." />
+  <style>
+    :root { color-scheme: dark; --bg:#050711; --panel:#0d1220; --text:#e8e0d0; --muted:#9aa8c0; --accent:#3ecfc0; --gold:#e2b866; --line:#2a3550; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.55 ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    header { padding: 28px 20px 18px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg,#0b1020,#050711); }
+    header h1 { margin: 0 0 6px; font-size: 1.65rem; color: var(--gold); }
+    header p { margin: 0; color: var(--muted); max-width: 70ch; }
+    .badge { display:inline-block; margin-top:10px; padding:4px 10px; border:1px solid var(--accent); color:var(--accent); border-radius:999px; font-size:.82rem; letter-spacing:.04em; text-transform:uppercase; }
+    main { max-width: 980px; margin: 0 auto; padding: 24px 20px 56px; }
+    h2 { margin: 28px 0 10px; font-size: 1.2rem; color: var(--gold); }
+    h3 { margin: 18px 0 8px; font-size: 1rem; }
+    p, li { color: #d8deea; }
+    ul { padding-left: 1.2rem; }
+    code, pre { font-family: ui-monospace, Menlo, monospace; font-size: .92rem; }
+    pre { background: var(--panel); border: 1px solid var(--line); padding: 12px 14px; overflow:auto; border-radius: 6px; }
+    .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); }
+    figure { margin:0; background: var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+    figure img { display:block; width:100%; height:auto; background:#000; }
+    figcaption { padding:10px 12px; font-size:.9rem; color:var(--muted); }
+    video { width:100%; max-width: 920px; border:1px solid var(--line); border-radius:8px; background:#000; }
+    table { width:100%; border-collapse: collapse; margin: 10px 0 18px; font-size:.95rem; }
+    th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+    th { background:#11182a; color:var(--gold); }
+    .score { font-weight:700; color:var(--accent); }
+    .warn { color:#ffb070; }
+    .ok { color:#7ddea8; }
+    footer { border-top:1px solid var(--line); padding:18px 20px 28px; color:var(--muted); font-size:.88rem; text-align:center; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Helios Rift — The Broken Ring</h1>
+    <p>Phase 1 playable RTS space map proof for Sunfold (AoE-style sprite Citizens + data-driven map framework). Status: <strong>awaiting iPad-first design critique</strong>.</p>
+    <span class="badge">Updated 9 Aug 2026</span>
+  </header>
+
+  <main>
+    <h2>Status</h2>
+    <p><strong>Helios Rift Phase 1 is playable</strong> in the Chromium proof scene: 4-player ring spawns, pathfinding with repairable bridges, harvestable resources, solar-core capture objective, solar-flare hazard, and AI hint JSON. Lumen Basin and Orekhar Frontier remain registry stubs only.</p>
+
+    <h2>Preview video</h2>
+    <p>Overview → player start → resources → bridge lane → solar core (~18s).</p>
+    <video controls playsinline preload="metadata" poster="assets/01-overview-zoomed-out.png">
+      <source src="assets/helios-rift-preview.mp4" type="video/mp4" />
+    </video>
+
+    <h2>Screenshots</h2>
+    <div class="grid">
+      <figure>
+        <img src="assets/01-overview-zoomed-out.png" alt="Helios Rift overview — full ring layout" loading="lazy" />
+        <figcaption><strong>01 Overview</strong> — macro ring + core + expansion islets</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/02-starting-position.png" alt="Player 0 home fragment north spawn" loading="lazy" />
+        <figcaption><strong>02 Starting position</strong> — P0 north fragment + citizens</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/03-solar-core-centre.png" alt="Solar core central objective" loading="lazy" />
+        <figcaption><strong>03 Solar core</strong> — central capture landmark</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/04-resource-area.png" alt="Home matter resource cluster" loading="lazy" />
+        <figcaption><strong>04 Resource area</strong> — home matter node + gather range</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/05-gameplay-zoom.png" alt="Typical iPad gameplay zoom" loading="lazy" />
+        <figcaption><strong>05 Gameplay zoom</strong> — typical play distance</figcaption>
+      </figure>
+    </div>
+
+    <h2>iPad-first review checklist (honest scores)</h2>
+    <table>
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>First 10s — where am I, resources, enemy approach, centre importance <em>without minimap</em></td>
+          <td class="score">6/10</td>
+          <td>Ring + orange core read at overview; P0 home obvious at start zoom. Enemy lanes (E/S/W spawns) and resource locations are <span class="warn">not obvious</span> without minimap or prior knowledge.</td>
+        </tr>
+        <tr>
+          <td>Touch readability — silhouettes for base / resources / bridges / core</td>
+          <td class="score">5/10</td>
+          <td>Platforms and core disc are large enough. Citizens are small at gameplay zoom. Resource nodes are tiny teal squares; bridge stubs vs active bridges need stronger contrast at arm's length.</td>
+        </tr>
+        <tr>
+          <td>Visual theme — lost star machine vs grey rocks</td>
+          <td class="score">4/10</td>
+          <td>Currently reads as <span class="warn">tan geometry in void</span>. Core glow + teal energy lines help; megastructure / dying-star art pass still required.</td>
+        </tr>
+        <tr>
+          <td>Bridge repair state obvious?</td>
+          <td class="score">6/10</td>
+          <td>Minimap dashed vs solid lines are clear. In-world: active bridges have teal rails; broken segments are dark stubs — workable but subtle on iPad.</td>
+        </tr>
+        <tr>
+          <td>Gameplay loop / match fantasy</td>
+          <td class="score">7/10</td>
+          <td>Ring chokepoints + core contest + expansions are structurally sound. Needs clearer telegraph of flare hazard and resource types.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Strategic readability — next polish pass</h3>
+    <ul>
+      <li>Spawn banners or faction color washes on home fragments (N/E/S/W) visible at default zoom</li>
+      <li>Larger, typed resource silhouettes (matter / lumen / aether / energy) with distinct color + icon</li>
+      <li>Broken-bridge scaffolding mesh + repair progress ring at bridge midpoint</li>
+      <li>Solar-flare telegraph on core corona + screen-edge warning before hazard ticks</li>
+      <li>Expansion islet callouts (corner diamonds) readable in overview without minimap</li>
+      <li>Enemy approach vectors: subtle arrow decals on bridge lanes from rival spawns</li>
+    </ul>
+
+    <h2>Acceptance checklist (engineering)</h2>
+    <table>
+      <thead><tr><th>Criterion</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>4 player spawns</td><td class="ok">✅</td></tr>
+        <tr><td>Path graph + bridge gating</td><td class="ok">✅</td></tr>
+        <tr><td>8 resource nodes + core node</td><td class="ok">✅</td></tr>
+        <tr><td>Expansion islets matter</td><td class="ok">✅</td></tr>
+        <tr><td>Solar core capture objective</td><td class="ok">✅</td></tr>
+        <tr><td>AI hints JSON API</td><td class="ok">✅</td></tr>
+        <tr><td>Distinct from flat grass proof</td><td class="ok">✅ ring void + bridges + flares</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Run locally (humans)</h2>
+    <pre>cd SunfoldGreenfield-threejs-wkwebview/ThreeRuntime
+npm run build:labs
+npx --yes serve assets/citizens -p 4177
+# http://localhost:4177/helios-rift-proof</pre>
+    <p>Controls: left-click select · right-click move/gather/repair · wheel zoom · WASD pan · minimap jump.</p>
+
+    <h2>Architecture pointer</h2>
+    <p>Data-driven RTS map framework under <code>ThreeRuntime/src/rts-maps/</code> — <code>MapDefinition</code> drives terrain, spawns, resources, objectives, bridges, hazards, and AI hints. Orchestrator: <code>createRtsMapWorld(mapId, scene)</code>. Helios Rift is map 1; Lumen Basin / Orekhar are stubs.</p>
+    <ul>
+      <li>Theme: shattered orbital ring around a dying star</li>
+      <li>Layout: 4 ring fragments (N/E/S/W), central solar core, 4 corner expansion islets, 8 bridges (4 broken at start)</li>
+      <li>Mechanics: repairable bridges, core capture bonus, periodic solar flares disabling core bridges</li>
+    </ul>
+
+    <h2>Suggested ChatGPT prompt</h2>
+    <blockquote>
+      <p>Critique this Helios Rift map as an iPad-first AoE-style RTS — does it create a compelling match? Review the screenshots and video on this page. Comment on first-10-second readability without minimap, touch-scale silhouettes, bridge/core clarity, whether the ring layout creates interesting chokepoints, and what art/readability pass would most improve the fantasy of a broken orbital civilization.</p>
+    </blockquote>
+  </main>
+
+  <footer>
+  Sunfold / AoE Space Edition · Helios Rift Phase 1 · Public review pack for external critique
+  </footer>
+</body>
+</html>

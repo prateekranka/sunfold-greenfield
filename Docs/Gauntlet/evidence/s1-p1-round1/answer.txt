@@ -1,0 +1,4 @@
+SEALED — do not open until after the critique.
+strip-A = gather
+strip-B = walk
+strip-C = idle

@@ -24,3 +24,21 @@ __pycache__/
 # Xcode user state
 xcuserdata/
 *.xcuserstate
+
+# Local agent/runtime state
+.omo/
+.wrangler/
+build-logs/
+r30-sky.json/
+
+# Godot import sidecars (parent project)
+*.import
+
+# Weaver lab GLBs (480MB+ 8k textures, unbundleable — never commit)
+ThreeRuntime/assets/citizens/citizen_sunwoven.glb
+ThreeRuntime/assets/citizens/sunwoven_lab.glb
+ThreeRuntime/assets/units/sunwoven_foundation_citizen.glb
+Resources/ThreeRuntime/units/sunwoven_foundation_citizen.glb
+
+# Helios Rift deploy site is a build artifact (build-helios-play-site.mjs regenerates it)
+Docs/QA/helios-rift-play/site/

@@ -88,9 +88,10 @@ function getBlobShadowMaterial() {
   canvas.width = 64;
   canvas.height = 64;
   const ctx = canvas.getContext("2d");
-  const gradient = ctx.createRadialGradient(32, 32, 4, 32, 32, 30);
-  gradient.addColorStop(0, "rgba(0, 0, 0, 0.55)");
-  gradient.addColorStop(0.7, "rgba(0, 0, 0, 0.28)");
+  // Soft under-feet contact: smaller core, lower opacity, slight light bias.
+  const gradient = ctx.createRadialGradient(30, 34, 1.5, 32, 32, 26);
+  gradient.addColorStop(0, "rgba(0, 0, 0, 0.30)");
+  gradient.addColorStop(0.45, "rgba(0, 0, 0, 0.12)");
   gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 64, 64);
@@ -110,6 +111,9 @@ function blobShadow(radius) {
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(radius * 2, radius * 2), material);
   mesh.rotation.x = -Math.PI / 2;
   mesh.position.y = 0.01;
+  // Light-away drift (matches typical Sunwoven key ≈ −X / +Z).
+  mesh.position.x = 0.12;
+  mesh.position.z = -0.09;
   mesh.name = "blob-shadow";
   return mesh;
 }
@@ -578,7 +582,7 @@ export class UnitPresentationLayer {
     const wants = this.blobShadows;
     let shadow = view.container.getObjectByName("blob-shadow");
     if (wants && !shadow) {
-      const radius = Math.max(0.6, (view.entry?.scaleMeters ?? 1.8) * 0.48);
+      const radius = Math.max(0.42, (view.entry?.scaleMeters ?? 1.8) * 0.34);
       shadow = blobShadow(radius);
       if (shadow) view.container.add(shadow);
     } else if (!wants && shadow) {

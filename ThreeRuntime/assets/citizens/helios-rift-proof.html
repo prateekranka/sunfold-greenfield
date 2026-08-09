@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sunfold — Helios Rift (The Broken Ring)</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #050711; color: #e8e0d0; font: 13px/1.4 ui-monospace, Menlo, monospace; }
+    #proof-root { position: absolute; inset: 0; }
+    #hud {
+      position: absolute; left: 12px; top: 12px; z-index: 2;
+      background: rgba(8, 10, 20, 0.82); padding: 10px 12px; border: 1px solid #3a4a68; max-width: 440px;
+    }
+    #hud strong { color: #e2b866; }
+    button { margin: 4px 4px 0 0; cursor: pointer; background: #1a2238; color: #d8e0f0; border: 1px solid #4a5a78; padding: 4px 8px; }
+    button:hover { background: #243050; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    .hint { margin-top: 8px; opacity: 0.75; font-size: 12px; }
+    #flare-banner {
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 3;
+      background: rgba(255, 100, 30, 0.88); color: #1a0800; padding: 6px 16px; border-radius: 2px;
+      font-weight: bold; display: none; letter-spacing: 0.06em;
+    }
+    #minimap-wrap {
+      position: absolute; right: 14px; bottom: 14px; z-index: 3;
+      width: 180px; height: 180px;
+      border: 1px solid #3ecfc0;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.55);
+      background: rgba(8, 10, 20, 0.92);
+      border-radius: 2px; overflow: hidden; cursor: crosshair;
+      touch-action: none; user-select: none;
+    }
+    #minimap { display: block; width: 100%; height: 100%; }
+    #minimap-label {
+      position: absolute; left: 6px; top: 4px; font-size: 10px;
+      color: #3ecfc0; opacity: 0.9; pointer-events: none;
+    }
+    #toast {
+      position: absolute; bottom: 210px; right: 14px; z-index: 3;
+      background: rgba(8,10,20,0.9); border: 1px solid #5a6a88;
+      padding: 8px 12px; max-width: 260px; display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="proof-root"></div>
+  <div id="flare-banner">☀ SOLAR FLARE — seek cover on ring fragments</div>
+  <div id="hud">
+    <div><strong>Helios Rift</strong> — The Broken Ring</div>
+    <div id="status">loading…</div>
+    <div id="fps" style="margin-top:4px;color:#3ecfc0;">FPS —</div>
+    <div>
+      <button id="select-all" type="button">select all (P0)</button>
+      <button id="repair-bridge" type="button">repair nearest bridge</button>
+      <button id="show-hints" type="button">AI hints (console)</button>
+    </div>
+    <div class="hint">
+      Left-click: select Citizens · Right-click: move / gather / repair bridge ·
+      Wheel: zoom · WASD: pan · Minimap: jump camera.<br/>
+      Capture the <span style="color:#ffa030">solar core</span> · Expand to turquoise islets · Repair broken bridges (gold stubs).
+    </div>
+  </div>
+  <div id="toast"></div>
+  <div id="minimap-wrap" title="Click or drag to pan camera">
+    <canvas id="minimap" width="180" height="180"></canvas>
+    <div id="minimap-label">HELIOS RIFT</div>
+  </div>
+  <script src="./helios-rift-proof.bundle.js"></script>
+</body>
+</html>

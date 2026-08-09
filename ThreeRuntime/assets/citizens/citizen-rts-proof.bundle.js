@@ -27311,19 +27311,8 @@ void main() {
         frames: 1,
         fps: 1,
         loop: true,
-        source: "dedicated_idle_8dir",
-        originRow: 0,
-        facingCount: 8,
-        note: "True standing A-pose from citizen_idle.png (not walk/gather stride). Hold frame 0, playbackSpeed 0.",
-        atlas: {
-          image: "idle-sheet-256.png",
-          width: 2048,
-          height: 256,
-          columns: 8,
-          rows: 1,
-          layout: "facing-grid",
-          facingOrder: ["NE", "E", "SE", "S", "SW", "W", "NW", "N"]
-        }
+        source: "walk_f0_hold",
+        originRow: 0
       },
       walk: {
         frames: 8,
@@ -27356,12 +27345,13 @@ void main() {
     },
     provenance: {
       walk: "Citizen_Walk_16dir_8frames_256.png",
-      carry: "Citizen_Carry_16dir_8frames_256.png (repaired)",
+      carry: "Citizen_Carry_16dir_8frames_256.png",
       gather: "Citizen_Gather_16dir_8frames_256.png",
       build: "Citizen_Build_16dir_8frames_256.png",
       equipmentContract: "assets/sprites/village-manbun-wanderer/citizen_equipment_states.json",
       geminiUsed: false,
-      note: "Walk 0-15, Carry 16-31, Gather 32-47, Build 48-63; FACINGS_16; fixed feet; no per-pose recenter"
+      note: "walk 0-15, carry 16-31, gather 32-47, build 48-63; fixed feet; no per-pose recenter",
+      packedBy: "pack-unit-combined-atlas.py"
     }
   };
 
@@ -27369,6 +27359,7 @@ void main() {
   var root = document.getElementById("proof-root");
   var status = document.getElementById("status");
   var fpsEl = document.getElementById("fps");
+  var debugFacing = new URLSearchParams(location.search).get("debugFacing") === "true";
   var CLIP_PLAN = [
     ...Array(16).fill("walk"),
     ...Array(8).fill("carry"),
@@ -27422,9 +27413,9 @@ void main() {
     canvas.width = 64;
     canvas.height = 64;
     const ctx = canvas.getContext("2d");
-    const g = ctx.createRadialGradient(32, 32, 4, 32, 32, 30);
-    g.addColorStop(0, "rgba(0,0,0,0.5)");
-    g.addColorStop(0.7, "rgba(0,0,0,0.22)");
+    const g = ctx.createRadialGradient(30, 34, 1.5, 32, 32, 26);
+    g.addColorStop(0, "rgba(0,0,0,0.30)");
+    g.addColorStop(0.45, "rgba(0,0,0,0.12)");
     g.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 64, 64);
@@ -27438,11 +27429,26 @@ void main() {
     opacity: 0.55,
     depthWrite: false
   });
-  function addBlobShadow(parent, radius = 0.85) {
+  function addBlobShadow(parent, radius = 0.52) {
     const mesh = new Mesh(new PlaneGeometry(radius * 2, radius * 2), blobMat);
     mesh.rotation.x = -Math.PI / 2;
     mesh.position.y = 0.012;
+    mesh.position.x = 0.12;
+    mesh.position.z = -0.09;
     mesh.name = "blob-shadow";
+    parent.add(mesh);
+    return mesh;
+  }
+  function addFacingDebug(parent) {
+    const mat = new MeshBasicMaterial({
+      color: 1712664,
+      transparent: true,
+      opacity: 0.7,
+      depthWrite: false
+    });
+    const mesh = new Mesh(new BoxGeometry(0.07, 0.02, 1.35), mat);
+    mesh.position.set(0, 0.03, 0.55);
+    mesh.name = "facing-debug";
     parent.add(mesh);
     return mesh;
   }
@@ -27644,7 +27650,8 @@ void main() {
       const ring = addSelectionRing(rootGroup);
       addBlobShadow(rootGroup);
       const hp = 55 + i * 17 % 45;
-      const hpBar = addHealthBar(rootGroup, hp / 100);
+      const hpBar = debugFacing ? addHealthBar(rootGroup, hp / 100) : null;
+      const facingDebug = debugFacing ? addFacingDebug(rootGroup) : null;
       scene.add(rootGroup);
       const workYaw = clip === "gather" ? Math.atan2(-1.2, -0.4) : clip === "build" ? Math.atan2(-0.5, 1) : unit.yaw;
       const entry = {
@@ -27653,6 +27660,7 @@ void main() {
         selected: false,
         ring,
         hpBar,
+        facingDebug,
         hp,
         maxHp: 100,
         // Velocity stays zero until activities start — no idle root-motion drift.
@@ -27931,6 +27939,9 @@ void main() {
         u.setYaw(Math.atan2(c.vel.x, c.vel.z));
       }
       if (c.hpBar) c.hpBar.quaternion.copy(camera.quaternion);
+      if (c.facingDebug) {
+        c.facingDebug.rotation.y = u.yaw - Math.PI / 4;
+      }
       u.update(dt);
     }
     minimapAcc += dt;
@@ -27950,6 +27961,7 @@ void main() {
     drawMinimap();
     globalThis.__citizenRtsProof = {
       citizens,
+      debugFacing,
       get activitiesArmed() {
         return activitiesArmed;
       },

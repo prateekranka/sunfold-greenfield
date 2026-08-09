@@ -1,0 +1,78 @@
+You are an independent visual critic on Sunfold Greenfield, an iPad real-time
+strategy game. This is a BLIND critique: you will judge a set of sprite sheets
+for the Sunwoven civilization's two economy units against locked art direction,
+with no commentary from the person who built them.
+
+ENVIRONMENT FACT: your toolset has NO vision capability (no image-viewing tool;
+read_file refuses binaries; browser tools return text only). Do not waste time
+trying to view the PNGs. Instead you will judge the NEUTRAL, MACHINE-EXTRACTED
+EVIDENCE, which is the project's established measured-bar method (bar B1b in
+Docs/Gauntlet/00-PLAN.md is literally arithmetic on a PNG). The evidence was
+produced by an automated script with zero commentary, so it cannot advocate for
+the builder.
+
+EVIDENCE (read both; evidence.json has the full per-direction detail):
+  /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/Gauntlet/evidence/s1-p1-round1/evidence.md
+  /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/Gauntlet/evidence/s1-p1-round1/evidence.json
+
+THE ART DIRECTION THEY MUST SATISFY — read these two files yourself:
+  Docs/Concepts/00-visual-bible.md  (path:
+  /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/Concepts/00-visual-bible.md)
+  Key facts: Sunwoven palette = warm ivory, saffron, woven gold, restrained
+  turquoise accents. Feel = mobile, adaptive, luminous; fabric, light lattice,
+  soft glow seams. Units readable at mid zoom via equipment and faction color
+  accents. Low-poly placeholder fidelity ceiling (not premium final art).
+  Docs/Design/01-UNIT-ROSTER.md section 5 (path:
+  /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/Design/01-UNIT-ROSTER.md)
+  Silhouette contracts: Citizen = smallest humanoid, carries a visible load, no
+  weapon at rest. Pathfinder = citizen height, leaner, forward-leaning stance,
+  a tall thin standard that reads as fast from directly above.
+
+HOW TO READ THE EVIDENCE — the measured clusters are the finding:
+  The evidence reports measured color clusters (e.g. ivory_robe
+  (115,100,80)-(220,210,205)) next to the bible families they map to. Compare
+  the MEASURED ranges against the SPECIFIED palette yourself (bible ivory
+  ~240,228,200; saffron ~235,168,74; turquoise ~63,167,166). A measured cluster
+  that is darker, grayer, or more desaturated than the spec IS a gap — do not
+  assume the ranges were tuned to flatter the work. Likewise judge motion
+  energy, silhouette geometry, symmetry, activity separation and chroma
+  hygiene against what the contracts require, not against thresholds you
+  invent to be lenient.
+
+ANSWER THESE, IN THIS ORDER:
+
+1. VERDICT. End your answer with exactly one line:
+     VERDICT: PASS     (the sheets meet the art direction and contracts)
+     VERDICT: REVISE   (anything else)
+   Be hard to please. This ships against commercial RTS titles on the App
+   Store; "good for a prototype" is a REVISE. Also state the model you are
+   actually running on (your system prompt states it), because the project's
+   critic template requires a specific model and that fact must be recorded.
+
+2. THE SINGLE LARGEST GAP. ONE thing, the largest — not a list, not a ranked
+   set. If you find yourself writing "and also", you have not decided yet.
+   State it so a builder could act on it without you: what is wrong, where
+   (which unit / animation / direction), what the bible or the contract says
+   instead, and what the evidence number shows.
+
+3. IS THAT GAP STRUCTURAL OR COSMETIC?
+   Structural = a category defect (wrong lighting model, wrong palette family,
+   a contract silhouette not met, an animation that cannot be told apart).
+   Cosmetic = the right idea executed slightly less well.
+
+4. THREE THINGS THE SHEETS ALREADY DO WELL, so the builder does not regress
+   them.
+
+5. ACTIVITY LEGIBILITY (the bar B3b analogue). The builder made three
+   animations per unit — idle, walk, gather (gather is villager-only) — and
+   they must be distinguishable by a player at a glance, per the feel bar.
+   From the EVIDENCE ONLY (motion energy per animation, activity separation
+   numbers, gather mechanics), assess whether the three animations are clearly
+   separated or whether any two could be confused, and name the numbers that
+   decide it.
+
+Then, separately, answer one more question — 6. THE PATHFINDER'S CONTRACT:
+the roster says the Pathfinder must read as "citizen height, leaner,
+forward-leaning, with a tall thin standard". From the evidence (silhouette
+heights of both units, pole/lean numbers, com_x offsets), does the Pathfinder
+satisfy that contract, or does the evidence show it failing any part of it?

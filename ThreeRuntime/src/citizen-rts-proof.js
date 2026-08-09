@@ -15,6 +15,9 @@ const root = document.getElementById("proof-root");
 const status = document.getElementById("status");
 const fpsEl = document.getElementById("fps");
 
+/** Facing / HP debug overlays — default OFF for play + proof captures. */
+const debugFacing = new URLSearchParams(location.search).get("debugFacing") === "true";
+
 const CLIP_PLAN = [
   ...Array(16).fill("walk"),
   ...Array(8).fill("carry"),
@@ -74,15 +77,16 @@ const fill = new THREE.DirectionalLight(0xa8c8ff, 0.35);
 fill.position.set(6, 8, -4);
 scene.add(fill);
 
-/** Soft blob shadow material (shared). */
+/** Soft blob shadow material (shared) — tight under-feet falloff, not a black pancake. */
 function makeBlobShadowMat() {
   const canvas = document.createElement("canvas");
   canvas.width = 64;
   canvas.height = 64;
   const ctx = canvas.getContext("2d");
-  const g = ctx.createRadialGradient(32, 32, 4, 32, 32, 30);
-  g.addColorStop(0, "rgba(0,0,0,0.5)");
-  g.addColorStop(0.7, "rgba(0,0,0,0.22)");
+  // Slightly bias the gradient toward light-away side (key ≈ −X / +Z).
+  const g = ctx.createRadialGradient(30, 34, 1.5, 32, 32, 26);
+  g.addColorStop(0, "rgba(0,0,0,0.30)");
+  g.addColorStop(0.45, "rgba(0,0,0,0.12)");
   g.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 64, 64);
@@ -97,11 +101,29 @@ const selectionMat = new THREE.MeshBasicMaterial({
   depthWrite: false
 });
 
-function addBlobShadow(parent, radius = 0.85) {
+function addBlobShadow(parent, radius = 0.52) {
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(radius * 2, radius * 2), blobMat);
   mesh.rotation.x = -Math.PI / 2;
   mesh.position.y = 0.012;
+  // Drift opposite the key light (−8, 18, 6) so contact reads directional.
+  mesh.position.x = 0.12;
+  mesh.position.z = -0.09;
   mesh.name = "blob-shadow";
+  parent.add(mesh);
+  return mesh;
+}
+
+/** Thin ground needle showing sprite yaw — only when ?debugFacing=true. */
+function addFacingDebug(parent) {
+  const mat = new THREE.MeshBasicMaterial({
+    color: 0x1a2218,
+    transparent: true,
+    opacity: 0.7,
+    depthWrite: false
+  });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.02, 1.35), mat);
+  mesh.position.set(0, 0.03, 0.55);
+  mesh.name = "facing-debug";
   parent.add(mesh);
   return mesh;
 }
@@ -256,7 +278,8 @@ const bundled = {
  *   clip: string,
  *   selected: boolean,
  *   ring: THREE.Mesh,
- *   hpBar: THREE.Object3D,
+ *   hpBar: THREE.Object3D | null,
+ *   facingDebug: THREE.Object3D | null,
  *   hp: number,
  *   maxHp: number,
  *   vel: THREE.Vector3,
@@ -333,7 +356,9 @@ async function spawnCitizens() {
     const ring = addSelectionRing(rootGroup);
     addBlobShadow(rootGroup);
     const hp = 55 + ((i * 17) % 45);
-    const hpBar = addHealthBar(rootGroup, hp / 100);
+    // Always-on dark bars kill immersion — keep behind ?debugFacing=true only.
+    const hpBar = debugFacing ? addHealthBar(rootGroup, hp / 100) : null;
+    const facingDebug = debugFacing ? addFacingDebug(rootGroup) : null;
     scene.add(rootGroup);
 
     const workYaw =
@@ -350,6 +375,7 @@ async function spawnCitizens() {
       selected: false,
       ring,
       hpBar,
+      facingDebug,
       hp,
       maxHp: 100,
       // Velocity stays zero until activities start — no idle root-motion drift.
@@ -673,8 +699,12 @@ function frame(now) {
     }
     // idle / gather / build: no root motion
 
-    // Health bars face camera (cached ref — no per-frame name walk)
+    // Debug overlays only (?debugFacing=true)
     if (c.hpBar) c.hpBar.quaternion.copy(camera.quaternion);
+    if (c.facingDebug) {
+      // Billboard group is locked at 45°; counter-rotate so the needle tracks yaw.
+      c.facingDebug.rotation.y = u.yaw - Math.PI / 4;
+    }
 
     u.update(dt);
   }
@@ -701,6 +731,7 @@ spawnCitizens()
     // Debug/QA hook for CDP probes (idle standing + FPS).
     globalThis.__citizenRtsProof = {
       citizens,
+      debugFacing,
       get activitiesArmed() {
         return activitiesArmed;
       },
