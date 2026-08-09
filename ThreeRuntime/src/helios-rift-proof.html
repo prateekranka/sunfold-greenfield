@@ -9,65 +9,282 @@
   <meta property="og:type" content="website" />
   <title>Sunfold — Helios Rift (The Broken Ring)</title>
   <style>
-    html, body { margin: 0; height: 100%; background: #050711; color: #e8e0d0; font: 13px/1.4 ui-monospace, Menlo, monospace; }
-    #proof-root { position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; }
-    #hud {
-      position: absolute; left: 12px; top: 12px; z-index: 2;
-      background: rgba(8, 10, 20, 0.82); padding: 10px 12px; border: 1px solid #3a4a68; max-width: 440px;
+    :root {
+      color-scheme: dark;
+      --gold: #e9be70;
+      --gold-bright: #ffe2a1;
+      --teal: #58e1d4;
+      --ink: #070b13;
+      --ivory: #f5eedf;
+      --muted: #b7b6b2;
+      --safe-top: max(12px, env(safe-area-inset-top));
+      --safe-right: max(14px, env(safe-area-inset-right));
+      --safe-bottom: max(14px, env(safe-area-inset-bottom));
+      --safe-left: max(14px, env(safe-area-inset-left));
     }
-    #hud strong { color: #e2b866; }
-    button { margin: 4px 4px 0 0; cursor: pointer; background: #1a2238; color: #d8e0f0; border: 1px solid #4a5a78; padding: 4px 8px; }
-    button:hover { background: #243050; }
-    button:disabled { opacity: 0.45; cursor: default; }
-    .hint { margin-top: 8px; opacity: 0.75; font-size: 12px; }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%; overflow: hidden; background: #050711; color: var(--ivory);
+      font: 500 clamp(12px, 1.05vw, 15px)/1.25 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    button { font: inherit; }
+    #proof-root {
+      position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none;
+    }
+    #hud { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+    .hud-surface {
+      background:
+        linear-gradient(135deg, rgba(27, 31, 39, 0.92), rgba(6, 10, 18, 0.84)),
+        radial-gradient(circle at 30% 0%, rgba(233, 190, 112, 0.11), transparent 54%);
+      border: 1px solid rgba(233, 190, 112, 0.52);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      -webkit-backdrop-filter: blur(18px) saturate(1.15);
+      backdrop-filter: blur(18px) saturate(1.15);
+    }
+    .eyebrow {
+      color: var(--gold); font-size: 0.68rem; font-weight: 750; letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+    #top-rail {
+      position: absolute; pointer-events: auto;
+      top: var(--safe-top); left: var(--safe-left); right: var(--safe-right);
+      min-height: 64px; padding: 8px 10px 8px 14px; border-radius: 18px;
+      display: grid; grid-template-columns: minmax(150px, 0.7fr) minmax(340px, 1.35fr) auto 70px;
+      align-items: center; gap: 12px;
+    }
+    .mission-lockup { min-width: 0; }
+    .mission-lockup strong {
+      display: block; color: var(--ivory); font-family: "SF Pro Display", -apple-system, sans-serif;
+      font-size: clamp(1rem, 1.45vw, 1.25rem); letter-spacing: -0.015em;
+    }
+    .mission-lockup span:last-child {
+      display: block; margin-top: 2px; color: var(--muted); font-size: 0.72rem; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    #resource-rail { display: grid; grid-template-columns: repeat(4, minmax(68px, 1fr)); gap: 6px; }
+    .resource {
+      min-height: 44px; padding: 5px 8px; border-radius: 12px;
+      display: grid; grid-template-columns: 18px 1fr; grid-template-rows: auto auto; align-items: center;
+      background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .resource-mark { grid-row: 1 / 3; color: var(--gold); font-size: 1rem; text-align: left; }
+    .resource strong { color: var(--ivory); font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+    .resource small { color: var(--muted); font-size: 0.62rem; letter-spacing: 0.07em; text-transform: uppercase; }
+    #objective-chip {
+      min-width: 126px; padding: 6px 10px; border-left: 1px solid rgba(233, 190, 112, 0.28);
+    }
+    #objective-chip strong { display: block; margin-top: 2px; color: var(--gold-bright); font-size: 0.86rem; }
+    #fps {
+      justify-self: end; min-width: 58px; min-height: 46px; border-radius: 13px;
+      display: grid; place-content: center; text-align: center; color: var(--teal);
+      background: rgba(13, 32, 35, 0.78); border: 1px solid rgba(88, 225, 212, 0.42);
+      font: 700 0.92rem/1 ui-monospace, "SFMono-Regular", Menlo, monospace;
+    }
+    #fps small { display: block; margin-bottom: 4px; color: rgba(88, 225, 212, 0.68); font: 650 0.55rem/1 -apple-system, sans-serif; letter-spacing: 0.1em; }
+    #mission-ribbon {
+      position: absolute; top: calc(var(--safe-top) + 76px); left: 50%; transform: translateX(-50%);
+      min-height: 42px; max-width: min(460px, calc(100vw - 36px)); padding: 7px 14px; border-radius: 13px;
+      display: flex; align-items: center; gap: 10px; white-space: nowrap;
+    }
+    #mission-ribbon strong { font-size: 0.88rem; }
+    #mission-ribbon .divider { width: 1px; height: 20px; background: rgba(233, 190, 112, 0.25); }
+    #bridge-count { color: var(--muted); font-size: 0.72rem; }
+    #selection-card {
+      position: absolute; left: var(--safe-left); bottom: var(--safe-bottom); width: min(270px, 27vw);
+      min-height: 104px; padding: 12px 14px; border-radius: 17px;
+    }
+    #selection-card .selection-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    #selection-count { margin: 4px 0 0; color: var(--ivory); font-size: 1.05rem; }
+    #selection-copy { margin: 4px 0 10px; color: var(--muted); font-size: 0.72rem; }
+    .health-line { display: flex; align-items: center; gap: 8px; }
+    .health-track { flex: 1; height: 5px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,0.08); }
+    .health-track span { display: block; width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--teal), #baf7d9); }
+    #base-state { color: var(--teal); font-size: 0.66rem; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; }
+    #command-dock {
+      position: absolute; pointer-events: auto; left: 50%; bottom: var(--safe-bottom); transform: translateX(-50%);
+      width: min(392px, 40vw); min-height: 84px; padding: 8px; border-radius: 20px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;
+    }
+    .command-button {
+      position: relative; min-width: 0; min-height: 66px; margin: 0; padding: 7px 6px 6px;
+      border-radius: 14px; cursor: pointer; color: var(--ivory); background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(233, 190, 112, 0.24); touch-action: manipulation;
+      display: grid; grid-template-columns: 28px 1fr; grid-template-rows: auto auto; column-gap: 6px;
+      align-content: center; text-align: left; transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+    .command-button:hover { background: rgba(233, 190, 112, 0.12); border-color: rgba(233, 190, 112, 0.62); }
+    .command-button:active { transform: scale(0.97); }
+    .command-button:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+    .command-button:disabled { opacity: 0.38; cursor: default; transform: none; }
+    .command-icon { grid-row: 1 / 3; align-self: center; color: var(--gold); font-size: 1.35rem; text-align: center; }
+    .command-label { align-self: end; font-size: 0.8rem; font-weight: 720; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .command-detail { align-self: start; color: var(--muted); font-size: 0.62rem; }
+    .command-key {
+      position: absolute; top: 5px; right: 6px; min-width: 16px; padding: 2px 4px; border-radius: 4px;
+      color: rgba(245, 238, 223, 0.5); background: rgba(0, 0, 0, 0.24); font-size: 0.52rem; text-align: center;
+    }
+    #help-panel {
+      position: absolute; pointer-events: auto; left: 50%; bottom: calc(var(--safe-bottom) + 98px);
+      transform: translateX(-50%); width: min(430px, calc(100vw - 36px)); padding: 14px 16px; border-radius: 18px;
+    }
+    #help-panel[hidden] { display: none; }
+    .help-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .help-head strong { font-size: 1rem; }
+    #close-help {
+      width: 44px; height: 44px; border-radius: 12px; cursor: pointer; color: var(--ivory);
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+    }
+    .help-steps { margin: 10px 0 4px; padding: 0; list-style: none; counter-reset: help; display: grid; gap: 8px; }
+    .help-steps li { counter-increment: help; display: grid; grid-template-columns: 24px 1fr; gap: 8px; color: var(--muted); }
+    .help-steps li::before {
+      content: counter(help); width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+      color: var(--ink); background: var(--gold); font-size: 0.68rem; font-weight: 800;
+    }
+    .touch-copy { display: none; }
     #flare-banner {
-      position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 3;
-      background: rgba(255, 100, 30, 0.88); color: #1a0800; padding: 6px 16px; border-radius: 2px;
-      font-weight: bold; display: none; letter-spacing: 0.06em;
+      position: absolute; top: calc(var(--safe-top) + 126px); left: 50%; transform: translateX(-50%); z-index: 4;
+      background: rgba(255, 121, 45, 0.94); color: #1a0800; padding: 8px 16px; border-radius: 999px;
+      font-weight: 800; display: none; letter-spacing: 0.06em; box-shadow: 0 10px 28px rgba(255, 95, 20, 0.3);
     }
     #minimap-wrap {
-      position: absolute; right: 14px; bottom: 14px; z-index: 3;
-      width: 180px; height: 180px;
-      border: 1px solid #3ecfc0;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.55);
-      background: rgba(8, 10, 20, 0.92);
-      border-radius: 2px; overflow: hidden; cursor: crosshair;
+      position: absolute; right: var(--safe-right); bottom: var(--safe-bottom); z-index: 3;
+      width: clamp(136px, 14vw, 174px); height: clamp(136px, 14vw, 174px);
+      border: 1px solid rgba(88, 225, 212, 0.65);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(233,190,112,0.13);
+      background: rgba(8, 10, 20, 0.9);
+      border-radius: 18px; overflow: hidden; cursor: crosshair;
       touch-action: none; user-select: none;
     }
     #minimap { display: block; width: 100%; height: 100%; }
     #minimap-label {
-      position: absolute; left: 6px; top: 4px; font-size: 10px;
-      color: #3ecfc0; opacity: 0.9; pointer-events: none;
+      position: absolute; left: 10px; top: 8px; font-size: 0.58rem; font-weight: 750; letter-spacing: 0.12em;
+      color: var(--teal); opacity: 0.9; pointer-events: none;
     }
     #toast {
-      position: absolute; bottom: 210px; right: 14px; z-index: 3;
-      background: rgba(8,10,20,0.9); border: 1px solid #5a6a88;
-      padding: 8px 12px; max-width: 260px; display: none;
+      position: absolute; bottom: calc(var(--safe-bottom) + 98px); left: 50%; transform: translateX(-50%); z-index: 5;
+      background: rgba(7, 11, 19, 0.94); border: 1px solid rgba(233, 190, 112, 0.55);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45); padding: 9px 14px; max-width: min(360px, calc(100vw - 36px));
+      border-radius: 12px; display: none; text-align: center;
+    }
+    @media (pointer: coarse) {
+      .touch-copy { display: block; }
+      .pointer-copy { display: none; }
+      .command-key { display: none; }
+    }
+    @media (max-width: 940px) {
+      #top-rail { grid-template-columns: minmax(118px, 0.55fr) minmax(300px, 1.3fr) auto 60px; gap: 8px; }
+      #objective-chip { min-width: 108px; }
+      .resource { padding-inline: 6px; }
+      #selection-card { width: 232px; }
+      #command-dock { width: 350px; }
+    }
+    @media (max-width: 760px) {
+      #top-rail { grid-template-columns: 1fr auto 54px; }
+      .mission-lockup { display: none; }
+      #resource-rail { grid-template-columns: repeat(4, minmax(54px, 1fr)); }
+      #objective-chip { display: none; }
+      .resource small { display: none; }
+      #selection-card { width: 205px; }
+      #command-dock { width: 315px; }
+      .command-detail { display: none; }
+      .command-button { grid-template-columns: 24px 1fr; }
+    }
+    @media (max-height: 650px) {
+      #top-rail { min-height: 56px; }
+      #mission-ribbon { top: calc(var(--safe-top) + 66px); }
+      #selection-card { min-height: 88px; padding-block: 9px; }
+      #command-dock { min-height: 72px; }
+      .command-button { min-height: 56px; }
+      #minimap-wrap { width: 136px; height: 136px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .command-button { transition: none; }
     }
   </style>
 </head>
 <body>
-  <div id="proof-root"></div>
-  <div id="flare-banner">☀ SOLAR FLARE — seek cover on ring fragments</div>
-  <div id="hud">
-    <div><strong>Helios Rift</strong> — The Broken Ring</div>
-    <div id="status">loading…</div>
-    <div id="fps" style="margin-top:4px;color:#3ecfc0;">FPS —</div>
-    <div>
-      <button id="select-all" type="button">select all (P0)</button>
-      <button id="repair-bridge" type="button">repair nearest bridge</button>
-      <button id="show-hints" type="button">AI hints (console)</button>
+  <div id="proof-root" role="application" aria-label="Helios Rift battlefield"></div>
+  <div id="flare-banner" role="alert">SOLAR FLARE · seek cover on the ring</div>
+  <div id="hud" aria-label="Tactical interface">
+    <header id="top-rail" class="hud-surface">
+      <div class="mission-lockup">
+        <span class="eyebrow">Sunfold</span>
+        <strong>Helios Rift</strong>
+        <span>The Broken Ring</span>
+      </div>
+      <div id="resource-rail" aria-label="Resources">
+        <div class="resource" aria-label="Energy">
+          <span class="resource-mark" aria-hidden="true">✦</span><strong id="resource-energy">120</strong><small>Energy</small>
+        </div>
+        <div class="resource" aria-label="Matter">
+          <span class="resource-mark" aria-hidden="true">◆</span><strong id="resource-matter">80</strong><small>Matter</small>
+        </div>
+        <div class="resource" aria-label="Lumen">
+          <span class="resource-mark" aria-hidden="true">☼</span><strong id="resource-lumen">40</strong><small>Lumen</small>
+        </div>
+        <div class="resource" aria-label="Aether">
+          <span class="resource-mark" aria-hidden="true">◉</span><strong id="resource-aether">0</strong><small>Aether</small>
+        </div>
+      </div>
+      <div id="objective-chip">
+        <span class="eyebrow">Solar core</span>
+        <strong id="objective-state">Neutral</strong>
+      </div>
+      <div id="fps" aria-label="Frame rate"><small>FPS</small><span>—</span></div>
+    </header>
+
+    <div id="mission-ribbon" class="hud-surface" aria-label="Current objective">
+      <span class="eyebrow">First light</span><span class="divider" aria-hidden="true"></span>
+      <strong>Secure the Solar Core</strong><span id="bridge-count">4 bridges down</span>
     </div>
-    <div class="hint">
-      Touch: tap a Citizen · double-tap ground to move · drag to pan · pinch to zoom.<br/>
-      Mouse: left-click select · right-click move / gather / repair · wheel zoom · WASD pan.<br/>
-      Capture the <span style="color:#ffa030">solar core</span> · Expand to turquoise islets · Repair broken bridges (gold stubs).
-    </div>
+
+    <section id="selection-card" class="hud-surface" aria-label="Current selection">
+      <div class="selection-heading"><span class="eyebrow">Command</span><span id="base-state">Base healthy</span></div>
+      <h2 id="selection-count">4 units selected</h2>
+      <p id="selection-copy">Tap a unit, then double-tap stable ground.</p>
+      <div class="health-line" aria-label="Civilization Core health">
+        <span class="health-track"><span id="base-health-fill"></span></span>
+        <span class="eyebrow">Core</span>
+      </div>
+    </section>
+
+    <nav id="command-dock" class="hud-surface" aria-label="Tactical commands">
+      <button id="select-all" class="command-button" type="button" aria-keyshortcuts="1" aria-label="Select all 12 local units">
+        <span class="command-icon" aria-hidden="true">◎</span><span class="command-label">Select all</span>
+        <span class="command-detail">All 12 units</span><span class="command-key" aria-hidden="true">1</span>
+      </button>
+      <button id="repair-bridge" class="command-button" type="button" aria-keyshortcuts="2" aria-label="Repair the nearest bridge for 50 Energy">
+        <span class="command-icon" aria-hidden="true">⌁</span><span class="command-label">Repair</span>
+        <span class="command-detail">Nearest · 50 Energy</span><span class="command-key" aria-hidden="true">2</span>
+      </button>
+      <button id="show-hints" class="command-button" type="button" aria-keyshortcuts="H" aria-expanded="false" aria-controls="help-panel" aria-label="Open or close the field guide">
+        <span class="command-icon" aria-hidden="true">?</span><span class="command-label">Guide</span>
+        <span class="command-detail">How to advance</span><span class="command-key" aria-hidden="true">H</span>
+      </button>
+    </nav>
+
+    <aside id="help-panel" class="hud-surface" aria-label="How to advance" hidden>
+      <div class="help-head"><div><span class="eyebrow">Field guide</span><br/><strong>Reach the Solar Core</strong></div><button id="close-help" type="button" aria-label="Close field guide">Close</button></div>
+      <ol class="help-steps touch-copy">
+        <li>Tap one unit, or use Select group.</li><li>Double-tap stable ground to move.</li>
+        <li>Repair a gold bridge when your group is near it.</li><li>Move onto the Solar Core and hold the ring.</li>
+      </ol>
+      <ol class="help-steps pointer-copy">
+        <li>Left-click units, or use Select group.</li><li>Right-click stable ground to move.</li>
+        <li>Repair a gold bridge when your group is near it.</li><li>Move onto the Solar Core and hold the ring.</li>
+      </ol>
+    </aside>
+
+    <div id="status" class="sr-only" aria-live="polite">loading…</div>
   </div>
-  <div id="toast"></div>
-  <div id="minimap-wrap" title="Click or drag to pan camera">
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="minimap-wrap" title="Tap or drag to pan the camera" aria-label="Tactical map">
     <canvas id="minimap" width="180" height="180"></canvas>
-    <div id="minimap-label">HELIOS RIFT</div>
+    <div id="minimap-label">TACTICAL MAP</div>
   </div>
   <script src="./helios-rift-proof.bundle.js"></script>
 </body>

@@ -36,8 +36,24 @@ const HELIOS_CAMERA = Object.freeze({
 const root = document.getElementById("proof-root");
 const status = document.getElementById("status");
 const fpsEl = document.getElementById("fps");
+const fpsValueEl = fpsEl?.querySelector("span") ?? null;
 const flareBanner = document.getElementById("flare-banner");
 const toastEl = document.getElementById("toast");
+const resourceEnergyEl = document.getElementById("resource-energy");
+const resourceMatterEl = document.getElementById("resource-matter");
+const resourceLumenEl = document.getElementById("resource-lumen");
+const resourceAetherEl = document.getElementById("resource-aether");
+const objectiveStateEl = document.getElementById("objective-state");
+const bridgeCountEl = document.getElementById("bridge-count");
+const selectionCountEl = document.getElementById("selection-count");
+const selectionCopyEl = document.getElementById("selection-copy");
+const baseStateEl = document.getElementById("base-state");
+const baseHealthFillEl = document.getElementById("base-health-fill");
+const selectAllButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("select-all"));
+const repairBridgeButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("repair-bridge"));
+const showHintsButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("show-hints"));
+const helpPanel = document.getElementById("help-panel");
+const closeHelpButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("close-help"));
 
 const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: "high-performance" });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -566,14 +582,14 @@ function finishTouchTap(ev) {
 window.addEventListener("pointerup", finishTouchTap);
 window.addEventListener("pointercancel", finishTouchTap);
 
-document.getElementById("select-all")?.addEventListener("click", () => {
+selectAllButton?.addEventListener("click", () => {
   for (const c of citizens) {
     if (c.playerId === LOCAL_PLAYER) setSelected(c, true);
   }
   updateStatus();
 });
 
-document.getElementById("repair-bridge")?.addEventListener("click", () => {
+repairBridgeButton?.addEventListener("click", () => {
   const sel = citizens.find((c) => c.selected && c.playerId === LOCAL_PLAYER);
   const p = sel?.unit.group.position ?? camCtrl.target;
   const bridge = nearestBrokenBridge(p.x, p.z);
@@ -584,9 +600,41 @@ document.getElementById("repair-bridge")?.addEventListener("click", () => {
   else showToast("No broken bridge in range");
 });
 
-document.getElementById("show-hints")?.addEventListener("click", () => {
-  console.log("AI Hints:", mapWorld.getFreshAIHints());
-  showToast("AI hints logged to console");
+function setHelpOpen(open, restoreFocus = false) {
+  if (!helpPanel || !showHintsButton) return;
+  helpPanel.hidden = !open;
+  showHintsButton.setAttribute("aria-expanded", String(open));
+  if (open) {
+    console.log("AI Hints:", mapWorld.getFreshAIHints());
+    closeHelpButton?.focus({ preventScroll: true });
+  } else if (restoreFocus) {
+    showHintsButton.focus({ preventScroll: true });
+  }
+}
+
+showHintsButton?.addEventListener("click", () => {
+  setHelpOpen(helpPanel?.hidden ?? true);
+});
+
+closeHelpButton?.addEventListener("click", () => setHelpOpen(false, true));
+
+window.addEventListener("keydown", (event) => {
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
+  const target = /** @type {HTMLElement | null} */ (event.target);
+  if (target instanceof HTMLElement && target.matches("input, textarea, select, [contenteditable='true']")) return;
+  if (event.key === "1") {
+    event.preventDefault();
+    selectAllButton?.click();
+  } else if (event.key === "2" && !repairBridgeButton?.disabled) {
+    event.preventDefault();
+    repairBridgeButton?.click();
+  } else if (event.key.toLowerCase() === "h") {
+    event.preventDefault();
+    showHintsButton?.click();
+  } else if (event.key === "Escape" && helpPanel && !helpPanel.hidden) {
+    event.preventDefault();
+    setHelpOpen(false, true);
+  }
 });
 
 // Minimap
@@ -699,13 +747,59 @@ function drawMinimap() {
 }
 
 function updateStatus() {
-  const sel = citizens.filter((c) => c.selected).length;
-  const p0 = citizens.filter((c) => c.playerId === LOCAL_PLAYER).length;
+  const localUnits = citizens.filter((c) => c.playerId === LOCAL_PLAYER);
+  const selectedLocal = localUnits.filter((c) => c.selected);
+  const sel = selectedLocal.length;
+  const p0 = localUnits.length;
   const core = mapWorld.objectives[0];
   const coreOwner = core?.controllingPlayer;
   const flare = mapWorld.hazards.find((h) => h.type === "solar_flare" && h.active);
   const brokenBridges = [...mapWorld.bridgeStates.entries()].filter(([, v]) => !v).length;
-  const baseState = buildings[0]?.visual.state ?? "loading";
+  const coreBuilding = buildings[0];
+  const baseState = coreBuilding?.visual.state ?? "loading";
+  const baseLifeRatio = coreBuilding ? coreBuilding.life / coreBuilding.maxLife : 0;
+
+  if (resourceEnergyEl) resourceEnergyEl.textContent = String(playerStock.energy_materials);
+  if (resourceMatterEl) resourceMatterEl.textContent = String(playerStock.matter);
+  if (resourceLumenEl) resourceLumenEl.textContent = String(playerStock.lumen);
+  if (resourceAetherEl) resourceAetherEl.textContent = String(playerStock.aether);
+  if (objectiveStateEl) {
+    objectiveStateEl.textContent = coreOwner == null
+      ? "Neutral"
+      : coreOwner === LOCAL_PLAYER ? "Secured" : `Held by P${coreOwner}`;
+  }
+  if (bridgeCountEl) {
+    bridgeCountEl.textContent = `${brokenBridges} bridge${brokenBridges === 1 ? "" : "s"} down`;
+  }
+  if (selectionCountEl) {
+    selectionCountEl.textContent = sel === 0
+      ? "No units selected"
+      : `${sel} unit${sel === 1 ? "" : "s"} selected`;
+  }
+  if (selectionCopyEl) {
+    const activities = [...new Set(selectedLocal.map((unit) => unit.activity))];
+    selectionCopyEl.textContent = sel === 0
+      ? "Tap a unit, then double-tap stable ground."
+      : `${sel} of ${p0} ready · ${activities.join(" + ") || "idle"}`;
+  }
+  if (baseStateEl) baseStateEl.textContent = `Base ${baseState}`;
+  if (baseHealthFillEl) {
+    baseHealthFillEl.style.width = `${Math.max(0, Math.min(1, baseLifeRatio)) * 100}%`;
+    baseHealthFillEl.style.background = baseLifeRatio > 0.5
+      ? "linear-gradient(90deg, #58e1d4, #baf7d9)"
+      : baseLifeRatio > 0.25 ? "linear-gradient(90deg, #e9be70, #ffda73)" : "#ff765d";
+  }
+  if (repairBridgeButton) {
+    repairBridgeButton.disabled = sel === 0 || playerStock.energy_materials < BRIDGE_REPAIR_COST;
+    repairBridgeButton.title = sel === 0
+      ? "Select at least one unit first"
+      : playerStock.energy_materials < BRIDGE_REPAIR_COST
+        ? `Need ${BRIDGE_REPAIR_COST} Energy`
+        : `Repair the nearest bridge for ${BRIDGE_REPAIR_COST} Energy`;
+  }
+  const selectAllDetail = selectAllButton?.querySelector(".command-detail");
+  if (selectAllDetail) selectAllDetail.textContent = `All ${p0} units`;
+
   status.textContent =
     `P0: ${p0} Citizens · selected=${sel} · core=${coreOwner === null ? "neutral" : `P${coreOwner}`} · ` +
     `bridges down=${brokenBridges} · base=${baseState} · stock energy=${playerStock.energy_materials} · ` +
@@ -782,7 +876,8 @@ function frame(now) {
     lastFps = Math.round((fpsFrames * 1000) / (now - fpsWindowStart));
     fpsFrames = 0;
     fpsWindowStart = now;
-    if (fpsEl) fpsEl.textContent = `FPS ${lastFps}`;
+    if (fpsValueEl) fpsValueEl.textContent = String(lastFps);
+    else if (fpsEl) fpsEl.textContent = `FPS ${lastFps}`;
   }
 
   camCtrl.tick(dt);
