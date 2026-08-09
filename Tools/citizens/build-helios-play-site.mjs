@@ -14,8 +14,13 @@ const runtime = resolve(toolsDir, '../../ThreeRuntime');
 const site = resolve(toolsDir, '../../Docs/QA/helios-rift-play/site');
 const atlasDir = resolve(site, 'sprites/village-manbun-wanderer');
 
-execSync('npm run build:labs', { cwd: runtime, stdio: 'inherit' });
+execSync(`npm run build:labs`, { cwd: runtime, stdio: 'inherit' });
 await mkdir(atlasDir, { recursive: true });
+
+await copyFile(
+  resolve(toolsDir, '../../Docs/QA/helios-rift-play/robots.txt'),
+  resolve(site, 'robots.txt'),
+);
 
 await copyFile(
   resolve(runtime, 'assets/citizens/helios-rift-proof.html'),

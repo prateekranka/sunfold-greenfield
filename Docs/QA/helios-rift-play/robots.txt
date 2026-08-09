@@ -1,0 +1,19 @@
+# Sunfold — Helios Rift (The Broken Ring) — public proof build
+# All crawlers welcome; AI review/grounding allowed; training not granted.
+
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+Content-Signal: search=yes, ai-input=yes, ai-train=no, use=reference
