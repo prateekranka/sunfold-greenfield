@@ -116,7 +116,7 @@ Do not add new gameplay systems during that visual correction.
 
 ## Cycle 02 — native touch gameplay gate · 2026-08-09
 
-Status: **Done locally; dev deployment pending**
+Status: **Done and deployed**
 
 ### Player-visible correction
 
@@ -165,9 +165,20 @@ Status: **Done locally; dev deployment pending**
 - Per-second OCR samples: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/ipados-26-5-fps-ocr-samples-r2.txt`
 - Touch-camera tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/touch-camera-tests.stdout.txt`
 - Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-cycle-02-touch.stdout.txt`
+- Hosted frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-02-fps60-r2.png`
+- Deploy output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/deploy-cycle-02.stdout.txt`
+- Hosted bundle hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-02-bundle-hashes.txt`
+
+### Dev delivery
+
+- Commit `5e94a46` is visible on `origin/main`.
+- Worker version `539e004a-b016-44d9-9c5e-1a23ee0ee914` serves the checkpoint only at
+  `dev.helios.contenthelper.in`.
+- Hosted and local Helios bundle SHA-256 values both equal
+  `1e9c59b7940bd36a4d6b3217c07519162bbeedb177cf7cee25dbcc799f6d7219`.
+- A clean hosted reload showed 12 Citizens, FPS 60, and no browser exception.
 
 ### Next cycle
 
-Commit, push, deploy, and verify this native touch checkpoint on the dev host. Then resume
-the authored fragment geometry and material-breakup correction. Do not add another gameplay
-system during that visual cycle.
+Resume the authored fragment geometry and material-breakup correction. Do not add another
+gameplay system during that visual cycle.

@@ -39,8 +39,11 @@ minimap.
 - The hosted Helios bundle SHA-256 is
   `3ba75808df82521d00dd082a6c175b6aa3dbd3258f9cce8cf309aaf7c0e9ae8c`, identical to
   the local site artifact. The hosted render showed 12 units, FPS 60, and no startup error.
-- The native-touch checkpoint has passed local iPadOS 26.5 proof. Its dev deployment is the
-  next delivery action.
+- Native-touch commit `5e94a46` is deployed only to `dev.helios.contenthelper.in` as Worker
+  version `539e004a-b016-44d9-9c5e-1a23ee0ee914`.
+- Its hosted and local Helios bundle SHA-256 values both equal
+  `1e9c59b7940bd36a4d6b3217c07519162bbeedb177cf7cee25dbcc799f6d7219`. A clean hosted
+  reload showed 12 Citizens, FPS 60, the touch hint, and no browser exception.
 
 ### Proof pending
 
