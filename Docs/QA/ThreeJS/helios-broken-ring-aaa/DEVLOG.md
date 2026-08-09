@@ -322,7 +322,7 @@ Keep capture rules, pathing, fragment geometry, resource islets, starfield, and 
 
 ## Cycle 05 — molten solar objective · 2026-08-10
 
-Status: **Done locally; dev delivery pending**
+Status: **Done and deployed**
 
 ### Reference defect
 
@@ -378,6 +378,18 @@ Status: **Done locally; dev delivery pending**
 The objective is materially closer to the reference, but it is not a blind-match result.
 Its fissure cells remain larger and its plasma less turbulent. The full map still lacks the
 reference's large crystal islets, debris density, and nebula depth.
+
+### Dev delivery
+
+- Commit `b97a3ce` is visible on `origin/main`.
+- Worker version `7910078f-a95f-4195-a3a0-8e1b8604a552` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-05&v=b97a3ce`.
+- The committed bundle, deploy-site bundle, and hosted bundle SHA-256 values all equal
+  `45bdbeeb23398b583bc96282ee49eef7185992767b38b968d38399e15a2599b3`.
+- A clean hosted load showed the molten objective, 12 Citizens, FPS 60, and no startup error.
+- Hosted frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-05-fps60.jpg`
+- Hosted bundle hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-05-bundle-hashes.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/deploy-cycle-05.stdout.txt`
 
 ### Next cycle
 

@@ -72,6 +72,11 @@ minimap.
 - Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
   `64590a5a627ad4100aae2827f3007eb7c6e0c2e57b8db7f570ba2af120f2d018`. The hosted
   frame showed the four detailed ring sectors, 12 Citizens, FPS 60, and no startup error.
+- Molten-core commit `b97a3ce` is deployed only to `dev.helios.contenthelper.in` as Worker
+  version `7910078f-a95f-4195-a3a0-8e1b8604a552`.
+- Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `45bdbeeb23398b583bc96282ee49eef7185992767b38b968d38399e15a2599b3`. The hosted
+  frame showed the molten core, 12 Citizens, FPS 60, and no startup error.
 
 ### Proof pending
 
