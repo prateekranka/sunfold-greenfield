@@ -7,7 +7,7 @@
 import { copyFile, mkdir } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 
 const toolsDir = resolve(dirname(fileURLToPath(import.meta.url)));
 const runtime = resolve(toolsDir, '../../ThreeRuntime');
@@ -18,7 +18,13 @@ const site = resolve(
 const citizenAtlasDir = resolve(site, 'sprites/village-manbun-wanderer');
 const guardAtlasDir = resolve(site, 'sprites/lumen-guard');
 
-execSync(`npm run build:labs`, { cwd: runtime, stdio: 'inherit' });
+// Build only the deployed Helios entry. Other lab bundles can carry valuable
+// dirty work from parallel checkpoints and must not be regenerated here.
+execFileSync(
+  process.execPath,
+  [resolve(runtime, 'scripts/build-labs.mjs'), '--only', 'helios-rift-proof'],
+  { cwd: runtime, stdio: 'inherit' },
+);
 await mkdir(citizenAtlasDir, { recursive: true });
 await mkdir(guardAtlasDir, { recursive: true });
 
