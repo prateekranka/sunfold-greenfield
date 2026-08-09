@@ -395,3 +395,73 @@ reference's large crystal islets, debris density, and nebula depth.
 
 Land units have been observed traversing and stopping in open void. Reproduce that path and
 enforce legal platform and bridge movement before adding buildings, training, or HUD systems.
+
+## Cycle 06 — land-unit void exclusion · 2026-08-10
+
+Status: **Done locally; dev delivery pending**
+
+### Player-visible defect
+
+- The command plane accepted taps anywhere, including open space.
+- A failed graph search returned the raw destination as a direct path.
+- Resource and objective nodes were disconnected from their platforms.
+- Bridge paths jumped from a platform center to a bridge midpoint instead of following the
+  rendered approach and deck.
+- A flare disabled repaired core bridges but did not restore them after the flare ended.
+
+### Gameplay correction
+
+- Added one ground rule for annular fragments, circular platforms, and physically repaired
+  bridges.
+- Open-void commands now stop immediately with `Land units need stable ground`.
+- Disconnected expansion islets now report that transport is required.
+- A graph search with no route returns no path. It cannot fall back to a straight void line.
+- Path graph bridges now use approach, midpoint, and exit nodes aligned with rendered bridge
+  endpoints.
+- Every complete path is sampled against the ground rule before movement starts.
+- Every movement step checks the same rule and stops before an invalid position.
+- Formation slots near an edge move to nearby ground. The 12-unit group uses 12 unique slots.
+- Flare locks now restore the physical repaired state when the flare ends.
+
+### Rendered proof
+
+- A real right-click at world point `(-10, -10)` produced the stable-ground message.
+- All 12 selected units kept empty paths and remained on valid ground.
+- A second real right-click moved all 12 units from the north fragment, over the enabled north
+  core bridge, and onto the core platform.
+- The arrival used 12 unique formation slots. Every unit finished on valid ground.
+- A forced flare disabled both repaired core routes. Ending it restored both routes.
+
+### Frame-rate gate
+
+- The valid 12-unit bridge route sampled 600 rendered frames in 9.9906 seconds.
+- Average frame rate was 60.056 FPS.
+- Frame time was 16.8 ms p95, 17.6 ms p99, and 17.7 ms maximum.
+- No frame exceeded 20 ms or 33.34 ms.
+- The probe checked every local unit on every frame: 7,200 checks and zero invalid samples.
+- Per user direction, no additional iPad touch check was run.
+
+### Focused checks
+
+- `node --test tests/ground-navigation.test.js` — 5 of 5 passed.
+- Scoped syntax checks for the five changed source modules — passed.
+- Targeted Helios esbuild — passed without rewriting unrelated dirty lab bundles.
+- Real in-app Browser void rejection, valid bridge route, flare recovery, and 60 FPS gate —
+  passed.
+- Scoped `git diff --check` — passed before the checkpoint commit.
+
+### Evidence
+
+- Void rejection frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-06-void-command-rejected-final.jpg`
+- Void result: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-06-void-command-result-final.json`
+- Valid arrival frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-06-valid-bridge-arrival-fps60-stable.jpg`
+- Active route metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-06-land-route-performance-final-10s.json`
+- Flare route recovery: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-06-flare-bridge-restore-final.json`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-06-ground-navigation-tests-final.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-cycle-06-land-legality-final.stdout.txt`
+
+### Next cycle
+
+Build a coherent Sunwoven 3D kit in Blender: Civilization Core, Farm, and Formation Yard.
+Each building needs healthy, damaged, critical, and destroyed reads at the gameplay camera.
+Do not combine the model kit with the iPad-first construction and training HUD.

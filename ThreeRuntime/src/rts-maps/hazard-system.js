@@ -76,3 +76,21 @@ export function getDisabledBridgesDuringFlare(hazards, pathGraph) {
   if (Array.isArray(disabled)) return disabled;
   return [];
 }
+
+/**
+ * Apply temporary hazard availability without changing a bridge's repaired state.
+ *
+ * @param {HazardState} hazard
+ * @param {boolean} active
+ * @param {import('./path-graph.js').PathGraph} pathGraph
+ * @param {Map<string, boolean>} bridgeStates
+ */
+export function applyHazardBridgeAvailability(hazard, active, pathGraph, bridgeStates) {
+  if (hazard.type !== "solar_flare") return;
+  const affected = hazard.params.disableBridgeIds;
+  if (!Array.isArray(affected)) return;
+  for (const bridgeId of affected) {
+    const physicallyEnabled = bridgeStates.get(bridgeId) ?? false;
+    pathGraph.setBridgeEnabled(bridgeId, active ? false : physicallyEnabled);
+  }
+}

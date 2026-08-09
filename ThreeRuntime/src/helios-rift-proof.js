@@ -349,33 +349,41 @@ function nearestResource(x, z) {
 
 function orderMoveSelected(x, z, gatherRes = null, repairBridge = null) {
   const selected = citizens.filter((c) => c.selected && c.playerId === LOCAL_PLAYER);
-  if (!selected.length) return;
+  if (!selected.length) return 0;
 
+  if (repairBridge) {
+    if (playerStock.energy_materials < BRIDGE_REPAIR_COST) {
+      showToast("Need 50 energy_materials to repair bridge");
+      return 0;
+    }
+    playerStock.energy_materials -= BRIDGE_REPAIR_COST;
+    mapWorld.repairBridge(repairBridge.id);
+    showToast(`Bridge ${repairBridge.id} repaired (−${BRIDGE_REPAIR_COST} energy)`);
+  }
+
+  let ordered = 0;
+  const columns = Math.ceil(Math.sqrt(selected.length));
+  const rows = Math.ceil(selected.length / columns);
   for (let i = 0; i < selected.length; i += 1) {
     const c = selected[i];
-    const ox = (i % 3 - 1) * 1.2;
-    const oz = (Math.floor(i / 3) % 3 - 1) * 1.2;
-    const tx = x + ox;
-    const tz = z + oz;
+    const ox = (i % columns - (columns - 1) * 0.5) * 1.2;
+    const oz = (Math.floor(i / columns) - (rows - 1) * 0.5) * 1.2;
+    const slot = mapWorld.nearestWalkablePoint(x + ox, z + oz, 2.4);
+    if (!slot) continue;
     const p = c.unit.group.position;
-    c.path = mapWorld.pathGraph.findPath(p.x, p.z, tx, tz);
+    const path = mapWorld.findGroundPath(p.x, p.z, slot.x, slot.z);
+    if (!path.length) continue;
+    c.path = path;
     c.pathIdx = 0;
     c.gatherTarget = gatherRes?.id ?? null;
     c.activity = gatherRes ? "gather" : repairBridge ? "build" : "walk";
     c.unit.playbackSpeed = 1;
     const clip = c.activity === "gather" ? "gather" : c.activity === "build" ? "build" : "walk";
     if (c.unit.clip !== clip) c.unit.setState(clip).catch(console.error);
+    ordered += 1;
   }
 
-  if (repairBridge) {
-    if (playerStock.energy_materials >= BRIDGE_REPAIR_COST) {
-      playerStock.energy_materials -= BRIDGE_REPAIR_COST;
-      mapWorld.repairBridge(repairBridge.id);
-      showToast(`Bridge ${repairBridge.id} repaired (−${BRIDGE_REPAIR_COST} energy)`);
-    } else {
-      showToast("Need 50 energy_materials to repair bridge");
-    }
-  }
+  return ordered;
 }
 
 function issueGroundCommand(clientX, clientY) {
@@ -384,13 +392,24 @@ function issueGroundCommand(clientX, clientY) {
   const res = nearestResource(hit.x, hit.z);
   const bridge = nearestBrokenBridge(hit.x, hit.z);
   if (res && Math.hypot(hit.x - res.position.x, hit.z - res.position.z) < GATHER_RANGE + 2) {
-    orderMoveSelected(res.position.x, res.position.z, res);
-    showToast(`Gather ${res.kind} @ ${res.id}`);
+    const ordered = orderMoveSelected(res.position.x, res.position.z, res);
+    showToast(
+      ordered > 0
+        ? `Gather ${res.kind} @ ${res.id}`
+        : "No land route — this islet requires transport"
+    );
   } else if (bridge) {
     const midpoint = bridgeMidpoint(bridge);
     orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
   } else {
-    orderMoveSelected(hit.x, hit.z);
+    if (!mapWorld.isWalkable(hit.x, hit.z)) {
+      showToast("Land units need stable ground");
+      updateStatus();
+      return;
+    }
+    if (orderMoveSelected(hit.x, hit.z) === 0) {
+      showToast("No safe land route");
+    }
   }
   updateStatus();
 }
@@ -668,8 +687,17 @@ function advanceCitizen(c, dt) {
     } else {
       const step = MOVE_SPEED * dt;
       const s = Math.min(step, dist);
-      p.x += (dx / dist) * s;
-      p.z += (dz / dist) * s;
+      const nextX = p.x + (dx / dist) * s;
+      const nextZ = p.z + (dz / dist) * s;
+      if (!mapWorld.isWalkable(nextX, nextZ)) {
+        c.path = [];
+        c.pathIdx = 0;
+        c.activity = "idle";
+        c.unit.freezeStanding(0).catch(console.error);
+        return;
+      }
+      p.x = nextX;
+      p.z = nextZ;
       c.unit.setYaw(Math.atan2(dx, dz));
     }
   }

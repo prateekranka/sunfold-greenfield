@@ -19,6 +19,8 @@ minimap.
   sectors.
 - A deterministic warped plasma texture, bright solar limb, annular halo, rotating glare,
   and 64 additive sparks for the central objective.
+- A pure ground-navigation contract and five focused tests covering void rejection, authored
+  bridge routes, disconnected islets, edge-safe formation slots, and flare route recovery.
 
 ### Changed
 
@@ -44,6 +46,10 @@ minimap.
 - The solar objective is larger and remains animated in neutral and flare states. Its visual
   contract now exposes limb, halo, glare, spark, and separate flare-corona controls without
   changing capture or hazard timing.
+- Path graph routes now use separate bridge approach, crossing, and exit waypoints. Resources
+  and objectives attach to their owning platform. Unreachable graph searches return no path.
+- Twelve-unit movement now uses twelve unique formation slots. Slots near a fragment edge move
+  inward to nearby ground instead of spilling into space.
 
 ### Fixed
 
@@ -53,6 +59,14 @@ minimap.
 - Removed the flat 55-percent corona shell that obscured the plasma texture during a flare.
   The accepted Cycle 05 run included a flare transition and two group orders: 600 frames in
   10.0071 seconds at 59.957 FPS, with 16.8 ms p95, 17.7 ms maximum, and no frame above 20 ms.
+- Land units no longer accept destinations in open void or use a straight-line fallback when
+  no graph route exists. Every path segment and runtime movement step now fails closed against
+  the same authored platform and repaired-bridge rule.
+- Solar-flare bridge locks now restore each bridge's physical repaired state when the flare
+  ends. The old inactive callback returned no affected bridge IDs, leaving valid routes closed.
+- The final Cycle 06 route moved all 12 selected units through an enabled core bridge. It
+  sampled 600 frames in 9.9906 seconds at 60.056 FPS, with 16.8 ms p95, 17.7 ms maximum,
+  zero frames above 20 ms, and zero invalid ground samples.
 
 ### Dev delivery
 
@@ -95,8 +109,9 @@ minimap.
   gate stayed below 17.8 ms after redundant animation resets were removed.
 - The molten core is a partial reference match. Its fissures remain smoother than the
   reference. The map still lacks substantial crystal islets, dense debris, and nebula depth.
-- Land units can currently traverse and stop in open void. This is the next blocking gameplay
-  correction. Buildings and HUD expansion remain behind that gate.
+- Cycle 06 land legality is validated locally and awaits its isolated development deployment.
+- The current build still uses placeholder bases and a debug HUD. Blender-authored buildings,
+  damage states, and the iPad-first training HUD remain separate checkpoints.
 - Per user direction, Cycle 05 has no additional iPad touch check.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game

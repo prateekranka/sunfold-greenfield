@@ -41,25 +41,63 @@ export class PathGraph {
     for (const r of def.resources) {
       const nid = `res-${r.id}`;
       this.nodes.set(nid, { id: nid, x: r.position.x, z: r.position.z, platformId: r.platformId });
+      const platformId = this.nodes.has(r.platformId)
+        ? r.platformId
+        : nearestPlatformId(def.terrain.platforms, r.position.x, r.position.z);
+      if (platformId) {
+        const platform = this.nodes.get(platformId);
+        this.addEdge(
+          `edge-resource-${r.id}`,
+          platformId,
+          nid,
+          Math.hypot(r.position.x - platform.x, r.position.z - platform.z)
+        );
+      }
     }
 
     for (const o of def.objectives) {
       const nid = `obj-${o.id}`;
       this.nodes.set(nid, { id: nid, x: o.position.x, z: o.position.z });
+      const platformId = nearestPlatformId(def.terrain.platforms, o.position.x, o.position.z);
+      if (platformId) {
+        const platform = this.nodes.get(platformId);
+        this.addEdge(
+          `edge-objective-${o.id}`,
+          platformId,
+          nid,
+          Math.hypot(o.position.x - platform.x, o.position.z - platform.z)
+        );
+      }
     }
 
     for (const b of def.bridges) {
       const { from, to } = getBridgeEndpoints(b);
+      const fromNode = { id: `bridge-from-${b.id}`, x: from.x, z: from.z };
+      const toNode = { id: `bridge-to-${b.id}`, x: to.x, z: to.z };
       const mid = {
         id: `bridge-mid-${b.id}`,
         x: (from.x + to.x) / 2,
         z: (from.z + to.z) / 2
       };
+      this.nodes.set(fromNode.id, fromNode);
+      this.nodes.set(toNode.id, toNode);
       this.nodes.set(mid.id, mid);
-      const len = Math.hypot(to.x - from.x, to.z - from.z);
       const enabled = b.startsEnabled !== false;
-      this.addEdge(`edge-${b.id}-a`, b.fromPlatformId, mid.id, len * 0.5, b.id, enabled);
-      this.addEdge(`edge-${b.id}-b`, mid.id, b.toPlatformId, len * 0.5, b.id, enabled);
+      this.addEdge(
+        `edge-${b.id}-from-approach`,
+        b.fromPlatformId,
+        fromNode.id,
+        Math.hypot(from.x - this.nodes.get(b.fromPlatformId).x, from.z - this.nodes.get(b.fromPlatformId).z)
+      );
+      this.addEdge(
+        `edge-${b.id}-to-approach`,
+        toNode.id,
+        b.toPlatformId,
+        Math.hypot(to.x - this.nodes.get(b.toPlatformId).x, to.z - this.nodes.get(b.toPlatformId).z)
+      );
+      const halfLength = Math.hypot(to.x - from.x, to.z - from.z) * 0.5;
+      this.addEdge(`edge-${b.id}-from-crossing`, fromNode.id, mid.id, halfLength, b.id, enabled);
+      this.addEdge(`edge-${b.id}-to-crossing`, mid.id, toNode.id, halfLength, b.id, enabled);
     }
 
     // Adjacent platform shortcuts along the ring (intra-fragment movement)
@@ -149,7 +187,7 @@ export class PathGraph {
   findPath(fromX, fromZ, toX, toZ) {
     const startId = this.nearestNode(fromX, fromZ);
     const goalId = this.nearestNode(toX, toZ);
-    if (!startId || !goalId) return [{ x: toX, z: toZ }];
+    if (!startId || !goalId) return [];
 
     const goal = this.nodes.get(goalId);
     const h = (id) => {
@@ -197,7 +235,7 @@ export class PathGraph {
       }
     }
 
-    return [{ x: toX, z: toZ }];
+    return [];
   }
 
   /** @returns {Record<string, unknown>} */
@@ -220,4 +258,17 @@ function getBridgeEndpoints(bridge) {
 
 function isCoordinate(point) {
   return Number.isFinite(point?.x) && Number.isFinite(point?.z);
+}
+
+function nearestPlatformId(platforms, x, z) {
+  let nearest = null;
+  let nearestDistance = Number.POSITIVE_INFINITY;
+  for (const platform of platforms) {
+    const distance = Math.hypot(platform.center.x - x, platform.center.z - z);
+    if (distance < nearestDistance) {
+      nearest = platform.id;
+      nearestDistance = distance;
+    }
+  }
+  return nearest;
 }

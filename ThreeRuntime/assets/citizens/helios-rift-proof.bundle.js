@@ -1,5 +1,5 @@
 (() => {
-  // ThreeRuntime/node_modules/three/build/three.core.js
+  // node_modules/three/build/three.core.js
   var REVISION = "178";
   var CullFaceNone = 0;
   var CullFaceBack = 1;
@@ -20347,7 +20347,7 @@
     }
   }
 
-  // ThreeRuntime/node_modules/three/build/three.module.js
+  // node_modules/three/build/three.module.js
   function WebGLAnimation() {
     let context = null;
     let isAnimating = false;
@@ -30411,7 +30411,7 @@ void main() {
     }
   };
 
-  // ThreeRuntime/src/sprites/facing.js
+  // src/sprites/facing.js
   var FACINGS = Object.freeze(["S", "SE", "E", "NE", "N", "NW", "W", "SW"]);
   function yawToFacing(yawRadians) {
     const steps = 8;
@@ -30520,7 +30520,7 @@ void main() {
     return candidate;
   }
 
-  // ThreeRuntime/src/sprites/atlas.js
+  // src/sprites/atlas.js
   function atlasCellUV(atlas, frameWidth, frameHeight, row, column) {
     const repeatX = frameWidth / atlas.width;
     const repeatY = frameHeight / atlas.height;
@@ -30559,7 +30559,7 @@ void main() {
     attr.needsUpdate = true;
   }
 
-  // ThreeRuntime/src/sprites/sprite-unit.js
+  // src/sprites/sprite-unit.js
   var SpriteUnit = class {
     /**
      * @param {SpriteManifest} manifest
@@ -31025,7 +31025,7 @@ void main() {
     }
   };
 
-  // ThreeRuntime/src/sim/types.js
+  // src/sim/types.js
   var RESOURCE_KINDS = Object.freeze(["provisions", "matter", "lumen", "aether"]);
   var FACTIONS = Object.freeze(["sunwoven", "gravemark"]);
   var ACTIVITY_TAGS = Object.freeze([
@@ -31050,7 +31050,7 @@ void main() {
     "dominion"
   ]);
 
-  // ThreeRuntime/src/sim/tuning.js
+  // src/sim/tuning.js
   var TUNING = Object.freeze({
     // MARK: - Starting state
     startingResources: pool({ provisions: 180, matter: 160, lumen: 40, aether: 0 }),
@@ -31165,7 +31165,7 @@ void main() {
     bastionWalker: 0
   });
 
-  // ThreeRuntime/src/rts-camera.js
+  // src/rts-camera.js
   var RTS_CAMERA = Object.freeze({
     /** Degrees above the ground plane (0 = horizon, 90 = top-down). */
     pitchDegrees: TUNING.cameraPitchDegrees,
@@ -31583,7 +31583,7 @@ void main() {
     }
   };
 
-  // ThreeRuntime/src/rts-maps/map-definition.js
+  // src/rts-maps/map-definition.js
   var registry = /* @__PURE__ */ new Map();
   function registerMap(def) {
     if (!def?.id) throw new Error("MapDefinition requires id");
@@ -31595,7 +31595,7 @@ void main() {
     return def;
   }
 
-  // ThreeRuntime/src/rts-maps/maps/helios-rift.js
+  // src/rts-maps/maps/helios-rift.js
   var RING_R = 34;
   var FRAG_R = 11;
   var platforms = [
@@ -31920,7 +31920,7 @@ void main() {
   };
   registerMap(HELIOS_RIFT);
 
-  // ThreeRuntime/src/rts-maps/maps/lumen-basin.stub.js
+  // src/rts-maps/maps/lumen-basin.stub.js
   registerMap({
     id: "lumen-basin",
     name: "Lumen Basin",
@@ -31943,7 +31943,7 @@ void main() {
     }
   });
 
-  // ThreeRuntime/src/rts-maps/maps/orekhar-frontier.stub.js
+  // src/rts-maps/maps/orekhar-frontier.stub.js
   registerMap({
     id: "orekhar-frontier",
     name: "Orekhar Frontier",
@@ -31966,7 +31966,7 @@ void main() {
     }
   });
 
-  // ThreeRuntime/src/rts-maps/path-graph.js
+  // src/rts-maps/path-graph.js
   var PathGraph = class {
     /**
      * @param {import('./map-definition.js').MapDefinition} def
@@ -31985,23 +31985,59 @@ void main() {
       for (const r of def.resources) {
         const nid = `res-${r.id}`;
         this.nodes.set(nid, { id: nid, x: r.position.x, z: r.position.z, platformId: r.platformId });
+        const platformId = this.nodes.has(r.platformId) ? r.platformId : nearestPlatformId(def.terrain.platforms, r.position.x, r.position.z);
+        if (platformId) {
+          const platform = this.nodes.get(platformId);
+          this.addEdge(
+            `edge-resource-${r.id}`,
+            platformId,
+            nid,
+            Math.hypot(r.position.x - platform.x, r.position.z - platform.z)
+          );
+        }
       }
       for (const o of def.objectives) {
         const nid = `obj-${o.id}`;
         this.nodes.set(nid, { id: nid, x: o.position.x, z: o.position.z });
+        const platformId = nearestPlatformId(def.terrain.platforms, o.position.x, o.position.z);
+        if (platformId) {
+          const platform = this.nodes.get(platformId);
+          this.addEdge(
+            `edge-objective-${o.id}`,
+            platformId,
+            nid,
+            Math.hypot(o.position.x - platform.x, o.position.z - platform.z)
+          );
+        }
       }
       for (const b of def.bridges) {
         const { from, to } = getBridgeEndpoints(b);
+        const fromNode = { id: `bridge-from-${b.id}`, x: from.x, z: from.z };
+        const toNode = { id: `bridge-to-${b.id}`, x: to.x, z: to.z };
         const mid = {
           id: `bridge-mid-${b.id}`,
           x: (from.x + to.x) / 2,
           z: (from.z + to.z) / 2
         };
+        this.nodes.set(fromNode.id, fromNode);
+        this.nodes.set(toNode.id, toNode);
         this.nodes.set(mid.id, mid);
-        const len = Math.hypot(to.x - from.x, to.z - from.z);
         const enabled = b.startsEnabled !== false;
-        this.addEdge(`edge-${b.id}-a`, b.fromPlatformId, mid.id, len * 0.5, b.id, enabled);
-        this.addEdge(`edge-${b.id}-b`, mid.id, b.toPlatformId, len * 0.5, b.id, enabled);
+        this.addEdge(
+          `edge-${b.id}-from-approach`,
+          b.fromPlatformId,
+          fromNode.id,
+          Math.hypot(from.x - this.nodes.get(b.fromPlatformId).x, from.z - this.nodes.get(b.fromPlatformId).z)
+        );
+        this.addEdge(
+          `edge-${b.id}-to-approach`,
+          toNode.id,
+          b.toPlatformId,
+          Math.hypot(to.x - this.nodes.get(b.toPlatformId).x, to.z - this.nodes.get(b.toPlatformId).z)
+        );
+        const halfLength = Math.hypot(to.x - from.x, to.z - from.z) * 0.5;
+        this.addEdge(`edge-${b.id}-from-crossing`, fromNode.id, mid.id, halfLength, b.id, enabled);
+        this.addEdge(`edge-${b.id}-to-crossing`, mid.id, toNode.id, halfLength, b.id, enabled);
       }
       this._linkNearbyPlatforms(def, 22);
     }
@@ -32081,7 +32117,7 @@ void main() {
     findPath(fromX, fromZ, toX, toZ) {
       const startId = this.nearestNode(fromX, fromZ);
       const goalId = this.nearestNode(toX, toZ);
-      if (!startId || !goalId) return [{ x: toX, z: toZ }];
+      if (!startId || !goalId) return [];
       const goal = this.nodes.get(goalId);
       const h = (id) => {
         const n = this.nodes.get(id);
@@ -32125,7 +32161,7 @@ void main() {
           }
         }
       }
-      return [{ x: toX, z: toZ }];
+      return [];
     }
     /** @returns {Record<string, unknown>} */
     toJSON() {
@@ -32146,8 +32182,20 @@ void main() {
   function isCoordinate(point) {
     return Number.isFinite(point?.x) && Number.isFinite(point?.z);
   }
+  function nearestPlatformId(platforms2, x, z) {
+    let nearest = null;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const platform of platforms2) {
+      const distance = Math.hypot(platform.center.x - x, platform.center.z - z);
+      if (distance < nearestDistance) {
+        nearest = platform.id;
+        nearestDistance = distance;
+      }
+    }
+    return nearest;
+  }
 
-  // ThreeRuntime/src/rts-maps/terrain-generator.js
+  // src/rts-maps/terrain-generator.js
   var PALETTE = {
     platform: 9075298,
     platformEdge: 12753757,
@@ -33190,7 +33238,7 @@ void main() {
     return hash >>> 0;
   }
 
-  // ThreeRuntime/src/rts-maps/resource-spawner.js
+  // src/rts-maps/resource-spawner.js
   var RESOURCE_COLORS = {
     provisions: 15246141,
     matter: 8031129,
@@ -33239,7 +33287,7 @@ void main() {
     return instances;
   }
 
-  // ThreeRuntime/src/rts-maps/player-spawn-manager.js
+  // src/rts-maps/player-spawn-manager.js
   var PLAYER_COLORS = [5952767, 16738922, 10354538, 16766042];
   function createPlayerSpawns(spawns) {
     return spawns.map((s, i) => ({
@@ -33252,7 +33300,7 @@ void main() {
     }));
   }
 
-  // ThreeRuntime/src/rts-maps/objective-manager.js
+  // src/rts-maps/objective-manager.js
   var solarHaloTexture = null;
   var solarGlareTexture = null;
   var solarSparkTexture = null;
@@ -33627,7 +33675,7 @@ void main() {
     }
   }
 
-  // ThreeRuntime/src/rts-maps/hazard-system.js
+  // src/rts-maps/hazard-system.js
   function createHazards(specs) {
     return specs.map((s) => ({
       id: s.id,
@@ -33664,15 +33712,17 @@ void main() {
     const coverBonus = hazard.params.coverReduction ?? 0.35;
     return (hazard.params.dps ?? 8) * exposure * (1 - coverBonus * 0.5);
   }
-  function getDisabledBridgesDuringFlare(hazards, pathGraph) {
-    const flare = hazards.find((h) => h.type === "solar_flare" && h.active);
-    if (!flare) return [];
-    const disabled = flare.params.disableBridgeIds;
-    if (Array.isArray(disabled)) return disabled;
-    return [];
+  function applyHazardBridgeAvailability(hazard, active, pathGraph, bridgeStates) {
+    if (hazard.type !== "solar_flare") return;
+    const affected = hazard.params.disableBridgeIds;
+    if (!Array.isArray(affected)) return;
+    for (const bridgeId of affected) {
+      const physicallyEnabled = bridgeStates.get(bridgeId) ?? false;
+      pathGraph.setBridgeEnabled(bridgeId, active ? false : physicallyEnabled);
+    }
   }
 
-  // ThreeRuntime/src/rts-maps/ai-hints.js
+  // src/rts-maps/ai-hints.js
   function buildAIHints(def, runtime = {}) {
     const hints = structuredClone(def.aiHints);
     if (runtime.pathGraph && hints.preferredAttackRoutes) {
@@ -33690,113 +33740,81 @@ void main() {
     return Object.freeze(hints);
   }
 
-  // ThreeRuntime/src/rts-maps/rts-map-world.js
-  function createRtsMapWorld(mapId, sceneRoot) {
-    const definition = getMapDefinition(mapId);
-    const pathGraph = new PathGraph(definition);
-    const bridgeStates = /* @__PURE__ */ new Map();
-    for (const b of definition.bridges) {
-      const enabled = b.startsEnabled !== false;
-      bridgeStates.set(b.id, enabled);
-      pathGraph.setBridgeEnabled(b.id, enabled);
+  // src/rts-maps/ground-navigation.js
+  function isPointWalkable(definition, bridgeStates, x, z) {
+    if (!Number.isFinite(x) || !Number.isFinite(z)) return false;
+    const half = definition.bounds.halfExtent;
+    if (Math.hypot(x, z) > half + 8) return false;
+    for (const platform of definition.terrain.platforms) {
+      if (!usesCircularPlatformFallback(platform, definition.terrain)) continue;
+      const distance = Math.hypot(x - platform.center.x, z - platform.center.z);
+      if (distance <= platform.radius + 1.5) return true;
     }
-    const { group: terrainGroup, bridgeMeshes } = buildTerrain(definition.terrain, definition.bridges);
-    for (const [id, mesh] of bridgeMeshes) {
-      const spec = definition.bridges.find((b) => b.id === id);
-      mesh.userData.spec = spec;
+    if (isHeliosAnnularWalkable(x, z, definition.terrain)) return true;
+    for (const bridge of definition.bridges) {
+      if (!bridgeStates.get(bridge.id)) continue;
+      const { from, to } = getBridgeEndpoints2(bridge);
+      const midpointX = (from.x + to.x) * 0.5;
+      const midpointZ = (from.z + to.z) * 0.5;
+      const length = Math.hypot(to.x - from.x, to.z - from.z);
+      const width = bridge.visual?.deckWidth ?? bridge.visual?.width ?? 2.2;
+      const distanceToLine = pointToSegmentDistance(x, z, from.x, from.z, to.x, to.z);
+      if (distanceToLine <= Math.max(1.1, width * 0.62) && Math.hypot(x - midpointX, z - midpointZ) <= length * 0.55) return true;
     }
-    sceneRoot.add(terrainGroup);
-    const resources = spawnResources(definition.resources, terrainGroup);
-    const objectives = spawnObjectives(definition.objectives, terrainGroup);
-    const spawns = createPlayerSpawns(definition.spawns);
-    const hazards = createHazards(definition.hazards);
-    const aiHints = buildAIHints(definition, { pathGraph, bridgeStates });
-    return {
-      definition,
-      pathGraph,
-      spawns,
-      resources,
-      objectives,
-      hazards,
-      terrainGroup,
-      bridgeMeshes,
-      bridgeStates,
-      aiHints,
-      /** @param {number} dt */
-      tick(dt, units = []) {
-        tickHazards(this.hazards, dt, (h, active) => {
-          if (h.type === "solar_flare") {
-            const corona = this.objectives[0]?.mesh?.getObjectByName("corona");
-            if (corona?.material) {
-              corona.material.opacity = active ? corona.userData.flareOpacity ?? 0.32 : corona.userData.restingOpacity ?? 0.2;
-            }
-            for (const bridgeId of getDisabledBridgesDuringFlare(this.hazards, this.pathGraph)) {
-              if (active && this.bridgeStates.get(bridgeId)) {
-                this.pathGraph.setBridgeEnabled(bridgeId, false);
-              } else if (!active) {
-                this.pathGraph.setBridgeEnabled(bridgeId, this.bridgeStates.get(bridgeId) ?? false);
-              }
-            }
-          }
-        });
-        const core = this.objectives.find((o) => o.type === "solar_core");
-        const corePos = core?.position ?? { x: 0, z: 0 };
-        for (const u of units) {
-          const dps = this.hazards.reduce((sum, h) => sum + hazardDamageAt(h, u.x, u.z, corePos), 0);
-          if (dps > 0) u.hp = Math.max(0, (u.hp ?? 100) - dps * dt);
-        }
-        if (core) {
-          tickObjectiveCapture(
-            core,
-            dt,
-            units.map((u) => ({ playerId: u.playerId ?? 0, x: u.x, z: u.z }))
-          );
-        }
-      },
-      repairBridge(bridgeId) {
-        if (!this.bridgeStates.has(bridgeId)) return false;
-        this.bridgeStates.set(bridgeId, true);
-        this.pathGraph.setBridgeEnabled(bridgeId, true);
-        const mesh = this.bridgeMeshes.get(bridgeId);
-        if (mesh) setBridgeVisual(mesh, true, PALETTE);
-        return true;
-      },
-      isWalkable(x, z) {
-        const half = this.definition.bounds.halfExtent;
-        if (Math.hypot(x, z) > half + 8) return false;
-        for (const p of this.definition.terrain.platforms) {
-          if (!usesCircularPlatformFallback(p, this.definition.terrain)) continue;
-          const d = Math.hypot(x - p.center.x, z - p.center.z);
-          if (d <= p.radius + 1.5) return true;
-        }
-        if (isHeliosAnnularWalkable(x, z, this.definition.terrain)) return true;
-        for (const b of this.definition.bridges) {
-          if (!this.bridgeStates.get(b.id)) continue;
-          const { from, to } = getBridgeEndpoints2(b);
-          const t = 0.5;
-          const mx = from.x * (1 - t) + to.x * t;
-          const mz = from.z * (1 - t) + to.z * t;
-          const dLine = pointToSegmentDist(x, z, from.x, from.z, to.x, to.z);
-          if (dLine < 2.2 && Math.hypot(x - mx, z - mz) < Math.hypot(to.x - from.x, to.z - from.z) * 0.55) {
-            return true;
-          }
-        }
-        return false;
-      },
-      getFreshAIHints() {
-        return buildAIHints(this.definition, { pathGraph: this.pathGraph, bridgeStates: this.bridgeStates });
-      }
-    };
+    return false;
   }
-  function pointToSegmentDist(px2, pz2, ax, az, bx, bz) {
+  function findWalkablePath(definition, pathGraph, bridgeStates, fromX, fromZ, toX, toZ) {
+    if (!isPointWalkable(definition, bridgeStates, fromX, fromZ)) return [];
+    if (!isPointWalkable(definition, bridgeStates, toX, toZ)) return [];
+    const path = pathGraph.findPath(fromX, fromZ, toX, toZ);
+    if (!path.length) return [];
+    const points = [{ x: fromX, z: fromZ }, ...path];
+    return isPolylineWalkable(definition, bridgeStates, points) ? path : [];
+  }
+  function nearestWalkablePoint(definition, bridgeStates, x, z, maxDistance = 2.4) {
+    if (isPointWalkable(definition, bridgeStates, x, z)) return { x, z };
+    const radialStep = 0.3;
+    const directions = 16;
+    for (let radius = radialStep; radius <= maxDistance + 1e-6; radius += radialStep) {
+      for (let index = 0; index < directions; index += 1) {
+        const angle = index / directions * Math.PI * 2;
+        const candidate = {
+          x: x + Math.cos(angle) * radius,
+          z: z + Math.sin(angle) * radius
+        };
+        if (isPointWalkable(definition, bridgeStates, candidate.x, candidate.z)) return candidate;
+      }
+    }
+    return null;
+  }
+  function isPolylineWalkable(definition, bridgeStates, points, sampleSpacing = 0.55) {
+    if (!Array.isArray(points) || points.length === 0) return false;
+    for (let index = 0; index < points.length; index += 1) {
+      const point = points[index];
+      if (!isPointWalkable(definition, bridgeStates, point.x, point.z)) return false;
+      if (index === 0) continue;
+      const previous = points[index - 1];
+      const distance = Math.hypot(point.x - previous.x, point.z - previous.z);
+      const samples = Math.max(1, Math.ceil(distance / sampleSpacing));
+      for (let sample = 1; sample < samples; sample += 1) {
+        const t = sample / samples;
+        const x = previous.x + (point.x - previous.x) * t;
+        const z = previous.z + (point.z - previous.z) * t;
+        if (!isPointWalkable(definition, bridgeStates, x, z)) return false;
+      }
+    }
+    return true;
+  }
+  function pointToSegmentDistance(px2, pz2, ax, az, bx, bz) {
     const abx = bx - ax;
     const abz = bz - az;
-    const len2 = abx * abx + abz * abz;
-    let t = ((px2 - ax) * abx + (pz2 - az) * abz) / len2;
+    const lengthSquared = abx * abx + abz * abz;
+    if (lengthSquared <= Number.EPSILON) return Math.hypot(px2 - ax, pz2 - az);
+    let t = ((px2 - ax) * abx + (pz2 - az) * abz) / lengthSquared;
     t = Math.max(0, Math.min(1, t));
-    const cx = ax + t * abx;
-    const cz = az + t * abz;
-    return Math.hypot(px2 - cx, pz2 - cz);
+    const closestX = ax + t * abx;
+    const closestZ = az + t * abz;
+    return Math.hypot(px2 - closestX, pz2 - closestZ);
   }
   function getBridgeEndpoints2(bridge) {
     const visualFrom = bridge.visual?.from;
@@ -33843,7 +33861,95 @@ void main() {
     return false;
   }
 
-  // ThreeRuntime/assets/citizens/sprites/village-manbun-wanderer/atlas-manifest.json
+  // src/rts-maps/rts-map-world.js
+  function createRtsMapWorld(mapId, sceneRoot) {
+    const definition = getMapDefinition(mapId);
+    const pathGraph = new PathGraph(definition);
+    const bridgeStates = /* @__PURE__ */ new Map();
+    for (const b of definition.bridges) {
+      const enabled = b.startsEnabled !== false;
+      bridgeStates.set(b.id, enabled);
+      pathGraph.setBridgeEnabled(b.id, enabled);
+    }
+    const { group: terrainGroup, bridgeMeshes } = buildTerrain(definition.terrain, definition.bridges);
+    for (const [id, mesh] of bridgeMeshes) {
+      const spec = definition.bridges.find((b) => b.id === id);
+      mesh.userData.spec = spec;
+    }
+    sceneRoot.add(terrainGroup);
+    const resources = spawnResources(definition.resources, terrainGroup);
+    const objectives = spawnObjectives(definition.objectives, terrainGroup);
+    const spawns = createPlayerSpawns(definition.spawns);
+    const hazards = createHazards(definition.hazards);
+    const aiHints = buildAIHints(definition, { pathGraph, bridgeStates });
+    return {
+      definition,
+      pathGraph,
+      spawns,
+      resources,
+      objectives,
+      hazards,
+      terrainGroup,
+      bridgeMeshes,
+      bridgeStates,
+      aiHints,
+      /** @param {number} dt */
+      tick(dt, units = []) {
+        tickHazards(this.hazards, dt, (h, active) => {
+          if (h.type === "solar_flare") {
+            const corona = this.objectives[0]?.mesh?.getObjectByName("corona");
+            if (corona?.material) {
+              corona.material.opacity = active ? corona.userData.flareOpacity ?? 0.32 : corona.userData.restingOpacity ?? 0.2;
+            }
+            applyHazardBridgeAvailability(h, active, this.pathGraph, this.bridgeStates);
+          }
+        });
+        const core = this.objectives.find((o) => o.type === "solar_core");
+        const corePos = core?.position ?? { x: 0, z: 0 };
+        for (const u of units) {
+          const dps = this.hazards.reduce((sum, h) => sum + hazardDamageAt(h, u.x, u.z, corePos), 0);
+          if (dps > 0) u.hp = Math.max(0, (u.hp ?? 100) - dps * dt);
+        }
+        if (core) {
+          tickObjectiveCapture(
+            core,
+            dt,
+            units.map((u) => ({ playerId: u.playerId ?? 0, x: u.x, z: u.z }))
+          );
+        }
+      },
+      repairBridge(bridgeId) {
+        if (!this.bridgeStates.has(bridgeId)) return false;
+        this.bridgeStates.set(bridgeId, true);
+        this.pathGraph.setBridgeEnabled(bridgeId, true);
+        const mesh = this.bridgeMeshes.get(bridgeId);
+        if (mesh) setBridgeVisual(mesh, true, PALETTE);
+        return true;
+      },
+      isWalkable(x, z) {
+        return isPointWalkable(this.definition, this.bridgeStates, x, z);
+      },
+      findGroundPath(fromX, fromZ, toX, toZ) {
+        return findWalkablePath(
+          this.definition,
+          this.pathGraph,
+          this.bridgeStates,
+          fromX,
+          fromZ,
+          toX,
+          toZ
+        );
+      },
+      nearestWalkablePoint(x, z, maxDistance) {
+        return nearestWalkablePoint(this.definition, this.bridgeStates, x, z, maxDistance);
+      },
+      getFreshAIHints() {
+        return buildAIHints(this.definition, { pathGraph: this.pathGraph, bridgeStates: this.bridgeStates });
+      }
+    };
+  }
+
+  // assets/citizens/sprites/village-manbun-wanderer/atlas-manifest.json
   var atlas_manifest_default = {
     schema: "sunfold.sprite-manifest/1",
     unit: "village-manbun-wanderer",
@@ -33944,7 +34050,7 @@ void main() {
     }
   };
 
-  // ThreeRuntime/assets/citizens/sprites/lumen-guard/atlas-manifest.json
+  // assets/citizens/sprites/lumen-guard/atlas-manifest.json
   var atlas_manifest_default2 = {
     schema: "sunfold.sprite-manifest/1",
     unit: "lumen-guard",
@@ -34029,7 +34135,7 @@ void main() {
     }
   };
 
-  // ThreeRuntime/src/helios-rift-proof.js
+  // src/helios-rift-proof.js
   var MAP_ID = "helios-rift";
   var LOCAL_PLAYER = 0;
   var MOVE_SPEED = 4.2;
@@ -34331,31 +34437,38 @@ void main() {
   }
   function orderMoveSelected(x, z, gatherRes = null, repairBridge = null) {
     const selected = citizens.filter((c) => c.selected && c.playerId === LOCAL_PLAYER);
-    if (!selected.length) return;
+    if (!selected.length) return 0;
+    if (repairBridge) {
+      if (playerStock.energy_materials < BRIDGE_REPAIR_COST) {
+        showToast("Need 50 energy_materials to repair bridge");
+        return 0;
+      }
+      playerStock.energy_materials -= BRIDGE_REPAIR_COST;
+      mapWorld.repairBridge(repairBridge.id);
+      showToast(`Bridge ${repairBridge.id} repaired (\u2212${BRIDGE_REPAIR_COST} energy)`);
+    }
+    let ordered = 0;
+    const columns = Math.ceil(Math.sqrt(selected.length));
+    const rows = Math.ceil(selected.length / columns);
     for (let i = 0; i < selected.length; i += 1) {
       const c = selected[i];
-      const ox = (i % 3 - 1) * 1.2;
-      const oz = (Math.floor(i / 3) % 3 - 1) * 1.2;
-      const tx = x + ox;
-      const tz = z + oz;
+      const ox = (i % columns - (columns - 1) * 0.5) * 1.2;
+      const oz = (Math.floor(i / columns) - (rows - 1) * 0.5) * 1.2;
+      const slot = mapWorld.nearestWalkablePoint(x + ox, z + oz, 2.4);
+      if (!slot) continue;
       const p = c.unit.group.position;
-      c.path = mapWorld.pathGraph.findPath(p.x, p.z, tx, tz);
+      const path = mapWorld.findGroundPath(p.x, p.z, slot.x, slot.z);
+      if (!path.length) continue;
+      c.path = path;
       c.pathIdx = 0;
       c.gatherTarget = gatherRes?.id ?? null;
       c.activity = gatherRes ? "gather" : repairBridge ? "build" : "walk";
       c.unit.playbackSpeed = 1;
       const clip = c.activity === "gather" ? "gather" : c.activity === "build" ? "build" : "walk";
       if (c.unit.clip !== clip) c.unit.setState(clip).catch(console.error);
+      ordered += 1;
     }
-    if (repairBridge) {
-      if (playerStock.energy_materials >= BRIDGE_REPAIR_COST) {
-        playerStock.energy_materials -= BRIDGE_REPAIR_COST;
-        mapWorld.repairBridge(repairBridge.id);
-        showToast(`Bridge ${repairBridge.id} repaired (\u2212${BRIDGE_REPAIR_COST} energy)`);
-      } else {
-        showToast("Need 50 energy_materials to repair bridge");
-      }
-    }
+    return ordered;
   }
   function issueGroundCommand(clientX, clientY) {
     const hit = groundHit(clientX, clientY);
@@ -34363,13 +34476,22 @@ void main() {
     const res = nearestResource(hit.x, hit.z);
     const bridge = nearestBrokenBridge(hit.x, hit.z);
     if (res && Math.hypot(hit.x - res.position.x, hit.z - res.position.z) < GATHER_RANGE + 2) {
-      orderMoveSelected(res.position.x, res.position.z, res);
-      showToast(`Gather ${res.kind} @ ${res.id}`);
+      const ordered = orderMoveSelected(res.position.x, res.position.z, res);
+      showToast(
+        ordered > 0 ? `Gather ${res.kind} @ ${res.id}` : "No land route \u2014 this islet requires transport"
+      );
     } else if (bridge) {
       const midpoint = bridgeMidpoint(bridge);
       orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
     } else {
-      orderMoveSelected(hit.x, hit.z);
+      if (!mapWorld.isWalkable(hit.x, hit.z)) {
+        showToast("Land units need stable ground");
+        updateStatus();
+        return;
+      }
+      if (orderMoveSelected(hit.x, hit.z) === 0) {
+        showToast("No safe land route");
+      }
     }
     updateStatus();
   }
@@ -34607,8 +34729,17 @@ void main() {
       } else {
         const step = MOVE_SPEED * dt;
         const s = Math.min(step, dist);
-        p.x += dx / dist * s;
-        p.z += dz / dist * s;
+        const nextX = p.x + dx / dist * s;
+        const nextZ = p.z + dz / dist * s;
+        if (!mapWorld.isWalkable(nextX, nextZ)) {
+          c.path = [];
+          c.pathIdx = 0;
+          c.activity = "idle";
+          c.unit.freezeStanding(0).catch(console.error);
+          return;
+        }
+        p.x = nextX;
+        p.z = nextZ;
         c.unit.setYaw(Math.atan2(dx, dz));
       }
     }
