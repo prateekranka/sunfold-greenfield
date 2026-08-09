@@ -15,6 +15,8 @@ minimap.
 - Native iPad touch controls: one-finger camera pan, two-finger camera zoom, Citizen tap
   selection, and double-tap ground commands.
 - Focused touch-camera tests for one-finger pan and two-finger pinch behavior.
+- Deterministic deck cracks and instanced fragment-edge armor for all four Broken Ring
+  sectors.
 
 ### Changed
 
@@ -31,6 +33,9 @@ minimap.
   while keeping the void dark.
 - The proof page now owns touch gestures instead of allowing Safari page zoom. Its first-use
   hint names both touch and mouse controls.
+- Each ring fragment now uses four stepped armor bands, six inset deck plates, physical gold
+  edge rails, staggered faceted edge chunks, larger termination sockets, and a darker slab
+  palette. Logical platforms, bridges, pathing, and objectives are unchanged.
 
 ### Dev delivery
 
@@ -55,8 +60,13 @@ minimap.
   samples averaged 59.9767 FPS; 41 read 60, one read 58, and the next read 61. The video is
   recorded at 30 FPS, so this proves the in-game requestAnimationFrame counter, not device
   GPU frame-time percentiles.
-- The map still lacks the reference's layered edge armor, dense deck breakup, cracks,
-  sockets, animated solar plasma, substantial crystal islets, and nebula depth.
+- Cycle 03 normal active play rendered 600 frames in 10 seconds at 60.0 FPS, with 17.1 ms
+  p95, 17.6 ms maximum, and no frame above 20 ms.
+- A first full-group command toward the central objective still produced one 66.6 ms frame.
+  The main walk atlas is decoded at startup but is not GPU-resident until the first movement
+  material switch. Dev deployment is held until that first-use hitch is removed.
+- The map still lacks animated solar plasma, substantial crystal islets, dense debris, and
+  nebula depth.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game
 

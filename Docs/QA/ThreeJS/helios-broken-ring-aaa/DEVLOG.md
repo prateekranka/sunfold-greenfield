@@ -182,3 +182,70 @@ Status: **Done and deployed**
 
 Resume the authored fragment geometry and material-breakup correction. Do not add another
 gameplay system during that visual cycle.
+
+## Cycle 03 — fragment relief and silhouette · 2026-08-09
+
+Status: **Proof Pending; rendered correction is complete, dev deployment is held for the
+first-command frame gate**
+
+### Rendered correction
+
+- Replaced each broad smooth wedge with four stepped inner and outer armor bands.
+- Added 26 instanced, staggered faceted edge chunks per fragment without changing collision
+  or walkable bounds.
+- Split each deck into six inset slabs over a darker seam bed.
+- Added eight deterministic three-segment cracks per fragment.
+- Replaced one-pixel edge accents with physical gold rails.
+- Strengthened both fragment ends with full-width termination braces and larger layered
+  sockets.
+- Kept all logical platform IDs, bridge endpoints, resources, objectives, controls, and
+  navigation unchanged.
+
+### Observed result
+
+- The default gameplay view now shows real slab gaps, crack lines, stepped edge relief, warm
+  rim thickness, and stronger fragment ends.
+- The deck accent cadence was reduced after the first render read as alternating stripes.
+- Rectangular edge modules were replaced after the second render read as mechanical gear
+  teeth rather than worn space architecture.
+- The final geometry contract reports four detailed fragments, 128 instances, 483
+  renderables, and 21,126 source triangles across the complete terrain scene.
+
+### Frame-rate gate
+
+- A normal first-time-player sequence selected all 12 Citizens, issued one group movement
+  command, zoomed, and panned.
+- It rendered 600 frames in 10.0 seconds at 60.0 FPS average.
+- Frame time was 17.1 ms p95, 17.5 ms p99, and 17.6 ms maximum.
+- No frame exceeded 20 ms.
+- A separate full-group command toward the central objective reproduced one 66.6 ms frame;
+  the 10-second run averaged 59.70 FPS. This is not accepted as smooth throughout gameplay.
+- The path graph is not the cause: 10,000 representative path queries completed in 215.1 ms,
+  or 0.022 ms each. The remaining evidence points to first use of the decoded but not yet
+  GPU-resident walk atlas.
+
+### Focused checks
+
+- Scoped `node --check` for the terrain source and generated Helios bundle — passed.
+- Scoped `git diff --check` — passed.
+- Deterministic geometry contract — passed.
+- Targeted Helios esbuild — passed without rewriting unrelated dirty lab bundles.
+- Real in-app Browser render and normal active-play frame probe — passed.
+- Central-objective first-command frame gate — failed; dev deployment is held.
+- Per user direction, no additional iPad touch check was run for this visual cycle.
+
+### Evidence
+
+- Final overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-03-local-overview-r4.png`
+- Reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/reference-vs-cycle-03-r4.png`
+- Geometry contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-03-final-geometry-contract.json`
+- Normal active-play metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-03-performance-normal-10s.json`
+- Central-objective metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-03-performance-core-command-r2-10s.json`
+- Path-graph benchmark: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/pathgraph-benchmark.json`
+- Targeted build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-cycle-03-geometry-r3.stdout.txt`
+
+### Next cycle
+
+Prewarm the shared Citizen and Guard runtime atlases through Three.js before the units become
+interactive. Repeat the central-objective command and normal sustained-motion frame gates.
+Do not combine that correction with solar, islet, starfield, HUD, or map-topology work.

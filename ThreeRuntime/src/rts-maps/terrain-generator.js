@@ -113,8 +113,9 @@ function createHeliosMaterials(palette) {
 
   return {
     understructure: metal(palette.understructure ?? 0x0b1017, 0.68, 0.72),
-    basalt: metal(palette.basalt ?? 0x171d25, 0.86, 0.28),
-    basaltEdge: metal(palette.basaltEdge ?? 0x29323c, 0.72, 0.46),
+    basalt: metal(palette.basalt ?? 0x171d25, 0.9, 0.2, { flatShading: true }),
+    basaltEdge: metal(palette.basaltEdge ?? 0x29323c, 0.78, 0.36, { flatShading: true }),
+    deckShadow: metal(palette.deckShadow ?? 0x252c33, 0.88, 0.16),
     deck: metal(palette.deck ?? 0x59616a, 0.74, 0.22),
     deckLight: metal(palette.deckLight ?? 0x76808a, 0.62, 0.3),
     seam: metal(palette.seam ?? 0x252d36, 0.9, 0.18),
@@ -224,47 +225,157 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
   const outer = fragment.outerRadius ?? visual.outerRadius ?? spec.radius * 3.9;
   const underDepth = visual.understructureDepth ?? visual.platformDepth ?? 1.8;
   const panelCount = visual.panelCount ?? 6;
+  const armorBlockCount = visual.armorBlockCount ?? panelCount * 2 + 1;
+  const armorBandWidth = visual.armorBandWidth ?? 1.5;
+  const wallJitter = visual.wallJitter ?? 0.48;
+  const deckPanelGap = visual.deckPanelGap ?? 0.12;
+  const crackCount = visual.cracksPerFragment ?? panelCount;
   const conduitCount = visual.conduitCount ?? 4;
   const surfaceY = visual.surfaceY ?? 0.04;
   const start = -span / 2 + 0.035;
   const end = span / 2 - 0.035;
   const midRadius = (inner + outer) * 0.5;
 
+  const fragmentSeed = (visual.seed ?? 1) + hashString(spec.id);
+  const random = seededRandom(fragmentSeed);
+
   const under = new THREE.Mesh(
-    makeAnnularSectorGeometry(inner, outer, span, underDepth, 30),
+    makeJaggedAnnularSectorGeometry(
+      inner - 0.16,
+      outer + 0.22,
+      span,
+      underDepth,
+      24,
+      fragmentSeed,
+      wallJitter * 0.72,
+      wallJitter
+    ),
     materials.understructure
   );
   under.position.y = surfaceY - underDepth * 0.5 - 0.18;
   g.add(under);
 
-  const armorDepth = 0.28;
+  const armorDepth = 0.42;
   const armor = new THREE.Mesh(
-    makeAnnularSectorGeometry(inner + 0.18, outer - 0.18, span - 0.025, armorDepth, 30),
+    makeAnnularSectorGeometry(inner + 0.1, outer - 0.1, span - 0.025, armorDepth, 24),
     materials.basaltEdge
   );
-  armor.position.y = surfaceY - armorDepth * 0.5 - 0.06;
+  armor.position.y = surfaceY - armorDepth * 0.5 - 0.08;
   g.add(armor);
+
+  const outerArmor = new THREE.Mesh(
+    makeJaggedAnnularSectorGeometry(
+      outer - armorBandWidth,
+      outer + 0.18,
+      span - 0.018,
+      0.62,
+      18,
+      fragmentSeed ^ 0x4f1bbcdc,
+      wallJitter * 0.2,
+      wallJitter * 0.48
+    ),
+    materials.basalt
+  );
+  outerArmor.position.y = surfaceY - 0.2;
+  g.add(outerArmor);
+
+  const innerArmor = new THREE.Mesh(
+    makeJaggedAnnularSectorGeometry(
+      inner - 0.18,
+      inner + armorBandWidth,
+      span - 0.018,
+      0.58,
+      18,
+      fragmentSeed ^ 0x7f4a7c15,
+      wallJitter * 0.42,
+      wallJitter * 0.18
+    ),
+    materials.basalt
+  );
+  innerArmor.position.y = surfaceY - 0.18;
+  g.add(innerArmor);
+
+  const outerCrown = new THREE.Mesh(
+    makeJaggedAnnularSectorGeometry(
+      outer - armorBandWidth * 0.62,
+      outer - 0.12,
+      span - 0.035,
+      0.24,
+      18,
+      fragmentSeed ^ 0x2c9277b5,
+      0.08,
+      wallJitter * 0.22
+    ),
+    materials.basaltEdge
+  );
+  outerCrown.position.y = surfaceY + 0.06;
+  g.add(outerCrown);
+
+  const innerCrown = new THREE.Mesh(
+    makeJaggedAnnularSectorGeometry(
+      inner + 0.12,
+      inner + armorBandWidth * 0.62,
+      span - 0.035,
+      0.22,
+      18,
+      fragmentSeed ^ 0x165667b1,
+      wallJitter * 0.2,
+      0.08
+    ),
+    materials.basaltEdge
+  );
+  innerCrown.position.y = surfaceY + 0.05;
+  g.add(innerCrown);
+
+  const outerGoldRail = new THREE.Mesh(
+    makeAnnularSectorGeometry(outer - 0.28, outer - 0.1, span - 0.045, 0.07, 24),
+    materials.gold
+  );
+  outerGoldRail.position.y = surfaceY + 0.225;
+  g.add(outerGoldRail);
+
+  const innerGoldRail = new THREE.Mesh(
+    makeAnnularSectorGeometry(inner + 0.1, inner + 0.28, span - 0.045, 0.07, 24),
+    materials.gold
+  );
+  innerGoldRail.position.y = surfaceY + 0.215;
+  g.add(innerGoldRail);
 
   const deckInset = visual.deckInset ?? 0.78;
   const deckDepth = 0.14;
   const deck = new THREE.Mesh(
     makeAnnularSectorGeometry(inner + deckInset, outer - deckInset, span - 0.04, deckDepth, 30),
-    materials.deck
+    materials.deckShadow
   );
   deck.position.y = surfaceY - deckDepth * 0.5;
   g.add(deck);
 
-  const highlightDepth = 0.025;
-  const deckHighlight = new THREE.Mesh(
-    makeAnnularSectorGeometry(inner + deckInset + 0.16, outer - deckInset - 0.2, span - 0.075, highlightDepth, 30),
-    materials.deckLight
+  addHeliosDeckPanels(
+    g,
+    inner + deckInset + 0.18,
+    outer - deckInset - 0.2,
+    start,
+    end,
+    panelCount,
+    deckPanelGap,
+    materials,
+    surfaceY
   );
-  deckHighlight.position.y = surfaceY + highlightDepth * 0.5;
-  g.add(deckHighlight);
+  addHeliosDeckCracks(
+    g,
+    inner + deckInset + 0.5,
+    outer - deckInset - 0.5,
+    start,
+    end,
+    crackCount,
+    materials.seamLine,
+    surfaceY + 0.09,
+    random
+  );
 
-  addArcLine(g, outer - 0.24, start, end, surfaceY + 0.035, materials.goldLine, 24);
-  addArcLine(g, inner + 0.24, start, end, surfaceY + 0.035, materials.goldLine, 24);
-  addArcLine(g, midRadius, start + 0.04, end - 0.04, surfaceY + 0.04, materials.seamLine, 24);
+  addArcLine(g, outer - 0.2, start, end, surfaceY + 0.27, materials.goldLine, 24);
+  addArcLine(g, inner + 0.2, start, end, surfaceY + 0.26, materials.goldLine, 24);
+  addArcLine(g, midRadius, start + 0.04, end - 0.04, surfaceY + 0.1, materials.seamLine, 24);
 
   for (let i = 0; i <= panelCount; i += 1) {
     const a = THREE.MathUtils.lerp(start, end, i / panelCount);
@@ -278,20 +389,26 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
       materials.seam,
       surfaceY + 0.045
     );
-    if (i > 0 && i < panelCount) {
-      const ribY = surfaceY - underDepth * 0.5 - 0.12;
-      const ribHeight = underDepth * 0.76;
-      addEdgeRib(g, outer - 0.2, a, 0.72, ribHeight, materials.basaltEdge, ribY);
-      addEdgeRib(g, inner + 0.2, a, 0.62, ribHeight, materials.basaltEdge, ribY);
-      if (i % 2 === 0) {
-        const lightY = surfaceY - underDepth * 0.42;
-        addEdgeRib(g, outer - 0.58, a, 0.1, underDepth * 0.3, materials.gold, lightY);
-        addEdgeRib(g, inner + 0.58, a, 0.1, underDepth * 0.3, materials.gold, lightY);
-      }
+    if (i > 0 && i < panelCount && i % 2 === 0) {
+      const lightY = surfaceY - underDepth * 0.42;
+      addEdgeRib(g, outer - 0.58, a, 0.12, underDepth * 0.32, materials.gold, lightY);
+      addEdgeRib(g, inner + 0.58, a, 0.12, underDepth * 0.32, materials.gold, lightY);
     }
   }
 
-  const random = seededRandom((visual.seed ?? 1) + hashString(spec.id));
+  addHeliosArmorBlocks(
+    g,
+    inner,
+    outer,
+    start,
+    end,
+    armorBlockCount,
+    underDepth,
+    materials.basaltEdge,
+    surfaceY,
+    random
+  );
+
   for (let i = 0; i < conduitCount; i += 1) {
     const a = THREE.MathUtils.lerp(start + 0.1, end - 0.22, random());
     const length = 0.16 + random() * 0.25;
@@ -311,12 +428,15 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
     );
   }
 
-  for (const a of [start, end]) {
-    addHeliosSocket(g, outer - 0.55, a, 0.52, materials, surfaceY);
-    addHeliosSocket(g, inner + 0.7, a, 0.38, materials, surfaceY);
-  }
+  for (const a of [start, end]) addHeliosEndAssembly(g, inner, outer, a, materials, surfaceY);
 
   g.userData.visualStyle = "broken-ring-fragment";
+  g.userData.visualDetail = {
+    armorBlocks: armorBlockCount * 2,
+    deckPanels: panelCount,
+    deckCracks: crackCount,
+    layeredArmorBands: 4
+  };
   g.userData.platformSpec = spec;
   return g;
 }
@@ -368,6 +488,180 @@ function makeAnnularSectorGeometry(inner, outer, span, depth, segments) {
   return geometry;
 }
 
+function makeJaggedAnnularSectorGeometry(
+  inner,
+  outer,
+  span,
+  depth,
+  segments,
+  seed,
+  innerJitter,
+  outerJitter
+) {
+  const start = -span / 2;
+  const step = span / segments;
+  const halfDepth = depth * 0.5;
+  const positions = [];
+  const indices = [];
+  const random = seededRandom(seed);
+
+  for (let i = 0; i <= segments; i += 1) {
+    const angle = start + step * i;
+    const c = Math.cos(angle);
+    const s = Math.sin(angle);
+    const edgeWeight = i === 0 || i === segments ? 0.35 : 1;
+    const outerRadius = outer + (random() * 2 - 1) * outerJitter * edgeWeight;
+    const innerRadius = inner + (random() * 2 - 1) * innerJitter * edgeWeight;
+    positions.push(
+      c * outerRadius,
+      halfDepth,
+      s * outerRadius,
+      c * innerRadius,
+      halfDepth,
+      s * innerRadius,
+      c * outerRadius,
+      -halfDepth,
+      s * outerRadius,
+      c * innerRadius,
+      -halfDepth,
+      s * innerRadius
+    );
+  }
+
+  const quad = (a, b, c, d) => indices.push(a, b, c, a, c, d);
+  for (let i = 0; i < segments; i += 1) {
+    const a = i * 4;
+    const b = (i + 1) * 4;
+    quad(a + 1, b + 1, b, a);
+    quad(a + 2, b + 2, b + 3, a + 3);
+    quad(a, b, b + 2, a + 2);
+    quad(a + 3, b + 3, b + 1, a + 1);
+  }
+  const last = segments * 4;
+  quad(0, 2, 3, 1);
+  quad(last + 1, last + 3, last + 2, last);
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function addHeliosDeckPanels(parent, inner, outer, start, end, panelCount, gap, materials, surfaceY) {
+  const slotSpan = (end - start) / panelCount;
+  const panelSpan = Math.max(0.03, slotSpan - gap);
+  const geometry = makeAnnularSectorGeometry(inner, outer, panelSpan, 0.065, 6);
+  const lightCount = Array.from({ length: panelCount }, (_, i) => i).filter((i) => i % 3 === 1).length;
+  const materialGroups = [
+    new THREE.InstancedMesh(geometry, materials.deck, panelCount - lightCount),
+    new THREE.InstancedMesh(geometry, materials.deckLight, lightCount)
+  ];
+  const used = [0, 0];
+  const dummy = new THREE.Object3D();
+
+  for (let i = 0; i < panelCount; i += 1) {
+    const materialIndex = i % 3 === 1 ? 1 : 0;
+    const angle = start + slotSpan * (i + 0.5);
+    dummy.position.set(0, surfaceY + 0.02 + (i % 3 === 1 ? 0.012 : 0), 0);
+    dummy.rotation.set(0, angle, 0);
+    dummy.scale.set(1, 1, 1);
+    dummy.updateMatrix();
+    materialGroups[materialIndex].setMatrixAt(used[materialIndex], dummy.matrix);
+    used[materialIndex] += 1;
+  }
+
+  for (let i = 0; i < materialGroups.length; i += 1) {
+    const mesh = materialGroups[i];
+    mesh.name = i === 0 ? "deck-panels-dark" : "deck-panels-light";
+    mesh.instanceMatrix.needsUpdate = true;
+    parent.add(mesh);
+  }
+}
+
+function addHeliosDeckCracks(parent, inner, outer, start, end, count, material, y, random) {
+  const positions = [];
+  const radialSpan = Math.max(1, outer - inner);
+
+  for (let i = 0; i < count; i += 1) {
+    const angle = THREE.MathUtils.lerp(start + 0.05, end - 0.05, (i + 0.5) / count);
+    const originRadius = inner + radialSpan * (0.18 + random() * 0.5);
+    const length = radialSpan * (0.12 + random() * 0.12);
+    let previousAngle = angle + (random() - 0.5) * 0.05;
+    let previousRadius = originRadius;
+
+    for (let segment = 0; segment < 3; segment += 1) {
+      const nextRadius = Math.min(outer, previousRadius + length / 3);
+      const nextAngle = previousAngle + (random() - 0.5) * 0.045;
+      positions.push(
+        Math.cos(previousAngle) * previousRadius,
+        y,
+        Math.sin(previousAngle) * previousRadius,
+        Math.cos(nextAngle) * nextRadius,
+        y,
+        Math.sin(nextAngle) * nextRadius
+      );
+      previousAngle = nextAngle;
+      previousRadius = nextRadius;
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  const cracks = new THREE.LineSegments(geometry, material);
+  cracks.name = "deck-cracks";
+  parent.add(cracks);
+}
+
+function addHeliosArmorBlocks(
+  parent,
+  inner,
+  outer,
+  start,
+  end,
+  count,
+  underDepth,
+  material,
+  surfaceY,
+  random
+) {
+  const geometry = new THREE.DodecahedronGeometry(1, 0);
+  const blocks = new THREE.InstancedMesh(geometry, material, count * 2);
+  const dummy = new THREE.Object3D();
+  const slotAngle = count > 1 ? (end - start) / (count - 1) : 0;
+
+  for (let i = 0; i < count; i += 1) {
+    const baseAngle = THREE.MathUtils.lerp(start, end, count === 1 ? 0.5 : i / (count - 1));
+
+    for (let edge = 0; edge < 2; edge += 1) {
+      const endpoint = i === 0 || i === count - 1;
+      const angle = baseAngle + (endpoint ? 0 : (random() - 0.5) * slotAngle * 0.42);
+      const tangentWidth = 2.2 + random() * 1.25;
+      const height = Math.min(underDepth * 0.48, 0.95 + random() * 0.7);
+      const radialDepth = edge === 0 ? 1.35 + random() * 0.5 : 1.12 + random() * 0.42;
+      const radius = (edge === 0 ? outer + 0.08 : inner - 0.08) + (random() - 0.5) * 0.38;
+      const top = surfaceY + 0.2 + random() * 0.18;
+      dummy.position.set(
+        Math.cos(angle) * radius,
+        top - height * 0.5,
+        Math.sin(angle) * radius
+      );
+      dummy.rotation.set(
+        (random() - 0.5) * 0.14,
+        Math.PI / 2 - angle + (random() - 0.5) * 0.12,
+        (random() - 0.5) * 0.12
+      );
+      dummy.scale.set(tangentWidth * 0.5, height * 0.5, radialDepth * 0.5);
+      dummy.updateMatrix();
+      blocks.setMatrixAt(i * 2 + edge, dummy.matrix);
+    }
+  }
+
+  blocks.name = "fragment-armor-blocks";
+  blocks.instanceMatrix.needsUpdate = true;
+  parent.add(blocks);
+}
+
 function addArcLine(parent, radius, start, end, y, material, segments = 16) {
   const points = [];
   for (let i = 0; i <= segments; i += 1) {
@@ -398,18 +692,31 @@ function addEdgeRib(parent, radius, angle, width, height, material, y) {
 
 function addHeliosSocket(parent, radius, angle, size, materials, surfaceY = 0.04) {
   const socket = new THREE.Group();
-  socket.position.set(Math.cos(angle) * radius, surfaceY + 0.03, Math.sin(angle) * radius);
-  const cap = new THREE.Mesh(new THREE.CylinderGeometry(size, size * 0.9, 0.12, 10), materials.gold);
+  socket.position.set(Math.cos(angle) * radius, surfaceY + 0.04, Math.sin(angle) * radius);
+  const pedestal = new THREE.Mesh(
+    new THREE.CylinderGeometry(size * 1.34, size * 1.52, 0.42, 10),
+    materials.basalt
+  );
+  pedestal.position.y = -0.17;
+  socket.add(pedestal);
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(size, size * 1.12, 0.18, 10), materials.gold);
   socket.add(cap);
   const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(size * 0.92, Math.max(0.05, size * 0.12), 6, 12),
+    new THREE.TorusGeometry(size * 1.02, Math.max(0.06, size * 0.14), 6, 12),
     materials.goldBright
   );
   ring.rotation.x = Math.PI / 2;
-  ring.position.y = 0.045;
+  ring.position.y = 0.1;
   socket.add(ring);
   parent.add(socket);
   return socket;
+}
+
+function addHeliosEndAssembly(parent, inner, outer, angle, materials, surfaceY) {
+  addRadialBar(parent, angle, inner + 0.3, outer - 0.3, 0.78, 0.58, materials.basaltEdge, surfaceY - 0.16);
+  addRadialBar(parent, angle, inner + 0.75, outer - 0.75, 0.18, 0.12, materials.gold, surfaceY + 0.12);
+  addHeliosSocket(parent, outer - 0.72, angle, 0.78, materials, surfaceY);
+  addHeliosSocket(parent, inner + 0.82, angle, 0.62, materials, surfaceY);
 }
 
 function makeHeliosCoreVoid(spec, materials) {
