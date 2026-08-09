@@ -12,6 +12,9 @@ minimap.
 - A dedicated Broken Ring visual contract and reference-versus-render evidence.
 - Packaged Lumen Guard web assets and a standalone Guard proof used by the Helios build.
 - A dev-only deployment path for `dev.helios.contenthelper.in`.
+- Native iPad touch controls: one-finger camera pan, two-finger camera zoom, Citizen tap
+  selection, and double-tap ground commands.
+- Focused touch-camera tests for one-finger pan and two-finger pinch behavior.
 
 ### Changed
 
@@ -26,20 +29,29 @@ minimap.
   warm light, and explicit capture-zone and beam dimensions.
 - Fog, tone mapping, exposure, and key/fill/rim lighting now preserve the upper fragments
   while keeping the void dark.
+- The proof page now owns touch gestures instead of allowing Safari page zoom. Its first-use
+  hint names both touch and mouse controls.
 
 ### Dev delivery
 
-- Commit `ac20998` is deployed only to `dev.helios.contenthelper.in` as Worker version
-  `2ce69824-e2f7-4ce3-91f4-80bdf6003042`.
+- Composition commit `0e7a09c` is deployed only to `dev.helios.contenthelper.in` as Worker
+  version `9f2686b6-978d-4453-8ffd-ac8ae1422241`.
 - The hosted Helios bundle SHA-256 is
-  `f4d64d0dc655d19b4c45b31e7b7a484e2e46fc581ed7bb3edb4e9c42debc7d8f`, identical to
-  the local site artifact. The hosted render showed 12 units and no console errors.
+  `3ba75808df82521d00dd082a6c175b6aa3dbd3258f9cce8cf309aaf7c0e9ae8c`, identical to
+  the local site artifact. The hosted render showed 12 units, FPS 60, and no startup error.
+- The native-touch checkpoint has passed local iPadOS 26.5 proof. Its dev deployment is the
+  next delivery action.
 
 ### Proof pending
 
 - The one-minute local Chromium stress pass held 60.00 FPS average, 18.5 ms p95, and no
   frame above 20 ms with 12 moving Citizens, camera changes, core capture, one repaired
-  bridge, and a flare. Native iPadOS 26.x WebKit proof remains pending.
+  bridge, and a flare.
+- A 45-second real-touch run on the iPadOS 26.5 simulator selected and moved all 12
+  Citizens, pinched, panned, captured the core, and moved again. Forty-three one-second HUD
+  samples averaged 59.9767 FPS; 41 read 60, one read 58, and the next read 61. The video is
+  recorded at 30 FPS, so this proves the in-game requestAnimationFrame counter, not device
+  GPU frame-time percentiles.
 - The map still lacks the reference's layered edge armor, dense deck breakup, cracks,
   sockets, animated solar plasma, substantial crystal islets, and nebula depth.
 

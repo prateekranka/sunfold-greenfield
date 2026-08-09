@@ -134,6 +134,12 @@ export class RtsCameraController {
     /** @type {Set<string>} */
     this._keys = new Set();
     this._enabled = true;
+    /** @type {Map<number, { x: number, y: number }>} */
+    this._touchPoints = new Map();
+    this._pinchStartSpan = 0;
+    this._pinchStartDistance = this._desiredDistance;
+    this._lastTouchCentroidX = 0;
+    this._lastTouchCentroidY = 0;
 
     const yaw = THREE.MathUtils.degToRad(this.yawDegrees);
     const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
@@ -143,6 +149,28 @@ export class RtsCameraController {
 
     this._onPointerDown = (e) => {
       if (!this._enabled) return;
+      if (e.pointerType === "touch") {
+        this._touchPoints.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        this._dragging = true;
+        this._panVel.set(0, 0, 0);
+        if (this._touchPoints.size === 1) {
+          this._lastX = e.clientX;
+          this._lastY = e.clientY;
+        } else if (this._touchPoints.size === 2) {
+          const [a, b] = [...this._touchPoints.values()];
+          this._pinchStartSpan = Math.hypot(a.x - b.x, a.y - b.y);
+          this._pinchStartDistance = this._desiredDistance;
+          this._lastTouchCentroidX = (a.x + b.x) * 0.5;
+          this._lastTouchCentroidY = (a.y + b.y) * 0.5;
+        }
+        try {
+          this.domElement.setPointerCapture?.(e.pointerId);
+        } catch {
+          /* ignore */
+        }
+        e.preventDefault();
+        return;
+      }
       // Middle (1) or right (2) drag pans. Left stays free for selection.
       if (e.button !== 1 && e.button !== 2) return;
       this._dragging = true;
@@ -158,6 +186,27 @@ export class RtsCameraController {
       e.preventDefault();
     };
     this._onPointerUp = (e) => {
+      if (e.pointerType === "touch") {
+        this._touchPoints.delete(e.pointerId);
+        if (this._touchPoints.size === 1) {
+          const [remaining] = this._touchPoints.values();
+          this._lastX = remaining.x;
+          this._lastY = remaining.y;
+          this._pinchStartSpan = 0;
+          this._pinchStartDistance = this._desiredDistance;
+          this._dragging = true;
+        } else if (this._touchPoints.size === 0) {
+          this._dragging = false;
+          this._pinchStartSpan = 0;
+        }
+        try {
+          this.domElement.releasePointerCapture?.(e.pointerId);
+        } catch {
+          /* ignore */
+        }
+        e.preventDefault();
+        return;
+      }
       if (e.button !== this._dragButton && this._dragging && e.type === "pointerup") {
         // ignore other button releases while dragging
       }
@@ -172,19 +221,44 @@ export class RtsCameraController {
       }
     };
     this._onPointerMove = (e) => {
-      if (!this._enabled || !this._dragging) return;
+      if (!this._enabled) return;
+      if (e.pointerType === "touch") {
+        if (!this._touchPoints.has(e.pointerId)) return;
+        this._touchPoints.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (this._touchPoints.size === 1) {
+          const dx = e.clientX - this._lastX;
+          const dy = e.clientY - this._lastY;
+          this._lastX = e.clientX;
+          this._lastY = e.clientY;
+          this._panByScreenDelta(dx, dy);
+        } else if (this._touchPoints.size >= 2) {
+          const [a, b] = [...this._touchPoints.values()];
+          const span = Math.hypot(a.x - b.x, a.y - b.y);
+          if (this._pinchStartSpan > 1 && span > 1) {
+            this._desiredDistance = THREE.MathUtils.clamp(
+              this._pinchStartDistance * (this._pinchStartSpan / span),
+              this.minDistance,
+              this.maxDistance
+            );
+          }
+          const centroidX = (a.x + b.x) * 0.5;
+          const centroidY = (a.y + b.y) * 0.5;
+          this._panByScreenDelta(
+            centroidX - this._lastTouchCentroidX,
+            centroidY - this._lastTouchCentroidY
+          );
+          this._lastTouchCentroidX = centroidX;
+          this._lastTouchCentroidY = centroidY;
+        }
+        e.preventDefault();
+        return;
+      }
+      if (!this._dragging) return;
       const dx = e.clientX - this._lastX;
       const dy = e.clientY - this._lastY;
       this._lastX = e.clientX;
       this._lastY = e.clientY;
-      const panScale = this.distance * this.dragPanScale;
-      // Instant desired nudge + short-lived velocity for gentle momentum.
-      const step = new THREE.Vector3()
-        .addScaledVector(this._right, -dx * panScale)
-        .addScaledVector(this._forward, dy * panScale);
-      this._desiredTarget.add(step);
-      this._clampDesired();
-      this._panVel.copy(step).multiplyScalar(18);
+      this._panByScreenDelta(dx, dy);
     };
     this._onWheel = (e) => {
       if (!this._enabled) return;
@@ -228,6 +302,8 @@ export class RtsCameraController {
     this._onBlur = () => {
       this._keys.clear();
       this._dragging = false;
+      this._touchPoints.clear();
+      this._pinchStartSpan = 0;
     };
 
     domElement.addEventListener("pointerdown", this._onPointerDown);
@@ -248,8 +324,21 @@ export class RtsCameraController {
     if (!on) {
       this._dragging = false;
       this._keys.clear();
+      this._touchPoints.clear();
+      this._pinchStartSpan = 0;
       this._panVel.set(0, 0, 0);
     }
+  }
+
+  _panByScreenDelta(dx, dy) {
+    const panScale = this.distance * this.dragPanScale;
+    // Move the look-at opposite the pointer so the ground follows the gesture.
+    const step = new THREE.Vector3()
+      .addScaledVector(this._right, -dx * panScale)
+      .addScaledVector(this._forward, dy * panScale);
+    this._desiredTarget.add(step);
+    this._clampDesired();
+    this._panVel.copy(step).multiplyScalar(18);
   }
 
   _clampDesired() {

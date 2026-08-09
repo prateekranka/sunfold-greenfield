@@ -113,3 +113,61 @@ breakup, not camera composition.
 
 Add layered edge armor, inset deck plates, cracks, sockets, and stronger wall silhouettes.
 Do not add new gameplay systems during that visual correction.
+
+## Cycle 02 — native touch gameplay gate · 2026-08-09
+
+Status: **Done locally; dev deployment pending**
+
+### Player-visible correction
+
+- One finger now pans the RTS camera.
+- Two fingers now zoom the game camera without zooming the Safari page.
+- A tap selects one local Citizen.
+- A double-tap on stable ground issues the existing move, gather, or repair command.
+- Touch drag and multi-touch gestures cannot become accidental selection or movement taps.
+- Existing mouse selection, right-click commands, wheel zoom, and keyboard pan remain active.
+
+### Observed iPadOS result
+
+- Played on the iPadOS 26.5 `Sunfold iPad A16 11-inch` simulator.
+- A real touch tap selected all 12 Citizens through the existing HUD control.
+- A real double-tap moved all 12 Citizens across stable ring ground.
+- A real pinch changed only the game camera. The Safari page and HUD scale stayed fixed.
+- A real drag panned the game camera.
+- The same run captured the solar core and issued a second movement command.
+- The HUD remained visible throughout and continued reporting the active simulation state.
+
+### Frame-rate gate
+
+- Recorded 45 seconds of active touch play at native simulator resolution with touch markers.
+- Sampled the in-game 500 ms requestAnimationFrame counter once per second from 2 to 44
+  seconds.
+- The 43 samples averaged 59.9767 FPS. Forty-one read 60, one read 58, and the next read 61.
+- No sample was below 58 FPS.
+- The paired 58/61 samples are consistent with the half-second counter boundary. They do not
+  show a sustained slowdown.
+- The evidence video is captured at 30 FPS. This pass does not provide device GPU frame-time
+  percentiles and does not claim that it does.
+
+### Focused checks
+
+- `node --check` for the edited camera, proof, and focused test modules — passed.
+- `node --test ThreeRuntime/tests/rts-camera-touch.test.js` — 2 of 2 passed.
+- Helios deploy-site build — passed.
+- Local mouse selection and right-click movement regression — passed.
+- Real iPadOS 26.5 tap, double-tap, drag, and pinch interaction — passed.
+
+### Evidence
+
+- Native touch video: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/ipados-26-5-touch-gameplay-60fps-landscape.mp4`
+- Final native frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/ipados-26-5-touch-gameplay-final.png`
+- FPS summary: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/ipados-26-5-touch-fps-summary-r2.json`
+- Per-second OCR samples: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/ipados-26-5-fps-ocr-samples-r2.txt`
+- Touch-camera tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/touch-camera-tests.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-cycle-02-touch.stdout.txt`
+
+### Next cycle
+
+Commit, push, deploy, and verify this native touch checkpoint on the dev host. Then resume
+the authored fragment geometry and material-breakup correction. Do not add another gameplay
+system during that visual cycle.

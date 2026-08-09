@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="description" content="Sunfold — Helios Rift (The Broken Ring): playable space-RTS map proof. Four-player ring around a star: capture the solar core, expand to turquoise islets, repair broken orbital bridges, survive solar flares. Sprite Citizens, minimap, 60fps camera. Built with Three.js." />
   <meta property="og:title" content="Sunfold — Helios Rift (The Broken Ring)" />
   <meta property="og:description" content="Playable RTS map proof: 4-player ring, repairable bridges, solar core capture, sprite Citizens, solar flares." />
@@ -10,7 +10,7 @@
   <title>Sunfold — Helios Rift (The Broken Ring)</title>
   <style>
     html, body { margin: 0; height: 100%; background: #050711; color: #e8e0d0; font: 13px/1.4 ui-monospace, Menlo, monospace; }
-    #proof-root { position: absolute; inset: 0; }
+    #proof-root { position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; }
     #hud {
       position: absolute; left: 12px; top: 12px; z-index: 2;
       background: rgba(8, 10, 20, 0.82); padding: 10px 12px; border: 1px solid #3a4a68; max-width: 440px;
@@ -59,8 +59,8 @@
       <button id="show-hints" type="button">AI hints (console)</button>
     </div>
     <div class="hint">
-      Left-click: select Citizens · Right-click: move / gather / repair bridge ·
-      Wheel: zoom · WASD: pan · Minimap: jump camera.<br/>
+      Touch: tap a Citizen · double-tap ground to move · drag to pan · pinch to zoom.<br/>
+      Mouse: left-click select · right-click move / gather / repair · wheel zoom · WASD pan.<br/>
       Capture the <span style="color:#ffa030">solar core</span> · Expand to turquoise islets · Repair broken bridges (gold stubs).
     </div>
   </div>

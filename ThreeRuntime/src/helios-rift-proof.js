@@ -15,6 +15,9 @@ const MOVE_SPEED = 4.2;
 const GATHER_RANGE = 2.2;
 const BRIDGE_REPAIR_RANGE = 4.5;
 const BRIDGE_REPAIR_COST = 50;
+const TOUCH_DRAG_THRESHOLD = 10;
+const TOUCH_DOUBLE_TAP_MS = 360;
+const TOUCH_DOUBLE_TAP_RADIUS = 30;
 const HELIOS_CAMERA = Object.freeze({
   minDistance: RTS_CAMERA.minDistance,
   overviewDistance: 80,
@@ -37,6 +40,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setPixelRatio(1);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.28;
+renderer.domElement.style.touchAction = "none";
 root.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -369,9 +373,43 @@ function orderMoveSelected(x, z, gatherRes = null, repairBridge = null) {
   }
 }
 
+function issueGroundCommand(clientX, clientY) {
+  const hit = groundHit(clientX, clientY);
+  if (!hit) return;
+  const res = nearestResource(hit.x, hit.z);
+  const bridge = nearestBrokenBridge(hit.x, hit.z);
+  if (res && Math.hypot(hit.x - res.position.x, hit.z - res.position.z) < GATHER_RANGE + 2) {
+    orderMoveSelected(res.position.x, res.position.z, res);
+    showToast(`Gather ${res.kind} @ ${res.id}`);
+  } else if (bridge) {
+    const midpoint = bridgeMidpoint(bridge);
+    orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
+  } else {
+    orderMoveSelected(hit.x, hit.z);
+  }
+  updateStatus();
+}
+
+/** @type {Map<number, { startX: number, startY: number, moved: boolean, multi: boolean }>} */
+const touchTapCandidates = new Map();
+let lastGroundTap = null;
+
 renderer.domElement.addEventListener("contextmenu", (e) => e.preventDefault());
 
 renderer.domElement.addEventListener("pointerdown", (ev) => {
+  if (ev.pointerType === "touch") {
+    const joinsGesture = touchTapCandidates.size > 0;
+    if (joinsGesture) {
+      for (const candidate of touchTapCandidates.values()) candidate.multi = true;
+    }
+    touchTapCandidates.set(ev.pointerId, {
+      startX: ev.clientX,
+      startY: ev.clientY,
+      moved: false,
+      multi: joinsGesture
+    });
+    return;
+  }
   if (ev.button === 0) {
     const picked = pickCitizen(ev.clientX, ev.clientY);
     if (!ev.shiftKey) {
@@ -384,22 +422,57 @@ renderer.domElement.addEventListener("pointerdown", (ev) => {
     return;
   }
   if (ev.button === 2) {
-    const hit = groundHit(ev.clientX, ev.clientY);
-    if (!hit) return;
-    const res = nearestResource(hit.x, hit.z);
-    const bridge = nearestBrokenBridge(hit.x, hit.z);
-    if (res && Math.hypot(hit.x - res.position.x, hit.z - res.position.z) < GATHER_RANGE + 2) {
-      orderMoveSelected(res.position.x, res.position.z, res);
-      showToast(`Gather ${res.kind} @ ${res.id}`);
-    } else if (bridge) {
-      const midpoint = bridgeMidpoint(bridge);
-      orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
-    } else {
-      orderMoveSelected(hit.x, hit.z);
-    }
-    updateStatus();
+    issueGroundCommand(ev.clientX, ev.clientY);
   }
 });
+
+renderer.domElement.addEventListener("pointermove", (ev) => {
+  if (ev.pointerType !== "touch") return;
+  const candidate = touchTapCandidates.get(ev.pointerId);
+  if (!candidate) return;
+  if (Math.hypot(ev.clientX - candidate.startX, ev.clientY - candidate.startY) >= TOUCH_DRAG_THRESHOLD) {
+    candidate.moved = true;
+  }
+  if (touchTapCandidates.size > 1) {
+    for (const active of touchTapCandidates.values()) active.multi = true;
+  }
+});
+
+function finishTouchTap(ev) {
+  if (ev.pointerType !== "touch") return;
+  const candidate = touchTapCandidates.get(ev.pointerId);
+  touchTapCandidates.delete(ev.pointerId);
+  if (!candidate || ev.type === "pointercancel" || candidate.moved || candidate.multi) {
+    lastGroundTap = null;
+    return;
+  }
+
+  const picked = pickCitizen(ev.clientX, ev.clientY);
+  if (picked) {
+    for (const citizen of citizens) {
+      if (citizen.playerId === LOCAL_PLAYER) setSelected(citizen, false);
+    }
+    setSelected(picked, true);
+    lastGroundTap = null;
+    updateStatus();
+    return;
+  }
+
+  const now = performance.now();
+  if (
+    lastGroundTap &&
+    now - lastGroundTap.time <= TOUCH_DOUBLE_TAP_MS &&
+    Math.hypot(ev.clientX - lastGroundTap.x, ev.clientY - lastGroundTap.y) <= TOUCH_DOUBLE_TAP_RADIUS
+  ) {
+    issueGroundCommand(ev.clientX, ev.clientY);
+    lastGroundTap = null;
+  } else {
+    lastGroundTap = { time: now, x: ev.clientX, y: ev.clientY };
+  }
+}
+
+window.addEventListener("pointerup", finishTouchTap);
+window.addEventListener("pointercancel", finishTouchTap);
 
 document.getElementById("select-all")?.addEventListener("click", () => {
   for (const c of citizens) {

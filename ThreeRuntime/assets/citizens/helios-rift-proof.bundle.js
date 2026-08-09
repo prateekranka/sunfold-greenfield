@@ -30772,6 +30772,11 @@ void main() {
       this._lastY = 0;
       this._keys = /* @__PURE__ */ new Set();
       this._enabled = true;
+      this._touchPoints = /* @__PURE__ */ new Map();
+      this._pinchStartSpan = 0;
+      this._pinchStartDistance = this._desiredDistance;
+      this._lastTouchCentroidX = 0;
+      this._lastTouchCentroidY = 0;
       const yaw = MathUtils.degToRad(this.yawDegrees);
       const right = new Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
       const forward = new Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
@@ -30779,6 +30784,27 @@ void main() {
       this._forward = forward;
       this._onPointerDown = (e) => {
         if (!this._enabled) return;
+        if (e.pointerType === "touch") {
+          this._touchPoints.set(e.pointerId, { x: e.clientX, y: e.clientY });
+          this._dragging = true;
+          this._panVel.set(0, 0, 0);
+          if (this._touchPoints.size === 1) {
+            this._lastX = e.clientX;
+            this._lastY = e.clientY;
+          } else if (this._touchPoints.size === 2) {
+            const [a, b] = [...this._touchPoints.values()];
+            this._pinchStartSpan = Math.hypot(a.x - b.x, a.y - b.y);
+            this._pinchStartDistance = this._desiredDistance;
+            this._lastTouchCentroidX = (a.x + b.x) * 0.5;
+            this._lastTouchCentroidY = (a.y + b.y) * 0.5;
+          }
+          try {
+            this.domElement.setPointerCapture?.(e.pointerId);
+          } catch {
+          }
+          e.preventDefault();
+          return;
+        }
         if (e.button !== 1 && e.button !== 2) return;
         this._dragging = true;
         this._dragButton = e.button;
@@ -30792,6 +30818,26 @@ void main() {
         e.preventDefault();
       };
       this._onPointerUp = (e) => {
+        if (e.pointerType === "touch") {
+          this._touchPoints.delete(e.pointerId);
+          if (this._touchPoints.size === 1) {
+            const [remaining] = this._touchPoints.values();
+            this._lastX = remaining.x;
+            this._lastY = remaining.y;
+            this._pinchStartSpan = 0;
+            this._pinchStartDistance = this._desiredDistance;
+            this._dragging = true;
+          } else if (this._touchPoints.size === 0) {
+            this._dragging = false;
+            this._pinchStartSpan = 0;
+          }
+          try {
+            this.domElement.releasePointerCapture?.(e.pointerId);
+          } catch {
+          }
+          e.preventDefault();
+          return;
+        }
         if (e.button !== this._dragButton && this._dragging && e.type === "pointerup") {
         }
         if (!this._dragging) return;
@@ -30804,16 +30850,44 @@ void main() {
         }
       };
       this._onPointerMove = (e) => {
-        if (!this._enabled || !this._dragging) return;
+        if (!this._enabled) return;
+        if (e.pointerType === "touch") {
+          if (!this._touchPoints.has(e.pointerId)) return;
+          this._touchPoints.set(e.pointerId, { x: e.clientX, y: e.clientY });
+          if (this._touchPoints.size === 1) {
+            const dx2 = e.clientX - this._lastX;
+            const dy2 = e.clientY - this._lastY;
+            this._lastX = e.clientX;
+            this._lastY = e.clientY;
+            this._panByScreenDelta(dx2, dy2);
+          } else if (this._touchPoints.size >= 2) {
+            const [a, b] = [...this._touchPoints.values()];
+            const span = Math.hypot(a.x - b.x, a.y - b.y);
+            if (this._pinchStartSpan > 1 && span > 1) {
+              this._desiredDistance = MathUtils.clamp(
+                this._pinchStartDistance * (this._pinchStartSpan / span),
+                this.minDistance,
+                this.maxDistance
+              );
+            }
+            const centroidX = (a.x + b.x) * 0.5;
+            const centroidY = (a.y + b.y) * 0.5;
+            this._panByScreenDelta(
+              centroidX - this._lastTouchCentroidX,
+              centroidY - this._lastTouchCentroidY
+            );
+            this._lastTouchCentroidX = centroidX;
+            this._lastTouchCentroidY = centroidY;
+          }
+          e.preventDefault();
+          return;
+        }
+        if (!this._dragging) return;
         const dx = e.clientX - this._lastX;
         const dy = e.clientY - this._lastY;
         this._lastX = e.clientX;
         this._lastY = e.clientY;
-        const panScale = this.distance * this.dragPanScale;
-        const step = new Vector3().addScaledVector(this._right, -dx * panScale).addScaledVector(this._forward, dy * panScale);
-        this._desiredTarget.add(step);
-        this._clampDesired();
-        this._panVel.copy(step).multiplyScalar(18);
+        this._panByScreenDelta(dx, dy);
       };
       this._onWheel = (e) => {
         if (!this._enabled) return;
@@ -30843,6 +30917,8 @@ void main() {
       this._onBlur = () => {
         this._keys.clear();
         this._dragging = false;
+        this._touchPoints.clear();
+        this._pinchStartSpan = 0;
       };
       domElement.addEventListener("pointerdown", this._onPointerDown);
       window.addEventListener("pointerup", this._onPointerUp);
@@ -30860,8 +30936,17 @@ void main() {
       if (!on) {
         this._dragging = false;
         this._keys.clear();
+        this._touchPoints.clear();
+        this._pinchStartSpan = 0;
         this._panVel.set(0, 0, 0);
       }
+    }
+    _panByScreenDelta(dx, dy) {
+      const panScale = this.distance * this.dragPanScale;
+      const step = new Vector3().addScaledVector(this._right, -dx * panScale).addScaledVector(this._forward, dy * panScale);
+      this._desiredTarget.add(step);
+      this._clampDesired();
+      this._panVel.copy(step).multiplyScalar(18);
     }
     _clampDesired() {
       const r = Math.hypot(this._desiredTarget.x, this._desiredTarget.z);
@@ -32993,6 +33078,9 @@ void main() {
   var GATHER_RANGE = 2.2;
   var BRIDGE_REPAIR_RANGE = 4.5;
   var BRIDGE_REPAIR_COST = 50;
+  var TOUCH_DRAG_THRESHOLD = 10;
+  var TOUCH_DOUBLE_TAP_MS = 360;
+  var TOUCH_DOUBLE_TAP_RADIUS = 30;
   var HELIOS_CAMERA = Object.freeze({
     minDistance: RTS_CAMERA.minDistance,
     overviewDistance: 80,
@@ -33013,6 +33101,7 @@ void main() {
   renderer.setPixelRatio(1);
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.28;
+  renderer.domElement.style.touchAction = "none";
   root.appendChild(renderer.domElement);
   var scene = new Scene();
   scene.background = new Color(66571);
@@ -33309,8 +33398,39 @@ void main() {
       }
     }
   }
+  function issueGroundCommand(clientX, clientY) {
+    const hit = groundHit(clientX, clientY);
+    if (!hit) return;
+    const res = nearestResource(hit.x, hit.z);
+    const bridge = nearestBrokenBridge(hit.x, hit.z);
+    if (res && Math.hypot(hit.x - res.position.x, hit.z - res.position.z) < GATHER_RANGE + 2) {
+      orderMoveSelected(res.position.x, res.position.z, res);
+      showToast(`Gather ${res.kind} @ ${res.id}`);
+    } else if (bridge) {
+      const midpoint = bridgeMidpoint(bridge);
+      orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
+    } else {
+      orderMoveSelected(hit.x, hit.z);
+    }
+    updateStatus();
+  }
+  var touchTapCandidates = /* @__PURE__ */ new Map();
+  var lastGroundTap = null;
   renderer.domElement.addEventListener("contextmenu", (e) => e.preventDefault());
   renderer.domElement.addEventListener("pointerdown", (ev) => {
+    if (ev.pointerType === "touch") {
+      const joinsGesture = touchTapCandidates.size > 0;
+      if (joinsGesture) {
+        for (const candidate of touchTapCandidates.values()) candidate.multi = true;
+      }
+      touchTapCandidates.set(ev.pointerId, {
+        startX: ev.clientX,
+        startY: ev.clientY,
+        moved: false,
+        multi: joinsGesture
+      });
+      return;
+    }
     if (ev.button === 0) {
       const picked = pickCitizen(ev.clientX, ev.clientY);
       if (!ev.shiftKey) {
@@ -33323,22 +33443,48 @@ void main() {
       return;
     }
     if (ev.button === 2) {
-      const hit = groundHit(ev.clientX, ev.clientY);
-      if (!hit) return;
-      const res = nearestResource(hit.x, hit.z);
-      const bridge = nearestBrokenBridge(hit.x, hit.z);
-      if (res && Math.hypot(hit.x - res.position.x, hit.z - res.position.z) < GATHER_RANGE + 2) {
-        orderMoveSelected(res.position.x, res.position.z, res);
-        showToast(`Gather ${res.kind} @ ${res.id}`);
-      } else if (bridge) {
-        const midpoint = bridgeMidpoint(bridge);
-        orderMoveSelected(midpoint.x, midpoint.z, null, bridge);
-      } else {
-        orderMoveSelected(hit.x, hit.z);
-      }
-      updateStatus();
+      issueGroundCommand(ev.clientX, ev.clientY);
     }
   });
+  renderer.domElement.addEventListener("pointermove", (ev) => {
+    if (ev.pointerType !== "touch") return;
+    const candidate = touchTapCandidates.get(ev.pointerId);
+    if (!candidate) return;
+    if (Math.hypot(ev.clientX - candidate.startX, ev.clientY - candidate.startY) >= TOUCH_DRAG_THRESHOLD) {
+      candidate.moved = true;
+    }
+    if (touchTapCandidates.size > 1) {
+      for (const active of touchTapCandidates.values()) active.multi = true;
+    }
+  });
+  function finishTouchTap(ev) {
+    if (ev.pointerType !== "touch") return;
+    const candidate = touchTapCandidates.get(ev.pointerId);
+    touchTapCandidates.delete(ev.pointerId);
+    if (!candidate || ev.type === "pointercancel" || candidate.moved || candidate.multi) {
+      lastGroundTap = null;
+      return;
+    }
+    const picked = pickCitizen(ev.clientX, ev.clientY);
+    if (picked) {
+      for (const citizen of citizens) {
+        if (citizen.playerId === LOCAL_PLAYER) setSelected(citizen, false);
+      }
+      setSelected(picked, true);
+      lastGroundTap = null;
+      updateStatus();
+      return;
+    }
+    const now = performance.now();
+    if (lastGroundTap && now - lastGroundTap.time <= TOUCH_DOUBLE_TAP_MS && Math.hypot(ev.clientX - lastGroundTap.x, ev.clientY - lastGroundTap.y) <= TOUCH_DOUBLE_TAP_RADIUS) {
+      issueGroundCommand(ev.clientX, ev.clientY);
+      lastGroundTap = null;
+    } else {
+      lastGroundTap = { time: now, x: ev.clientX, y: ev.clientY };
+    }
+  }
+  window.addEventListener("pointerup", finishTouchTap);
+  window.addEventListener("pointercancel", finishTouchTap);
   document.getElementById("select-all")?.addEventListener("click", () => {
     for (const c of citizens) {
       if (c.playerId === LOCAL_PLAYER) setSelected(c, true);

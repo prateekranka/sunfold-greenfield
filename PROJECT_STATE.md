@@ -28,14 +28,14 @@ CP-C6 sequence unless the user changes direction.
 | | |
 |---|---|
 | **Goal** | Match the approved Broken Ring reference at the real gameplay camera while preserving a playable four-sector RTS map. |
-| **Current proof** | Cycle 01 builds and runs locally with a measured 43-degree Helios camera, closer full-ring framing, deeper fragment walls, brighter rough-metal materials, and a dominant solar objective. A 59.98-second in-app Browser stress pass with 12 moving Citizens, camera changes, core capture, one bridge repair, and a flare held 60.00 FPS average, 18.5 ms p95, and no frame above 20 ms. The latest deployed checkpoint remains Cycle 00 until Cycle 01 is pushed and verified. |
-| **Current mismatch** | Composition is materially closer to the approved reference. The largest remaining gap is authored surface and silhouette detail: current fragments are broad smooth wedges, the solar core lacks plasma structure, and the resource islets and starfield remain visually quiet. Native iPadOS 26.x WebKit frame pacing is not yet proven. |
+| **Current proof** | Cycle 01 is committed, pushed, and deployed to the dev host. It provides the measured 43-degree Helios camera, closer full-ring framing, deeper fragment walls, brighter rough-metal materials, and a dominant solar objective. Cycle 02 adds native one-finger pan, pinch camera zoom, tap selection, and double-tap ground commands without page zoom or mouse regressions. A 45-second iPadOS 26.5 touch run selected and moved all 12 Citizens, panned, pinched, captured the solar core, and moved again. Forty-three one-second HUD samples averaged 59.9767 FPS; 41 read 60, one read 58, and the next read 61. No sample was below 58. |
+| **Current mismatch** | Composition and native touch control are materially closer to the approved direction. The largest remaining gap is authored surface and silhouette detail: current fragments are broad smooth wedges, the solar core lacks plasma structure, and the resource islets and starfield remain visually quiet. The iPad proof uses the game's requestAnimationFrame counter; it is not a device GPU frame-time percentile export. |
 | **Write scope** | `ThreeRuntime/src/helios-rift-proof.js`, `ThreeRuntime/src/rts-camera.js`, `ThreeRuntime/src/rts-maps/`, required Helios/Lumen Guard web assets and proofs, dev-only deploy tooling, and Helios evidence/devlog files. |
 | **Do not touch** | Production `helios.contenthelper.in`, unrelated native systems, other maps, completed dirty art, secrets, ownership, or access. |
 | **Reference** | Dedicated 1672×941 Broken Ring image from Codex task `019fe6b7-3b48-7be0-b1b3-caf0d1eb4bf8`; the original three-map board supplies gameplay semantics. |
 | **Evidence** | `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/` and `Docs/QA/ThreeJS/helios-broken-ring-aaa/DEVLOG.md`. |
 | **Cadence** | One bounded visual correction per commit. Push each validated commit. Deploy and verify each accepted cycle at `dev.helios.contenthelper.in`. |
-| **Next correction** | Authored fragment geometry and material breakup: layered edge armor, inset deck plates, cracks, sockets, and stronger wall silhouettes. |
+| **Next correction** | Deploy and verify Cycle 02 on the dev host, then resume authored fragment geometry and material breakup: layered edge armor, inset deck plates, cracks, sockets, and stronger wall silhouettes. |
 
 ### CP-C5 — Military roster breadth · CLOSED 2026-08-01
 
@@ -152,14 +152,14 @@ the director, not taken from the builder. Evidence: `Docs/QA/G2/p14/test-run.md`
 | **Shipped 2026-08-01** | CP-C4 victory and defeat · CP-C5 military roster breadth · CP-C9 economy tuning and nine-minute proof |
 | **Build** | 🟢 `** BUILD SUCCEEDED **` on iPadOS 26.5, installed and played on `75898CE1-…`. **99 tests pass; 2 opt-in long-run tests skipped** under `swift test`. |
 | **Renders** | 🟢 Sparse retune: open Core plazas, thinned props, shorter inland water. Land still **75–80%**. |
-| **Current frame** | Helios comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/reference-vs-current-default.png`. The prior native CP-C9 frame remains historical evidence. |
+| **Current frame** | Cycle 01 comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/reference-vs-cycle-01-final.png`. Cycle 02 native touch frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/ipados-26-5-touch-gameplay-final.png`. |
 | **Version** | 0.6.1 · build 46 |
 | **Gates** | G0 complete · G1 in progress · G2 in progress · G3 opened — none passed |
 | **Play-feel reference** | **Age of Empires 2 / Rise of Rome, in space** (BC-01, 2026-07-31). Was Age of Empires IV. |
 | **Current direction** | Three.js Helios Rift. Match the approved Broken Ring at gameplay scale before adding parallel maps or systems. Preserve the native campaign work as history. |
 | **Can a match be won or lost?** | **Yes.** Both paths were played to a result on the iPad and photographed: Dominion at 3:55, Conquest at 15:55, defeat by Conquest at 5:59, defeat by resignation, and Play Again back to 0:01. A finished match genuinely stops stepping. **What it is not yet:** inside the 8–10 minute promise (nothing observed landed in that window), and the contest rule has never been exercised in play. |
 | **Commit boundary** | Committed narrowly by explicit path. Other agents' dirty work (`Sources/Rendering/FramePacing.swift`, `Sources/Diagnostics/`, `Sources/Simulation/BoardingSystem.swift`, `scripts/`, `Docs/QA/Perf/`, `Docs/QA/Launch/`, app-icon and launch-gate files) left untouched and uncommitted. At CP-C4 `RootView.swift` carried both CP-C4 work and a perf overlay, so its index entry was staged surgically rather than committing the whole file. |
-| **Next checkpoint** | Broken Ring composition readability, then a new rendered comparison and dev-only deployment. |
+| **Next checkpoint** | Ship the validated native touch controls to the dev host, then correct authored fragment geometry and material breakup. |
 
 ---
 
