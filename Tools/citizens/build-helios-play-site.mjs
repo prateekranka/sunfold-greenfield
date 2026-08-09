@@ -29,5 +29,10 @@ await copyFile(
   resolve(runtime, 'assets/citizens/sprites/village-manbun-wanderer/runtime-atlas.png'),
   resolve(atlasDir, 'runtime-atlas.png'),
 );
+// Quantize the deploy copy (source atlas stays bit-exact; saves ~13MB on first load).
+execSync(
+  `${process.env.PYTHON || 'python3'} ${resolve(toolsDir, 'optimize-atlas.py')} ${resolve(atlasDir, 'runtime-atlas.png')} ${resolve(atlasDir, 'runtime-atlas.png')}`,
+  { stdio: 'inherit' },
+);
 
 console.log('Built deploy site at', site);
