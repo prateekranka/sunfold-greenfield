@@ -17,9 +17,13 @@ const BRIDGE_REPAIR_RANGE = 4.5;
 const BRIDGE_REPAIR_COST = 50;
 const HELIOS_CAMERA = Object.freeze({
   minDistance: RTS_CAMERA.minDistance,
-  maxDistance: 110,
+  overviewDistance: 80,
+  overviewTarget: Object.freeze({ x: 7, z: 7 }),
+  maxDistance: 116,
   fovDegrees: 50,
-  far: 240
+  far: 240,
+  pitchDegrees: 43,
+  yawDegrees: 45
 });
 
 const root = document.getElementById("proof-root");
@@ -31,11 +35,13 @@ const toastEl = document.getElementById("toast");
 const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: "high-performance" });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setPixelRatio(1);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.28;
 root.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x020612);
-scene.fog = new THREE.Fog(0x020612, 72, 140);
+scene.background = new THREE.Color(0x01040b);
+scene.fog = new THREE.Fog(0x01040b, 118, 225);
 
 const camera = createRtsCamera(1, HELIOS_CAMERA);
 const mapWorld = createRtsMapWorld(MAP_ID, scene);
@@ -48,6 +54,8 @@ const camCtrl = new RtsCameraController(camera, renderer.domElement, {
   maxDistance: HELIOS_CAMERA.maxDistance,
   fovDegrees: HELIOS_CAMERA.fovDegrees,
   far: HELIOS_CAMERA.far,
+  pitchDegrees: HELIOS_CAMERA.pitchDegrees,
+  yawDegrees: HELIOS_CAMERA.yawDegrees,
   panRadius: HALF + 6,
   zoomSmooth: 18,
   panSmooth: 20
@@ -63,15 +71,15 @@ function resize() {
 resize();
 window.addEventListener("resize", resize);
 
-scene.add(new THREE.HemisphereLight(0xd7e4ff, 0x080d18, 1.0));
-const key = new THREE.DirectionalLight(0xffd09a, 1.8);
-key.position.set(-18, 30, 14);
+scene.add(new THREE.HemisphereLight(0xd9e4ff, 0x100b09, 1.28));
+const key = new THREE.DirectionalLight(0xffc77f, 3.1);
+key.position.set(-24, 34, 18);
 scene.add(key);
-const fill = new THREE.DirectionalLight(0x6ac8d0, 0.55);
-fill.position.set(14, 16, -12);
+const fill = new THREE.DirectionalLight(0x74d6df, 0.82);
+fill.position.set(18, 22, -18);
 scene.add(fill);
-const rim = new THREE.DirectionalLight(0x5574ae, 0.3);
-rim.position.set(16, 10, 20);
+const rim = new THREE.DirectionalLight(0x7797d8, 0.72);
+rim.position.set(22, 18, 26);
 scene.add(rim);
 
 const selectionMat = new THREE.MeshBasicMaterial({
@@ -539,8 +547,8 @@ function updateStatus() {
   if (flareBanner) flareBanner.style.display = flare ? "block" : "none";
 }
 
-camCtrl.panTo(0, 0, { immediate: true });
-camCtrl.setDistance(HELIOS_CAMERA.maxDistance, { immediate: true });
+camCtrl.panTo(HELIOS_CAMERA.overviewTarget.x, HELIOS_CAMERA.overviewTarget.z, { immediate: true });
+camCtrl.setDistance(HELIOS_CAMERA.overviewDistance, { immediate: true });
 
 let last = performance.now();
 let minimapAcc = MINIMAP_INTERVAL;

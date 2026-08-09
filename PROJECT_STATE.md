@@ -28,14 +28,14 @@ CP-C6 sequence unless the user changes direction.
 | | |
 |---|---|
 | **Goal** | Match the approved Broken Ring reference at the real gameplay camera while preserving a playable four-sector RTS map. |
-| **Current proof** | Commit `ac20998` builds and runs with 12 units, four broken bridges, the solar objective, resources, minimap, and no browser console warnings or errors. The identical bundle is live on `dev.helios.contenthelper.in` as Worker version `2ce69824-e2f7-4ce3-91f4-80bdf6003042`. |
-| **Current mismatch** | The ring topology reads, but the live scene is too dark, flat, and top-down. The solar core is too small and subdued. The observed in-app Browser HUD reports 30 FPS, so 60 FPS is not yet proven. |
+| **Current proof** | Cycle 01 builds and runs locally with a measured 43-degree Helios camera, closer full-ring framing, deeper fragment walls, brighter rough-metal materials, and a dominant solar objective. A 59.98-second in-app Browser stress pass with 12 moving Citizens, camera changes, core capture, one bridge repair, and a flare held 60.00 FPS average, 18.5 ms p95, and no frame above 20 ms. The latest deployed checkpoint remains Cycle 00 until Cycle 01 is pushed and verified. |
+| **Current mismatch** | Composition is materially closer to the approved reference. The largest remaining gap is authored surface and silhouette detail: current fragments are broad smooth wedges, the solar core lacks plasma structure, and the resource islets and starfield remain visually quiet. Native iPadOS 26.x WebKit frame pacing is not yet proven. |
 | **Write scope** | `ThreeRuntime/src/helios-rift-proof.js`, `ThreeRuntime/src/rts-camera.js`, `ThreeRuntime/src/rts-maps/`, required Helios/Lumen Guard web assets and proofs, dev-only deploy tooling, and Helios evidence/devlog files. |
 | **Do not touch** | Production `helios.contenthelper.in`, unrelated native systems, other maps, completed dirty art, secrets, ownership, or access. |
 | **Reference** | Dedicated 1672×941 Broken Ring image from Codex task `019fe6b7-3b48-7be0-b1b3-caf0d1eb4bf8`; the original three-map board supplies gameplay semantics. |
 | **Evidence** | `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/` and `Docs/QA/ThreeJS/helios-broken-ring-aaa/DEVLOG.md`. |
 | **Cadence** | One bounded visual correction per commit. Push each validated commit. Deploy and verify each accepted cycle at `dev.helios.contenthelper.in`. |
-| **Next correction** | Composition readability: camera pitch/framing, fog/exposure, platform depth cues, and solar-core authority. |
+| **Next correction** | Authored fragment geometry and material breakup: layered edge armor, inset deck plates, cracks, sockets, and stronger wall silhouettes. |
 
 ### CP-C5 — Military roster breadth · CLOSED 2026-08-01
 

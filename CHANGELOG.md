@@ -18,7 +18,14 @@ minimap.
 - Helios geometry now uses four authored annular sectors, aligned bridge visuals and path
   targets, raised understructure, debris clearance, spawn pads, landmarks, and resource
   islets.
-- The Helios proof starts in a full-map overview and supports its wider world bounds.
+- The Helios proof now starts from a measured 43-degree, 80-unit hero overview. The ring
+  remains fully readable while its inner walls and front understructure gain depth.
+- The fragment stack is deeper. Basalt and deck materials now read as rough stone-metal
+  instead of near-mirror metal. Warm edge ribs strengthen the broken-ring silhouette.
+- The solar objective now has a larger emissive core, additive corona, radial halo, wider
+  warm light, and explicit capture-zone and beam dimensions.
+- Fog, tone mapping, exposure, and key/fill/rim lighting now preserve the upper fragments
+  while keeping the void dark.
 
 ### Dev delivery
 
@@ -30,9 +37,11 @@ minimap.
 
 ### Proof pending
 
-- The live map is still materially darker, flatter, and more top-down than the approved
-  reference. The solar core is not yet the frame's dominant landmark.
-- The in-app Browser HUD reported 30 FPS with 12 units. No 60 FPS claim is made.
+- The one-minute local Chromium stress pass held 60.00 FPS average, 18.5 ms p95, and no
+  frame above 20 ms with 12 moving Citizens, camera changes, core capture, one repaired
+  bridge, and a flare. Native iPadOS 26.x WebKit proof remains pending.
+- The map still lacks the reference's layered edge armor, dense deck breakup, cracks,
+  sockets, animated solar plasma, substantial crystal islets, and nebula depth.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game
 

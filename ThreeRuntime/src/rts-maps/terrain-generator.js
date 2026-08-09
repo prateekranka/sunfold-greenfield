@@ -100,32 +100,32 @@ function addLegacyStarfield(group) {
 function createHeliosMaterials(palette) {
   const metal = (color, roughness, metalness = 0.8, extra = {}) =>
     new THREE.MeshStandardMaterial({ color, roughness, metalness, ...extra });
-  const glow = (color, intensity = 1.1, opacity = 1) =>
+  const glow = (color, intensity = 1.1, opacity = 1, metalness = 0.3, roughness = 0.28) =>
     new THREE.MeshStandardMaterial({
       color,
       emissive: color,
       emissiveIntensity: intensity,
-      roughness: 0.32,
-      metalness: 0.35,
+      roughness,
+      metalness,
       transparent: opacity < 1,
       opacity
     });
 
   return {
-    understructure: metal(palette.understructure ?? 0x0b1017, 0.9, 0.9),
-    basalt: metal(palette.basalt ?? 0x171d25, 0.84, 0.86),
-    basaltEdge: metal(palette.basaltEdge ?? 0x29323c, 0.74, 0.9),
-    deck: metal(palette.deck ?? 0x59616a, 0.66, 0.92),
-    deckLight: metal(palette.deckLight ?? 0x76808a, 0.58, 0.94),
-    seam: metal(palette.seam ?? 0x252d36, 0.9, 0.62),
-    gold: glow(palette.gold ?? 0xe9a749, 0.9),
-    goldBright: glow(palette.goldBright ?? 0xffcf72, 1.45),
-    conduit: glow(palette.conduit ?? 0x35d8ce, 1.15, 0.86),
-    conduitBright: glow(palette.conduitBright ?? 0x83fff1, 1.75),
-    spawn: glow(palette.spawn ?? 0x328dff, 1.2, 0.88),
-    resource: glow(palette.resource ?? 0x3ed9b5, 1.2, 0.9),
-    crystal: glow(palette.crystal ?? 0x46e5e2, 1.45),
-    rock: metal(palette.rock ?? 0x1a232d, 0.95, 0.78),
+    understructure: metal(palette.understructure ?? 0x0b1017, 0.68, 0.72),
+    basalt: metal(palette.basalt ?? 0x171d25, 0.86, 0.28),
+    basaltEdge: metal(palette.basaltEdge ?? 0x29323c, 0.72, 0.46),
+    deck: metal(palette.deck ?? 0x59616a, 0.74, 0.22),
+    deckLight: metal(palette.deckLight ?? 0x76808a, 0.62, 0.3),
+    seam: metal(palette.seam ?? 0x252d36, 0.9, 0.18),
+    gold: glow(palette.gold ?? 0xe9a749, 0.95, 1, 0.82, 0.3),
+    goldBright: glow(palette.goldBright ?? 0xffcf72, 1.55, 1, 0.74, 0.22),
+    conduit: glow(palette.conduit ?? 0x35d8ce, 1.15, 0.86, 0.18, 0.2),
+    conduitBright: glow(palette.conduitBright ?? 0x83fff1, 1.75, 1, 0.12, 0.16),
+    spawn: glow(palette.spawn ?? 0x328dff, 1.2, 0.88, 0.18, 0.2),
+    resource: glow(palette.resource ?? 0x3ed9b5, 1.2, 0.9, 0.16, 0.22),
+    crystal: glow(palette.crystal ?? 0x46e5e2, 1.45, 1, 0.12, 0.16),
+    rock: metal(palette.rock ?? 0x1a232d, 0.92, 0.16),
     goldLine: line(palette.gold ?? 0xe9a749, 0.78),
     seamLine: line(palette.seam ?? 0x252d36, 0.9),
     conduitLine: line(palette.conduit ?? 0x35d8ce, 0.8),
@@ -279,9 +279,15 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
       surfaceY + 0.045
     );
     if (i > 0 && i < panelCount) {
-      const ribY = surfaceY - underDepth * 0.55;
-      addEdgeRib(g, outer - 0.2, a, 0.72, 0.72, materials.basaltEdge, ribY);
-      addEdgeRib(g, inner + 0.2, a, 0.62, 0.72, materials.basaltEdge, ribY);
+      const ribY = surfaceY - underDepth * 0.5 - 0.12;
+      const ribHeight = underDepth * 0.76;
+      addEdgeRib(g, outer - 0.2, a, 0.72, ribHeight, materials.basaltEdge, ribY);
+      addEdgeRib(g, inner + 0.2, a, 0.62, ribHeight, materials.basaltEdge, ribY);
+      if (i % 2 === 0) {
+        const lightY = surfaceY - underDepth * 0.42;
+        addEdgeRib(g, outer - 0.58, a, 0.1, underDepth * 0.3, materials.gold, lightY);
+        addEdgeRib(g, inner + 0.58, a, 0.1, underDepth * 0.3, materials.gold, lightY);
+      }
     }
   }
 

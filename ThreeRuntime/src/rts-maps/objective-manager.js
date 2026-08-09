@@ -3,6 +3,26 @@
 import * as THREE from "three";
 import { TERRAIN_PALETTE } from "./terrain-generator.js";
 
+let solarHaloTexture = null;
+
+function getSolarHaloTexture() {
+  if (solarHaloTexture) return solarHaloTexture;
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 128;
+  const context = canvas.getContext("2d");
+  const gradient = context.createRadialGradient(64, 64, 2, 64, 64, 62);
+  gradient.addColorStop(0, "rgba(255,248,198,1)");
+  gradient.addColorStop(0.16, "rgba(255,181,54,0.95)");
+  gradient.addColorStop(0.46, "rgba(255,100,20,0.42)");
+  gradient.addColorStop(1, "rgba(255,68,8,0)");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 128, 128);
+  solarHaloTexture = new THREE.CanvasTexture(canvas);
+  solarHaloTexture.colorSpace = THREE.SRGBColorSpace;
+  return solarHaloTexture;
+}
+
 /**
  * @typedef {object} ObjectiveInstance
  * @property {string} id
@@ -28,7 +48,9 @@ export function spawnObjectives(specs, parent) {
     const visual = spec.visual ?? {};
     const captureZone = visual.captureZone ?? {};
     const captureZoneRadius =
-      visual.captureZoneRadius ?? visual.captureRadius ?? captureZone.radius ?? spec.captureRadius;
+      visual.captureZoneRadius ?? visual.captureRadius ?? captureZone.outerRadius ?? captureZone.radius ?? spec.captureRadius;
+    const captureZoneInnerRadius =
+      visual.captureZoneInnerRadius ?? captureZone.innerRadius ?? captureZoneRadius * 0.85;
     const captureZoneColor =
       visual.captureZoneColor ?? visual.captureColor ?? captureZone.color ?? 0xffffff;
     const captureZoneOpacity =
@@ -43,8 +65,12 @@ export function spawnObjectives(specs, parent) {
       const beamColor = visual.beamColor ?? TERRAIN_PALETTE.energy;
       const coreOpacity = visual.coreOpacity ?? 0.85;
       const coronaOpacity = visual.coronaOpacity ?? 0.25;
-      const beamHeight = visual.beamHeight ?? 6;
-      const beamOpacity = visual.beamOpacity ?? 0.5;
+      const coreHeight = visual.height ?? 3.2;
+      const beamSpec = visual.beam ?? {};
+      const beamHeight = visual.beamHeight ?? beamSpec.height ?? 6;
+      const beamOpacity = visual.beamOpacity ?? beamSpec.opacity ?? 0.5;
+      const beamTopRadius = visual.beamRadiusTop ?? beamSpec.radiusTop ?? 0.15;
+      const beamBottomRadius = visual.beamRadiusBottom ?? beamSpec.radiusBottom ?? 0.4;
       const hasEmissive = visual.emissive !== undefined || visual.emissiveIntensity !== undefined;
       const coreMaterial = hasEmissive
         ? new THREE.MeshStandardMaterial({
@@ -60,10 +86,11 @@ export function spawnObjectives(specs, parent) {
             opacity: coreOpacity
           });
       const core = new THREE.Mesh(
-        new THREE.SphereGeometry(coreRadius, 24, 16),
+        new THREE.SphereGeometry(coreRadius, 40, 28),
         coreMaterial
       );
-      core.position.y = 3.2;
+      core.position.y = coreHeight;
+      core.name = "solar-core-sphere";
       g.add(core);
 
       const corona = new THREE.Mesh(
@@ -72,18 +99,40 @@ export function spawnObjectives(specs, parent) {
           color: coronaColor,
           transparent: true,
           opacity: coronaOpacity,
-          depthWrite: false
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
         })
       );
-      corona.position.y = 3.2;
+      corona.position.y = coreHeight;
       corona.name = "corona";
       g.add(corona);
 
-      const beam = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.15, 0.4, beamHeight, 8),
-        new THREE.MeshBasicMaterial({ color: beamColor, transparent: true, opacity: beamOpacity })
+      const halo = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: getSolarHaloTexture(),
+          color: coronaColor,
+          transparent: true,
+          opacity: visual.haloOpacity ?? 0.62,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
       );
-      beam.position.y = 0.3;
+      const haloSize = visual.haloSize ?? coronaRadius * 3;
+      halo.position.y = coreHeight;
+      halo.scale.set(haloSize, haloSize, 1);
+      halo.name = "solar-halo";
+      g.add(halo);
+
+      const beam = new THREE.Mesh(
+        new THREE.CylinderGeometry(beamTopRadius, beamBottomRadius, beamHeight, 8),
+        new THREE.MeshBasicMaterial({
+          color: beamSpec.color ?? beamColor,
+          transparent: true,
+          opacity: beamOpacity,
+          depthWrite: false
+        })
+      );
+      beam.position.y = coreHeight - beamHeight * 0.5;
       g.add(beam);
 
       const lightColor = visual.lightColor ?? light.color;
@@ -91,18 +140,18 @@ export function spawnObjectives(specs, parent) {
       if (lightColor !== undefined || lightIntensity !== undefined) {
         const pointLight = new THREE.PointLight(
           lightColor ?? coronaColor,
-          Math.min(lightIntensity ?? 1, 2.5),
-          Math.min(visual.lightDistance ?? light.distance ?? 20, 24),
+          Math.min(lightIntensity ?? 1, 8),
+          Math.min(visual.lightDistance ?? light.distance ?? 20, 64),
           Math.min(visual.lightDecay ?? light.decay ?? 2, 2)
         );
-        pointLight.position.y = 3.2;
+        pointLight.position.y = coreHeight;
         pointLight.name = "solar-light";
         g.add(pointLight);
       }
     }
 
     const zone = new THREE.Mesh(
-      new THREE.RingGeometry(captureZoneRadius * 0.85, captureZoneRadius, 48),
+      new THREE.RingGeometry(captureZoneInnerRadius, captureZoneRadius, 48),
       new THREE.MeshBasicMaterial({
         color: captureZoneColor,
         transparent: true,

@@ -25,19 +25,19 @@ export const RTS_CAMERA = Object.freeze({
   far: 120,
 });
 
-const PITCH = THREE.MathUtils.degToRad(RTS_CAMERA.pitchDegrees);
-const YAW = THREE.MathUtils.degToRad(RTS_CAMERA.yawDegrees);
-
 /**
  * World-space offset from target to camera for the locked RTS rig.
  * @param {number} [distance]
+ * @param {{ pitchDegrees?: number, yawDegrees?: number }} [presentation]
  * @returns {THREE.Vector3}
  */
-export function rtsCameraOffset(distance = RTS_CAMERA.defaultDistance) {
-  const horiz = distance * Math.cos(PITCH);
-  const y = distance * Math.sin(PITCH);
-  const x = horiz * Math.sin(YAW);
-  const z = horiz * Math.cos(YAW);
+export function rtsCameraOffset(distance = RTS_CAMERA.defaultDistance, presentation = {}) {
+  const pitch = THREE.MathUtils.degToRad(presentation.pitchDegrees ?? RTS_CAMERA.pitchDegrees);
+  const yaw = THREE.MathUtils.degToRad(presentation.yawDegrees ?? RTS_CAMERA.yawDegrees);
+  const horiz = distance * Math.cos(pitch);
+  const y = distance * Math.sin(pitch);
+  const x = horiz * Math.sin(yaw);
+  const z = horiz * Math.cos(yaw);
   return new THREE.Vector3(x, y, z);
 }
 
@@ -46,12 +46,12 @@ export function rtsCameraOffset(distance = RTS_CAMERA.defaultDistance) {
  * @param {THREE.PerspectiveCamera} camera
  * @param {THREE.Vector3} target ground-plane look-at (y = targetHeight applied)
  * @param {number} [distance]
- * @param {{ fovDegrees?: number, far?: number }} [presentation]
+ * @param {{ fovDegrees?: number, far?: number, pitchDegrees?: number, yawDegrees?: number }} [presentation]
  */
 export function applyRtsCamera(camera, target, distance = RTS_CAMERA.defaultDistance, presentation = {}) {
   const look = target.clone();
   look.y = RTS_CAMERA.targetHeight;
-  camera.position.copy(look).add(rtsCameraOffset(distance));
+  camera.position.copy(look).add(rtsCameraOffset(distance, presentation));
   camera.lookAt(look);
   camera.fov = presentation.fovDegrees ?? RTS_CAMERA.fovDegrees;
   camera.near = RTS_CAMERA.near;
@@ -91,6 +91,8 @@ export class RtsCameraController {
    *   maxDistance?: number,
    *   fovDegrees?: number,
    *   far?: number,
+   *   pitchDegrees?: number,
+   *   yawDegrees?: number,
    *   panRadius?: number,
    *   zoomSmooth?: number,
    *   panSmooth?: number,
@@ -109,6 +111,8 @@ export class RtsCameraController {
     this.maxDistance = opts.maxDistance ?? RTS_CAMERA.maxDistance;
     this.fovDegrees = opts.fovDegrees ?? RTS_CAMERA.fovDegrees;
     this.far = opts.far ?? RTS_CAMERA.far;
+    this.pitchDegrees = opts.pitchDegrees ?? RTS_CAMERA.pitchDegrees;
+    this.yawDegrees = opts.yawDegrees ?? RTS_CAMERA.yawDegrees;
 
     /** @type {THREE.Vector3} smoothed look-at (XZ); y ignored */
     this._desiredTarget = this.target.clone();
@@ -131,8 +135,9 @@ export class RtsCameraController {
     this._keys = new Set();
     this._enabled = true;
 
-    const right = new THREE.Vector3(Math.cos(YAW), 0, -Math.sin(YAW));
-    const forward = new THREE.Vector3(-Math.sin(YAW), 0, -Math.cos(YAW));
+    const yaw = THREE.MathUtils.degToRad(this.yawDegrees);
+    const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+    const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
     this._right = right;
     this._forward = forward;
 
@@ -392,7 +397,9 @@ export class RtsCameraController {
   update() {
     applyRtsCamera(this.camera, this.target, this.distance, {
       fovDegrees: this.fovDegrees,
-      far: this.far
+      far: this.far,
+      pitchDegrees: this.pitchDegrees,
+      yawDegrees: this.yawDegrees
     });
   }
 
@@ -411,6 +418,8 @@ export class RtsCameraController {
 
 /** Serialisable snapshot for docs / bake scripts. */
 export function rtsCameraSpec() {
+  const pitch = THREE.MathUtils.degToRad(RTS_CAMERA.pitchDegrees);
+  const yaw = THREE.MathUtils.degToRad(RTS_CAMERA.yawDegrees);
   return {
     pitchDegrees: RTS_CAMERA.pitchDegrees,
     yawDegrees: RTS_CAMERA.yawDegrees,
@@ -421,9 +430,9 @@ export function rtsCameraSpec() {
     defaultPosition: rtsCameraOffset(RTS_CAMERA.defaultDistance).toArray(),
     /** Blender Z-up equivalent (x, y, z) for bake_sprites.py */
     blenderPosition: [
-      Number((RTS_CAMERA.defaultDistance * Math.cos(PITCH) * Math.sin(YAW)).toFixed(4)),
-      Number((-RTS_CAMERA.defaultDistance * Math.cos(PITCH) * Math.cos(YAW)).toFixed(4)),
-      Number((RTS_CAMERA.defaultDistance * Math.sin(PITCH)).toFixed(4)),
+      Number((RTS_CAMERA.defaultDistance * Math.cos(pitch) * Math.sin(yaw)).toFixed(4)),
+      Number((-RTS_CAMERA.defaultDistance * Math.cos(pitch) * Math.cos(yaw)).toFixed(4)),
+      Number((RTS_CAMERA.defaultDistance * Math.sin(pitch)).toFixed(4)),
     ],
     note: "Sprite bakes must use this rig; gameplay never orbits away from it.",
   };

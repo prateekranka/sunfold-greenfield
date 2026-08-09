@@ -12682,6 +12682,665 @@
       return data;
     }
   };
+  var InterleavedBuffer = class {
+    /**
+     * Constructs a new interleaved buffer.
+     *
+     * @param {TypedArray} array - A typed array with a shared buffer storing attribute data.
+     * @param {number} stride - The number of typed-array elements per vertex.
+     */
+    constructor(array, stride) {
+      this.isInterleavedBuffer = true;
+      this.array = array;
+      this.stride = stride;
+      this.count = array !== void 0 ? array.length / stride : 0;
+      this.usage = StaticDrawUsage;
+      this.updateRanges = [];
+      this.version = 0;
+      this.uuid = generateUUID();
+    }
+    /**
+     * A callback function that is executed after the renderer has transferred the attribute array
+     * data to the GPU.
+     */
+    onUploadCallback() {
+    }
+    /**
+     * Flag to indicate that this attribute has changed and should be re-sent to
+     * the GPU. Set this to `true` when you modify the value of the array.
+     *
+     * @type {number}
+     * @default false
+     * @param {boolean} value
+     */
+    set needsUpdate(value) {
+      if (value === true) this.version++;
+    }
+    /**
+     * Sets the usage of this interleaved buffer.
+     *
+     * @param {(StaticDrawUsage|DynamicDrawUsage|StreamDrawUsage|StaticReadUsage|DynamicReadUsage|StreamReadUsage|StaticCopyUsage|DynamicCopyUsage|StreamCopyUsage)} value - The usage to set.
+     * @return {InterleavedBuffer} A reference to this interleaved buffer.
+     */
+    setUsage(value) {
+      this.usage = value;
+      return this;
+    }
+    /**
+     * Adds a range of data in the data array to be updated on the GPU.
+     *
+     * @param {number} start - Position at which to start update.
+     * @param {number} count - The number of components to update.
+     */
+    addUpdateRange(start, count) {
+      this.updateRanges.push({ start, count });
+    }
+    /**
+     * Clears the update ranges.
+     */
+    clearUpdateRanges() {
+      this.updateRanges.length = 0;
+    }
+    /**
+     * Copies the values of the given interleaved buffer to this instance.
+     *
+     * @param {InterleavedBuffer} source - The interleaved buffer to copy.
+     * @return {InterleavedBuffer} A reference to this instance.
+     */
+    copy(source) {
+      this.array = new source.array.constructor(source.array);
+      this.count = source.count;
+      this.stride = source.stride;
+      this.usage = source.usage;
+      return this;
+    }
+    /**
+     * Copies a vector from the given interleaved buffer to this one. The start
+     * and destination position in the attribute buffers are represented by the
+     * given indices.
+     *
+     * @param {number} index1 - The destination index into this interleaved buffer.
+     * @param {InterleavedBuffer} interleavedBuffer - The interleaved buffer to copy from.
+     * @param {number} index2 - The source index into the given interleaved buffer.
+     * @return {InterleavedBuffer} A reference to this instance.
+     */
+    copyAt(index1, interleavedBuffer, index2) {
+      index1 *= this.stride;
+      index2 *= interleavedBuffer.stride;
+      for (let i = 0, l = this.stride; i < l; i++) {
+        this.array[index1 + i] = interleavedBuffer.array[index2 + i];
+      }
+      return this;
+    }
+    /**
+     * Sets the given array data in the interleaved buffer.
+     *
+     * @param {(TypedArray|Array)} value - The array data to set.
+     * @param {number} [offset=0] - The offset in this interleaved buffer's array.
+     * @return {InterleavedBuffer} A reference to this instance.
+     */
+    set(value, offset = 0) {
+      this.array.set(value, offset);
+      return this;
+    }
+    /**
+     * Returns a new interleaved buffer with copied values from this instance.
+     *
+     * @param {Object} [data] - An object with shared array buffers that allows to retain shared structures.
+     * @return {InterleavedBuffer} A clone of this instance.
+     */
+    clone(data) {
+      if (data.arrayBuffers === void 0) {
+        data.arrayBuffers = {};
+      }
+      if (this.array.buffer._uuid === void 0) {
+        this.array.buffer._uuid = generateUUID();
+      }
+      if (data.arrayBuffers[this.array.buffer._uuid] === void 0) {
+        data.arrayBuffers[this.array.buffer._uuid] = this.array.slice(0).buffer;
+      }
+      const array = new this.array.constructor(data.arrayBuffers[this.array.buffer._uuid]);
+      const ib = new this.constructor(array, this.stride);
+      ib.setUsage(this.usage);
+      return ib;
+    }
+    /**
+     * Sets the given callback function that is executed after the Renderer has transferred
+     * the array data to the GPU. Can be used to perform clean-up operations after
+     * the upload when data are not needed anymore on the CPU side.
+     *
+     * @param {Function} callback - The `onUpload()` callback.
+     * @return {InterleavedBuffer} A reference to this instance.
+     */
+    onUpload(callback) {
+      this.onUploadCallback = callback;
+      return this;
+    }
+    /**
+     * Serializes the interleaved buffer into JSON.
+     *
+     * @param {Object} [data] - An optional value holding meta information about the serialization.
+     * @return {Object} A JSON object representing the serialized interleaved buffer.
+     */
+    toJSON(data) {
+      if (data.arrayBuffers === void 0) {
+        data.arrayBuffers = {};
+      }
+      if (this.array.buffer._uuid === void 0) {
+        this.array.buffer._uuid = generateUUID();
+      }
+      if (data.arrayBuffers[this.array.buffer._uuid] === void 0) {
+        data.arrayBuffers[this.array.buffer._uuid] = Array.from(new Uint32Array(this.array.buffer));
+      }
+      return {
+        uuid: this.uuid,
+        buffer: this.array.buffer._uuid,
+        type: this.array.constructor.name,
+        stride: this.stride
+      };
+    }
+  };
+  var _vector$7 = /* @__PURE__ */ new Vector3();
+  var InterleavedBufferAttribute = class _InterleavedBufferAttribute {
+    /**
+     * Constructs a new interleaved buffer attribute.
+     *
+     * @param {InterleavedBuffer} interleavedBuffer - The buffer holding the interleaved data.
+     * @param {number} itemSize - The item size.
+     * @param {number} offset - The attribute offset into the buffer.
+     * @param {boolean} [normalized=false] - Whether the data are normalized or not.
+     */
+    constructor(interleavedBuffer, itemSize, offset, normalized = false) {
+      this.isInterleavedBufferAttribute = true;
+      this.name = "";
+      this.data = interleavedBuffer;
+      this.itemSize = itemSize;
+      this.offset = offset;
+      this.normalized = normalized;
+    }
+    /**
+     * The item count of this buffer attribute.
+     *
+     * @type {number}
+     * @readonly
+     */
+    get count() {
+      return this.data.count;
+    }
+    /**
+     * The array holding the interleaved buffer attribute data.
+     *
+     * @type {TypedArray}
+     */
+    get array() {
+      return this.data.array;
+    }
+    /**
+     * Flag to indicate that this attribute has changed and should be re-sent to
+     * the GPU. Set this to `true` when you modify the value of the array.
+     *
+     * @type {number}
+     * @default false
+     * @param {boolean} value
+     */
+    set needsUpdate(value) {
+      this.data.needsUpdate = value;
+    }
+    /**
+     * Applies the given 4x4 matrix to the given attribute. Only works with
+     * item size `3`.
+     *
+     * @param {Matrix4} m - The matrix to apply.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    applyMatrix4(m) {
+      for (let i = 0, l = this.data.count; i < l; i++) {
+        _vector$7.fromBufferAttribute(this, i);
+        _vector$7.applyMatrix4(m);
+        this.setXYZ(i, _vector$7.x, _vector$7.y, _vector$7.z);
+      }
+      return this;
+    }
+    /**
+     * Applies the given 3x3 normal matrix to the given attribute. Only works with
+     * item size `3`.
+     *
+     * @param {Matrix3} m - The normal matrix to apply.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    applyNormalMatrix(m) {
+      for (let i = 0, l = this.count; i < l; i++) {
+        _vector$7.fromBufferAttribute(this, i);
+        _vector$7.applyNormalMatrix(m);
+        this.setXYZ(i, _vector$7.x, _vector$7.y, _vector$7.z);
+      }
+      return this;
+    }
+    /**
+     * Applies the given 4x4 matrix to the given attribute. Only works with
+     * item size `3` and with direction vectors.
+     *
+     * @param {Matrix4} m - The matrix to apply.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    transformDirection(m) {
+      for (let i = 0, l = this.count; i < l; i++) {
+        _vector$7.fromBufferAttribute(this, i);
+        _vector$7.transformDirection(m);
+        this.setXYZ(i, _vector$7.x, _vector$7.y, _vector$7.z);
+      }
+      return this;
+    }
+    /**
+     * Returns the given component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} component - The component index.
+     * @return {number} The returned value.
+     */
+    getComponent(index, component) {
+      let value = this.array[index * this.data.stride + this.offset + component];
+      if (this.normalized) value = denormalize(value, this.array);
+      return value;
+    }
+    /**
+     * Sets the given value to the given component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} component - The component index.
+     * @param {number} value - The value to set.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    setComponent(index, component, value) {
+      if (this.normalized) value = normalize(value, this.array);
+      this.data.array[index * this.data.stride + this.offset + component] = value;
+      return this;
+    }
+    /**
+     * Sets the x component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} x - The value to set.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    setX(index, x) {
+      if (this.normalized) x = normalize(x, this.array);
+      this.data.array[index * this.data.stride + this.offset] = x;
+      return this;
+    }
+    /**
+     * Sets the y component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} y - The value to set.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    setY(index, y) {
+      if (this.normalized) y = normalize(y, this.array);
+      this.data.array[index * this.data.stride + this.offset + 1] = y;
+      return this;
+    }
+    /**
+     * Sets the z component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} z - The value to set.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    setZ(index, z) {
+      if (this.normalized) z = normalize(z, this.array);
+      this.data.array[index * this.data.stride + this.offset + 2] = z;
+      return this;
+    }
+    /**
+     * Sets the w component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} w - The value to set.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    setW(index, w) {
+      if (this.normalized) w = normalize(w, this.array);
+      this.data.array[index * this.data.stride + this.offset + 3] = w;
+      return this;
+    }
+    /**
+     * Returns the x component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @return {number} The x component.
+     */
+    getX(index) {
+      let x = this.data.array[index * this.data.stride + this.offset];
+      if (this.normalized) x = denormalize(x, this.array);
+      return x;
+    }
+    /**
+     * Returns the y component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @return {number} The y component.
+     */
+    getY(index) {
+      let y = this.data.array[index * this.data.stride + this.offset + 1];
+      if (this.normalized) y = denormalize(y, this.array);
+      return y;
+    }
+    /**
+     * Returns the z component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @return {number} The z component.
+     */
+    getZ(index) {
+      let z = this.data.array[index * this.data.stride + this.offset + 2];
+      if (this.normalized) z = denormalize(z, this.array);
+      return z;
+    }
+    /**
+     * Returns the w component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @return {number} The w component.
+     */
+    getW(index) {
+      let w = this.data.array[index * this.data.stride + this.offset + 3];
+      if (this.normalized) w = denormalize(w, this.array);
+      return w;
+    }
+    /**
+     * Sets the x and y component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} x - The value for the x component to set.
+     * @param {number} y - The value for the y component to set.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    setXY(index, x, y) {
+      index = index * this.data.stride + this.offset;
+      if (this.normalized) {
+        x = normalize(x, this.array);
+        y = normalize(y, this.array);
+      }
+      this.data.array[index + 0] = x;
+      this.data.array[index + 1] = y;
+      return this;
+    }
+    /**
+     * Sets the x, y and z component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} x - The value for the x component to set.
+     * @param {number} y - The value for the y component to set.
+     * @param {number} z - The value for the z component to set.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    setXYZ(index, x, y, z) {
+      index = index * this.data.stride + this.offset;
+      if (this.normalized) {
+        x = normalize(x, this.array);
+        y = normalize(y, this.array);
+        z = normalize(z, this.array);
+      }
+      this.data.array[index + 0] = x;
+      this.data.array[index + 1] = y;
+      this.data.array[index + 2] = z;
+      return this;
+    }
+    /**
+     * Sets the x, y, z and w component of the vector at the given index.
+     *
+     * @param {number} index - The index into the buffer attribute.
+     * @param {number} x - The value for the x component to set.
+     * @param {number} y - The value for the y component to set.
+     * @param {number} z - The value for the z component to set.
+     * @param {number} w - The value for the w component to set.
+     * @return {InterleavedBufferAttribute} A reference to this instance.
+     */
+    setXYZW(index, x, y, z, w) {
+      index = index * this.data.stride + this.offset;
+      if (this.normalized) {
+        x = normalize(x, this.array);
+        y = normalize(y, this.array);
+        z = normalize(z, this.array);
+        w = normalize(w, this.array);
+      }
+      this.data.array[index + 0] = x;
+      this.data.array[index + 1] = y;
+      this.data.array[index + 2] = z;
+      this.data.array[index + 3] = w;
+      return this;
+    }
+    /**
+     * Returns a new buffer attribute with copied values from this instance.
+     *
+     * If no parameter is provided, cloning an interleaved buffer attribute will de-interleave buffer data.
+     *
+     * @param {Object} [data] - An object with interleaved buffers that allows to retain the interleaved property.
+     * @return {BufferAttribute|InterleavedBufferAttribute} A clone of this instance.
+     */
+    clone(data) {
+      if (data === void 0) {
+        console.log("THREE.InterleavedBufferAttribute.clone(): Cloning an interleaved buffer attribute will de-interleave buffer data.");
+        const array = [];
+        for (let i = 0; i < this.count; i++) {
+          const index = i * this.data.stride + this.offset;
+          for (let j = 0; j < this.itemSize; j++) {
+            array.push(this.data.array[index + j]);
+          }
+        }
+        return new BufferAttribute(new this.array.constructor(array), this.itemSize, this.normalized);
+      } else {
+        if (data.interleavedBuffers === void 0) {
+          data.interleavedBuffers = {};
+        }
+        if (data.interleavedBuffers[this.data.uuid] === void 0) {
+          data.interleavedBuffers[this.data.uuid] = this.data.clone(data);
+        }
+        return new _InterleavedBufferAttribute(data.interleavedBuffers[this.data.uuid], this.itemSize, this.offset, this.normalized);
+      }
+    }
+    /**
+     * Serializes the buffer attribute into JSON.
+     *
+     * If no parameter is provided, cloning an interleaved buffer attribute will de-interleave buffer data.
+     *
+     * @param {Object} [data] - An optional value holding meta information about the serialization.
+     * @return {Object} A JSON object representing the serialized buffer attribute.
+     */
+    toJSON(data) {
+      if (data === void 0) {
+        console.log("THREE.InterleavedBufferAttribute.toJSON(): Serializing an interleaved buffer attribute will de-interleave buffer data.");
+        const array = [];
+        for (let i = 0; i < this.count; i++) {
+          const index = i * this.data.stride + this.offset;
+          for (let j = 0; j < this.itemSize; j++) {
+            array.push(this.data.array[index + j]);
+          }
+        }
+        return {
+          itemSize: this.itemSize,
+          type: this.array.constructor.name,
+          array,
+          normalized: this.normalized
+        };
+      } else {
+        if (data.interleavedBuffers === void 0) {
+          data.interleavedBuffers = {};
+        }
+        if (data.interleavedBuffers[this.data.uuid] === void 0) {
+          data.interleavedBuffers[this.data.uuid] = this.data.toJSON(data);
+        }
+        return {
+          isInterleavedBufferAttribute: true,
+          itemSize: this.itemSize,
+          data: this.data.uuid,
+          offset: this.offset,
+          normalized: this.normalized
+        };
+      }
+    }
+  };
+  var SpriteMaterial = class extends Material {
+    /**
+     * Constructs a new sprite material.
+     *
+     * @param {Object} [parameters] - An object with one or more properties
+     * defining the material's appearance. Any property of the material
+     * (including any property from inherited materials) can be passed
+     * in here. Color values can be passed any type of value accepted
+     * by {@link Color#set}.
+     */
+    constructor(parameters) {
+      super();
+      this.isSpriteMaterial = true;
+      this.type = "SpriteMaterial";
+      this.color = new Color(16777215);
+      this.map = null;
+      this.alphaMap = null;
+      this.rotation = 0;
+      this.sizeAttenuation = true;
+      this.transparent = true;
+      this.fog = true;
+      this.setValues(parameters);
+    }
+    copy(source) {
+      super.copy(source);
+      this.color.copy(source.color);
+      this.map = source.map;
+      this.alphaMap = source.alphaMap;
+      this.rotation = source.rotation;
+      this.sizeAttenuation = source.sizeAttenuation;
+      this.fog = source.fog;
+      return this;
+    }
+  };
+  var _geometry;
+  var _intersectPoint = /* @__PURE__ */ new Vector3();
+  var _worldScale = /* @__PURE__ */ new Vector3();
+  var _mvPosition = /* @__PURE__ */ new Vector3();
+  var _alignedPosition = /* @__PURE__ */ new Vector2();
+  var _rotatedPosition = /* @__PURE__ */ new Vector2();
+  var _viewWorldMatrix = /* @__PURE__ */ new Matrix4();
+  var _vA = /* @__PURE__ */ new Vector3();
+  var _vB = /* @__PURE__ */ new Vector3();
+  var _vC = /* @__PURE__ */ new Vector3();
+  var _uvA = /* @__PURE__ */ new Vector2();
+  var _uvB = /* @__PURE__ */ new Vector2();
+  var _uvC = /* @__PURE__ */ new Vector2();
+  var Sprite = class extends Object3D {
+    /**
+     * Constructs a new sprite.
+     *
+     * @param {SpriteMaterial} [material] - The sprite material.
+     */
+    constructor(material = new SpriteMaterial()) {
+      super();
+      this.isSprite = true;
+      this.type = "Sprite";
+      if (_geometry === void 0) {
+        _geometry = new BufferGeometry();
+        const float32Array = new Float32Array([
+          -0.5,
+          -0.5,
+          0,
+          0,
+          0,
+          0.5,
+          -0.5,
+          0,
+          1,
+          0,
+          0.5,
+          0.5,
+          0,
+          1,
+          1,
+          -0.5,
+          0.5,
+          0,
+          0,
+          1
+        ]);
+        const interleavedBuffer = new InterleavedBuffer(float32Array, 5);
+        _geometry.setIndex([0, 1, 2, 0, 2, 3]);
+        _geometry.setAttribute("position", new InterleavedBufferAttribute(interleavedBuffer, 3, 0, false));
+        _geometry.setAttribute("uv", new InterleavedBufferAttribute(interleavedBuffer, 2, 3, false));
+      }
+      this.geometry = _geometry;
+      this.material = material;
+      this.center = new Vector2(0.5, 0.5);
+      this.count = 1;
+    }
+    /**
+     * Computes intersection points between a casted ray and this sprite.
+     *
+     * @param {Raycaster} raycaster - The raycaster.
+     * @param {Array<Object>} intersects - The target array that holds the intersection points.
+     */
+    raycast(raycaster, intersects2) {
+      if (raycaster.camera === null) {
+        console.error('THREE.Sprite: "Raycaster.camera" needs to be set in order to raycast against sprites.');
+      }
+      _worldScale.setFromMatrixScale(this.matrixWorld);
+      _viewWorldMatrix.copy(raycaster.camera.matrixWorld);
+      this.modelViewMatrix.multiplyMatrices(raycaster.camera.matrixWorldInverse, this.matrixWorld);
+      _mvPosition.setFromMatrixPosition(this.modelViewMatrix);
+      if (raycaster.camera.isPerspectiveCamera && this.material.sizeAttenuation === false) {
+        _worldScale.multiplyScalar(-_mvPosition.z);
+      }
+      const rotation = this.material.rotation;
+      let sin, cos;
+      if (rotation !== 0) {
+        cos = Math.cos(rotation);
+        sin = Math.sin(rotation);
+      }
+      const center = this.center;
+      transformVertex(_vA.set(-0.5, -0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+      transformVertex(_vB.set(0.5, -0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+      transformVertex(_vC.set(0.5, 0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+      _uvA.set(0, 0);
+      _uvB.set(1, 0);
+      _uvC.set(1, 1);
+      let intersect2 = raycaster.ray.intersectTriangle(_vA, _vB, _vC, false, _intersectPoint);
+      if (intersect2 === null) {
+        transformVertex(_vB.set(-0.5, 0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+        _uvB.set(0, 1);
+        intersect2 = raycaster.ray.intersectTriangle(_vA, _vC, _vB, false, _intersectPoint);
+        if (intersect2 === null) {
+          return;
+        }
+      }
+      const distance = raycaster.ray.origin.distanceTo(_intersectPoint);
+      if (distance < raycaster.near || distance > raycaster.far) return;
+      intersects2.push({
+        distance,
+        point: _intersectPoint.clone(),
+        uv: Triangle.getInterpolation(_intersectPoint, _vA, _vB, _vC, _uvA, _uvB, _uvC, new Vector2()),
+        face: null,
+        object: this
+      });
+    }
+    copy(source, recursive) {
+      super.copy(source, recursive);
+      if (source.center !== void 0) this.center.copy(source.center);
+      this.material = source.material;
+      return this;
+    }
+  };
+  function transformVertex(vertexPosition, mvPosition, center, scale, sin, cos) {
+    _alignedPosition.subVectors(vertexPosition, center).addScalar(0.5).multiply(scale);
+    if (sin !== void 0) {
+      _rotatedPosition.x = cos * _alignedPosition.x - sin * _alignedPosition.y;
+      _rotatedPosition.y = sin * _alignedPosition.x + cos * _alignedPosition.y;
+    } else {
+      _rotatedPosition.copy(_alignedPosition);
+    }
+    vertexPosition.copy(mvPosition);
+    vertexPosition.x += _rotatedPosition.x;
+    vertexPosition.y += _rotatedPosition.y;
+    vertexPosition.applyMatrix4(_viewWorldMatrix);
+  }
   var _vector1 = /* @__PURE__ */ new Vector3();
   var _vector2 = /* @__PURE__ */ new Vector3();
   var _normalMatrix = /* @__PURE__ */ new Matrix3();
@@ -30037,19 +30696,19 @@ void main() {
     near: 0.1,
     far: 120
   });
-  var PITCH = MathUtils.degToRad(RTS_CAMERA.pitchDegrees);
-  var YAW = MathUtils.degToRad(RTS_CAMERA.yawDegrees);
-  function rtsCameraOffset(distance = RTS_CAMERA.defaultDistance) {
-    const horiz = distance * Math.cos(PITCH);
-    const y = distance * Math.sin(PITCH);
-    const x = horiz * Math.sin(YAW);
-    const z = horiz * Math.cos(YAW);
+  function rtsCameraOffset(distance = RTS_CAMERA.defaultDistance, presentation = {}) {
+    const pitch = MathUtils.degToRad(presentation.pitchDegrees ?? RTS_CAMERA.pitchDegrees);
+    const yaw = MathUtils.degToRad(presentation.yawDegrees ?? RTS_CAMERA.yawDegrees);
+    const horiz = distance * Math.cos(pitch);
+    const y = distance * Math.sin(pitch);
+    const x = horiz * Math.sin(yaw);
+    const z = horiz * Math.cos(yaw);
     return new Vector3(x, y, z);
   }
   function applyRtsCamera(camera2, target, distance = RTS_CAMERA.defaultDistance, presentation = {}) {
     const look = target.clone();
     look.y = RTS_CAMERA.targetHeight;
-    camera2.position.copy(look).add(rtsCameraOffset(distance));
+    camera2.position.copy(look).add(rtsCameraOffset(distance, presentation));
     camera2.lookAt(look);
     camera2.fov = presentation.fovDegrees ?? RTS_CAMERA.fovDegrees;
     camera2.near = RTS_CAMERA.near;
@@ -30077,6 +30736,8 @@ void main() {
      *   maxDistance?: number,
      *   fovDegrees?: number,
      *   far?: number,
+     *   pitchDegrees?: number,
+     *   yawDegrees?: number,
      *   panRadius?: number,
      *   zoomSmooth?: number,
      *   panSmooth?: number,
@@ -30094,6 +30755,8 @@ void main() {
       this.maxDistance = opts.maxDistance ?? RTS_CAMERA.maxDistance;
       this.fovDegrees = opts.fovDegrees ?? RTS_CAMERA.fovDegrees;
       this.far = opts.far ?? RTS_CAMERA.far;
+      this.pitchDegrees = opts.pitchDegrees ?? RTS_CAMERA.pitchDegrees;
+      this.yawDegrees = opts.yawDegrees ?? RTS_CAMERA.yawDegrees;
       this._desiredTarget = this.target.clone();
       this._desiredDistance = this.distance;
       this._panVel = new Vector3();
@@ -30109,8 +30772,9 @@ void main() {
       this._lastY = 0;
       this._keys = /* @__PURE__ */ new Set();
       this._enabled = true;
-      const right = new Vector3(Math.cos(YAW), 0, -Math.sin(YAW));
-      const forward = new Vector3(-Math.sin(YAW), 0, -Math.cos(YAW));
+      const yaw = MathUtils.degToRad(this.yawDegrees);
+      const right = new Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+      const forward = new Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
       this._right = right;
       this._forward = forward;
       this._onPointerDown = (e) => {
@@ -30330,7 +30994,9 @@ void main() {
     update() {
       applyRtsCamera(this.camera, this.target, this.distance, {
         fovDegrees: this.fovDegrees,
-        far: this.far
+        far: this.far,
+        pitchDegrees: this.pitchDegrees,
+        yawDegrees: this.yawDegrees
       });
     }
     dispose() {
@@ -30403,21 +31069,21 @@ void main() {
     outerRadius: 45,
     fragmentSpan: 1.38,
     surfaceY: 0,
-    understructureDepth: 1.8,
-    platformDepth: 1.8,
+    understructureDepth: 4.2,
+    platformDepth: 4.2,
     deckInset: 0.78,
     panelCount: 6,
     conduitCount: 4,
     starfield: { count: 520, innerRadius: 74, outerRadius: 106, height: 42 },
     palette: {
-      understructure: 725015,
-      basalt: 1514789,
-      basaltEdge: 2699836,
-      deck: 5857642,
-      deckLight: 7766154,
-      seam: 2436406,
-      gold: 15312713,
-      goldBright: 16764786,
+      understructure: 922136,
+      basalt: 1711909,
+      basaltEdge: 3160128,
+      deck: 4278351,
+      deckLight: 6450034,
+      seam: 2238510,
+      gold: 14260794,
+      goldBright: 16762982,
       conduit: 3528910,
       conduitBright: 8650737,
       spawn: 3313151,
@@ -30522,13 +31188,16 @@ void main() {
         position: { x: 0, z: 0 },
         captureRadius: 10,
         visual: {
-          radius: 1.65,
-          coronaRadius: 2.75,
-          coreColor: 16777168,
-          coronaColor: 16747042,
+          radius: 3.8,
+          coronaRadius: 5.35,
+          haloSize: 16,
+          height: 4.1,
+          coreColor: 16757291,
+          coronaColor: 16739094,
           beamColor: 3528910,
-          coreOpacity: 0.96,
-          coronaOpacity: 0.18,
+          coreOpacity: 1,
+          coronaOpacity: 0.24,
+          haloOpacity: 0.72,
           captureZone: {
             innerRadius: 8.9,
             outerRadius: 9.35,
@@ -30542,11 +31211,11 @@ void main() {
             color: 7464668,
             opacity: 0.1
           },
-          emissive: 16777114,
-          emissiveIntensity: 2.4,
-          lightColor: 16751164,
-          lightIntensity: 1.35,
-          lightDistance: 16,
+          emissive: 16736015,
+          emissiveIntensity: 4.2,
+          lightColor: 16742692,
+          lightIntensity: 5.2,
+          lightDistance: 52,
           lightDecay: 2
         },
         effects: { energyBonus: 1.25, techAcceleration: 1.15 }
@@ -30963,30 +31632,30 @@ void main() {
   }
   function createHeliosMaterials(palette) {
     const metal = (color, roughness, metalness = 0.8, extra = {}) => new MeshStandardMaterial({ color, roughness, metalness, ...extra });
-    const glow = (color, intensity = 1.1, opacity = 1) => new MeshStandardMaterial({
+    const glow = (color, intensity = 1.1, opacity = 1, metalness = 0.3, roughness = 0.28) => new MeshStandardMaterial({
       color,
       emissive: color,
       emissiveIntensity: intensity,
-      roughness: 0.32,
-      metalness: 0.35,
+      roughness,
+      metalness,
       transparent: opacity < 1,
       opacity
     });
     return {
-      understructure: metal(palette.understructure ?? 725015, 0.9, 0.9),
-      basalt: metal(palette.basalt ?? 1514789, 0.84, 0.86),
-      basaltEdge: metal(palette.basaltEdge ?? 2699836, 0.74, 0.9),
-      deck: metal(palette.deck ?? 5857642, 0.66, 0.92),
-      deckLight: metal(palette.deckLight ?? 7766154, 0.58, 0.94),
-      seam: metal(palette.seam ?? 2436406, 0.9, 0.62),
-      gold: glow(palette.gold ?? 15312713, 0.9),
-      goldBright: glow(palette.goldBright ?? 16764786, 1.45),
-      conduit: glow(palette.conduit ?? 3528910, 1.15, 0.86),
-      conduitBright: glow(palette.conduitBright ?? 8650737, 1.75),
-      spawn: glow(palette.spawn ?? 3313151, 1.2, 0.88),
-      resource: glow(palette.resource ?? 4118965, 1.2, 0.9),
-      crystal: glow(palette.crystal ?? 4646370, 1.45),
-      rock: metal(palette.rock ?? 1712941, 0.95, 0.78),
+      understructure: metal(palette.understructure ?? 725015, 0.68, 0.72),
+      basalt: metal(palette.basalt ?? 1514789, 0.86, 0.28),
+      basaltEdge: metal(palette.basaltEdge ?? 2699836, 0.72, 0.46),
+      deck: metal(palette.deck ?? 5857642, 0.74, 0.22),
+      deckLight: metal(palette.deckLight ?? 7766154, 0.62, 0.3),
+      seam: metal(palette.seam ?? 2436406, 0.9, 0.18),
+      gold: glow(palette.gold ?? 15312713, 0.95, 1, 0.82, 0.3),
+      goldBright: glow(palette.goldBright ?? 16764786, 1.55, 1, 0.74, 0.22),
+      conduit: glow(palette.conduit ?? 3528910, 1.15, 0.86, 0.18, 0.2),
+      conduitBright: glow(palette.conduitBright ?? 8650737, 1.75, 1, 0.12, 0.16),
+      spawn: glow(palette.spawn ?? 3313151, 1.2, 0.88, 0.18, 0.2),
+      resource: glow(palette.resource ?? 4118965, 1.2, 0.9, 0.16, 0.22),
+      crystal: glow(palette.crystal ?? 4646370, 1.45, 1, 0.12, 0.16),
+      rock: metal(palette.rock ?? 1712941, 0.92, 0.16),
       goldLine: line(palette.gold ?? 15312713, 0.78),
       seamLine: line(palette.seam ?? 2436406, 0.9),
       conduitLine: line(palette.conduit ?? 3528910, 0.8),
@@ -31124,9 +31793,15 @@ void main() {
         surfaceY + 0.045
       );
       if (i > 0 && i < panelCount) {
-        const ribY = surfaceY - underDepth * 0.55;
-        addEdgeRib(g, outer - 0.2, a, 0.72, 0.72, materials.basaltEdge, ribY);
-        addEdgeRib(g, inner + 0.2, a, 0.62, 0.72, materials.basaltEdge, ribY);
+        const ribY = surfaceY - underDepth * 0.5 - 0.12;
+        const ribHeight = underDepth * 0.76;
+        addEdgeRib(g, outer - 0.2, a, 0.72, ribHeight, materials.basaltEdge, ribY);
+        addEdgeRib(g, inner + 0.2, a, 0.62, ribHeight, materials.basaltEdge, ribY);
+        if (i % 2 === 0) {
+          const lightY = surfaceY - underDepth * 0.42;
+          addEdgeRib(g, outer - 0.58, a, 0.1, underDepth * 0.3, materials.gold, lightY);
+          addEdgeRib(g, inner + 0.58, a, 0.1, underDepth * 0.3, materials.gold, lightY);
+        }
       }
     }
     const random = seededRandom2((visual.seed ?? 1) + hashString(spec.id));
@@ -31729,6 +32404,24 @@ void main() {
   }
 
   // src/rts-maps/objective-manager.js
+  var solarHaloTexture = null;
+  function getSolarHaloTexture() {
+    if (solarHaloTexture) return solarHaloTexture;
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const context = canvas.getContext("2d");
+    const gradient = context.createRadialGradient(64, 64, 2, 64, 64, 62);
+    gradient.addColorStop(0, "rgba(255,248,198,1)");
+    gradient.addColorStop(0.16, "rgba(255,181,54,0.95)");
+    gradient.addColorStop(0.46, "rgba(255,100,20,0.42)");
+    gradient.addColorStop(1, "rgba(255,68,8,0)");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 128, 128);
+    solarHaloTexture = new CanvasTexture(canvas);
+    solarHaloTexture.colorSpace = SRGBColorSpace;
+    return solarHaloTexture;
+  }
   function spawnObjectives(specs, parent) {
     return specs.map((spec) => {
       const g = new Group();
@@ -31736,7 +32429,8 @@ void main() {
       g.position.set(spec.position.x, 0, spec.position.z);
       const visual = spec.visual ?? {};
       const captureZone = visual.captureZone ?? {};
-      const captureZoneRadius = visual.captureZoneRadius ?? visual.captureRadius ?? captureZone.radius ?? spec.captureRadius;
+      const captureZoneRadius = visual.captureZoneRadius ?? visual.captureRadius ?? captureZone.outerRadius ?? captureZone.radius ?? spec.captureRadius;
+      const captureZoneInnerRadius = visual.captureZoneInnerRadius ?? captureZone.innerRadius ?? captureZoneRadius * 0.85;
       const captureZoneColor = visual.captureZoneColor ?? visual.captureColor ?? captureZone.color ?? 16777215;
       const captureZoneOpacity = visual.captureZoneOpacity ?? visual.captureOpacity ?? captureZone.opacity ?? 0.2;
       if (spec.type === "solar_core") {
@@ -31748,8 +32442,12 @@ void main() {
         const beamColor = visual.beamColor ?? PALETTE.energy;
         const coreOpacity = visual.coreOpacity ?? 0.85;
         const coronaOpacity = visual.coronaOpacity ?? 0.25;
-        const beamHeight = visual.beamHeight ?? 6;
-        const beamOpacity = visual.beamOpacity ?? 0.5;
+        const coreHeight = visual.height ?? 3.2;
+        const beamSpec = visual.beam ?? {};
+        const beamHeight = visual.beamHeight ?? beamSpec.height ?? 6;
+        const beamOpacity = visual.beamOpacity ?? beamSpec.opacity ?? 0.5;
+        const beamTopRadius = visual.beamRadiusTop ?? beamSpec.radiusTop ?? 0.15;
+        const beamBottomRadius = visual.beamRadiusBottom ?? beamSpec.radiusBottom ?? 0.4;
         const hasEmissive = visual.emissive !== void 0 || visual.emissiveIntensity !== void 0;
         const coreMaterial = hasEmissive ? new MeshStandardMaterial({
           color: coreColor,
@@ -31763,10 +32461,11 @@ void main() {
           opacity: coreOpacity
         });
         const core = new Mesh(
-          new SphereGeometry(coreRadius, 24, 16),
+          new SphereGeometry(coreRadius, 40, 28),
           coreMaterial
         );
-        core.position.y = 3.2;
+        core.position.y = coreHeight;
+        core.name = "solar-core-sphere";
         g.add(core);
         const corona = new Mesh(
           new SphereGeometry(coronaRadius, 16, 12),
@@ -31774,34 +32473,55 @@ void main() {
             color: coronaColor,
             transparent: true,
             opacity: coronaOpacity,
+            depthWrite: false,
+            blending: AdditiveBlending
+          })
+        );
+        corona.position.y = coreHeight;
+        corona.name = "corona";
+        g.add(corona);
+        const halo = new Sprite(
+          new SpriteMaterial({
+            map: getSolarHaloTexture(),
+            color: coronaColor,
+            transparent: true,
+            opacity: visual.haloOpacity ?? 0.62,
+            blending: AdditiveBlending,
             depthWrite: false
           })
         );
-        corona.position.y = 3.2;
-        corona.name = "corona";
-        g.add(corona);
+        const haloSize = visual.haloSize ?? coronaRadius * 3;
+        halo.position.y = coreHeight;
+        halo.scale.set(haloSize, haloSize, 1);
+        halo.name = "solar-halo";
+        g.add(halo);
         const beam = new Mesh(
-          new CylinderGeometry(0.15, 0.4, beamHeight, 8),
-          new MeshBasicMaterial({ color: beamColor, transparent: true, opacity: beamOpacity })
+          new CylinderGeometry(beamTopRadius, beamBottomRadius, beamHeight, 8),
+          new MeshBasicMaterial({
+            color: beamSpec.color ?? beamColor,
+            transparent: true,
+            opacity: beamOpacity,
+            depthWrite: false
+          })
         );
-        beam.position.y = 0.3;
+        beam.position.y = coreHeight - beamHeight * 0.5;
         g.add(beam);
         const lightColor = visual.lightColor ?? light.color;
         const lightIntensity = visual.lightIntensity ?? light.intensity;
         if (lightColor !== void 0 || lightIntensity !== void 0) {
           const pointLight = new PointLight(
             lightColor ?? coronaColor,
-            Math.min(lightIntensity ?? 1, 2.5),
-            Math.min(visual.lightDistance ?? light.distance ?? 20, 24),
+            Math.min(lightIntensity ?? 1, 8),
+            Math.min(visual.lightDistance ?? light.distance ?? 20, 64),
             Math.min(visual.lightDecay ?? light.decay ?? 2, 2)
           );
-          pointLight.position.y = 3.2;
+          pointLight.position.y = coreHeight;
           pointLight.name = "solar-light";
           g.add(pointLight);
         }
       }
       const zone = new Mesh(
-        new RingGeometry(captureZoneRadius * 0.85, captureZoneRadius, 48),
+        new RingGeometry(captureZoneInnerRadius, captureZoneRadius, 48),
         new MeshBasicMaterial({
           color: captureZoneColor,
           transparent: true,
@@ -32275,9 +32995,13 @@ void main() {
   var BRIDGE_REPAIR_COST = 50;
   var HELIOS_CAMERA = Object.freeze({
     minDistance: RTS_CAMERA.minDistance,
-    maxDistance: 110,
+    overviewDistance: 80,
+    overviewTarget: Object.freeze({ x: 7, z: 7 }),
+    maxDistance: 116,
     fovDegrees: 50,
-    far: 240
+    far: 240,
+    pitchDegrees: 43,
+    yawDegrees: 45
   });
   var root = document.getElementById("proof-root");
   var status = document.getElementById("status");
@@ -32287,10 +33011,12 @@ void main() {
   var renderer = new WebGLRenderer({ antialias: false, alpha: false, powerPreference: "high-performance" });
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.setPixelRatio(1);
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.28;
   root.appendChild(renderer.domElement);
   var scene = new Scene();
-  scene.background = new Color(132626);
-  scene.fog = new Fog(132626, 72, 140);
+  scene.background = new Color(66571);
+  scene.fog = new Fog(66571, 118, 225);
   var camera = createRtsCamera(1, HELIOS_CAMERA);
   var mapWorld = createRtsMapWorld(MAP_ID, scene);
   var HALF = mapWorld.definition.bounds.halfExtent;
@@ -32301,6 +33027,8 @@ void main() {
     maxDistance: HELIOS_CAMERA.maxDistance,
     fovDegrees: HELIOS_CAMERA.fovDegrees,
     far: HELIOS_CAMERA.far,
+    pitchDegrees: HELIOS_CAMERA.pitchDegrees,
+    yawDegrees: HELIOS_CAMERA.yawDegrees,
     panRadius: HALF + 6,
     zoomSmooth: 18,
     panSmooth: 20
@@ -32314,15 +33042,15 @@ void main() {
   }
   resize();
   window.addEventListener("resize", resize);
-  scene.add(new HemisphereLight(14148863, 527640, 1));
-  var key = new DirectionalLight(16765082, 1.8);
-  key.position.set(-18, 30, 14);
+  scene.add(new HemisphereLight(14279935, 1051401, 1.28));
+  var key = new DirectionalLight(16762751, 3.1);
+  key.position.set(-24, 34, 18);
   scene.add(key);
-  var fill = new DirectionalLight(6998224, 0.55);
-  fill.position.set(14, 16, -12);
+  var fill = new DirectionalLight(7657183, 0.82);
+  fill.position.set(18, 22, -18);
   scene.add(fill);
-  var rim = new DirectionalLight(5600430, 0.3);
-  rim.position.set(16, 10, 20);
+  var rim = new DirectionalLight(7837656, 0.72);
+  rim.position.set(22, 18, 26);
   scene.add(rim);
   var selectionMat = new MeshBasicMaterial({
     color: 4116416,
@@ -32733,8 +33461,8 @@ void main() {
     status.textContent = `P0: ${p0} Citizens \xB7 selected=${sel} \xB7 core=${coreOwner === null ? "neutral" : `P${coreOwner}`} \xB7 bridges down=${brokenBridges} \xB7 stock energy=${playerStock.energy_materials} \xB7 ` + (flare ? "FLARE!" : "stable");
     if (flareBanner) flareBanner.style.display = flare ? "block" : "none";
   }
-  camCtrl.panTo(0, 0, { immediate: true });
-  camCtrl.setDistance(HELIOS_CAMERA.maxDistance, { immediate: true });
+  camCtrl.panTo(HELIOS_CAMERA.overviewTarget.x, HELIOS_CAMERA.overviewTarget.z, { immediate: true });
+  camCtrl.setDistance(HELIOS_CAMERA.overviewDistance, { immediate: true });
   var last = performance.now();
   var minimapAcc = MINIMAP_INTERVAL;
   var gatherAcc = 0;
