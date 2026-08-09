@@ -22,6 +22,11 @@ Status: **Proof Pending**
 - The topology is immediately recognizable as a broken ring.
 - The browser console has no warning or error entries.
 - The HUD reports 12 units and 30 FPS.
+- Commit `ac20998` is visible on `origin/main`.
+- The same bundle is deployed at `https://dev.helios.contenthelper.in/` as Worker version
+  `2ce69824-e2f7-4ce3-91f4-80bdf6003042`.
+- Hosted and local bundle SHA-256 values both equal
+  `f4d64d0dc655d19b4c45b31e7b7a484e2e46fc581ed7bb3edb4e9c42debc7d8f`.
 
 ### Highest-leverage mismatch
 
@@ -44,6 +49,9 @@ understructure. The solar core is a small pale marker instead of the dominant or
 - Current render: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/current-local-default-viewport.png`
 - Comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/reference-vs-current-default.png`
 - Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-current-site.stdout.txt`
+- Hosted render: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-00.png`
+- Deploy output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/deploy-cycle-00.stdout.txt`
+- Hosted bundle hash: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-bundle-hash.txt`
 
 ### Next cycle
 

@@ -28,7 +28,7 @@ CP-C6 sequence unless the user changes direction.
 | | |
 |---|---|
 | **Goal** | Match the approved Broken Ring reference at the real gameplay camera while preserving a playable four-sector RTS map. |
-| **Current proof** | The takeover source builds and runs with 12 units, four broken bridges, the solar objective, resources, minimap, and no browser console warnings or errors. |
+| **Current proof** | Commit `ac20998` builds and runs with 12 units, four broken bridges, the solar objective, resources, minimap, and no browser console warnings or errors. The identical bundle is live on `dev.helios.contenthelper.in` as Worker version `2ce69824-e2f7-4ce3-91f4-80bdf6003042`. |
 | **Current mismatch** | The ring topology reads, but the live scene is too dark, flat, and top-down. The solar core is too small and subdued. The observed in-app Browser HUD reports 30 FPS, so 60 FPS is not yet proven. |
 | **Write scope** | `ThreeRuntime/src/helios-rift-proof.js`, `ThreeRuntime/src/rts-camera.js`, `ThreeRuntime/src/rts-maps/`, required Helios/Lumen Guard web assets and proofs, dev-only deploy tooling, and Helios evidence/devlog files. |
 | **Do not touch** | Production `helios.contenthelper.in`, unrelated native systems, other maps, completed dirty art, secrets, ownership, or access. |

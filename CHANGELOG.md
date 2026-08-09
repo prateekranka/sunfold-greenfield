@@ -20,12 +20,19 @@ minimap.
   islets.
 - The Helios proof starts in a full-map overview and supports its wider world bounds.
 
+### Dev delivery
+
+- Commit `ac20998` is deployed only to `dev.helios.contenthelper.in` as Worker version
+  `2ce69824-e2f7-4ce3-91f4-80bdf6003042`.
+- The hosted Helios bundle SHA-256 is
+  `f4d64d0dc655d19b4c45b31e7b7a484e2e46fc581ed7bb3edb4e9c42debc7d8f`, identical to
+  the local site artifact. The hosted render showed 12 units and no console errors.
+
 ### Proof pending
 
 - The live map is still materially darker, flatter, and more top-down than the approved
   reference. The solar core is not yet the frame's dominant landmark.
 - The in-app Browser HUD reported 30 FPS with 12 units. No 60 FPS claim is made.
-- The rebuilt takeover source has not yet been deployed to the dev domain.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game
 
