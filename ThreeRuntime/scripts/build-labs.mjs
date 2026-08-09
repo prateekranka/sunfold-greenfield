@@ -26,6 +26,7 @@ for (const [entry, outfile, htmlSrc, htmlDst] of selectedEntries) {
   const useDataurlAtlas = entry.includes("crowd-lab");
   const useBundledGlb = entry.includes("helios-rift-proof");
   await build({
+    absWorkingDir: root,
     entryPoints: [resolve(root, entry)],
     bundle: true,
     format: "iife",
