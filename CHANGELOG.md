@@ -27,6 +27,10 @@ minimap.
   building motion and a shared HP-to-state contract.
 - Focused building-state tests and a GLB budget validator for node names, bytes, vertices,
   triangles, and material counts.
+- A compact iPad-first tactical HUD with safe-area rails for resources, objective state,
+  selection, base health, commands, frame rate, minimap, and a first-use field guide.
+- Keyboard command parity for Select all, Repair, Guide, and Guide dismissal, with visible
+  focus and 44-point-or-larger interactive targets.
 
 ### Changed
 
@@ -60,6 +64,9 @@ minimap.
   inward-facing arc, and the Matter node moved clear of the building footprints.
 - The lab and dev-site builders can target only the Helios entry. They no longer regenerate
   unrelated dirty lab bundles during this deployment path.
+- The desktop debug overlay is replaced by a layered tactical interface that keeps the
+  battlefield readable. All displayed values come from existing live map state and commands;
+  the HUD does not add a second construction, production, or combat simulation.
 
 ### Fixed
 
@@ -113,6 +120,12 @@ minimap.
   `455026547b1a66434501bee27a912a34cc3c8e321898fe2c89b35b8029eecab7`. The hosted
   build loaded all three healthy structures, reported FPS 60, and completed a 600-frame
   movement, camera, and damage-state stress run without a startup exception.
+- Compact-HUD commit `7497c8c` is deployed only to `dev.helios.contenthelper.in` as Worker
+  version `f87e19d9-d6f2-4275-9d32-eac948ad4a26`.
+- Its local and hosted Helios bundle SHA-256 values both equal
+  `00185851ff2b5dc7bb52df46d9eeb1460932ac4cb4b580ddf44ac9c64ab12529`. The hosted
+  run selected all 12 units by keyboard, opened and dismissed the Guide with correct focus,
+  and completed 600 gameplay frames at 60.057 FPS with no frame above 20 ms.
 
 ### Proof pending
 
@@ -131,10 +144,11 @@ minimap.
   gate stayed below 17.8 ms after redundant animation resets were removed.
 - The molten core is a partial reference match. Its fissures remain smoother than the
   reference. The map still lacks substantial crystal islets, dense debris, and nebula depth.
-- Cycle 07 buildings and damage states are deployed and verified on the development host.
-- The placeholder north bases are gone. The current build still uses a debug HUD, and the
-  authored buildings do not yet match the reference's textured material richness. The
-  iPad-first tactical and training HUD remains a separate checkpoint.
+- Cycle 08 HUD is deployed and verified on the development host. Its exact iPad landscape
+  layout proof is browser-emulated, not a fresh simulator or device touch run.
+- The placeholder north bases and desktop debug HUD are gone. The authored buildings still
+  lack the reference's textured material richness, and the fragment surface still reads as
+  alternating dark armor bands instead of one coherent warm terrain material.
 - Per user direction, Cycle 05 has no additional iPad touch check.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game

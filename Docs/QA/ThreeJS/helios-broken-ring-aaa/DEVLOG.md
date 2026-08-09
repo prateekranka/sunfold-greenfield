@@ -585,3 +585,94 @@ of the playfield.
 Replace the desktop debug overlay with a compact iPad-first tactical HUD. Preserve the live
 map, touch controls, building kit, simulation rules, and 60 FPS gate. Do not add a parallel
 construction, production, or combat system during the HUD checkpoint.
+
+## Cycle 08 — compact iPad tactical HUD · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- The desktop debug block obscured the upper battlefield and presented internal state as a
+  developer transcript.
+- Resources, objective state, selected units, base life, and commands had no iPad-first
+  hierarchy.
+- The console-only hint control did not provide an in-game first-use guide.
+
+### Correction
+
+- Replaced the debug block with safe-area-aware top, center, and bottom rails.
+- The top rail reads the existing Energy, Matter, Lumen, and Aether stock, Solar Core owner,
+  and frame counter.
+- The center ribbon states the current objective and broken-bridge count.
+- The bottom cards show selected local units, Civilization Core health, the existing Select
+  all and Repair commands, the Guide, and the existing minimap.
+- Added a coarse-pointer field guide for tap, double-tap, drag, pinch, and stable-ground rules.
+- Added keyboard access through `1`, `2`, `H`, and Escape. Opening the Guide focuses Close;
+  Escape returns focus to Guide.
+- The HUD is a presentation layer over existing state and commands. It adds no construction,
+  production queue, training, combat, or economy rule.
+
+### Rendered and interaction proof
+
+- The exact iPad landscape layout audit used a 1194×834 CSS viewport with coarse pointer
+  emulation. No bottom panel overlapped another panel.
+- Primary command targets measured 120×66 points. Guide Close measured 44×44 points.
+- A real CDP pointer press on empty ground cleared selection. Keyboard `1` then selected all
+  12 local units. Repair became available.
+- Guide opening focused Close. Escape closed it and restored focus to Guide.
+- The final local and hosted frames were inspected at the same 1194×834 gameplay viewport.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Performance proof
+
+- Local: 600 frames in 9.9918 seconds at 60.049 FPS, 18.6 ms p95, 18.7 ms maximum, and zero
+  frames above 20 ms.
+- Hosted: 600 frames in 9.9905 seconds at 60.057 FPS, 17.5 ms p95, 18.7 ms maximum, and zero
+  frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+
+### Focused checks
+
+- `node --check ThreeRuntime/src/helios-rift-proof.js` — passed.
+- Targeted Helios esbuild — passed without rewriting the two unrelated dirty lab bundles.
+- Scoped `git diff --check` — passed.
+- Local and hosted keyboard, focus, Guide, selection, movement, damage-state, ground, and
+  frame-time gates — passed.
+- Hosted page returned HTTP 200. The hosted bundle hash matches the local asset.
+
+### Evidence
+
+- Hosted frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-08-hud-final.png`
+- Local frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-08-hud-headless-final.png`
+- Debug-versus-HUD comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-08-debug-vs-ipad-hud.png`
+- Exact iPad layout audit: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-08-ipad-landscape-layout-audit.json`
+- Local interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-08-hud-interaction-proof.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-08-hud-interaction-proof.json`
+- Local frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-08-hud-gameplay-performance-10s.json`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-08-hud-gameplay-performance-10s.json`
+- Hosted HTTP and bundle proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-08-http-proof.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/deploy-cycle-08.stdout.txt`
+
+### Honest limitation
+
+The HUD is a compact command shell for the current proof, not a complete production RTS HUD.
+It has no construction palette, training queue, time controls, diplomacy, or combat command
+grid because those systems are outside this checkpoint. The iPad landscape layout is
+browser-emulated; this cycle does not add a fresh device GPU percentile export.
+
+### Dev delivery
+
+- Implementation commit `7497c8c` is visible on `origin/main`.
+- Worker version `f87e19d9-d6f2-4275-9d32-eac948ad4a26` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-08&v=7497c8c`.
+- The local and hosted Helios bundle SHA-256 values both equal
+  `00185851ff2b5dc7bb52df46d9eeb1460932ac4cb4b580ddf44ac9c64ab12529`.
+
+### Next cycle
+
+Replace the visible alternating fragment bands with one coherent lit terrain material. Use
+world-space variation to create warm stone, cooler gravity wear, cracks, and edge weathering
+without changing fragment geometry, map topology, walkability, bridges, controls, or gameplay
+rules. Preserve the 60 FPS gate.

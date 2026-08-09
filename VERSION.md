@@ -1,12 +1,12 @@
 # Version
 
-**0.6.1** — build 46
+**0.6.2** — build 47
 
 | Field | Value |
 |---|---|
 | Active development track | Helios Rift — Broken Ring reference parity |
-| Latest Helios checkpoint | Cycle 07 — Sunwoven foundation building kit · commit `7ca4824` |
-| Dev deployment | `dev.helios.contenthelper.in` · Worker `34be548a-39e3-494f-9188-a4f72e4bac74` |
+| Latest Helios checkpoint | Cycle 08 — compact iPad tactical HUD · commit `7497c8c` |
+| Dev deployment | `dev.helios.contenthelper.in` · Worker `f87e19d9-d6f2-4275-9d32-eac948ad4a26` |
 | Gate | G0 complete · G1 in progress (not passed) · G2 in progress (not passed) · G3 opened |
 | Play-feel reference | Age of Empires 2 / Rise of Rome, in space (BC-01, 2026-07-31) |
 | Locked map seed | `20260726` |
