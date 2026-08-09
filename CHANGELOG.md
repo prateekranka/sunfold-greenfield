@@ -36,6 +36,15 @@ minimap.
 - Each ring fragment now uses four stepped armor bands, six inset deck plates, physical gold
   edge rails, staggered faceted edge chunks, larger termination sockets, and a darker slab
   palette. Logical platforms, bridges, pathing, and objectives are unchanged.
+- Citizens and Guards now start on their movement-ready standing cell. Movement orders only
+  change the animation clip when the requested activity differs, so a repeated order does not
+  reset every selected unit's atlas UV state.
+
+### Fixed
+
+- Removed avoidable full-group animation resets from repeated movement commands. The focused
+  two-order gameplay gate rendered 600 frames in 10.0007 seconds at 59.996 FPS, with 17.6 ms
+  p95, 17.8 ms maximum, and no frame above 20 ms.
 
 ### Dev delivery
 
@@ -62,9 +71,9 @@ minimap.
   GPU frame-time percentiles.
 - Cycle 03 normal active play rendered 600 frames in 10 seconds at 60.0 FPS, with 17.1 ms
   p95, 17.6 ms maximum, and no frame above 20 ms.
-- A first full-group command toward the central objective still produced one 66.6 ms frame.
-  The main walk atlas is decoded at startup but is not GPU-resident until the first movement
-  material switch. Dev deployment is held until that first-use hitch is removed.
+- One earlier central-objective run produced a non-deterministic 66.6 ms frame. An instrumented
+  repeat measured the command handler at 4.7 ms with no frame above 20 ms. The final two-order
+  gate stayed below 17.8 ms after redundant animation resets were removed.
 - The map still lacks animated solar plasma, substantial crystal islets, dense debris, and
   nebula depth.
 

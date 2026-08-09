@@ -185,8 +185,7 @@ gameplay system during that visual cycle.
 
 ## Cycle 03 — fragment relief and silhouette · 2026-08-09
 
-Status: **Proof Pending; rendered correction is complete, dev deployment is held for the
-first-command frame gate**
+Status: **Done after the Cycle 04 movement-state gate; dev deployment pending**
 
 ### Rendered correction
 
@@ -249,3 +248,62 @@ first-command frame gate**
 Prewarm the shared Citizen and Guard runtime atlases through Three.js before the units become
 interactive. Repeat the central-objective command and normal sustained-motion frame gates.
 Do not combine that correction with solar, islet, starfield, HUD, or map-topology work.
+
+## Cycle 04 — movement-state frame gate · 2026-08-09
+
+Status: **Done; dev deployment pending**
+
+### Player-visible correction
+
+- Citizens and Guards now finish startup on walk frame zero, which is their authored standing
+  cell, with playback frozen.
+- A movement order now unfreezes that prepared clip instead of reapplying the same atlas state
+  to every selected unit.
+- A repeated movement order leaves an already-walking unit's clip and phase intact.
+- A unit that finishes ordinary movement freezes again on walk frame zero. Gather and build
+  clips still transition back through the same standing cell.
+- Unit art, speed, paths, commands, selection, objectives, and camera behavior are unchanged.
+
+### Diagnosis
+
+- The 27-node path graph is not a frame-time risk: 10,000 representative path requests took
+  215.1 ms, or 0.022 ms each.
+- The first instrumented central command completed in 4.7 ms and produced no frame above
+  20 ms.
+- The remaining avoidable work was repeated state application. Every new movement order reset
+  all selected units to the walk clip, even when they were already walking.
+- No renderer, atlas file, shader, terrain geometry, or simulation change was required.
+
+### Rendered and performance proof
+
+- The opening frame still shows the same authored standing poses for all 12 local units.
+- The final probe selected all 12 units, ordered them toward the central objective, zoomed,
+  panned, and issued a second group order while they remained active.
+- It rendered 600 frames in 10.0007 seconds at 59.996 FPS average.
+- Frame time was 17.6 ms p95, 17.7 ms p99, and 17.8 ms maximum.
+- No frame exceeded 20 ms or 33.34 ms.
+- The first command handler took 6.8 ms. The repeated order took 1.3 ms.
+- Per user direction, no additional iPad touch check was run.
+
+### Focused checks
+
+- `node --check ThreeRuntime/src/helios-rift-proof.js` — passed.
+- Targeted Helios esbuild — passed without rewriting unrelated dirty lab bundles.
+- Real in-app Browser opening frame — visually inspected.
+- Real rendered two-order movement, zoom, and pan frame gate — passed.
+- No focused unit test was added; the changed behavior is renderer timing, and the rendered
+  performance probe is the narrowest useful regression proof.
+
+### Evidence
+
+- Final frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-04-performance-two-order-10s.json`
+- Opening standing frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-04-opening-standing-frame.png`
+- Command profile: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-04-core-command-profile.json`
+- Path-graph benchmark: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/pathgraph-benchmark.json`
+- Targeted build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-cycle-04-standing-prime.stdout.txt`
+
+### Next cycle
+
+Commit and push this correction with the generated Helios bundle. Deploy the combined Cycle
+03/04 artifact only to `dev.helios.contenthelper.in`, verify its bundle hash and startup, then
+resume the next visual correction from the hosted frame.

@@ -163,8 +163,12 @@ async function spawnCitizens() {
       unit.useSharedAtlas(sharedAtlas);
       if (sharedIdle) unit.useSharedClipAtlas("idle", sharedIdle);
       await unit.applyManifest(bundled);
-      await unit.setState("idle");
-      unit.freezeStanding(0);
+      // Prime the clip used by movement while the opening scene is still
+      // loading. Walk frame zero is the authored standing cell, so the first
+      // player order only unfreezes playback instead of rebinding 12 UV buffers
+      // inside one frame.
+      await unit.setState("walk");
+      await unit.freezeStanding(0);
 
       const angle = (i / n) * Math.PI * 2;
       const r = 2.5 + (i % 3) * 1.1;
@@ -227,8 +231,8 @@ async function spawnGuards() {
     const unit = new SpriteUnit(guardBundled, { basePath: "sprites/lumen-guard/" });
     unit.useSharedAtlas(sharedAtlas);
     await unit.applyManifest(guardBundled);
-    await unit.setState("idle");
-    unit.freezeStanding(0);
+    await unit.setState("walk");
+    await unit.freezeStanding(0);
     const px = spawn.position.x + 6 + i * 1.4;
     const pz = spawn.position.z - 4 - (i % 2) * 1.2;
     unit.setPosition({ x: px, y: 0, z: pz });
@@ -359,7 +363,8 @@ function orderMoveSelected(x, z, gatherRes = null, repairBridge = null) {
     c.gatherTarget = gatherRes?.id ?? null;
     c.activity = gatherRes ? "gather" : repairBridge ? "build" : "walk";
     c.unit.playbackSpeed = 1;
-    c.unit.setState(c.activity === "gather" ? "gather" : c.activity === "build" ? "build" : "walk").catch(console.error);
+    const clip = c.activity === "gather" ? "gather" : c.activity === "build" ? "build" : "walk";
+    if (c.unit.clip !== clip) c.unit.setState(clip).catch(console.error);
   }
 
   if (repairBridge) {
@@ -654,7 +659,11 @@ function advanceCitizen(c, dt) {
           }
         }
         c.activity = "idle";
-        c.unit.setState("idle").then(() => c.unit.freezeStanding(0)).catch(console.error);
+        if (c.unit.clip === "walk") {
+          c.unit.freezeStanding(0).catch(console.error);
+        } else {
+          c.unit.setState("walk").then(() => c.unit.freezeStanding(0)).catch(console.error);
+        }
       }
     } else {
       const step = MOVE_SPEED * dt;

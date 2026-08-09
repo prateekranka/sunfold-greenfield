@@ -33963,8 +33963,8 @@ void main() {
         unit.useSharedAtlas(sharedAtlas);
         if (sharedIdle) unit.useSharedClipAtlas("idle", sharedIdle);
         await unit.applyManifest(bundled);
-        await unit.setState("idle");
-        unit.freezeStanding(0);
+        await unit.setState("walk");
+        await unit.freezeStanding(0);
         const angle = i / n * Math.PI * 2;
         const r = 2.5 + i % 3 * 1.1;
         const px2 = spawn.position.x + Math.cos(angle) * r;
@@ -34020,8 +34020,8 @@ void main() {
       const unit = new SpriteUnit(guardBundled, { basePath: "sprites/lumen-guard/" });
       unit.useSharedAtlas(sharedAtlas);
       await unit.applyManifest(guardBundled);
-      await unit.setState("idle");
-      unit.freezeStanding(0);
+      await unit.setState("walk");
+      await unit.freezeStanding(0);
       const px2 = spawn.position.x + 6 + i * 1.4;
       const pz2 = spawn.position.z - 4 - i % 2 * 1.2;
       unit.setPosition({ x: px2, y: 0, z: pz2 });
@@ -34141,7 +34141,8 @@ void main() {
       c.gatherTarget = gatherRes?.id ?? null;
       c.activity = gatherRes ? "gather" : repairBridge ? "build" : "walk";
       c.unit.playbackSpeed = 1;
-      c.unit.setState(c.activity === "gather" ? "gather" : c.activity === "build" ? "build" : "walk").catch(console.error);
+      const clip = c.activity === "gather" ? "gather" : c.activity === "build" ? "build" : "walk";
+      if (c.unit.clip !== clip) c.unit.setState(clip).catch(console.error);
     }
     if (repairBridge) {
       if (playerStock.energy_materials >= BRIDGE_REPAIR_COST) {
@@ -34394,7 +34395,11 @@ void main() {
             }
           }
           c.activity = "idle";
-          c.unit.setState("idle").then(() => c.unit.freezeStanding(0)).catch(console.error);
+          if (c.unit.clip === "walk") {
+            c.unit.freezeStanding(0).catch(console.error);
+          } else {
+            c.unit.setState("walk").then(() => c.unit.freezeStanding(0)).catch(console.error);
+          }
         }
       } else {
         const step = MOVE_SPEED * dt;
