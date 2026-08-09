@@ -6,8 +6,12 @@ import { SpriteUnit } from "./sprites/sprite-unit.js";
 import { createRtsCamera, RtsCameraController, RTS_CAMERA } from "./rts-camera.js";
 import { FACINGS_16 } from "./sprites/facing.js";
 import { createRtsMapWorld } from "./rts-maps/rts-map-world.js";
+import { GltfBuildingLibrary } from "./buildings/gltf-buildings.js";
 import manifest from "../assets/citizens/sprites/village-manbun-wanderer/atlas-manifest.json";
 import guardManifest from "../assets/citizens/sprites/lumen-guard/atlas-manifest.json";
+import civilizationCoreGlb from "../assets/buildings/sunwoven_civilization_core.glb";
+import farmGlb from "../assets/buildings/sunwoven_farm.glb";
+import formationYardGlb from "../assets/buildings/sunwoven_formation_yard.glb";
 
 const MAP_ID = "helios-rift";
 const LOCAL_PLAYER = 0;
@@ -50,6 +54,66 @@ scene.fog = new THREE.Fog(0x01040b, 118, 225);
 const camera = createRtsCamera(1, HELIOS_CAMERA);
 const mapWorld = createRtsMapWorld(MAP_ID, scene);
 const HALF = mapWorld.definition.bounds.halfExtent;
+
+const buildingLibrary = new GltfBuildingLibrary();
+buildingLibrary.registerBuffer("civilizationCore", civilizationCoreGlb);
+buildingLibrary.registerBuffer("farm", farmGlb);
+buildingLibrary.registerBuffer("formationYard", formationYardGlb);
+const buildingPreload = buildingLibrary.preload();
+
+const BUILDING_SPECS = Object.freeze([
+  Object.freeze({
+    id: "sunwoven-core",
+    kind: "civilizationCore",
+    position: Object.freeze({ x: 0, z: -32 }),
+    yaw: 0,
+    maxLife: 600
+  }),
+  Object.freeze({
+    id: "sunwoven-farm",
+    kind: "farm",
+    position: Object.freeze({ x: -10, z: -27 }),
+    yaw: Math.PI * 0.05,
+    maxLife: 120
+  }),
+  Object.freeze({
+    id: "sunwoven-formation-yard",
+    kind: "formationYard",
+    position: Object.freeze({ x: 8.8, z: -37.5 }),
+    yaw: -Math.PI * 0.04,
+    maxLife: 260
+  })
+]);
+
+/** @type {{id:string, kind:string, maxLife:number, life:number, visual:import('./buildings/gltf-buildings.js').GltfBuildingInstance}[]} */
+const buildings = [];
+
+const queryDamage = new URLSearchParams(location.search).get("damage");
+const QUERY_DAMAGE_RATIO = Object.freeze({ healthy: 1, damaged: 0.64, critical: 0.28, destroyed: 0 });
+
+async function spawnBuildings() {
+  await buildingPreload;
+  const initialRatio = QUERY_DAMAGE_RATIO[queryDamage] ?? 1;
+  for (const spec of BUILDING_SPECS) {
+    const life = spec.maxLife * initialRatio;
+    const visual = buildingLibrary.instantiate(spec.kind, { life, maxLife: spec.maxLife });
+    visual.setPosition(spec.position.x, spec.position.z, 0.04);
+    visual.setYaw(spec.yaw);
+    scene.add(visual.root);
+    buildings.push({ id: spec.id, kind: spec.kind, maxLife: spec.maxLife, life, visual });
+  }
+}
+
+function setBuildingDamage(state) {
+  const ratio = QUERY_DAMAGE_RATIO[state];
+  if (ratio === undefined) return false;
+  for (const building of buildings) {
+    building.life = building.maxLife * ratio;
+    building.visual.setLife(building.life, building.maxLife);
+  }
+  showToast(`Buildings: ${state.toUpperCase()}`);
+  return true;
+}
 
 const camCtrl = new RtsCameraController(camera, renderer.domElement, {
   target: new THREE.Vector3(0, 0, 0),
@@ -170,8 +234,12 @@ async function spawnCitizens() {
       await unit.setState("walk");
       await unit.freezeStanding(0);
 
-      const angle = (i / n) * Math.PI * 2;
-      const r = 2.5 + (i % 3) * 1.1;
+      // The local roster forms an expansion-facing arc inside the Core. It does
+      // not spawn under the new 5.5 m Blender footprint or behind the Farm/Yard.
+      const angle = spawn.playerId === LOCAL_PLAYER
+        ? Math.PI / 2 - 0.86 + (i / Math.max(1, n - 1)) * 1.72
+        : (i / n) * Math.PI * 2;
+      const r = spawn.playerId === LOCAL_PLAYER ? 6.7 + (i % 2) * 1.15 : 2.5 + (i % 3) * 1.1;
       const px = spawn.position.x + Math.cos(angle) * r;
       const pz = spawn.position.z + Math.sin(angle) * r;
       unit.setPosition({ x: px, y: 0, z: pz });
@@ -233,8 +301,8 @@ async function spawnGuards() {
     await unit.applyManifest(guardBundled);
     await unit.setState("walk");
     await unit.freezeStanding(0);
-    const px = spawn.position.x + 6 + i * 1.4;
-    const pz = spawn.position.z - 4 - (i % 2) * 1.2;
+    const px = spawn.position.x - 5.4 + i * 1.4;
+    const pz = spawn.position.z + 6.2 + (i % 2) * 1.2;
     unit.setPosition({ x: px, y: 0, z: pz });
     unit.setFacing((i * 4) % FACINGS_16.length);
 
@@ -637,9 +705,10 @@ function updateStatus() {
   const coreOwner = core?.controllingPlayer;
   const flare = mapWorld.hazards.find((h) => h.type === "solar_flare" && h.active);
   const brokenBridges = [...mapWorld.bridgeStates.entries()].filter(([, v]) => !v).length;
+  const baseState = buildings[0]?.visual.state ?? "loading";
   status.textContent =
     `P0: ${p0} Citizens · selected=${sel} · core=${coreOwner === null ? "neutral" : `P${coreOwner}`} · ` +
-    `bridges down=${brokenBridges} · stock energy=${playerStock.energy_materials} · ` +
+    `bridges down=${brokenBridges} · base=${baseState} · stock energy=${playerStock.energy_materials} · ` +
     (flare ? "FLARE!" : "stable");
   if (flareBanner) flareBanner.style.display = flare ? "block" : "none";
 }
@@ -730,6 +799,7 @@ function frame(now) {
     if (citizens[i].playerId === LOCAL_PLAYER) advanceCitizen(citizens[i], dt);
     citizens[i].unit.update(dt);
   }
+  for (const building of buildings) building.visual.update(dt);
 
   // Keep the objective alive without changing capture or hazard timing.
   const flare = mapWorld.hazards.find((h) => h.type === "solar_flare" && h.active);
@@ -760,7 +830,8 @@ function frame(now) {
   renderer.render(scene, camera);
 }
 
-spawnCitizens()
+spawnBuildings()
+  .then(() => spawnCitizens())
   .then(() => spawnGuards())
   .then(() => {
     updateStatus();
@@ -768,11 +839,25 @@ spawnCitizens()
     globalThis.__heliosRiftProof = {
       mapWorld,
       citizens,
+      buildings,
       playerStock,
       camCtrl,
       getAIHints: () => mapWorld.getFreshAIHints(),
       repairBridge: (id) => mapWorld.repairBridge(id),
       getFps: () => lastFps,
+      selectLocalAll: () => {
+        for (const citizen of citizens) setSelected(citizen, citizen.playerId === LOCAL_PLAYER);
+        return citizens.filter((citizen) => citizen.selected).length;
+      },
+      moveSelectedTo: (x, z) => orderMoveSelected(Number(x), Number(z)),
+      setBuildingDamage,
+      setBuildingLife: (id, life) => {
+        const building = buildings.find((candidate) => candidate.id === id);
+        if (!building) return false;
+        building.life = Math.max(0, Math.min(Number(life) || 0, building.maxLife));
+        building.visual.setLife(building.life, building.maxLife);
+        return true;
+      },
       panTo: (x, z, immediate = true) => camCtrl.panTo(x, z, { immediate }),
       setDistance: (d, immediate = true) => camCtrl.setDistance(d, { immediate }),
       setView: (x, z, distance) => {

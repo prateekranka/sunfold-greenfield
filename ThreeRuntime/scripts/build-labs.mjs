@@ -15,8 +15,16 @@ const entries = [
   ["src/lumen-guard-proof.js", "lumen-guard-proof.bundle.js", "src/lumen-guard-proof.html", "lumen-guard-proof.html"]
 ];
 
-for (const [entry, outfile, htmlSrc, htmlDst] of entries) {
+const onlyIndex = process.argv.indexOf("--only");
+const only = onlyIndex >= 0 ? process.argv[onlyIndex + 1] : null;
+const selectedEntries = only ? entries.filter(([entry]) => entry.includes(only)) : entries;
+if (only && selectedEntries.length === 0) {
+  throw new RangeError(`unknown lab entry requested by --only: ${only}`);
+}
+
+for (const [entry, outfile, htmlSrc, htmlDst] of selectedEntries) {
   const useDataurlAtlas = entry.includes("crowd-lab");
+  const useBundledGlb = entry.includes("helios-rift-proof");
   await build({
     entryPoints: [resolve(root, entry)],
     bundle: true,
@@ -24,9 +32,11 @@ for (const [entry, outfile, htmlSrc, htmlDst] of entries) {
     target: ["safari15"],
     minify: false,
     sourcemap: false,
-    loader: useDataurlAtlas
-      ? { ".json": "json", ".png": "dataurl" }
-      : { ".json": "json" },
+    loader: {
+      ".json": "json",
+      ...(useDataurlAtlas ? { ".png": "dataurl" } : {}),
+      ...(useBundledGlb ? { ".glb": "dataurl" } : {})
+    },
     outfile: resolve(outDir, outfile)
   });
   await copyFile(resolve(root, htmlSrc), resolve(outDir, htmlDst));

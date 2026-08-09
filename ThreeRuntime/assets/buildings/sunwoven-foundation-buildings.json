@@ -1,0 +1,81 @@
+{
+  "schema": "sunfold.building-kit/1",
+  "faction": "sunwoven",
+  "age": "foundation",
+  "coordinateSystem": "glTF Y-up; origins at footprint centres",
+  "damageBands": {
+    "healthy": {
+      "minimumLifeRatioExclusive": 0.75
+    },
+    "damaged": {
+      "minimumLifeRatioExclusive": 0.5
+    },
+    "critical": {
+      "minimumLifeRatioExclusive": 0.0
+    },
+    "destroyed": {
+      "maximumLifeRatioInclusive": 0.0
+    }
+  },
+  "visibilityGroups": {
+    "state_shared": [
+      "healthy",
+      "damaged",
+      "critical"
+    ],
+    "state_healthy_damaged": [
+      "healthy",
+      "damaged"
+    ],
+    "state_healthy_only": [
+      "healthy"
+    ],
+    "state_damaged_plus": [
+      "damaged",
+      "critical"
+    ],
+    "state_critical_plus": [
+      "critical"
+    ],
+    "state_destroyed_only": [
+      "destroyed"
+    ]
+  },
+  "motionNodes": {
+    "motion_core_ring": "slow continuous yaw",
+    "motion_farm_crops": "restrained wind sway",
+    "motion_yard_loom": "slow continuous yaw"
+  },
+  "buildings": [
+    {
+      "kind": "civilization_core",
+      "glb": "sunwoven_civilization_core.glb",
+      "source": "source/sunwoven_civilization_core.blend",
+      "sizeBytes": 980388,
+      "meshCount": 162,
+      "vertexCount": 12782,
+      "triangleCount": 24916,
+      "materialCount": 11
+    },
+    {
+      "kind": "farm",
+      "glb": "sunwoven_farm.glb",
+      "source": "source/sunwoven_farm.blend",
+      "sizeBytes": 700348,
+      "meshCount": 190,
+      "vertexCount": 7526,
+      "triangleCount": 14264,
+      "materialCount": 11
+    },
+    {
+      "kind": "formation_yard",
+      "glb": "sunwoven_formation_yard.glb",
+      "source": "source/sunwoven_formation_yard.blend",
+      "sizeBytes": 402040,
+      "meshCount": 88,
+      "vertexCount": 5432,
+      "triangleCount": 10482,
+      "materialCount": 11
+    }
+  ]
+}

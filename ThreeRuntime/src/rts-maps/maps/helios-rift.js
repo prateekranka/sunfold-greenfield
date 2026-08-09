@@ -104,7 +104,7 @@ const RING_VISUAL = {
     { id: "key-w", position: { x: -24.5, z: 0 }, radius: 1.65, color: 0xe9a749, label: "key" }
   ],
   resourceZones: [
-    { id: "zone-home-n", position: { x: -4, z: -29 }, radius: 1.5, color: 0x3ed9b5 },
+    { id: "zone-home-n", position: { x: -7, z: -39 }, radius: 1.5, color: 0x3ed9b5 },
     { id: "zone-home-e", position: { x: 29, z: 4 }, radius: 1.5, color: 0x3ed9b5 },
     { id: "zone-home-s", position: { x: 4, z: 29 }, radius: 1.5, color: 0x3ed9b5 },
     { id: "zone-home-w", position: { x: -29, z: -4 }, radius: 1.5, color: 0x3ed9b5 },
@@ -167,7 +167,7 @@ export const HELIOS_RIFT = {
     { playerId: 3, platformId: "frag-w", position: { x: -RING_R + 2, z: 0 }, yaw: 0, startingCitizens: 6 }
   ],
   resources: [
-    { id: "home-n-matter", kind: "matter", position: { x: -4, z: -RING_R + 5 }, platformId: "frag-n", amount: 700 },
+    { id: "home-n-matter", kind: "matter", position: { x: -7, z: -39 }, platformId: "frag-n", amount: 700 },
     { id: "home-e-lumen", kind: "lumen", position: { x: RING_R - 5, z: 4 }, platformId: "frag-e", amount: 550 },
     { id: "home-s-matter", kind: "matter", position: { x: 4, z: RING_R - 5 }, platformId: "frag-s", amount: 700 },
     { id: "home-w-lumen", kind: "lumen", position: { x: -RING_R + 5, z: -4 }, platformId: "frag-w", amount: 550 },
