@@ -1,0 +1,108 @@
+{
+  "armatures": {
+    "broad_armature": {
+      "bone_names": [
+        "root",
+        "hips",
+        "spine_01",
+        "spine_02",
+        "chest",
+        "neck",
+        "head",
+        "clavicle_L",
+        "upperarm_L",
+        "lowerarm_L",
+        "hand_L",
+        "socket_tool_L",
+        "clavicle_R",
+        "upperarm_R",
+        "lowerarm_R",
+        "hand_R",
+        "socket_tool_R",
+        "socket_carrier",
+        "accessory_strap",
+        "thigh_L",
+        "calf_L",
+        "foot_L",
+        "toe_L",
+        "thigh_R",
+        "calf_R",
+        "foot_R",
+        "toe_R"
+      ],
+      "bone_order_matches": true,
+      "deform_count": 23,
+      "exists": true,
+      "sockets_present": {
+        "socket_carrier": true,
+        "socket_tool_L": true,
+        "socket_tool_R": true
+      }
+    },
+    "slender_armature": {
+      "bone_names": [
+        "root",
+        "hips",
+        "spine_01",
+        "spine_02",
+        "chest",
+        "neck",
+        "head",
+        "clavicle_L",
+        "upperarm_L",
+        "lowerarm_L",
+        "hand_L",
+        "socket_tool_L",
+        "clavicle_R",
+        "upperarm_R",
+        "lowerarm_R",
+        "hand_R",
+        "socket_tool_R",
+        "socket_carrier",
+        "accessory_strap",
+        "thigh_L",
+        "calf_L",
+        "foot_L",
+        "toe_L",
+        "thigh_R",
+        "calf_R",
+        "foot_R",
+        "toe_R"
+      ],
+      "bone_order_matches": true,
+      "deform_count": 23,
+      "exists": true,
+      "sockets_present": {
+        "socket_carrier": true,
+        "socket_tool_L": true,
+        "socket_tool_R": true
+      }
+    }
+  },
+  "blend": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/assets/neutral_lab.blend",
+  "manifest": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/manifest/event-markers.json",
+  "marker_check": {
+    "broad_armature": {
+      "body_skinned": true,
+      "carrier_bound_to_strap": true,
+      "tool_sockets_parented": {
+        "broad_mallet": "socket_tool_L",
+        "broad_scraper": "socket_tool_R"
+      }
+    },
+    "missing_actions": [],
+    "missing_markers": [],
+    "nla_strip_count": 18,
+    "non_linear_interpolation": [],
+    "slender_armature": {
+      "body_skinned": true,
+      "carrier_bound_to_strap": true,
+      "tool_sockets_parented": {
+        "slender_mallet": "socket_tool_L",
+        "slender_scraper": "socket_tool_R"
+      }
+    },
+    "wrong_frame_range": []
+  },
+  "schema": "sunfold.lab.blend-validation/1"
+}

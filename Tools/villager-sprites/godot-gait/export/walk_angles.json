@@ -1,0 +1,370 @@
+{
+	"clips": {
+		"walk": {
+			"fps": 10,
+			"frames": 4,
+			"gait": {
+				"contact": 0.62,
+				"lift": 28.0,
+				"phaseA": 0.5,
+				"phaseB": 0.0,
+				"plantDrop": 10.0,
+				"stride": 96.0
+			},
+			"perFacing": {
+				"E": [
+					{
+						"angles": {
+							"legA_foot": 14.5763325691223,
+							"legA_shin": -32.1379369193998,
+							"legA_thigh": 8.3504547670086,
+							"legB_foot": 21.4774227142334,
+							"legB_shin": -34.7112811543577,
+							"legB_thigh": 17.9363183679343
+						},
+						"frame": 0,
+						"root": [
+							0.0,
+							0.0056
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 22.0,
+							"legA_shin": -48.7571700508085,
+							"legA_thigh": 15.0954145982464,
+							"legB_foot": 22.0,
+							"legB_shin": -36.1199687459104,
+							"legB_thigh": 13.8990239801169
+						},
+						"frame": 1,
+						"root": [
+							0.0,
+							0.0084
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 7.27498292922974,
+							"legA_shin": -25.3595703536954,
+							"legA_thigh": 14.91499658372,
+							"legB_foot": 22.0,
+							"legB_shin": -34.4165311791532,
+							"legB_thigh": 8.77022287271026
+						},
+						"frame": 2,
+						"root": [
+							0.0,
+							0.0084
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 15.0504293441772,
+							"legA_shin": -30.5247529441801,
+							"legA_thigh": 12.3047327592571,
+							"legB_foot": 22.0,
+							"legB_shin": -50.2996743657224,
+							"legB_thigh": 14.7552470865012
+						},
+						"frame": 3,
+						"root": [
+							0.0,
+							0.0084
+						]
+					}
+				],
+				"N": [
+					{
+						"angles": {
+							"legA_foot": -22.0,
+							"legA_shin": 33.549987465671,
+							"legA_thigh": -12.7382398054401,
+							"legB_foot": 22.0,
+							"legB_shin": -31.9106610753171,
+							"legB_thigh": 12.6015758218527
+						},
+						"frame": 0,
+						"root": [
+							0.0,
+							0.0044
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": -22.0,
+							"legA_shin": 42.559267670444,
+							"legA_thigh": -15.6176047727863,
+							"legB_foot": 22.0,
+							"legB_shin": -33.6653612591855,
+							"legB_thigh": 12.2123093309164
+						},
+						"frame": 1,
+						"root": [
+							0.0,
+							0.0066
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": -22.0,
+							"legA_shin": 33.5911261146578,
+							"legA_thigh": -10.7651076719562,
+							"legB_foot": 21.2263264656067,
+							"legB_shin": -33.8410809971921,
+							"legB_thigh": 11.2756557168723
+						},
+						"frame": 2,
+						"root": [
+							0.0,
+							0.0066
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": -22.0,
+							"legA_shin": 34.3513642852816,
+							"legA_thigh": -12.0206404135029,
+							"legB_foot": 22.0,
+							"legB_shin": -40.8519819714658,
+							"legB_thigh": 13.8170933427573
+						},
+						"frame": 3,
+						"root": [
+							0.0,
+							0.0066
+						]
+					}
+				],
+				"NE": [
+					{
+						"angles": {
+							"legA_foot": -22.0,
+							"legA_shin": 36.0754391258273,
+							"legA_thigh": -14.9181256696979,
+							"legB_foot": 22.0,
+							"legB_shin": -34.2824300267331,
+							"legB_thigh": 15.5477199258566
+						},
+						"frame": 0,
+						"root": [
+							0.0,
+							0.0056
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": -22.0,
+							"legA_shin": 48.5164505546603,
+							"legA_thigh": -18.6068482801716,
+							"legB_foot": 22.0,
+							"legB_shin": -35.8470390774839,
+							"legB_thigh": 13.3697428407431
+						},
+						"frame": 1,
+						"root": [
+							0.0,
+							0.0084
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": -22.0,
+							"legA_shin": 33.5060273712191,
+							"legA_thigh": -8.59976295683784,
+							"legB_foot": 22.0,
+							"legB_shin": -35.1079739071958,
+							"legB_thigh": 10.3888373079062
+						},
+						"frame": 2,
+						"root": [
+							0.0,
+							0.0084
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": -22.0,
+							"legA_shin": 35.985528141788,
+							"legA_thigh": -12.1653080389301,
+							"legB_foot": 22.0,
+							"legB_shin": -45.8219760396116,
+							"legB_thigh": 14.4280194940329
+						},
+						"frame": 3,
+						"root": [
+							0.0,
+							0.0084
+						]
+					}
+				],
+				"S": [
+					{
+						"angles": {
+							"legA_foot": 9.51400899887085,
+							"legA_shin": -28.4116815025297,
+							"legA_thigh": 9.68652292038994,
+							"legB_foot": -14.5855369567871,
+							"legB_shin": 28.6078945658572,
+							"legB_thigh": -9.31989768126007
+						},
+						"frame": 0,
+						"root": [
+							0.0,
+							0.0044
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 15.9034643173218,
+							"legA_shin": -37.4209617073026,
+							"legA_thigh": 13.1540007188519,
+							"legB_foot": -14.7031869888306,
+							"legB_shin": 30.3625904581912,
+							"legB_thigh": -10.9569435415506
+						},
+						"frame": 1,
+						"root": [
+							0.0,
+							0.0066
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 13.5943307876587,
+							"legA_shin": -28.4528172904935,
+							"legA_thigh": 11.6888956620892,
+							"legB_foot": -19.8590722084045,
+							"legB_shin": 30.538304950989,
+							"legB_thigh": -12.0183315572977
+						},
+						"frame": 2,
+						"root": [
+							0.0,
+							0.0066
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 15.0700197219849,
+							"legA_shin": -29.2130692893949,
+							"legA_thigh": 10.9734587266644,
+							"legB_foot": -22.0,
+							"legB_shin": 37.5492140314944,
+							"legB_thigh": -14.4166431722879
+						},
+						"frame": 3,
+						"root": [
+							0.0,
+							0.0066
+						]
+					}
+				],
+				"SE": [
+					{
+						"angles": {
+							"legA_foot": 12.4280686378479,
+							"legA_shin": -30.9371283943143,
+							"legA_thigh": 9.29791017319756,
+							"legB_foot": -18.2178249359131,
+							"legB_shin": 30.9796625635989,
+							"legB_thigh": -8.0593776998758
+						},
+						"frame": 0,
+						"root": [
+							0.0,
+							0.0056
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 20.7295408248901,
+							"legA_shin": -43.3781531745878,
+							"legA_thigh": 14.2851156785687,
+							"legB_foot": -16.4966678619385,
+							"legB_shin": 32.5442778132327,
+							"legB_thigh": -11.3451500234842
+						},
+						"frame": 1,
+						"root": [
+							0.0,
+							0.0084
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 11.4043951034546,
+							"legA_shin": -28.3677285606351,
+							"legA_thigh": 13.7937426164349,
+							"legB_foot": -19.3411021232605,
+							"legB_shin": 31.8052069208987,
+							"legB_thigh": -13.8032036123514
+						},
+						"frame": 2,
+						"root": [
+							0.0,
+							0.0084
+						]
+					},
+					{
+						"angles": {
+							"legA_foot": 15.6905164718628,
+							"legA_shin": -30.8472188407865,
+							"legA_thigh": 11.987111528178,
+							"legB_foot": -22.0,
+							"legB_shin": 42.5192133448489,
+							"legB_thigh": -17.2573566732645
+						},
+						"frame": 3,
+						"root": [
+							0.0,
+							0.0084
+						]
+					}
+				]
+			},
+			"viewGain": {
+				"E": {
+					"bendA": 1.0,
+					"bendB": 1.0,
+					"lift": 1.0,
+					"stride": 1.0
+				},
+				"N": {
+					"bendA": -1.0,
+					"bendB": 1.0,
+					"lift": 0.4,
+					"stride": 0.22
+				},
+				"NE": {
+					"bendA": -1.0,
+					"bendB": 1.0,
+					"lift": 0.65,
+					"stride": 0.6
+				},
+				"S": {
+					"bendA": 1.0,
+					"bendB": -1.0,
+					"lift": 0.4,
+					"stride": 0.22
+				},
+				"SE": {
+					"bendA": 1.0,
+					"bendB": -1.0,
+					"lift": 0.65,
+					"stride": 0.6
+				}
+			}
+		}
+	},
+	"facingOrder": [
+		"S",
+		"SE",
+		"E",
+		"NE",
+		"N"
+	],
+	"note": "Merge viewGain bendA/bendB into Tools/villager-sprites/clips.json, then re-run bake_sprites.py. Pixel compositing stays in the Python cutout pipeline.",
+	"schema": "sunfold.godot-walk-angles/1",
+	"source": "godot-gait lab"
+}

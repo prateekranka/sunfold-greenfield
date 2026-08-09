@@ -1,0 +1,76 @@
+{
+  "schema": "sunfold.sprite-manifest/1",
+  "unit": "sunwoven-weaver",
+  "frameWidth": 1024,
+  "frameHeight": 1024,
+  "fps": 10,
+  "facings": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+  ],
+  "camera": {
+    "pitchDegrees": 57,
+    "yawDegrees": 45,
+    "fovDegrees": 38,
+    "note": "Must match ThreeRuntime/src/rts-camera.js and Tools/citizens/bake_sprites.py"
+  },
+  "clips": {
+    "idle": {
+      "frames": 1,
+      "loop": true,
+      "source": "real",
+      "note": "HD Codex turnarounds \u2014 native resolution RGBA",
+      "facingsReal": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "facingsMirrored": [
+        5,
+        6,
+        7
+      ],
+      "facingsStubbed": [
+        3
+      ]
+    },
+    "walk": {
+      "frames": 4,
+      "loop": true,
+      "source": "real",
+      "fps": 10,
+      "note": "Baked from sunwoven_walk_inplace @ frames 0/9/18/27 (AoE2 walk cadence)"
+    },
+    "gather": {
+      "frames": 6,
+      "loop": true,
+      "source": "real",
+      "fps": 5,
+      "note": "Baked from sunwoven_gather_loop_R \u2014 chop contact @ 12 (AoE2 hunt/gather ref)"
+    },
+    "build": {
+      "frames": 6,
+      "loop": true,
+      "source": "real",
+      "fps": 5,
+      "note": "Baked from sunwoven_construct_loop_L \u2014 hammer strike @ 12 (AoE2 build ref)"
+    }
+  },
+  "bootstrap": {
+    "refs": {
+      "front": "/Users/prateekranka/.cursor/projects/Users-prateekranka-Claude-Projects-aoe-space-edition/assets/Codex_Image_4_Aug_2026__09_14_56-e2a9452a-87a0-43f3-baaa-3600ff705e0d.png",
+      "side": "/Users/prateekranka/.cursor/projects/Users-prateekranka-Claude-Projects-aoe-space-edition/assets/Codex_Image_4_Aug_2026__09_15_34-ad6ce475-8fbe-4271-8a40-438143c3bb5c.png",
+      "back": "/Users/prateekranka/.cursor/projects/Users-prateekranka-Claude-Projects-aoe-space-edition/assets/Codex_Image_4_Aug_2026__09_15_44-ad3a0280-b85e-4fac-9ef6-767f484874e6.png",
+      "threequarter": "/Users/prateekranka/.cursor/projects/Users-prateekranka-Claude-Projects-aoe-space-edition/assets/Codex_Image_4_Aug_2026__09_15_52-6c7791a3-29b6-4ed8-8156-d9d1c2bc4eee.png"
+    },
+    "generatedBy": "Tools/citizens/bootstrap-sunwoven-sprites.py",
+    "hdSource": "codex-aug-2026"
+  }
+}

@@ -24,8 +24,45 @@ targets:
     platform: iOS
     sources:
       - path: Sources
+        excludes:
+          - App/ThreeJSExperimentApp.swift
+          - App/ThreeJSRootView.swift
+          - App/ThreeJSInfo.plist
+          - ThreeJS
       - path: Resources
         buildPhase: resources
+        excludes:
+          # Nested unit folders share filenames (runtime-atlas.png); flatten would collide.
+          # Copied as a folder via postcompileScripts below.
+          - "ThreeRuntime/sprites/**"
+    postCompileScripts:
+      - name: CopyThreeRuntimeSprites
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          SRC="${SRCROOT}/Resources/ThreeRuntime/sprites"
+          DEST="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sprites"
+          for unit in sunwoven-villager space-villager; do
+            mkdir -p "${DEST}/${unit}"
+            cp -f "${SRC}/${unit}/runtime-atlas.png" "${DEST}/${unit}/runtime-atlas.png"
+            cp -f "${SRC}/${unit}/atlas-manifest.json" "${DEST}/${unit}/atlas-manifest.json"
+          done
+          # Also flatten unique names next to index.html — WKWebView file:// can
+          # be finicky with nested Image loads.
+          cp -f "${SRC}/space-villager/runtime-atlas.png" \
+            "${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/space-villager-runtime-atlas.png"
+          cp -f "${SRC}/sunwoven-villager/runtime-atlas.png" \
+            "${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sunwoven-villager-runtime-atlas.png"
+        inputFiles:
+          - $(SRCROOT)/Resources/ThreeRuntime/sprites/sunwoven-villager/runtime-atlas.png
+          - $(SRCROOT)/Resources/ThreeRuntime/sprites/sunwoven-villager/atlas-manifest.json
+          - $(SRCROOT)/Resources/ThreeRuntime/sprites/space-villager/runtime-atlas.png
+          - $(SRCROOT)/Resources/ThreeRuntime/sprites/space-villager/atlas-manifest.json
+        outputFiles:
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sprites/sunwoven-villager/runtime-atlas.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sprites/sunwoven-villager/atlas-manifest.json
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sprites/space-villager/runtime-atlas.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sprites/space-villager/atlas-manifest.json
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sunfold.greenfield
@@ -34,6 +71,7 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         GENERATE_INFOPLIST_FILE: NO
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
     info:
       path: Sources/App/Info.plist
       properties:
@@ -52,6 +90,76 @@ targets:
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
 
+  # Isolated Three.js experiment. The committed RealityKit target above remains
+  # a separate fallback and is intentionally not a dependency of this target.
+  SunfoldThreeJS:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/App/ThreeJSExperimentApp.swift
+      - path: Sources/App/ThreeJSRootView.swift
+      - path: Sources/ThreeJS
+      - path: Resources
+        buildPhase: resources
+        excludes:
+          - "ThreeRuntime/sprites/**"
+    postCompileScripts:
+      - name: CopyThreeRuntimeSprites
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          SRC="${SRCROOT}/Resources/ThreeRuntime/sprites"
+          DEST="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sprites"
+          for unit in sunwoven-villager space-villager; do
+            mkdir -p "${DEST}/${unit}"
+            cp -f "${SRC}/${unit}/runtime-atlas.png" "${DEST}/${unit}/runtime-atlas.png"
+            cp -f "${SRC}/${unit}/atlas-manifest.json" "${DEST}/${unit}/atlas-manifest.json"
+          done
+          # Also flatten unique names next to index.html — WKWebView file:// can
+          # be finicky with nested Image loads.
+          cp -f "${SRC}/space-villager/runtime-atlas.png" \
+            "${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/space-villager-runtime-atlas.png"
+          cp -f "${SRC}/sunwoven-villager/runtime-atlas.png" \
+            "${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sunwoven-villager-runtime-atlas.png"
+        inputFiles:
+          - $(SRCROOT)/Resources/ThreeRuntime/sprites/sunwoven-villager/runtime-atlas.png
+          - $(SRCROOT)/Resources/ThreeRuntime/sprites/sunwoven-villager/atlas-manifest.json
+          - $(SRCROOT)/Resources/ThreeRuntime/sprites/space-villager/runtime-atlas.png
+          - $(SRCROOT)/Resources/ThreeRuntime/sprites/space-villager/atlas-manifest.json
+        outputFiles:
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sprites/sunwoven-villager/runtime-atlas.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sprites/sunwoven-villager/atlas-manifest.json
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sprites/space-villager/runtime-atlas.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sprites/space-villager/atlas-manifest.json
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/space-villager-runtime-atlas.png
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sunwoven-villager-runtime-atlas.png
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sunfold.greenfield.threejs
+        TARGETED_DEVICE_FAMILY: "2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
+        # Sprite copy script needs mkdir/cp under the app bundle; sandboxing
+        # blocks directory creation for nested atlas paths.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    info:
+      path: Sources/App/ThreeJSInfo.plist
+      properties:
+        CFBundleDisplayName: Sunfold Three.js
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        UIRequiresFullScreen: true
+        UIStatusBarHidden: true
+        UIUserInterfaceStyle: Dark
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+
   SunfoldGreenfieldTests:
     type: bundle.unit-test
     platform: iOS
@@ -62,6 +170,23 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sunfold.greenfield.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+  # Offline land-coverage harness. Domain-only so it builds on macOS without
+  # pulling RealityKit / SwiftUI. Tune WorldMap layouts against its numbers.
+  MapPreview:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Tools/mappreview
+      - path: Sources/Domain
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sunfold.greenfield.mappreview
+        MACOSX_DEPLOYMENT_TARGET: "15.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: "-"
         GENERATE_INFOPLIST_FILE: YES
 
 schemes:
@@ -78,3 +203,17 @@ schemes:
       config: Debug
       targets:
         - SunfoldGreenfieldTests
+
+  SunfoldThreeJS:
+    build:
+      targets:
+        SunfoldThreeJS: all
+    run:
+      config: Debug
+
+  MapPreview:
+    build:
+      targets:
+        MapPreview: all
+    run:
+      config: Debug

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Sunfold Gauntlet — CP-14</title>
+<style>
+  :root { color-scheme: dark; --bg:#0b0c12; --panel:#141622; --ink:#e8e4d8; --mute:#8a8698; --gold:#c9a24a; --ok:#6fbf73; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); }
+  header { padding: 20px 28px; border-bottom: 1px solid #22253a; }
+  h1 { margin: 0 0 6px; font-size: 20px; font-weight: 600; }
+  .mute { color: var(--mute); }
+  main { padding: 24px 28px; display: grid; gap: 24px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid #22253a; }
+  th { color: var(--mute); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .status { color: var(--ok); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  figure { margin: 0; background: var(--panel); border-radius: 10px; overflow: hidden; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 10px 12px; color: var(--mute); font-size: 13px; }
+  code { color: var(--gold); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Gauntlet — CP-14 AoE land cut by void water</h1>
+  <p class="mute">Supersedes CP-13 overlapping plates. Select with <code>-sunfoldMap riverlands|basin|fjords</code>.</p>
+</header>
+<main>
+  <table>
+    <tr><th>Item</th><th>Status</th></tr>
+    <tr><td>Map1 riverlands</td><td><span class="status">closed</span></td></tr>
+    <tr><td>Map2 basin</td><td><span class="status">closed</span></td></tr>
+    <tr><td>Map3 fjords</td><td><span class="status">closed</span></td></tr>
+    <tr><td>Void floor tracks cone</td><td><span class="status">closed</span></td></tr>
+    <tr><td>Neutral terrain (from CP-12)</td><td><span class="status">held</span></td></tr>
+  </table>
+  <ul>
+    <li>Select map: <code>-sunfoldMap riverlands|basin|fjords</code> (default riverlands; aliases coastland/continental→riverlands, isthmus/crescent→basin).</li>
+    <li>Frames: <code>../cp14-map1-riverlands.png</code> · <code>../cp14-map2-basin.png</code> · <code>../cp14-map3-fjords.png</code>.</li>
+  </ul>
+  <div class="grid">
+    <figure>
+      <img src="../cp14-map1-riverlands.png" alt="map1 riverlands" />
+      <figcaption>Map 1 — riverlands (rivers + tarns as void)</figcaption>
+    </figure>
+    <figure>
+      <img src="../cp14-map2-basin.png" alt="map2 basin" />
+      <figcaption>Map 2 — basin (great lakes)</figcaption>
+    </figure>
+    <figure>
+      <img src="../cp14-map3-fjords.png" alt="map3 fjords" />
+      <figcaption>Map 3 — fjords (inlets / sounds)</figcaption>
+    </figure>
+  </div>
+</main>
+</body>
+</html>

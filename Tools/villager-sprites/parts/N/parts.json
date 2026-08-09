@@ -1,0 +1,441 @@
+{
+  "schema": "sunfold.cutout-parts/2",
+  "view": "N",
+  "facingHint": "north, the figure faces away from the camera",
+  "source": "cutouts/back-alpha.png",
+  "mirrorSource": true,
+  "figureBox": [
+    338,
+    64,
+    1059,
+    1311
+  ],
+  "figurePixelSize": [
+    717,
+    1240
+  ],
+  "groundLine": 1.0,
+  "centreLine": 0.503,
+  "parts": [
+    {
+      "id": "head",
+      "parent": "torso",
+      "z": 40,
+      "file": "head.png",
+      "offset": [
+        0.39330543933054396,
+        0.0
+      ],
+      "size": [
+        0.19386331938633194,
+        0.17016129032258065
+      ],
+      "pixelSize": [
+        139,
+        211
+      ],
+      "pivot": [
+        0.49,
+        0.15
+      ],
+      "pivotLocal": [
+        69.32999999999998,
+        186.0
+      ],
+      "restAngle": 0.0,
+      "pixels": 20233
+    },
+    {
+      "id": "armA_upper",
+      "parent": "torso",
+      "z": 60,
+      "file": "armA_upper.png",
+      "offset": [
+        0.13807531380753138,
+        0.18064516129032257
+      ],
+      "size": [
+        0.27475592747559274,
+        0.2524193548387097
+      ],
+      "pixelSize": [
+        197,
+        313
+      ],
+      "pivot": [
+        0.33,
+        0.25
+      ],
+      "pivotLocal": [
+        137.61,
+        86.0
+      ],
+      "restAngle": 0.0,
+      "pixels": 29469
+    },
+    {
+      "id": "armA_fore",
+      "parent": "armA_upper",
+      "z": 61,
+      "file": "armA_fore.png",
+      "offset": [
+        0.09483960948396095,
+        0.3580645161290323
+      ],
+      "size": [
+        0.16875871687587168,
+        0.18629032258064515
+      ],
+      "pixelSize": [
+        121,
+        231
+      ],
+      "pivot": [
+        0.2,
+        0.405
+      ],
+      "pivotLocal": [
+        75.4,
+        58.200000000000045
+      ],
+      "restAngle": 0.0,
+      "pixels": 11779
+    },
+    {
+      "id": "armA_hand",
+      "parent": "armA_fore",
+      "z": 62,
+      "file": "armA_hand.png",
+      "offset": [
+        0.0,
+        0.4854838709677419
+      ],
+      "size": [
+        0.16736401673640167,
+        0.2653225806451613
+      ],
+      "pixelSize": [
+        120,
+        329
+      ],
+      "pivot": [
+        0.125,
+        0.505
+      ],
+      "pivotLocal": [
+        89.625,
+        24.200000000000045
+      ],
+      "restAngle": 0.0,
+      "pixels": 13917
+    },
+    {
+      "id": "armB_upper",
+      "parent": "torso",
+      "z": 44,
+      "file": "armB_upper.png",
+      "offset": [
+        0.5941422594142259,
+        0.19112903225806452
+      ],
+      "size": [
+        0.25662482566248257,
+        0.2411290322580645
+      ],
+      "pixelSize": [
+        184,
+        299
+      ],
+      "pivot": [
+        0.676,
+        0.25
+      ],
+      "pivotLocal": [
+        58.69200000000001,
+        73.0
+      ],
+      "restAngle": 0.0,
+      "pixels": 26215
+    },
+    {
+      "id": "armB_fore",
+      "parent": "armB_upper",
+      "z": 45,
+      "file": "armB_fore.png",
+      "offset": [
+        0.7224546722454672,
+        0.3580645161290323
+      ],
+      "size": [
+        0.1701534170153417,
+        0.1782258064516129
+      ],
+      "pixelSize": [
+        122,
+        221
+      ],
+      "pivot": [
+        0.785,
+        0.405
+      ],
+      "pivotLocal": [
+        44.84500000000003,
+        58.200000000000045
+      ],
+      "restAngle": 0.0,
+      "pixels": 11335
+    },
+    {
+      "id": "armB_hand",
+      "parent": "armB_fore",
+      "z": 46,
+      "file": "armB_hand.png",
+      "offset": [
+        0.7322175732217573,
+        0.47661290322580646
+      ],
+      "size": [
+        0.26778242677824265,
+        0.3064516129032258
+      ],
+      "pixelSize": [
+        192,
+        380
+      ],
+      "pivot": [
+        0.858,
+        0.5
+      ],
+      "pivotLocal": [
+        90.18600000000004,
+        29.0
+      ],
+      "restAngle": 0.0,
+      "pixels": 41573
+    },
+    {
+      "id": "legA_thigh",
+      "parent": "pelvis",
+      "z": 15,
+      "file": "legA_thigh.png",
+      "offset": [
+        0.2649930264993027,
+        0.6306451612903226
+      ],
+      "size": [
+        0.2775453277545328,
+        0.17258064516129032
+      ],
+      "pixelSize": [
+        199,
+        214
+      ],
+      "pivot": [
+        0.425,
+        0.52
+      ],
+      "pivotLocal": [
+        114.72499999999997,
+        -137.19999999999993
+      ],
+      "restAngle": 0.0,
+      "pixels": 29502
+    },
+    {
+      "id": "legA_shin",
+      "parent": "legA_thigh",
+      "z": 16,
+      "file": "legA_shin.png",
+      "offset": [
+        0.2733612273361227,
+        0.7403225806451613
+      ],
+      "size": [
+        0.16317991631799164,
+        0.2056451612903226
+      ],
+      "pixelSize": [
+        117,
+        255
+      ],
+      "pivot": [
+        0.35,
+        0.78
+      ],
+      "pivotLocal": [
+        54.94999999999999,
+        49.200000000000045
+      ],
+      "restAngle": 0.0,
+      "pixels": 19471
+    },
+    {
+      "id": "legA_foot",
+      "parent": "legA_shin",
+      "z": 17,
+      "file": "legA_foot.png",
+      "offset": [
+        0.23291492329149233,
+        0.910483870967742
+      ],
+      "size": [
+        0.14644351464435146,
+        0.08951612903225807
+      ],
+      "pixelSize": [
+        105,
+        111
+      ],
+      "pivot": [
+        0.335,
+        0.93
+      ],
+      "pivotLocal": [
+        73.19500000000002,
+        24.200000000000045
+      ],
+      "restAngle": 0.0,
+      "pixels": 8209
+    },
+    {
+      "id": "legB_thigh",
+      "parent": "pelvis",
+      "z": 10,
+      "file": "legB_thigh.png",
+      "offset": [
+        0.46722454672245467,
+        0.6306451612903226
+      ],
+      "size": [
+        0.26778242677824265,
+        0.17338709677419356
+      ],
+      "pixelSize": [
+        192,
+        215
+      ],
+      "pivot": [
+        0.578,
+        0.52
+      ],
+      "pivotLocal": [
+        79.42599999999999,
+        -137.19999999999993
+      ],
+      "restAngle": 0.0,
+      "pixels": 27204
+    },
+    {
+      "id": "legB_shin",
+      "parent": "legB_thigh",
+      "z": 11,
+      "file": "legB_shin.png",
+      "offset": [
+        0.5648535564853556,
+        0.7403225806451613
+      ],
+      "size": [
+        0.16596931659693165,
+        0.20483870967741935
+      ],
+      "pixelSize": [
+        119,
+        254
+      ],
+      "pivot": [
+        0.655,
+        0.78
+      ],
+      "pivotLocal": [
+        64.63499999999999,
+        49.200000000000045
+      ],
+      "restAngle": 0.0,
+      "pixels": 19201
+    },
+    {
+      "id": "legB_foot",
+      "parent": "legB_shin",
+      "z": 12,
+      "file": "legB_foot.png",
+      "offset": [
+        0.6317991631799164,
+        0.910483870967742
+      ],
+      "size": [
+        0.1394700139470014,
+        0.08951612903225807
+      ],
+      "pixelSize": [
+        100,
+        111
+      ],
+      "pivot": [
+        0.672,
+        0.93
+      ],
+      "pivotLocal": [
+        28.824000000000012,
+        24.200000000000045
+      ],
+      "restAngle": 0.0,
+      "pixels": 7889
+    },
+    {
+      "id": "pelvis",
+      "parent": null,
+      "z": 34,
+      "file": "pelvis.png",
+      "offset": [
+        0.23570432357043236,
+        0.3919354838709677
+      ],
+      "size": [
+        0.5271966527196653,
+        0.29435483870967744
+      ],
+      "pixelSize": [
+        378,
+        365
+      ],
+      "pivot": [
+        0.503,
+        0.505
+      ],
+      "pivotLocal": [
+        191.651,
+        140.20000000000005
+      ],
+      "restAngle": 0.0,
+      "pixels": 120962
+    },
+    {
+      "id": "torso",
+      "parent": "pelvis",
+      "z": 30,
+      "file": "torso.png",
+      "offset": [
+        0.20641562064156208,
+        0.1
+      ],
+      "size": [
+        0.5801952580195258,
+        0.3935483870967742
+      ],
+      "pixelSize": [
+        416,
+        488
+      ],
+      "pivot": [
+        0.503,
+        0.425
+      ],
+      "pivotLocal": [
+        212.651,
+        403.0
+      ],
+      "restAngle": 0.0,
+      "pixels": 143274
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/gltf-v2/villager/build_villager.py:62: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m.use_nodes = True
+BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
+BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
+BlenderMCP addon registered
+BONE_AXES root X=(1.000,0.000,0.000) Y=(0.000,0.000,1.000) Z=(0.000,-1.000,0.000)
+BONE_AXES hips X=(1.000,0.000,0.000) Y=(0.000,0.000,1.000) Z=(0.000,-1.000,0.000)
+BONE_AXES spine X=(1.000,0.000,0.000) Y=(0.000,0.000,1.000) Z=(0.000,-1.000,0.000)
+BONE_AXES chest X=(1.000,0.000,0.000) Y=(0.000,0.000,1.000) Z=(0.000,-1.000,0.000)
+BONE_AXES neck X=(1.000,0.000,0.000) Y=(0.000,0.000,1.000) Z=(0.000,-1.000,0.000)
+BONE_AXES head X=(1.000,0.000,0.000) Y=(0.000,0.000,1.000) Z=(0.000,-1.000,0.000)
+BONE_AXES shoulder_L X=(0.843,0.412,-0.346) Y=(-0.412,0.082,-0.907) Z=(-0.346,0.907,0.240)
+BONE_AXES upperArm_L X=(0.999,0.038,-0.037) Y=(-0.038,0.014,-0.999) Z=(-0.037,0.999,0.016)
+BONE_AXES lowerArm_L X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+BONE_AXES hand_L X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+BONE_AXES shoulder_R X=(0.843,-0.412,0.346) Y=(0.412,0.082,-0.907) Z=(0.346,0.907,0.240)
+BONE_AXES upperArm_R X=(0.999,-0.038,0.037) Y=(0.038,0.014,-0.999) Z=(0.037,0.999,0.016)
+BONE_AXES lowerArm_R X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+BONE_AXES hand_R X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+BONE_AXES upperLeg_L X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+BONE_AXES lowerLeg_L X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+BONE_AXES foot_L X=(1.000,0.000,0.000) Y=(0.000,0.840,-0.543) Z=(0.000,0.543,0.840)
+BONE_AXES upperLeg_R X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+BONE_AXES lowerLeg_R X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+BONE_AXES foot_R X=(1.000,0.000,0.000) Y=(0.000,0.840,-0.543) Z=(0.000,0.543,0.840)
+BONE_AXES satchel X=(1.000,0.000,0.000) Y=(0.000,0.000,-1.000) Z=(0.000,1.000,0.000)
+INFO Draco is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_draco_bridge.dylib
+INFO MeshOptimizer is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_meshopt_bridge.dylib
+14:58:45 | INFO: Starting glTF 2.0 export
+14:58:45 | INFO: Extracting primitive: villager_elbow_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_elbow_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_eye_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_eye_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_foot_ankle_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_foot_ankle_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_foot_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_foot_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_forearm_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_forearm_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_gem
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_hand_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_hand_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_head
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_knee_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_knee_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_mouth
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_neck
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_ring_collar
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_ring_cuff_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_ring_cuff_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_ring_hem
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_sash
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_sash_tail
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_satchel_body
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_satchel_flap
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_satchel_strap
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_scroll_0
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_scroll_1
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_scroll_2
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_shin_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_shin_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_skirt
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_sleeve_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_sleeve_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_thigh_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_thigh_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_torso
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_upperarm_L
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_upperarm_R
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_wrap_band1
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_wrap_band2
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_wrap_dome
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Extracting primitive: villager_wrap_drape
+14:58:45 | INFO: Primitives created: 1
+14:58:45 | INFO: Finished glTF 2.0 export in 0.3097231388092041 s
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/gltf-v2/villager/build_villager.py:805: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  world.use_nodes = True
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/gltf-v2/villager/build_villager.py:823: DeprecationWarning: 'Scene.use_nodes' is expected to be removed in Blender 6.0
+  scene.use_nodes = True
+00:01.326  render           | Saved: '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/QA/ThreeJS/villager-v2/villager_v2_front.png'
+00:02.147  render           | Saved: '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/QA/ThreeJS/villager-v2/villager_v2_side_e.png'
+00:02.851  render           | Saved: '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/QA/ThreeJS/villager-v2/villager_v2_rear.png'
+00:03.531  render           | Saved: '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/QA/ThreeJS/villager-v2/villager_v2_threequarter.png'
+00:04.266  render           | Saved: '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/QA/ThreeJS/villager-v2/villager_v2_debug_walk_front.png'
+00:04.977  render           | Saved: '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/QA/ThreeJS/villager-v2/villager_v2_debug_gather_34.png'
+
+GLB_EXPORTED /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/ThreeRuntime/assets/citizens/citizen_villager.glb size=240684
+VERIFY bones=22 meshes=44 nodes=67 materials=10 verts=1281 anims=['deposit', 'gather_finish', 'gather_loop', 'gather_start', 'idle', 'walk']
+VERIFY_CLIP deposit t0=0.000 t1=2.000 frames=49 channels=63
+VERIFY_CLIP gather_finish t0=0.000 t1=2.000 frames=49 channels=63
+VERIFY_CLIP gather_loop t0=0.000 t1=2.000 frames=49 channels=63
+VERIFY_CLIP gather_start t0=0.000 t1=2.000 frames=49 channels=63
+VERIFY_CLIP idle t0=0.000 t1=4.000 frames=97 channels=63
+VERIFY_CLIP walk t0=0.000 t1=1.000 frames=25 channels=63
+GLOW_MODE=compositor_fog_glow
+RENDER front ok size=780106
+RENDER side_e ok size=737278
+RENDER rear ok size=825415
+RENDER threequarter ok size=746875
+MANIFEST_WRITTEN /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Docs/QA/ThreeJS/villager-v2/villager_v2_clip_manifest.json
+BUILD_DONE bones=22 meshes=44 verts=1281 clips=6 glb=240684
+SCRIPT_END_OK
+BlenderMCP server stopped
+BlenderMCP addon unregistered
+Blender 5.2.0 LTS (hash fbe6228777e7 built 2026-07-14 01:31:22)
+
+Blender quit

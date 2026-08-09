@@ -1,0 +1,99 @@
+{
+  "schema": "sunfold.sprite-manifest/1",
+  "unit": "village-manbun-wanderer",
+  "characterName": "Village Man-Bun Wanderer",
+  "playback": "atlas",
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "fps": 10,
+  "mirrorAtRuntime": false,
+  "premultipliedAlpha": true,
+  "anchor": {
+    "x": 0.5,
+    "y": 0.899414,
+    "semantics": "feet_baseline_center_top_origin",
+    "threeJsCenterBottomOrigin": {
+      "x": 0.5,
+      "y": 0.100586
+    },
+    "note": "plane footroom = 1 - anchor.y \u2248 0.10; equivalent to center.set(0.5, 0.10)"
+  },
+  "unitHeightMeters": 1.75,
+  "worldHeight": 2.45,
+  "facings": [
+    "S",
+    "SSE",
+    "SE",
+    "ESE",
+    "E",
+    "ENE",
+    "NE",
+    "NNE",
+    "N",
+    "NNW",
+    "NW",
+    "WNW",
+    "W",
+    "WSW",
+    "SW",
+    "SSW"
+  ],
+  "directionCount": 16,
+  "facingConvention": "FACINGS_16 clockwise from south (+Z), 22.5\u00b0; use yawToFacing16",
+  "atlas": {
+    "image": "runtime-atlas.png",
+    "width": 2048,
+    "height": 16384,
+    "columns": 8,
+    "rows": 64,
+    "layout": "facing-grid",
+    "runtimeCellPx": 256
+  },
+  "clips": {
+    "idle": {
+      "frames": 1,
+      "fps": 1,
+      "loop": true,
+      "source": "walk_f0_hold",
+      "originRow": 0
+    },
+    "walk": {
+      "frames": 8,
+      "fps": 10,
+      "loop": true,
+      "source": "real",
+      "originRow": 0
+    },
+    "carry": {
+      "frames": 8,
+      "fps": 10,
+      "loop": true,
+      "source": "real",
+      "originRow": 16
+    },
+    "gather": {
+      "frames": 8,
+      "fps": 10,
+      "loop": true,
+      "source": "real",
+      "originRow": 32
+    },
+    "build": {
+      "frames": 8,
+      "fps": 10,
+      "loop": true,
+      "source": "real",
+      "originRow": 48
+    }
+  },
+  "provenance": {
+    "walk": "Citizen_Walk_16dir_8frames_256.png",
+    "carry": "Citizen_Carry_16dir_8frames_256.png",
+    "gather": "Citizen_Gather_16dir_8frames_256.png",
+    "build": "Citizen_Build_16dir_8frames_256.png",
+    "equipmentContract": "assets/sprites/village-manbun-wanderer/citizen_equipment_states.json",
+    "geminiUsed": false,
+    "note": "walk 0-15, carry 16-31, gather 32-47, build 48-63; fixed feet; no per-pose recenter",
+    "packedBy": "pack-unit-combined-atlas.py"
+  }
+}

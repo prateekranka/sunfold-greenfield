@@ -9,6 +9,7 @@ import SwiftUI
 struct SelectionPanel: View {
     let simulation: SkirmishSimulation
     let selection: SelectionModel
+    var controller: WorldController?
 
     var body: some View {
         Group {
@@ -43,11 +44,12 @@ struct SelectionPanel: View {
     private func unitCard(_ unit: Unit) -> some View {
         card {
             title(unit.kind.displayName, trailing: unit.faction.displayName)
+            portraitRow([unit])
             activityRow(unit)
             if let cargo = unit.cargo { cargoRow(cargo) }
-            if unit.life < unit.kind.maxLife {
-                lifeRow(current: unit.life, maximum: unit.kind.maxLife)
-            }
+            // Always shown for a selection — combat is parked, but concept 01
+            // carries life on the card. Full life is still honest state.
+            lifeRow(current: unit.life, maximum: unit.kind.maxLife)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(unit.kind.displayName) selected. \(activityText(unit)).")
@@ -72,8 +74,12 @@ struct SelectionPanel: View {
             ? "\(units.count) \(counts[0].0.pluralName)"
             : "\(units.count) Selected"
 
+        let lifeSum = units.reduce(0.0) { $0 + $1.life }
+        let lifeMax = units.reduce(0.0) { $0 + $1.kind.maxLife }
+
         return card {
             title(heading, trailing: units[0].faction.displayName)
+            portraitRow(units)
             if !isUniform {
                 Text(counts.map { "\($0.1) \($0.0.pluralName)" }.joined(separator: " · "))
                     .font(.system(size: 12, weight: .medium))
@@ -86,30 +92,87 @@ struct SelectionPanel: View {
                     .joined(separator: " · ")
                 Text("Carrying \(summary)").hudLabel()
             }
+            lifeRow(current: lifeSum, maximum: lifeMax)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(units.count) units selected")
     }
 
     private func buildingCard(_ building: Building) -> some View {
-        card {
-            title(building.kind.displayName, trailing: building.faction.displayName)
+        let builders = simulation.units.values.filter {
+            if case .constructing(building.id) = $0.activity { return true }
+            return false
+        }.count
+        let queue = simulation.productionQueue(for: building.id)
+
+        return card {
+            title(building.kind.displayName, trailing: building.faction?.displayName ?? "Neutral")
+            Text(building.kind.purpose).hudLabel()
             if building.isComplete {
-                if building.kind.acceptsDropOff {
+                if !building.kind.trains.isEmpty {
+                    productionQueueRow(queue, buildingID: building.id)
+                } else if building.kind.acceptsDropOff {
                     Text("Accepts deliveries").hudLabel()
+                } else if building.kind.populationGrant > 0 {
+                    Text("+\(building.kind.populationGrant) population").hudLabel()
                 } else {
                     Text("Complete").hudLabel()
                 }
             } else {
-                Text("Building \(Int(building.constructionProgress * 100))%").hudLabel()
+                Text("Constructing \(Int(building.constructionProgress * 100))%")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(SunfoldPalette.hudText)
                 HUDMeter(fraction: building.constructionProgress, tint: SunfoldPalette.hudAccent)
+                Text(builders == 0
+                     ? "Waiting for citizens"
+                     : "\(builders) citizen\(builders == 1 ? "" : "s") building")
+                    .hudLabel()
+                Button {
+                    controller?.cancelConstruction(building.id)
+                } label: {
+                    Text("Cancel · \(refundLabel(for: building.kind))")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(HUDInk.text)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(ChamferedRect(cut: 5).fill(HUDInk.well))
+                        .overlay(ChamferedRect(cut: 5).stroke(HUDInk.edge, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Cancel construction")
             }
-            if building.life < building.kind.maxLife {
-                lifeRow(current: building.life, maximum: building.kind.maxLife)
-            }
+            lifeRow(current: building.life, maximum: building.kind.maxLife)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(building.kind.displayName) selected")
+    }
+
+    private func refundLabel(for kind: BuildingKind) -> String {
+        let refund = simulation.tuning.cost(for: kind) * simulation.tuning.cancelRefundFraction
+        return "+\(ResourcePool.displayAmount(refund.matter)) Matter"
+    }
+
+    private func productionQueueRow(_ queue: ProductionQueue, buildingID: EntityID) -> some View {
+        Group {
+            if let front = queue.front {
+                Text("Training \(front.kind.displayName)")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(SunfoldPalette.hudText)
+                HUDMeter(
+                    fraction: simulation.productionProgress(for: buildingID),
+                    tint: SunfoldPalette.hudAccent
+                )
+                let pending = queue.count - 1
+                if pending > 0 {
+                    Text("\(pending) more in queue")
+                        .hudLabel()
+                }
+            } else {
+                Text("No units training")
+                    .hudLabel()
+            }
+        }
     }
 
     /// A node the player tapped with nothing selected. Answers the two questions
@@ -118,7 +181,7 @@ struct SelectionPanel: View {
     private func depositCard(_ deposit: Deposit) -> some View {
         let tint = Color(SunfoldPalette.resourceTint(deposit.kind))
         let workers = simulation.units.values.count {
-            $0.faction == .sunwoven && $0.assignment == deposit.id
+            $0.faction == simulation.playerFaction && $0.assignment == deposit.id
         }
 
         return card {
@@ -173,7 +236,52 @@ struct SelectionPanel: View {
     }
 
     private func lifeRow(current: Double, maximum: Double) -> some View {
-        HUDMeter(fraction: current / maximum, tint: Color(SunfoldPalette.sunwovenTurquoise))
+        let safeMax = max(maximum, 1)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                HUDGlyph(.life)
+                    .fill(HUDInk.life)
+                    .frame(width: 11, height: 11)
+                Text("\(Int(current.rounded())) / \(Int(safeMax.rounded()))")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(HUDInk.textDim)
+            }
+            HUDMeter(fraction: current / safeMax, tint: HUDInk.life, height: 4)
+        }
+    }
+
+    /// Concept 01's selection card is a row of portraits first, then the meter.
+    /// Cap the row so a marquee of twenty does not blow the panel width.
+    private func portraitRow(_ units: [Unit]) -> some View {
+        let shown = Array(units.prefix(8))
+        return HStack(spacing: 5) {
+            ForEach(shown, id: \.id.raw) { unit in
+                portraitTile(unit)
+            }
+            if units.count > shown.count {
+                Text("+\(units.count - shown.count)")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(HUDInk.textDim)
+                    .frame(width: HUDMetrics.portraitTile * 0.55, height: HUDMetrics.portraitTile)
+            }
+        }
+    }
+
+    private func portraitTile(_ unit: Unit) -> some View {
+        ZStack {
+            ChamferedRect(cut: 6)
+                .fill(HUDInk.well)
+            HUDGlyph(unit.kind.glyph)
+                .fill(HUDInk.accent)
+                .frame(width: 22, height: 22)
+        }
+        .frame(width: HUDMetrics.portraitTile, height: HUDMetrics.portraitTile)
+        .overlay {
+            ChamferedRect(cut: 6)
+                .stroke(HUDInk.edge, lineWidth: 1)
+        }
+        .accessibilityHidden(true)
     }
 
     // MARK: - Wording
@@ -226,12 +334,27 @@ struct SelectionPanel: View {
     }
 
     private func title(_ text: String, trailing: String) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Text(text)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(SunfoldPalette.hudAccent)
             Spacer(minLength: 0)
             Text(trailing.uppercased()).hudLabel()
+            Button {
+                if let controller {
+                    controller.clearSelection()
+                } else {
+                    selection.clear()
+                }
+            } label: {
+                Text("✕")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(HUDInk.text)
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(HUDInk.well))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Deselect")
         }
     }
 }

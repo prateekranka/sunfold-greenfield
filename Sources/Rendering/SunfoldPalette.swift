@@ -13,13 +13,44 @@ enum SunfoldPalette {
     /// value it replaced was indistinguishable from #000 in the rendered build.
     static let voidDeep = UIColor(red: 0.039, green: 0.045, blue: 0.105, alpha: 1)
     static let voidHorizon = UIColor(red: 0.055, green: 0.062, blue: 0.130, alpha: 1)
+    /// Opaque void-water tones. They stay black-indigo, but separate water from
+    /// the backdrop and give depth without introducing a bright sea colour.
+    static let voidWaterDeep = UIColor(red: 0.030, green: 0.065, blue: 0.145, alpha: 1)
+    static let voidWaterShallow = UIColor(red: 0.065, green: 0.115, blue: 0.220, alpha: 1)
+    static let voidWaterShore = UIColor(red: 0.130, green: 0.190, blue: 0.290, alpha: 1)
     static let starWarm = UIColor(red: 1.00, green: 0.95, blue: 0.86, alpha: 1)
     static let starCool = UIColor(red: 0.82, green: 0.88, blue: 1.00, alpha: 1)
+    /// Warm dust lobe sampled from concept 01's soft-void — not a second backdrop,
+    /// just the tint the nebula wash leans toward.
+    static let voidNebulaWarm = UIColor(red: 0.310, green: 0.248, blue: 0.188, alpha: 1)
+    /// Cool indigo counter-lobe; keeps the wash from reading as a brown fog.
+    static let voidNebulaCool = UIColor(red: 0.110, green: 0.125, blue: 0.220, alpha: 1)
+    /// Distant gas-giant midtone from concept 01 (centre sample ≈ 0.80 / 0.73 / 0.64).
+    static let celestialBody = UIColor(red: 0.780, green: 0.695, blue: 0.575, alpha: 1)
 
     // MARK: - Sunwoven
 
-    static let sunwovenSurface = UIColor(red: 0.855, green: 0.800, blue: 0.678, alpha: 1)
-    static let sunwovenRock = UIColor(red: 0.612, green: 0.565, blue: 0.478, alpha: 1)
+    /// The warm stone family sits at **hue 34°**, not 40°.
+    ///
+    /// Measured off `cp05-hud-chrome.png` against concept 01, on hand-picked bare
+    /// ground in both: the concept reads rgb(0.776, 0.655, 0.506) — hue 33.0° —
+    /// and the build read rgb(0.757, 0.682, 0.506) — hue 42.2°. Red and blue
+    /// already matched to within 2%; the entire 9° error was **green**, and it
+    /// repeated on every lit surface in the frame (rim stone 41.8°, foliage
+    /// 40.3°, the near-white transport hull 41.1°) against 32–35° for the same
+    /// surfaces in the concept.
+    ///
+    /// One error on every surface is one cause, so the rotation is split between
+    /// the two things every surface shares: these albedos and
+    /// `LightingRig.Tuning.keyColor`. Neither is dragged far enough on its own to
+    /// stop reading as what it is — the sand stays sand, the sun stays a warm
+    /// gold spill — and the product lands where the concept is.
+    ///
+    /// Value and saturation were checked at the same time and are **not** wrong:
+    /// 0.757 against 0.776 and 0.332 against 0.348. CP-03's exposure calibration
+    /// holds. Do not reach for either.
+    static let sunwovenSurface = UIColor(red: 0.855, green: 0.778, blue: 0.678, alpha: 1)
+    static let sunwovenRock = UIColor(red: 0.612, green: 0.554, blue: 0.478, alpha: 1)
     static let sunwovenGold = UIColor(red: 0.855, green: 0.655, blue: 0.282, alpha: 1)
     static let sunwovenIvory = UIColor(red: 0.960, green: 0.933, blue: 0.878, alpha: 1)
     static let sunwovenTurquoise = UIColor(red: 0.294, green: 0.706, blue: 0.706, alpha: 1)
@@ -37,6 +68,18 @@ enum SunfoldPalette {
     static let neutralRock = UIColor(red: 0.427, green: 0.416, blue: 0.400, alpha: 1)
     static let dominionStone = UIColor(red: 0.741, green: 0.729, blue: 0.702, alpha: 1)
 
+    // MARK: - Shared land (civilization-independent)
+
+    /// Habitable top for every fragment. Matches concept 01's warm regolith
+    /// (hue ~34°) — the same family as `sunwovenSurface`, kept as the locked
+    /// ground read rather than a faction paint.
+    ///
+    /// User constraint 2026-07-28: land is never color-coded by civilization.
+    /// Faction identity lives on units, buildings, HUD, and Core livery only.
+    static let landSurface = sunwovenSurface
+    /// Underside / cliff rock paired with `landSurface`.
+    static let landRock = sunwovenRock
+
     /// The colour that stands for each resource, wherever it appears — a carried
     /// load, a deposit's ground pool, the HUD rail. One source, so a player never
     /// has to learn the same resource twice.
@@ -49,18 +92,11 @@ enum SunfoldPalette {
         }
     }
 
-    /// Surface and rock colours for a fragment, by who holds it at match start.
+    /// Surface and rock for a fragment. Always the shared land palette —
+    /// ownership does not recolor the ground.
     static func fragmentColors(for region: RegionID) -> (surface: UIColor, rock: UIColor) {
-        switch region {
-        case .sunwovenHome, .sunwovenExpansion:
-            (sunwovenSurface, sunwovenRock)
-        case .gravemarkHome, .gravemarkExpansion:
-            (gravemarkSurface, gravemarkRock)
-        case .dominion:
-            (dominionStone, neutralRock)
-        case .neutralOutcropNorth, .neutralOutcropSouth:
-            (neutralSurface, neutralRock)
-        }
+        _ = region
+        return (landSurface, landRock)
     }
 
     // MARK: - SwiftUI bridges for the HUD

@@ -88,19 +88,21 @@ enum TransportMesh {
             upper: StructureGeometry.rectangle(width: 1.32, depth: 1.62, y: 2.52, center: [0, -1.60])
         )
 
-        // Side ramp, hinged at the starboard sheer and set down on the rim.
-        let rampTop: [SIMD3<Float>] = [
-            [1.78, 1.12, -1.90],
-            [1.78, 1.12, -0.26],
-            [3.66, 0.06, -0.26],
-            [3.66, 0.06, -1.90],
+        // Short starboard boarding step — not the long side ramp that used to
+        // read as a dark slab sticking into the void.
+        let stepTop: [SIMD3<Float>] = [
+            [1.70, 1.18, -1.10],
+            [1.70, 1.18, -0.20],
+            [2.35, 0.55, -0.20],
+            [2.35, 0.55, -1.10],
         ]
         ivory.addSolid(
-            lower: rampTop.map { $0 - [0, 0.13, 0] },
-            upper: rampTop
+            lower: stepTop.map { $0 - [0, 0.10, 0] },
+            upper: stepTop
         )
 
-        // Deck inlay and swept outrigger fins.
+        // Deck inlay. Outrigger fins stay close to the hull so they silhouette
+        // as craft detail rather than a boom.
         deck.addQuad(
             [-0.86, 2.02, 2.10], [0.86, 2.02, 2.10],
             [0.86, 2.02, -0.60], [-0.86, 2.02, -0.60],
@@ -108,24 +110,19 @@ enum TransportMesh {
         )
         for side in [Float(-1), Float(1)] {
             deck.addFin(
-                [side * 1.72, 0.78, -2.20],
-                [side * 1.72, 0.78, -4.55],
-                [side * 3.05, 0.48, -4.15],
-                extrude: [0, 0.16, 0]
+                [side * 1.72, 0.78, -2.40],
+                [side * 1.72, 0.78, -4.20],
+                [side * 2.35, 0.52, -3.90],
+                extrude: [0, 0.14, 0]
             )
         }
 
-        // Gold rub-rails, cabin ribbing, bow ornament and ramp rails.
+        // Gold rub-rails, cabin ribbing, bow ornament.
         for side in [Float(-1), Float(1)] {
             gold.addQuad(
                 [side * 1.98, 1.42, 2.55], [side * 1.98, 1.42, -4.20],
                 [side * 1.98, 1.62, -4.20], [side * 1.98, 1.62, 2.55],
                 facing: [side, 0.2, 0]
-            )
-            gold.addQuad(
-                [side * 1.80, 1.16, -1.88], [side * 1.80, 1.16, -0.28],
-                [side * 1.80, 1.34, -0.28], [side * 1.80, 1.34, -1.88],
-                facing: [side, 0.3, 0]
             )
         }
         for index in 0..<3 {
@@ -141,6 +138,12 @@ enum TransportMesh {
             apex: [0, random.float(in: 2.72...2.92), 4.62]
         )
 
+        // Docked gold pier — the concept 01 landing: a lattice walk from midships
+        // toward the rim. Bow faces the expansion void, so land is aft; the pier
+        // steps off the port sheer toward -Z and a little -X so it reads as a
+        // dock, not a spar into empty space.
+        addDockPier(into: &gold)
+
         // Turquoise trim: hull strips and the drive wash at the transom.
         for side in [Float(-1), Float(1)] {
             glow.addQuad(
@@ -155,20 +158,108 @@ enum TransportMesh {
             )
         }
         glow.addQuad(
-            [1.86, 1.08, -1.86], [3.58, 0.04, -1.86],
-            [3.58, 0.04, -1.62], [1.86, 1.08, -1.62],
+            [1.72, 1.10, -1.05], [2.28, 0.58, -1.05],
+            [2.28, 0.58, -0.85], [1.72, 1.10, -0.85],
             facing: [0, 1, 0]
         )
 
         return StructureAssembly.entity(
             named: "transport.sunwoven",
             zones: [
-                StructureZone("hull", ivory, StructureMaterial.matte(SunfoldPalette.sunwovenIvory, roughness: 0.86)),
+                StructureZone(
+                    "hull",
+                    ivory,
+                    StructureMaterial.matte(
+                        SunfoldPalette.sunwovenIvory,
+                        roughness: 0.86,
+                        surface: .transportHull
+                    )
+                ),
                 StructureZone("deck", deck, StructureMaterial.matte(SunfoldPalette.sunwovenSurface)),
                 StructureZone("gold", gold, StructureMaterial.matte(SunfoldPalette.sunwovenGold, roughness: 0.85)),
                 StructureZone("trim", glow, StructureMaterial.glow(SunfoldPalette.sunwovenTurquoise, opacity: 0.85)),
             ]
         )
+    }
+
+    /// Lattice pier on the landward quarter — posts, deck boards, rail caps.
+    ///
+    /// CP-12: finer members so the dock reads as latticework rather than a
+    /// solid gold wedge bolted to the sheer.
+    private static func addDockPier(into gold: inout StructureBuilder) {
+        let nearX: Float = -1.92
+        let farX: Float = -4.45
+        let zAft: Float = -0.45
+        let zFwd: Float = -3.55
+
+        // Separate deck boards instead of one solid plate.
+        let boardCount = 7
+        for board in 0..<boardCount {
+            let t0 = Float(board) / Float(boardCount)
+            let t1 = Float(board + 1) / Float(boardCount)
+            let gap: Float = 0.04
+            let z0 = zAft + (zFwd - zAft) * t0 + gap * 0.5
+            let z1 = zAft + (zFwd - zAft) * t1 - gap * 0.5
+            guard z1 > z0 + 0.08 else { continue }
+            let yNear: Float = 1.06
+            let yFar: Float = 0.14
+            let deck: [SIMD3<Float>] = [
+                [nearX, yNear, z0],
+                [nearX, yNear, z1],
+                [farX, yFar, z1],
+                [farX, yFar, z0],
+            ]
+            gold.addSolid(
+                lower: deck.map { $0 - [0, 0.06, 0] },
+                upper: deck
+            )
+        }
+
+        // Slender posts along both long edges.
+        for (outer, z0, z1, yTop) in [
+            (nearX - 0.06, zAft - 0.08, zFwd + 0.08, Float(1.92)),
+            (farX + 0.08, zAft - 0.20, zFwd + 0.15, Float(1.02)),
+        ] as [(Float, Float, Float, Float)] {
+            for t in [Float(0.08), 0.26, 0.44, 0.62, 0.80, 0.94] {
+                let z = z0 + (z1 - z0) * t
+                gold.addSolid(
+                    lower: StructureGeometry.rectangle(
+                        width: 0.07, depth: 0.07, y: 0.02, center: [outer, z]
+                    ),
+                    upper: StructureGeometry.rectangle(
+                        width: 0.055, depth: 0.055, y: yTop, center: [outer, z]
+                    )
+                )
+            }
+        }
+
+        // Handrail caps — thin ribbons.
+        gold.addQuad(
+            [nearX - 0.12, 1.94, zAft - 0.05], [nearX - 0.12, 1.94, zFwd + 0.05],
+            [nearX + 0.04, 1.94, zFwd + 0.05], [nearX + 0.04, 1.94, zAft - 0.05],
+            facing: [0, 1, 0]
+        )
+        gold.addQuad(
+            [farX - 0.04, 1.04, zAft - 0.15], [farX - 0.04, 1.04, zFwd + 0.10],
+            [farX + 0.10, 1.04, zFwd + 0.10], [farX + 0.10, 1.04, zAft - 0.15],
+            facing: [0, 1, 0]
+        )
+
+        // Cross-braces as thin X pairs between the post rows.
+        for t in [Float(0.18), 0.40, 0.62, 0.84] {
+            let zNear = zAft + (zFwd - zAft) * t
+            let zFar = (zAft - 0.15) + ((zFwd + 0.10) - (zAft - 0.15)) * t
+            gold.addQuad(
+                [nearX - 0.05, 0.72, zNear], [farX + 0.05, 0.42, zFar],
+                [farX + 0.05, 0.50, zFar], [nearX - 0.05, 0.80, zNear],
+                facing: [0, 1, 0.12]
+            )
+            gold.addQuad(
+                [nearX - 0.05, 0.48, zNear], [farX + 0.05, 0.68, zFar],
+                [farX + 0.05, 0.76, zFar], [nearX - 0.05, 0.56, zNear],
+                facing: [0, 1, -0.12]
+            )
+        }
     }
 
     // MARK: - Gravemark
@@ -286,7 +377,15 @@ enum TransportMesh {
         return StructureAssembly.entity(
             named: "transport.gravemark",
             zones: [
-                StructureZone("hull", plate, StructureMaterial.matte(SunfoldPalette.gravemarkSurface, roughness: 0.90)),
+                StructureZone(
+                    "hull",
+                    plate,
+                    StructureMaterial.matte(
+                        SunfoldPalette.gravemarkSurface,
+                        roughness: 0.90,
+                        surface: .armouredHull
+                    )
+                ),
                 StructureZone("sponson", rock, StructureMaterial.matte(SunfoldPalette.gravemarkRock, roughness: 0.96)),
                 StructureZone("copper", copper, StructureMaterial.matte(SunfoldPalette.gravemarkCopper, roughness: 0.85)),
                 StructureZone("drive", glow, StructureMaterial.glow(SunfoldPalette.gravemarkMineral, opacity: 0.85)),

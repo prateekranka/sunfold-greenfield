@@ -1,0 +1,17 @@
+Both frames analyzed — vision bridge JSONs and numeric instrument in hand. `answer.txt` was never opened. Final verdict:
+
+---
+
+## BLIND CRITIC — Round 2 Verdict (AAA gate)
+
+**1. Stronger frame: frame-2.** It reads exactly as the bible's opening — an ivory-and-gold settlement (ornate white-and-gold pavilion, tilled farm plots, luminous crystal node, white/turquoise-robed workers) suspended on a floating island in starry space with a purple/blue nebula wash, and it tracks the concept numerically: luma_p50 0.335 (vs concept 0.015) against frame-1's 0.511, dynamic_range 0.543 vs 0.515, dominant_hue_share 0.820 vs 0.789, luma_p05 0.003 ≈ concept's 0.001. Every element reads as a shipped asset; warm gold + restrained turquoise is on-palette.
+
+**2. Weaker frame (frame-1): STRUCTURAL.** The vision bridge calls it a "desert-themed platform" with a golden dome, low-poly crystals and "wooden stilt supports" — it does not read as space at all (no void, nebula, or planet in the read), and the numbers confirm terrain filling the frame: void_frac 0.194 vs concept 0.530, median luma 0.511 vs concept 0.015. This is the round-1 failure mode resurfacing, not a polish gap: the composition, context, and asset read all violate the bible.
+
+**3. Largest remaining gap in frame-1:** The frame doesn't read as an object lit in space — it's a bright contiguous desert platform (median luma 0.511 vs the concept's 0.015, void only 19% vs 53%), so the opening sells "sandy map" instead of an ivory-and-gold island suspended in deep void, and the stilt-supported dome + low-poly crystals read as placeholder geometry.
+
+**4. Ship: frame-2** — it's the only frame that delivers the bible's opening promise: a warm ivory-and-gold settlement floating in deep space with a nebula wash and readable shipped content.
+
+---
+
+**Summary:** Ran the modlens vision bridge (gemini-api) on both frames (frame-2 needed one retry after a Gemini 503) and the project's framestat.py instrument against the concept bar. Frame-2 wins on both evidence tracks — semantic read (space-faring settlement vs desert platform) and 5 of 7 numeric metrics. Frame-1's gap is structural, not cosmetic. Outputs: `/tmp/b1b-1.json`, `/tmp/b1b-2.json`. `answer.txt` untouched.

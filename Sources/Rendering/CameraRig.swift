@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import RealityKit
 import simd
 
@@ -6,7 +7,11 @@ import simd
 ///
 /// Structure is deliberately three nested entities so yaw and pitch never fight:
 ///   root (focus position, yaw about Y) → pitch node (fixed tilt) → camera (pulled back)
+/// Observable because the minimap draws the viewport rectangle from `focus`,
+/// `yaw` and `zoom`. Without it the reticle is placed once at scene build and
+/// then never moves again, which is worse than having no reticle at all.
 @MainActor
+@Observable
 final class CameraRig {
     let root = Entity()
     private let pitchNode = Entity()

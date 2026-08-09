@@ -1,0 +1,22 @@
+{
+  "schema": "sunfold.sunwoven.codex-construction-refs/1",
+  "primary_gate_view": "front",
+  "references": {
+    "front": {
+      "path": "Docs/Concepts/references/sunwoven-codex-front.png"
+    },
+    "side": {
+      "path": "Docs/Concepts/references/sunwoven-codex-side.png",
+      "crop_px": {"x": 500, "y": 0, "width": 524, "height": 1024}
+    },
+    "back": {
+      "path": "Docs/Concepts/references/sunwoven-codex-back.png"
+    }
+  },
+  "renders": {
+    "front": "Tools/citizens/build/renders/turnaround-sunwoven-front.png",
+    "side": "Tools/citizens/build/renders/turnaround-sunwoven-side.png",
+    "back": "Tools/citizens/build/renders/turnaround-sunwoven-rear.png"
+  },
+  "note": "Authoritative Aug 2026 construction turnaround refs. Primary IoU gate compares front T-pose turnaround against the Codex front sheet."
+}

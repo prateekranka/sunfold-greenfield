@@ -1,0 +1,631 @@
+{
+  "schema": "sunfold.lab.event-markers/1",
+  "fps": 30,
+  "arc_duration_frames": 12,
+  "marker_events": [
+    "tool_attach",
+    "tool_release",
+    "gather_contact",
+    "payload_attach",
+    "deposit_release",
+    "construct_contact"
+  ],
+  "clips": [
+    {
+      "name": "slender_idle",
+      "citizen": "spike_slender",
+      "semantic": "idle",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 72,
+      "duration_s": 2.4,
+      "grip_socket": null
+    },
+    {
+      "name": "slender_walk_inplace",
+      "citizen": "spike_slender",
+      "semantic": "walk_inplace",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": null
+    },
+    {
+      "name": "slender_walk_loaded_inplace",
+      "citizen": "spike_slender",
+      "semantic": "walk_loaded_inplace",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": null
+    },
+    {
+      "name": "slender_idle_loaded",
+      "citizen": "spike_slender",
+      "semantic": "idle_loaded",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 72,
+      "duration_s": 2.4,
+      "grip_socket": null
+    },
+    {
+      "name": "slender_reverse",
+      "citizen": "spike_slender",
+      "semantic": "reverse",
+      "handedness": null,
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 12,
+      "duration_s": 0.4,
+      "grip_socket": null
+    },
+    {
+      "name": "slender_deposit",
+      "citizen": "spike_slender",
+      "semantic": "deposit",
+      "handedness": null,
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 60,
+      "duration_s": 2.0,
+      "grip_socket": null
+    },
+    {
+      "name": "slender_gather_start_R",
+      "citizen": "spike_slender",
+      "semantic": "gather_start",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "slender_gather_loop_R",
+      "citizen": "spike_slender",
+      "semantic": "gather_loop",
+      "handedness": "R",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "slender_gather_finish_R",
+      "citizen": "spike_slender",
+      "semantic": "gather_finish",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "slender_gather_start_L",
+      "citizen": "spike_slender",
+      "semantic": "gather_start",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "slender_gather_loop_L",
+      "citizen": "spike_slender",
+      "semantic": "gather_loop",
+      "handedness": "L",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "slender_gather_finish_L",
+      "citizen": "spike_slender",
+      "semantic": "gather_finish",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "slender_construct_start_L",
+      "citizen": "spike_slender",
+      "semantic": "construct_start",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "slender_construct_loop_L",
+      "citizen": "spike_slender",
+      "semantic": "construct_loop",
+      "handedness": "L",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "slender_construct_finish_L",
+      "citizen": "spike_slender",
+      "semantic": "construct_finish",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "slender_construct_start_R",
+      "citizen": "spike_slender",
+      "semantic": "construct_start",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "slender_construct_loop_R",
+      "citizen": "spike_slender",
+      "semantic": "construct_loop",
+      "handedness": "R",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "slender_construct_finish_R",
+      "citizen": "spike_slender",
+      "semantic": "construct_finish",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "broad_idle",
+      "citizen": "spike_broad",
+      "semantic": "idle",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 72,
+      "duration_s": 2.4,
+      "grip_socket": null
+    },
+    {
+      "name": "broad_walk_inplace",
+      "citizen": "spike_broad",
+      "semantic": "walk_inplace",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": null
+    },
+    {
+      "name": "broad_walk_loaded_inplace",
+      "citizen": "spike_broad",
+      "semantic": "walk_loaded_inplace",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": null
+    },
+    {
+      "name": "broad_idle_loaded",
+      "citizen": "spike_broad",
+      "semantic": "idle_loaded",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 72,
+      "duration_s": 2.4,
+      "grip_socket": null
+    },
+    {
+      "name": "broad_reverse",
+      "citizen": "spike_broad",
+      "semantic": "reverse",
+      "handedness": null,
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 12,
+      "duration_s": 0.4,
+      "grip_socket": null
+    },
+    {
+      "name": "broad_deposit",
+      "citizen": "spike_broad",
+      "semantic": "deposit",
+      "handedness": null,
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 60,
+      "duration_s": 2.0,
+      "grip_socket": null
+    },
+    {
+      "name": "broad_gather_start_R",
+      "citizen": "spike_broad",
+      "semantic": "gather_start",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "broad_gather_loop_R",
+      "citizen": "spike_broad",
+      "semantic": "gather_loop",
+      "handedness": "R",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "broad_gather_finish_R",
+      "citizen": "spike_broad",
+      "semantic": "gather_finish",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "broad_gather_start_L",
+      "citizen": "spike_broad",
+      "semantic": "gather_start",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "broad_gather_loop_L",
+      "citizen": "spike_broad",
+      "semantic": "gather_loop",
+      "handedness": "L",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "broad_gather_finish_L",
+      "citizen": "spike_broad",
+      "semantic": "gather_finish",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "broad_construct_start_L",
+      "citizen": "spike_broad",
+      "semantic": "construct_start",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "broad_construct_loop_L",
+      "citizen": "spike_broad",
+      "semantic": "construct_loop",
+      "handedness": "L",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "broad_construct_finish_L",
+      "citizen": "spike_broad",
+      "semantic": "construct_finish",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "broad_construct_start_R",
+      "citizen": "spike_broad",
+      "semantic": "construct_start",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "broad_construct_loop_R",
+      "citizen": "spike_broad",
+      "semantic": "construct_loop",
+      "handedness": "R",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "broad_construct_finish_R",
+      "citizen": "spike_broad",
+      "semantic": "construct_finish",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    }
+  ],
+  "markers": [
+    {
+      "clip": "slender_deposit",
+      "name": "deposit_release",
+      "frame": 40,
+      "time_s": 1.3333,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_gather_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_gather_loop_R",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_gather_loop_R",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12
+    },
+    {
+      "clip": "slender_gather_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_gather_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_gather_loop_L",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_gather_loop_L",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12
+    },
+    {
+      "clip": "slender_gather_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_construct_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_construct_loop_L",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_construct_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_construct_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_construct_loop_R",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "slender_construct_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_deposit",
+      "name": "deposit_release",
+      "frame": 40,
+      "time_s": 1.3333,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_gather_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_gather_loop_R",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_gather_loop_R",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12
+    },
+    {
+      "clip": "broad_gather_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_gather_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_gather_loop_L",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_gather_loop_L",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12
+    },
+    {
+      "clip": "broad_gather_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_construct_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_construct_loop_L",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_construct_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_construct_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_construct_loop_R",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "broad_construct_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    }
+  ]
+}

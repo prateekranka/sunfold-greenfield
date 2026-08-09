@@ -1,0 +1,10 @@
+riverlands seed=20260726: raster=4 edgeTouching=4 interior=[] exteriorJoined=1
+riverlands seed=1: raster=4 edgeTouching=4 interior=[] exteriorJoined=1
+riverlands seed=99999: raster=4 edgeTouching=4 interior=[] exteriorJoined=1
+basin seed=20260726: raster=10 edgeTouching=7 interior=[494, 480, 236] exteriorJoined=4
+basin seed=1: raster=10 edgeTouching=7 interior=[553, 419, 210] exteriorJoined=4
+basin seed=99999: raster=10 edgeTouching=7 interior=[484, 420, 213] exteriorJoined=4
+fjords seed=20260726: raster=8 edgeTouching=4 interior=[356, 249, 116, 5] exteriorJoined=5
+fjords seed=1: raster=7 edgeTouching=4 interior=[323, 311, 119] exteriorJoined=4
+fjords seed=99999: raster=7 edgeTouching=4 interior=[405, 288, 166] exteriorJoined=4
+determinism same-seed identical field: true

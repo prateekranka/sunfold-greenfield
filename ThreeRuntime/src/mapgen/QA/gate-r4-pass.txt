@@ -1,0 +1,35 @@
+Both instruments are in and I did not touch the sealed file. Verdict below.
+
+---
+
+## B1a BLIND CRITIC — Round 4 Verdict
+
+**1. Stronger frame: frame-1.**
+
+**2. Weaker frame (frame-2): STRUCTURAL.** This is not a polish gap. The two frames are not the same quality class:
+
+| metric | bar (concept) | frame-1 | frame-2 |
+|---|---|---|---|
+| void_frac | 0.530 | **0.495** ✅ | 0.159 ❌ |
+| softvoid_frac | 0.137 | 0.094 | 0.191 |
+| luma_p05 (black point) | 0.001 | 0.000 ✅ | 0.003 |
+| luma_p50 | 0.015 | 0.051 ✅ | 0.335 ❌ |
+| dynamic_range | 0.515 | 0.600 ✅ | 0.543 |
+| sat_mean | 0.484 | 0.572 ✅ | 0.385 |
+| dominant_hue_share | 0.789 | 0.669 | 0.820 |
+
+frame-1 sits essentially **on the bar**: void ~0.50 (deep space dominates), true blacks (0.000), a 0.60 dynamic range and rich saturation — the vision bridge reads it as "sandy alien terrain floating in outer space… stark dark shadows against a black space background with stars and a glowing purple planet" with a golden dome, crystal clusters, robed units. That is the bible frame: an object lit in space, void in the upper half, warm settlement below.
+
+frame-2 fails the composition that rounds 1–3 were about: **void_frac 0.159 (bar 0.530), midtone 0.335 (bar 0.015)** — over 80% of the frame is lit terrain; space is reduced to a border strip around a big bright island, so the frame reads as "a desert platform with a skybox" no matter how nice the island itself is. Its palette is also flatter (sat 0.385) and monochrome-concentrated (hue_share 0.820 — one gold/beige family dominates; the purple/teal contrast that sells the space read is reduced to accents). Its assets may be more ornate (pavilion, fields, teal-trim workers), but the composition violates "Never fill the frame with contiguous terrain" and "void dominates the upper half" — a broken framing, not a broken asset.
+
+**3. Largest gap in frame-2:** void_frac at 0.159 vs the 0.530 bar — the island/terrain occupies ~5/6 of the frame, so the shot reads as a bright platform scene with a space backdrop instead of a settlement suspended in deep space.
+
+**4. Ship: frame-1** — it is at the concept's composition with true blacks, high contrast, and a saturated warm-on-void palette; it's the only one of the two that reads as a AAA "island in space" opening frame. (Frames are not same-class, so this is a straight pick, not a tie-break.)
+
+---
+
+**Summary of work:**
+- Ran `modlens` (gemini-api) on both frames → `/tmp/b1d-1.json`, `/tmp/b1d-2.json` (not created by me: read from those paths; no other files written).
+- Ran `framestat.py measure` on both — full table above; frame-1 matches the concept bar, frame-2 diverges catastrophically on void/midtone.
+- Did **not** open `answer.txt`; verdict is fully blind.
+- Files created: none beyond the two modlens JSON outputs. No issues encountered.

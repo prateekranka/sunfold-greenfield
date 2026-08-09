@@ -1,0 +1,85 @@
+{
+  "schema": "sunfold.sprite-manifest/1",
+  "asset": "Citizen_Carry_16dir_8frames_256",
+  "unit": "village-manbun-wanderer",
+  "characterName": "Village Man-Bun Wanderer",
+  "playback": "atlas",
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "fps": 10,
+  "mirrorAtRuntime": false,
+  "premultipliedAlpha": true,
+  "anchor": {
+    "x": 0.5,
+    "y": 0.899414,
+    "semantics": "feet_baseline_center_top_origin",
+    "threeJsCenterBottomOrigin": {
+      "x": 0.5,
+      "y": 0.100586
+    },
+    "note": "plane footroom = 1 - anchor.y \u2248 0.10; equivalent to center.set(0.5, 0.10)"
+  },
+  "unitHeightMeters": 1.75,
+  "worldHeight": 2.45,
+  "facings": [
+    "S",
+    "SSE",
+    "SE",
+    "ESE",
+    "E",
+    "ENE",
+    "NE",
+    "NNE",
+    "N",
+    "NNW",
+    "NW",
+    "WNW",
+    "W",
+    "WSW",
+    "SW",
+    "SSW"
+  ],
+  "directionCount": 16,
+  "facingConvention": "FACINGS_16 clockwise from south (+Z), 22.5\u00b0; use yawToFacing16",
+  "atlas": {
+    "image": "Citizen_Carry_16dir_8frames_256.png",
+    "width": 2048,
+    "height": 4096,
+    "columns": 8,
+    "rows": 16,
+    "layout": "facing-grid",
+    "cellPaddingPxMasterEquiv": 6,
+    "masterCellPx": 1024,
+    "runtimeCellPx": 256
+  },
+  "clips": {
+    "carry": {
+      "frames": 8,
+      "fps": 10,
+      "loop": true,
+      "source": "real",
+      "originRow": 0
+    },
+    "idle": {
+      "frames": 1,
+      "fps": 1,
+      "loop": true,
+      "source": "carry_f0_hold",
+      "originRow": 0
+    }
+  },
+  "provenance": {
+    "master": "assets/sprites/village-manbun-wanderer/Citizen_Carry_16dir_8frames_repaired.png",
+    "pipeline": "export_citizen_runtime_256.py",
+    "cleanup": [
+      "nearest-opaque colour decontamination on green fringe",
+      "2px alpha dilation",
+      "RGB preserved under transparent edges",
+      "premultiplied alpha",
+      "6px extruded transparent-edge padding (scaled)"
+    ],
+    "noWholeSheetRegen": true,
+    "geminiUsed": false,
+    "elapsedSec": 16.69
+  }
+}

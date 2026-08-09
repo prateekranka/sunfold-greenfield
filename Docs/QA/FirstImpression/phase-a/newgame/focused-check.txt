@@ -1,0 +1,75 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -project SunfoldGreenfield.xcodeproj -scheme SunfoldGreenfield -destination "platform=iOS Simulator,id=75898CE1-A691-4973-817A-973D4249A38F" -derivedDataPath build-agents/luna-newgame-test "-only-testing:SunfoldGreenfieldTests/LifecycleFactionTests" SWIFT_MODULE_NAME=SunfoldCore
+
+Build settings from command line:
+    SWIFT_MODULE_NAME = SunfoldCore
+
+Build Preparation
+Build task concurrency set to 1 via user default IDEBuildOperationMaxNumberOfConcurrentCompileTasks
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (2 targets)
+    Target 'SunfoldGreenfieldTests' in project 'SunfoldGreenfield'
+        ➜ Explicit dependency on target 'SunfoldGreenfield' in project 'SunfoldGreenfield'
+    Target 'SunfoldGreenfield' in project 'SunfoldGreenfield' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+Build description signature: a585202d005febbcd62ef52a8f51ce59
+Build description path: /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/XCBuildData/a585202d005febbcd62ef52a8f51ce59.xcbuilddata
+error: Multiple commands produce '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo'
+    note: Target 'SunfoldGreenfield' (project 'SunfoldGreenfield') has copy command from '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldCore.swiftsourceinfo' to '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo'
+    note: Target 'SunfoldGreenfieldTests' (project 'SunfoldGreenfield') has copy command from '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldCore.swiftsourceinfo' to '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo'
+error: Multiple commands produce '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.abi.json'
+    note: Target 'SunfoldGreenfield' (project 'SunfoldGreenfield') has copy command from '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldCore.abi.json' to '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.abi.json'
+    note: Target 'SunfoldGreenfieldTests' (project 'SunfoldGreenfield') has copy command from '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldCore.abi.json' to '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.abi.json'
+error: Multiple commands produce '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc'
+    note: Target 'SunfoldGreenfield' (project 'SunfoldGreenfield') has copy command from '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldCore.swiftdoc' to '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc'
+    note: Target 'SunfoldGreenfieldTests' (project 'SunfoldGreenfield') has copy command from '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldCore.swiftdoc' to '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc'
+error: Multiple commands produce '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftmodule'
+    note: Target 'SunfoldGreenfield' (project 'SunfoldGreenfield') has copy command from '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldCore.swiftmodule' to '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftmodule'
+    note: Target 'SunfoldGreenfieldTests' (project 'SunfoldGreenfield') has copy command from '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldCore.swiftmodule' to '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftmodule'
+warning: duplicate output file '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo' on task: Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldCore.swiftsourceinfo (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+warning: duplicate output file '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.abi.json' on task: Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldCore.abi.json (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+warning: duplicate output file '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc' on task: Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldCore.swiftdoc (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+warning: duplicate output file '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftmodule' on task: Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldCore.swiftmodule (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+
+Test session results, code coverage, and logs:
+	/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Logs/Test/Test-SunfoldGreenfield-2026.08.01_20-36-36-+0530.xcresult
+
+Testing failed:
+	Multiple commands produce '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo'
+	Multiple commands produce '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.abi.json'
+	Multiple commands produce '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc'
+	Multiple commands produce '/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldCore.swiftmodule/arm64-apple-ios-simulator.swiftmodule'
+	Testing cancelled because the build failed.
+
+** TEST FAILED **
+
+
+The following build commands failed:
+	Testing project SunfoldGreenfield with scheme SunfoldGreenfield
+(1 failure)

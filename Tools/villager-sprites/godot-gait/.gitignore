@@ -1,0 +1,5 @@
+# Godot editor cache / imports
+.godot/
+*.translation
+export/*.png
+.DS_Store

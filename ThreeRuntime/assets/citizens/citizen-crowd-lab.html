@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Village Man-Bun — 48 citizen crowd lab</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #050711; color: #e8e0d0; font: 13px/1.4 ui-monospace, Menlo, monospace; }
+    #crowd-root { position: absolute; inset: 0; }
+    #hud {
+      position: absolute; left: 12px; top: 12px; z-index: 2;
+      background: rgba(8,10,18,0.72); padding: 10px 12px; border: 1px solid #3a4558; max-width: 360px;
+    }
+    #hud strong { color: #e2b866; }
+    button, select { margin: 4px 4px 0 0; }
+  </style>
+</head>
+<body>
+  <div id="crowd-root"></div>
+  <div id="hud">
+    <div><strong>Village Man-Bun</strong> crowd lab</div>
+    <div id="status">loading…</div>
+    <div>
+      count
+      <select id="count">
+        <option value="32">32</option>
+        <option value="48" selected>48</option>
+        <option value="64">64</option>
+      </select>
+      clip
+      <select id="clip">
+        <option value="walk" selected>walk</option>
+        <option value="carry">carry</option>
+        <option value="gather">gather</option>
+        <option value="build">build</option>
+        <option value="idle">idle</option>
+      </select>
+      <button id="spin">spin facings</button>
+    </div>
+    <div style="margin-top:8px;opacity:0.75">
+      Anchor: center≈(0.5, 0.10) · 16 dirs · fixed feet baseline · no per-pose recenter
+    </div>
+  </div>
+  <script type="module" src="./citizen-crowd-lab.js"></script>
+</body>
+</html>

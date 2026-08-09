@@ -1,0 +1,266 @@
+# Agent working brief — Sunfold Greenfield
+
+Read this before touching anything. It encodes the environment facts that are not
+discoverable from the source and that cost real time to rediscover.
+
+## The project
+
+Native iPadOS RTS in Swift 6 + RealityKit. `project.yml` is the source of truth for
+the Xcode project; it globs `Sources/`, so a new `.swift` file anywhere under
+`Sources/` is picked up by `xcodegen generate` with no manifest edit.
+
+Architecture rules that must not be broken:
+
+1. **Simulation owns truth.** `Sources/Simulation` and `Sources/Domain` are pure
+   Swift — Foundation and simd only. They must never import RealityKit or UIKit.
+2. **The renderer projects state.** `Sources/Rendering` turns simulation state into
+   entities and decides no rules.
+3. **One coordinate system.** All positions resolve through `WorldMap`.
+4. **Fixed timestep.** 20 Hz; frame rate never changes outcomes.
+5. **Determinism.** No `SystemRandomNumberGenerator`, no `Double.random`. All
+   randomness comes from `DeterministicRandom` on a tagged per-subsystem stream.
+   Adding a draw in one subsystem must not shift another's numbers.
+
+## Building — use the agent build script; simulator via argent
+
+Do **not** use Flowdeck / FlowDeck / `flowdeck` (CLI, skill, MCP, hooks, or workflows) —
+it is banned for all projects. Prefer the paths below.
+
+- **Compile check (parallel-safe, use this):**
+  ```
+  ./scripts/agent-build.sh <your-agent-name>
+  ```
+  Builds to `build-agents/<name>/` so concurrent agents never share a module cache,
+  and serializes `xcodegen generate` behind a lock. Prints only diagnostics.
+  Full log at `build-agents/<name>.log`.
+
+- The resulting bundle is at
+  `build-agents/<name>/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app`
+
+Prefer `./scripts/agent-build.sh` over bare `xcodebuild`. Prefer **argent MCP** over
+raw `xcrun simctl` for install / launch / screenshot.
+
+
+## Running it on the simulator — argent MCP only
+
+Simulator UDID: `75898CE1-A691-4973-817A-973D4249A38F`
+("Sunfold Cycle 1 iPad Air 13", iPad Air 13-inch M2 / `iPad14,11`, iPadOS 26.5).
+Bundle id: `com.sunfold.greenfield`.
+
+**Simulator devices are not permanent.** They get erased, deleted and recreated, and a
+UDID hardcoded in a document goes stale silently. Before install/launch/screenshot,
+verify the device exists: `xcrun simctl list devices available | grep -i "Sunfold Cycle"`.
+Pass the iPad UDID explicitly on every call — do not rely on "first booted device";
+another project's iPhone may also be booted. Never touch a non-iPad simulator.
+
+Load the argent tools with ToolSearch first:
+
+```
+ToolSearch: select:mcp__argent__reinstall-app,mcp__argent__launch-app,mcp__argent__screenshot,mcp__argent__run-sequence
+```
+
+Then, in order:
+
+1. `mcp__argent__reinstall-app` — udid, bundleId `com.sunfold.greenfield`,
+   appPath = the `.app` path above.
+2. `mcp__argent__launch-app` — udid, bundleId.
+3. `mcp__argent__run-sequence` — one step `{"tool":"rotate","args":{"orientation":"LandscapeLeft"},"delayMs":2500}`.
+   **The app is landscape-only and renders nothing in portrait.** This step is not
+   optional.
+4. `mcp__argent__screenshot` — udid, `scale: 1.0`, `rotation: "LandscapeLeft"` for a
+   full-resolution frame you can actually judge detail in. After Portrait→LandscapeLeft,
+   that tag puts resources TL / Theatre BL; `LandscapeRight` flips the HUD 180°.
+
+**The simulator is a single shared resource.** Only install/launch/screenshot when
+the orchestrator has told you it is your turn. Never do it concurrently with another
+agent.
+
+## Visual target
+
+`Docs/Concepts/01-sunwoven-foundation-opening.png` is the approved AAA target frame
+and the reference for blind A/B judging. `Docs/Concepts/00-visual-bible.md` holds the
+locked art direction: camera pitch, HUD geometry, faction palettes, lighting rules,
+and the **Fidelity Ladder** — stylised miniature-quality RTS art with strong
+silhouettes at default zoom, authored PBR textures, rounded and bevelled forms where
+the faction language requires them, restrained emissive accents, and scalable LODs.
+Procedural primitives are debug fallbacks only.
+
+The ladder has four tiers: hero/concept artwork (key art, never rendered in-game),
+close gameplay model (selection, inspection), normal gameplay representation (the
+default camera frame — this is what ships), and distant LOD (crowds, far edges,
+minimap density). Everything else in the bible (camera, HUD geometry, palettes,
+faction identity, fragment-to-void ratio, sparse starfield) still holds.
+
+**Unit art resolves through the asset registry** (`ThreeRuntime/assets/asset-registry.json`).
+Sim units map to logical ids (`sunwoven.citizen.foundation`, `gravemark.bastionWalker.voyager`,
+tier from `state.age[faction]`) via `assetIdForUnit`; authored directionalSprite sheets load
+first, `procedural.*` entries are visible debug fallbacks for missing art and simulation
+tests — never the shipping visual target (`?art=procedural` forces them on device). Do not
+construct unit geometry directly in the runtime: add a registry entry with a `spriteSheet`
+source (or a `gltf` source) instead, and let the fallback chain absorb missing assets.
+
+**GLB prototypes** (`ThreeRuntime/assets/units/*.glb`) are the close-gameplay LOD tier:
+bundled as data: URLs and parsed with `GLTFLoader.parse` (CSP `connect-src 'none'` safe),
+preloaded during the loading screen (`GltfUnitLibrary.preload`), and cloned per unit with
+`SkeletonUtils.clone` + a per-instance `AnimationMixer` (`GltfUnitLibrary.instantiate`).
+Each instance gets ≤2 material instances (`materialSlots`). `lods` entries switch tiers by
+projected screen size (`minScreenFraction`, `gltf-units.js` `lodTarget`). New authored units:
+put the GLB in `assets/units/`, add `lods` + `materialSlots` + `clipMap` to the registry
+entry, and register the bundled buffer in `src/main.js`.
+
+## Verified rendering facts — established in the rendered build, do not re-litigate
+
+- **Shadows require `.fixed` projection, not `.automatic`.** Under this project's
+  `OrthographicCameraComponent`, `DirectionalLightComponent.Shadow` with
+  `.automatic(maximumDistance:)` renders **no shadows at all**, at any distance
+  value. `.fixed(zNear:zFar:orthographicScale:)` works. `LightingRig.Tuning`
+  already carries the working setting — leave `shadowUsesFixedProjection = true`.
+- **A real post-process hook exists.** `content.renderingEffects.customPostProcessing
+  = .effect(...)` on `RealityView` content is supported and in use
+  (`Sources/Rendering/PostProcess/SunfoldPostProcess.swift`). Bloom, tonemap,
+  vignette and chromatic aberration all run there. It applies to the whole frame
+  buffer, so it hits the starfield and the far fragment too — but **not** the
+  SwiftUI HUD, which composites above it.
+- **Runtime IBL works.** `EnvironmentResource(equirectangular:)` accepts a
+  procedurally built HDR float image; `ImageBasedLightComponent` +
+  `ImageBasedLightReceiverComponent` light the scene without painting a background.
+  Receivers must be tagged per model entity — see `LightingRigSystem`.
+- **Scene build takes several seconds in Debug.** Procedural textures cost ~570 ms
+  per recipe at `-Onone`. The first frames render black with `tick 0`. **Wait at
+  least 12 s after launch before screenshotting**, or you will capture an empty
+  void and report a false regression.
+- The debug overlay is now opt-in via the `-sunfoldDebug` launch argument and is
+  **off** by default, so captures are clean. Do not re-enable it by default.
+- **The scene's exposure is one number.** `LightingRig.Tuning.exposureScale` multiplies
+  key, fill, rim and the IBL together; the individual intensities are the art
+  direction and their ratios should stay as they are. Reach for this rather than
+  the post-process `exposure`, which moves emitters and lit surfaces alike — the
+  gap between them is what makes anything look like it is glowing.
+- **Bloom begins at `threshold - softKnee`, not at `threshold`.** Both were wrong
+  for three sessions because only the threshold was being read. If the ground
+  blooms, check the knee first.
+- **`bloomIntensity` above 1 is correct here**, not a taste dial. A Gaussian blur
+  conserves energy, so a small emitter's halo peak falls as `1/σ²`, and
+  `RealityView` exposes no HDR path to carry the headroom instead.
+- **`rotate` loses the first call after a launch.** It returns success and nothing
+  turns, because the scene is still building. Send `Portrait` then `LandscapeLeft`,
+  or you capture an empty void and report a regression that is not there.
+- **The ground is not flat, and nothing may assume it is.** Sample it — through
+  `TerrainSurface` in world space, or `FlatMeshBuilder.lift` / `groundHeight`
+  in fragment-local space. Relief runs to 2 m and is pinned to zero only across
+  the settlement pan.
+- **Ground decals must clear `FragmentMeshFactory.chordError`.** The terrain grid
+  stretches flat triangles between its samples, so it rides *above* the height
+  field across every dip; a decal placed on the function is under the mesh and
+  vanishes. Recompute that constant if a relief amplitude or cell count changes.
+- **`WorldMap.bounds` is the playable camera rectangle**, fitted to the land so
+  dry ground covers 75–80% of it (`landCoverage` / `Tools/mappreview`). The
+  minimap still measures the land contour itself (`LandContour.extent`), not
+  `bounds`.
+- **A `Spacer` inside a SwiftUI column that has no width of its own makes the
+  whole column greedy.** A HUD panel built this way stretches the length of the
+  frame instead of sitting in its corner. Pin the row's width.
+- **The warm family sits at hue 34°.** Measured on bare ground in concept 01
+  (33.0°) and matched in the build at CP-06 (32.7°). If a lit surface comes back
+  yellow, suspect `LightingRig.Tuning.keyColor` before any albedo — the error
+  appears on *every* lit surface at once, including near-white ones that have no
+  hue of their own to be wrong about.
+- **A hue rotation costs exposure.** Rotating toward red means cutting green, and
+  green is 71% of luminance. CP-06's rotation dropped sunlit regolith from 0.432
+  to 0.377 linear and needed `exposureScale` 0.67 → 0.72 to hold CP-03's 0.397.
+  A uniform scale over the lights is hue-neutral, so the two dials do not fight.
+- **Scatter density is capped by site spacing, not by candidate count.**
+  `TerrainDressing.addScatter` rejects a site that crowds an earlier one, and
+  sequential rejection jams at about `0.55 · area / (π · spacing²)`. Tripling the
+  candidates at CP-06 moved coverage 0.057 → 0.088; moving the spacing took it to
+  0.167. Cluster companions bypass `site` entirely and are the other lever.
+  Post-CP-14 sparse retune: interior/fringe site spacing is ~2.6–3.0 m (was
+  1.3–1.5 m) so plateaus keep open fight ground; companions and canopy are
+  thinned the same way.
+- **Do not judge a texture change by local σ.** It lumps the thing you changed in
+  with veining, cast shadow and broad mottling, and it inverted between masks at
+  CP-06 while the defect — a periodic dot lattice — was plain in a
+  native-resolution crop. Crop the same ground in both frames and look.
+- **Classify pixels against the frame's own ground, not an absolute threshold**,
+  whenever a measurement spans an exposure change. ACES desaturates what it
+  brightens, so a fixed saturation cut moves props across the boundary between
+  two frames that differ only in exposure.
+- **A surface's value is mostly a question of what it points at.** Flattening the
+  Core's canopy droop from 36° to 20° under a 52° key moved its canopy-to-ground
+  ratio 0.64 → 0.90 at CP-07 — more than every albedo change put together. Reach
+  for the geometry before the albedo when something renders too dark.
+- **A metal in this scene is mostly black.** A conductor has no diffuse term and
+  what surrounds these buildings is a void with one warm lobe in it, so metal off
+  the key's mirror direction reflects empty space. `goldTrim`'s authored
+  `metallic: 0.85` is right for a glinting kerb and wrong for a frame of thin
+  members; `MaterialLibrary.material` takes a `metallic:` override for this.
+- **The lower hemisphere of the IBL is the fragment, not the void.** Below a
+  structure standing on the island is thousands of square metres of sunlit
+  regolith. `voidNadir`/`voidHorizon` are a ground bounce and are warm; a dark
+  cool floor there renders every shaded face navy (measured 0.207 of the Core box
+  at CP-06, 0.029 after). The void card and starfield are unlit and do not move
+  when these change — but everything lit does, so check the whole frame.
+- **Retinting cannot warm a surface whose `Spec.reference` is cold.** The retint
+  divides by that reference, so a warm tint over `.rimStone` (reference
+  `[0.482, 0.487, 0.505]`) comes back muted, not warm. Change the surface, not
+  the tint.
+- **A cone has no facet pointing at an overhead key**, so it renders as a dark
+  plug however bright its material is. Break it into facets or keep it short.
+- **Orthographic sky cards clip hard.** Anything on the void card past the
+  camera's half-extent (~38.7 at default zoom) is simply outside the frustum.
+  The celestial body at `[46, 29]` was "missing" for that reason alone; debris
+  authored at ±120 never appeared. Keep sky props inside roughly ±35.
+- **Nebula wash needs authored opacity ~0.70** to survive ACES + the black plate
+  into concept-range soft-void (~0.34). Quieter peaks read as flat black.
+- **A late scatter pass that jams against earlier `sites` will place nothing.**
+  Fringe/interior pack at ~2.6–3.0 m after the sparse retune; canopy still uses
+  its own site list. Keep large crowns clear of claimed ground by an extra margin
+  so they do not bury the Core.
+- **Simulator devices are not permanent.** A UDID in this file can go stale when a
+  sim is erased or recreated. Verify with
+  `xcrun simctl list devices available | grep -i "Sunfold Cycle"` before trusting
+  it. Pass the iPad UDID explicitly — another project's iPhone may also be booted.
+- **The project iPad Air 13-inch (M2) is a standard 60 Hz panel, not ProMotion.**
+  The frame budget is 16.67 ms. Record `UIScreen.maximumFramesPerSecond` every
+  perf run; do not assume 120 Hz.
+- **Frame perf is opt-in via `-sunfoldPerf`.** Reports land in the app's Documents
+  directory as JSON and in os_log category `perf`. Zero cost when the flag is off.
+  `scripts/perf-capture.sh` defaults to the project iPad UDID and aborts if the
+  resolved target is not an iPad.
+
+## Where the frame actually stands
+
+Measured from the rendered frame, not guessed. Textures, IBL, shadows, the
+post-process, exposure, bloom, soft stars, terrain relief, the HUD chrome, the
+ground's planting and palette, the Core pavilion, the void wash + celestial
+body + debris, rim crystals, lumen mass, tree-scale branching crowns, HUD
+parity (emblem / speed / alerts / groups / life / minimap silhouettes), and the
+docked gold pier (dark spar removed) all landed across CP-01…CP-11 —
+`PROJECT_STATE.md` has the numbers.
+
+**CP-14 durable facts:**
+
+- Playable maps are **one continent cut by void water** (supersedes CP-13's
+  overlapping-plate contiguous maps). Three layouts: `WorldMapID.riverlands`
+  (default), `.basin`, `.fjords`. Select with `-sunfoldMap riverlands|basin|fjords`
+  (aliases: `coastland`/`continental`→riverlands, `isthmus`/`crescent`→basin).
+- Land is an authored field (coast lobes + void bodies + erosion), not a union of
+  discs. Minimap contours that field. Mesh carves drowned cells and caps them with
+  an unlit void floor that tracks the flank cone near the rim.
+- **Land coverage target: 75–80% of the playable map** (`WorldMap.bounds`, sampled
+  by `landCoverage` / `Tools/mappreview`). Camera bounds are fitted to the land
+  envelope (retain ~97.5% of land cells) so empty AABB corners are not counted as
+  map. Rivers/lakes/inlets stay as readable void cuts (~2–4% inland water).
+- **Fairness:** only Core centres share equal distance from the Dominion. Maps may
+  be organic / asymmetric — no plate-position mirroring required.
+- **Land is civilization-independent.** `SunfoldPalette.landSurface` /
+  `landRock` for every fragment; minimap land fill is neutral. Faction identity stays
+  on units, buildings, HUD, Core livery.
+- Causeway spars draw only across a water crossing (dock-to-dock wet stretch), not
+  as a slab over dry ground.
+- Default camera zoom is 64; opening frustum sits on interior land.
+
+What is still missing / parked:
+
+- Animation. Units slide; needs per-unit activity state the sim does not expose.
+- Control-group slots are chrome only (no group wiring yet).

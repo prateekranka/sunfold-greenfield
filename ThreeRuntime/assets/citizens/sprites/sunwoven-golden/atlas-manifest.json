@@ -1,0 +1,124 @@
+{
+  "schema": "sunfold.sprite-manifest/2",
+  "unit": "sunwoven-golden",
+  "playback": "atlas16",
+  "frameWidth": 160,
+  "frameHeight": 160,
+  "fps": 10,
+  "mirrorAtRuntime": false,
+  "directionColumns": 16,
+  "anchor": {
+    "x": 0.5,
+    "y": 0.8269
+  },
+  "unitHeightMeters": 1.7,
+  "worldHeight": 2.6,
+  "facings": [
+    "S",
+    "SSE",
+    "SE",
+    "ESE",
+    "E",
+    "ENE",
+    "NE",
+    "NNE",
+    "N",
+    "NNW",
+    "NW",
+    "WNW",
+    "W",
+    "WSW",
+    "SW",
+    "SSW"
+  ],
+  "camera": {
+    "pitchDegrees": 57,
+    "yawDegrees": 45,
+    "fovDegrees": 38
+  },
+  "clips": {
+    "idle": {
+      "frames": 4,
+      "fps": 3,
+      "loop": true,
+      "originRow": 0,
+      "channels": {
+        "albedo": "idle-albedo.png",
+        "normal": "idle-normal.png",
+        "emissive": "idle-emissive.png"
+      }
+    },
+    "walk": {
+      "frames": 4,
+      "fps": 10,
+      "loop": true,
+      "originRow": 4,
+      "channels": {
+        "albedo": "walk-albedo.png",
+        "normal": "walk-normal.png",
+        "emissive": "walk-emissive.png"
+      }
+    },
+    "gather": {
+      "frames": 6,
+      "fps": 5,
+      "loop": true,
+      "originRow": 8,
+      "channels": {
+        "albedo": "gather-albedo.png",
+        "normal": "gather-normal.png",
+        "emissive": "gather-emissive.png"
+      }
+    },
+    "carry": {
+      "frames": 4,
+      "fps": 10,
+      "loop": true,
+      "originRow": 14,
+      "channels": {
+        "albedo": "carry-albedo.png",
+        "normal": "carry-normal.png",
+        "emissive": "carry-emissive.png"
+      }
+    }
+  },
+  "provenance": {
+    "method": "GLB bake — Three.js WebGLRenderer, orthographic at locked RTS angles",
+    "glb": "assets/units/citizen_villager.glb",
+    "glbFps": 30,
+    "sampledFrames": {
+      "idle": [
+        0,
+        30,
+        60,
+        90
+      ],
+      "walk": [
+        0,
+        9,
+        18,
+        27
+      ],
+      "gather": [
+        0,
+        10,
+        20,
+        30,
+        40,
+        50
+      ],
+      "carry": [
+        0,
+        9,
+        18,
+        27
+      ]
+    },
+    "directions": 16,
+    "normalSpace": "world",
+    "emissiveMask": "emissiveFactor × KHR_materials_emissive_strength, clamped to 1",
+    "carryProp": "authored resource pack on hand_R (walk frames)",
+    "gatherProp": "authored sickle on hand_R",
+    "honest": "Directional cells render the unit rotated to each of 16 yaws under the locked camera; runtime picks cell = round(worldYaw / 22.5°)."
+  }
+}

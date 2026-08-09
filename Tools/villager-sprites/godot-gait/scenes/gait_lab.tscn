@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://n3qblamltk8x"]
+
+[ext_resource type="Script" uid="uid://dbwnxwjy1t5np" path="res://scripts/gait_lab.gd" id="1_lab"]
+
+[node name="GaitLab" type="Node2D" unique_id=1581820159]
+script = ExtResource("1_lab")

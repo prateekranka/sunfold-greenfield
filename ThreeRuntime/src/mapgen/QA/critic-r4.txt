@@ -1,0 +1,31 @@
+All evidence is in — objective pixel data confirms the vision reads. Final review:
+
+---
+
+## ROUND-4 CRITIC VERDICT: **SHIP WITH FIXES**
+
+### 1. Does the settlement read as shipped assets now? **Mostly yes — one tell persists.**
+
+**Most convincing evidence:** the targeted opening pass independently classified every structure as a *finished asset* — gold dome shrine, central beacon, copper dome, stair cutouts, purple crystal props, boulders, space debris — and the crop pass confirms the two round-3 failures are closed: figures now read as **"robed citizens in white robes holding teal staffs"**, and the pavilion reads as a **finished ceremonial hub** ("tiered base, dark trim, glowing orb spire"). No gray boxes, no floating icons, no unreadable figures. Metrics all pass (void 0.407≥0.35, luma_p05 0.000≤0.010, dyn-range 0.499≥0.48, sat 0.569≥0.42, hue-share 0.499≤0.80 — beating the concept's 0.789 on hue diversity).
+
+**Remaining tell — and it's the exact round-3 gap, still open:** selection/range rings. The rebuilt plaza sunburst+studs still reads as **"a thin golden glowing range ring with radial tick marks enclosing the dome base"** (the studs read as ticks), and the opening frame itself still carries **"floating white ring indicators" around the beacon and interaction rings around the copper dome**. This read has persisted across r11 → r12 → r13 with three independent prompts. The settlement's own crop is 96.1% single-hue gold, so the turquoise accents are **13 pixels** — invisible.
+
+### 2. Verdict on the frame as the game opening: **SHIP WITH FIXES**
+
+The frame now genuinely reads as "ivory-and-gold island suspended in deep space": pixel data shows a clean two-body palette (gold 55.9% / purple 41% of colored pixels, deep void, dark underside) — it clears every metric and is a credible opening shot.
+
+**Single biggest remaining gap:** the ring geometry. It's the one round-3 complaint that survived the pass — vision reads three separate ring UIs in-frame, which reads as *gameplay UI over an unshipped scene*, not "object lit in space."
+
+### 3. Top 3 fixes
+
+1. **Kill every ring read.** Remove the beacon ring and copper-dome ring outright; redo the plaza as a *non-closed, non-concentric* motif — radial woven paths fanning outward, irregular sun-ray segments with breaks — anything without a continuous circular outline + studs. Current design parses as a range ring with ticks.
+2. **Warm the gas giant.** Pixel data: brightest-saturated planet hues are ~270–300° (lavender #8A6D9F/#A180B7) — *zero* amber in the planets. Add peach/amber banding (hue 20–40°) to at least one giant so it reads warm against the purple nebula; right now both giants merge into the wash.
+3. **Put turquoise on a shipped asset at opening zoom.** Frame has **7 strict-turquoise pixels** vs the concept's 5,708 (0.36%). Enlarge/emissivize the pavilion banners (they're currently not even legible — "lacks ribs or banners") or add a turquoise canopy band/spire ring so teal registers at full-frame scale.
+
+**Smallest polish items while in there:** (a) the scalloped edge fringe reads as "vertical plane strips hanging off tile edges" — add a warm luminous rim so it reads as rim-lit rock per the bible; (b) remove the flagged "dotted black alignment line" across the ground and vary the "repetitive identical tents" in the trench voids.
+
+---
+
+**What I did:** ran framestat (all 5 metrics pass on r13-opening), 5 modlens vision passes (generic + harsh-targeted on opening and crop, plus the concept reference), cross-round read of r11/r12 crop JSONs (rings persisted), and a numpy hue/color analysis of all three images.
+**Files:** /tmp/c4-opening.json, /tmp/c4-crop.json, /tmp/c4-reference.json, /tmp/c4-opening-targeted.json, /tmp/c4-crop-targeted.json, /tmp/hue_analysis.py. No repo files touched.
+**Issues:** none blocking — sandbox python lacked numpy; reran via /usr/bin/python3.

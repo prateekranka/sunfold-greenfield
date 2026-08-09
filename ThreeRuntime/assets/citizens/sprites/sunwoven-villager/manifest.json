@@ -1,0 +1,138 @@
+{
+  "schema": "sunfold.sprite-manifest/1",
+  "unit": "sunwoven-villager",
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "fps": 10,
+  "mirrorAtRuntime": false,
+  "anchor": {
+    "x": 0.5,
+    "y": 0.9
+  },
+  "unitHeightMeters": 1.75,
+  "worldHeight": 2.370968,
+  "facings": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+  ],
+  "facingSource": {
+    "0": {
+      "view": "S",
+      "squash": 1.0,
+      "mirror": false,
+      "painted": true
+    },
+    "1": {
+      "view": "S",
+      "squash": 0.9,
+      "mirror": false,
+      "painted": false
+    },
+    "2": {
+      "view": "E",
+      "squash": 1.0,
+      "mirror": false,
+      "painted": true
+    },
+    "3": {
+      "view": "N",
+      "squash": 0.9,
+      "mirror": false,
+      "painted": false
+    },
+    "4": {
+      "view": "N",
+      "squash": 1.0,
+      "mirror": false,
+      "painted": true
+    },
+    "5": {
+      "view": "N",
+      "squash": 0.9,
+      "mirror": true,
+      "painted": false
+    },
+    "6": {
+      "view": "E",
+      "squash": 1.0,
+      "mirror": true,
+      "painted": false
+    },
+    "7": {
+      "view": "S",
+      "squash": 0.9,
+      "mirror": true,
+      "painted": false
+    }
+  },
+  "camera": {
+    "pitchDegrees": 57,
+    "yawDegrees": 45,
+    "fovDegrees": 38,
+    "note": "Must match ThreeRuntime/src/rts-camera.js."
+  },
+  "clips": {
+    "idle": {
+      "frames": 4,
+      "loop": true,
+      "fps": 3,
+      "source": "cutout-bake",
+      "events": {},
+      "note": "Gentle breathing. AoE2 villagers idle almost still; this keeps a unit from reading as a frozen decal without pulling the eye."
+    },
+    "walk": {
+      "frames": 4,
+      "loop": true,
+      "fps": 10,
+      "source": "cutout-bake",
+      "events": {
+        "footfall": [
+          0,
+          2
+        ]
+      },
+      "note": "AoE contact/pass walk. Shared plant center (no per-ankle orbit stutter). Continuous swing Y. Foot-only ground pin. No root-Y bob. 400 ms."
+    },
+    "gather": {
+      "frames": 6,
+      "loop": true,
+      "fps": 5,
+      "source": "cutout-bake",
+      "events": {
+        "gatherContact": [
+          3
+        ]
+      },
+      "note": "Ground-locked sickle reap. No leg FK. Hips shift BACK on lean (negative root X) so CoG stays over feet. Even ~38\u00b0 sickle steps, wind-up clears backpack. 1200 ms."
+    },
+    "build": {
+      "frames": 6,
+      "loop": true,
+      "fps": 5,
+      "source": "cutout-bake",
+      "events": {
+        "constructContact": [
+          3
+        ]
+      },
+      "note": "Overhead strike. Tool arm rises on frame 0, tops out on 1, drives down through 2, lands on 3, settles on 4 and lifts again on 5. The free arm holds the work steady throughout. 1200 ms per cycle."
+    }
+  },
+  "provenance": {
+    "method": "2D cutout puppet baked from the painted turnaround",
+    "paintedViews": [
+      "E",
+      "N",
+      "S"
+    ],
+    "substitutedViews": {},
+    "honesty": "Facings 1, 3, 5, 7 are lightly narrowed (0.90) + twisted (3.5\u00b0) derivations of a painted view, not painted three-quarter art. Facings 5, 6, 7 are mirrored, which swaps the sickle to the other hand exactly as AoE2's own mirrored facings do. N parts are cut from a mirrorSource back plate so the tool hand matches S without a bake-time flip.",
+    "walkLegs": "Walk legs use cyninja-style gait IK (tvanhens/cyninja-prompt-demo): authored foot plant/swing paths, 2-bone hip/knee solve, ankle world-aim that stays flat-to-plantarflex and never dorsiflexes tip-up. Arms/torso remain FK keys."
+  }
+}

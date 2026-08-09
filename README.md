@@ -45,7 +45,7 @@ Four rules hold this together:
    discards backlog rather than fast-forwarding. Frame rate never changes outcomes.
 
 Supporting rules: every entity carries a durable `EntityID` (never an array index);
-all tuning lives in `SkirmishTuning`; missing art falls back to a readable primitive
+all tuning lives in `SkirmishTuning`; missing art falls back to a readable primitive (debug fallback only)
 plus a visible `DebugLog` warning rather than a crash or an invisible entity.
 
 ```

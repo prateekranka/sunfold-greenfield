@@ -1,0 +1,1219 @@
+{
+  "glbs": {
+    "citizen": {
+      "all_expected_present": true,
+      "animation_count": 18,
+      "bone_nodes": 32,
+      "clip_names": [
+        "slender_construct_finish_L",
+        "slender_construct_finish_R",
+        "slender_construct_loop_L",
+        "slender_construct_loop_R",
+        "slender_construct_start_L",
+        "slender_construct_start_R",
+        "slender_deposit",
+        "slender_gather_finish_L",
+        "slender_gather_finish_R",
+        "slender_gather_loop_L",
+        "slender_gather_loop_R",
+        "slender_gather_start_L",
+        "slender_gather_start_R",
+        "slender_idle",
+        "slender_idle_loaded",
+        "slender_reverse",
+        "slender_walk_inplace",
+        "slender_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 18,
+      "expected_prefix": "slender_",
+      "file": "citizen_slender.glb",
+      "image_count": 0,
+      "joint_count": 27,
+      "joint_lists": [
+        27
+      ],
+      "manifest": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/manifest/event-markers.json",
+      "material_count": 4,
+      "mesh_count": 4,
+      "meshes": [
+        {
+          "name": "slender_body_mesh",
+          "triangle_count": 276,
+          "vertex_count": 552
+        },
+        {
+          "name": "slender_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_carrier_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        }
+      ],
+      "missing_expected_clips": [],
+      "node_count": 32,
+      "scene_count": 1,
+      "skin_count": 1,
+      "skinned_mesh_count": 2,
+      "skinned_meshes": [
+        "slender_body",
+        "slender_carrier"
+      ],
+      "sockets_present": [
+        "socket_tool_R",
+        "socket_tool_L",
+        "socket_carrier"
+      ],
+      "texture_count": 0,
+      "total_triangles": 336,
+      "total_vertices": 672,
+      "unexpected_clips": []
+    },
+    "citizen_broad": {
+      "all_expected_present": true,
+      "animation_count": 18,
+      "bone_nodes": 32,
+      "clip_names": [
+        "broad_construct_finish_L",
+        "broad_construct_finish_R",
+        "broad_construct_loop_L",
+        "broad_construct_loop_R",
+        "broad_construct_start_L",
+        "broad_construct_start_R",
+        "broad_deposit",
+        "broad_gather_finish_L",
+        "broad_gather_finish_R",
+        "broad_gather_loop_L",
+        "broad_gather_loop_R",
+        "broad_gather_start_L",
+        "broad_gather_start_R",
+        "broad_idle",
+        "broad_idle_loaded",
+        "broad_reverse",
+        "broad_walk_inplace",
+        "broad_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 18,
+      "expected_prefix": "broad_",
+      "file": "citizen_broad.glb",
+      "image_count": 0,
+      "joint_count": 27,
+      "joint_lists": [
+        27
+      ],
+      "manifest": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/manifest/event-markers.json",
+      "material_count": 4,
+      "mesh_count": 4,
+      "meshes": [
+        {
+          "name": "broad_body_mesh",
+          "triangle_count": 276,
+          "vertex_count": 552
+        },
+        {
+          "name": "broad_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_carrier_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        }
+      ],
+      "missing_expected_clips": [],
+      "node_count": 32,
+      "scene_count": 1,
+      "skin_count": 1,
+      "skinned_mesh_count": 2,
+      "skinned_meshes": [
+        "broad_body",
+        "broad_carrier"
+      ],
+      "sockets_present": [
+        "socket_tool_R",
+        "socket_tool_L",
+        "socket_carrier"
+      ],
+      "texture_count": 0,
+      "total_triangles": 336,
+      "total_vertices": 672,
+      "unexpected_clips": []
+    },
+    "citizen_sunwoven": {
+      "all_expected_present": true,
+      "animation_count": 18,
+      "bone_nodes": 83,
+      "clip_names": [
+        "sunwoven_construct_finish_L",
+        "sunwoven_construct_finish_R",
+        "sunwoven_construct_loop_L",
+        "sunwoven_construct_loop_R",
+        "sunwoven_construct_start_L",
+        "sunwoven_construct_start_R",
+        "sunwoven_deposit",
+        "sunwoven_gather_finish_L",
+        "sunwoven_gather_finish_R",
+        "sunwoven_gather_loop_L",
+        "sunwoven_gather_loop_R",
+        "sunwoven_gather_start_L",
+        "sunwoven_gather_start_R",
+        "sunwoven_idle",
+        "sunwoven_idle_loaded",
+        "sunwoven_reverse",
+        "sunwoven_walk_inplace",
+        "sunwoven_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 18,
+      "expected_prefix": "sunwoven_",
+      "file": "citizen_sunwoven.glb",
+      "image_count": 0,
+      "joint_count": 27,
+      "joint_lists": [
+        27
+      ],
+      "manifest": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/manifest/sunwoven-event-markers.json",
+      "material_count": 8,
+      "mesh_count": 55,
+      "meshes": [
+        {
+          "name": "sunwoven_bangle_L_0_mesh",
+          "triangle_count": 96,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_hand_bucket_mesh",
+          "triangle_count": 120,
+          "vertex_count": 82
+        },
+        {
+          "name": "sunwoven_mallet_mesh",
+          "triangle_count": 128,
+          "vertex_count": 68
+        },
+        {
+          "name": "sunwoven_display_sickle_mesh",
+          "triangle_count": 208,
+          "vertex_count": 108
+        },
+        {
+          "name": "sunwoven_scraper_mesh",
+          "triangle_count": 212,
+          "vertex_count": 110
+        },
+        {
+          "name": "sunwoven_bangle_L_1_mesh",
+          "triangle_count": 96,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_bangle_R_0_mesh",
+          "triangle_count": 96,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_bangle_R_1_mesh",
+          "triangle_count": 96,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_basket_mesh",
+          "triangle_count": 760,
+          "vertex_count": 522
+        },
+        {
+          "name": "sunwoven_belt_band_mesh",
+          "triangle_count": 80,
+          "vertex_count": 60
+        },
+        {
+          "name": "sunwoven_belt_buckle_mesh",
+          "triangle_count": 96,
+          "vertex_count": 50
+        },
+        {
+          "name": "sunwoven_body_mesh",
+          "triangle_count": 1980,
+          "vertex_count": 995
+        },
+        {
+          "name": "sunwoven_front_panel_0_mesh",
+          "triangle_count": 2,
+          "vertex_count": 4
+        },
+        {
+          "name": "sunwoven_front_panel_1_mesh",
+          "triangle_count": 2,
+          "vertex_count": 4
+        },
+        {
+          "name": "sunwoven_front_panel_2_mesh",
+          "triangle_count": 2,
+          "vertex_count": 4
+        },
+        {
+          "name": "sunwoven_front_panel_3_mesh",
+          "triangle_count": 2,
+          "vertex_count": 4
+        },
+        {
+          "name": "sunwoven_hair_bun_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_hair_nape_mesh",
+          "triangle_count": 48,
+          "vertex_count": 39
+        },
+        {
+          "name": "sunwoven_harness_L_mesh",
+          "triangle_count": 160,
+          "vertex_count": 82
+        },
+        {
+          "name": "sunwoven_harness_lower_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_harness_R_mesh",
+          "triangle_count": 160,
+          "vertex_count": 82
+        },
+        {
+          "name": "sunwoven_headwrap_mesh",
+          "triangle_count": 240,
+          "vertex_count": 180
+        },
+        {
+          "name": "sunwoven_headwrap_tail_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_leg_wrap_L_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_leg_wrap_R_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_pack_bump_L_mesh",
+          "triangle_count": 64,
+          "vertex_count": 34
+        },
+        {
+          "name": "sunwoven_pack_bump_R_mesh",
+          "triangle_count": 64,
+          "vertex_count": 34
+        },
+        {
+          "name": "sunwoven_pack_crown_mesh",
+          "triangle_count": 240,
+          "vertex_count": 120
+        },
+        {
+          "name": "sunwoven_pack_rope_h_22_mesh",
+          "triangle_count": 480,
+          "vertex_count": 260
+        },
+        {
+          "name": "sunwoven_pack_rope_h_50_mesh",
+          "triangle_count": 480,
+          "vertex_count": 260
+        },
+        {
+          "name": "sunwoven_pack_rope_h_78_mesh",
+          "triangle_count": 480,
+          "vertex_count": 260
+        },
+        {
+          "name": "sunwoven_pack_rope_knot_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_rope_v_0_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_rope_v_1_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_rope_v_2_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_rope_v_3_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_strut_L_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_pack_strut_R_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_pack_wing_L_mesh",
+          "triangle_count": 100,
+          "vertex_count": 52
+        },
+        {
+          "name": "sunwoven_pack_wing_R_mesh",
+          "triangle_count": 100,
+          "vertex_count": 52
+        },
+        {
+          "name": "sunwoven_sandal_L_mesh",
+          "triangle_count": 160,
+          "vertex_count": 102
+        },
+        {
+          "name": "sunwoven_sandal_R_mesh",
+          "triangle_count": 160,
+          "vertex_count": 102
+        },
+        {
+          "name": "sunwoven_sash_mesh",
+          "triangle_count": 120,
+          "vertex_count": 100
+        },
+        {
+          "name": "sunwoven_sash_rear_mesh",
+          "triangle_count": 200,
+          "vertex_count": 122
+        },
+        {
+          "name": "sunwoven_sash_tail_mesh",
+          "triangle_count": 200,
+          "vertex_count": 122
+        },
+        {
+          "name": "sunwoven_side_basket_mesh",
+          "triangle_count": 654,
+          "vertex_count": 431
+        },
+        {
+          "name": "sunwoven_side_basket_sling_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_sleeve_L_mesh",
+          "triangle_count": 240,
+          "vertex_count": 162
+        },
+        {
+          "name": "sunwoven_sleeve_R_mesh",
+          "triangle_count": 240,
+          "vertex_count": 162
+        },
+        {
+          "name": "sunwoven_trousers_L_mesh",
+          "triangle_count": 200,
+          "vertex_count": 102
+        },
+        {
+          "name": "sunwoven_trousers_R_mesh",
+          "triangle_count": 200,
+          "vertex_count": 102
+        },
+        {
+          "name": "sunwoven_tunic_mesh",
+          "triangle_count": 404,
+          "vertex_count": 294
+        },
+        {
+          "name": "sunwoven_codex_shell_back_mesh",
+          "triangle_count": 1637604,
+          "vertex_count": 3275208
+        },
+        {
+          "name": "sunwoven_codex_shell_front_mesh",
+          "triangle_count": 1605576,
+          "vertex_count": 3211152
+        },
+        {
+          "name": "sunwoven_codex_shell_side_mesh",
+          "triangle_count": 1800060,
+          "vertex_count": 3600120
+        }
+      ],
+      "missing_expected_clips": [],
+      "node_count": 83,
+      "scene_count": 1,
+      "skin_count": 1,
+      "skinned_mesh_count": 51,
+      "skinned_meshes": [
+        "sunwoven_bangle_L_0",
+        "sunwoven_bangle_L_1",
+        "sunwoven_bangle_R_0",
+        "sunwoven_bangle_R_1",
+        "sunwoven_basket",
+        "sunwoven_belt_band",
+        "sunwoven_belt_buckle",
+        "sunwoven_body",
+        "sunwoven_front_panel_0",
+        "sunwoven_front_panel_1",
+        "sunwoven_front_panel_2",
+        "sunwoven_front_panel_3",
+        "sunwoven_hair_bun",
+        "sunwoven_hair_nape",
+        "sunwoven_harness_L",
+        "sunwoven_harness_lower",
+        "sunwoven_harness_R",
+        "sunwoven_headwrap",
+        "sunwoven_headwrap_tail",
+        "sunwoven_leg_wrap_L",
+        "sunwoven_leg_wrap_R",
+        "sunwoven_pack_bump_L",
+        "sunwoven_pack_bump_R",
+        "sunwoven_pack_crown",
+        "sunwoven_pack_rope_h_22",
+        "sunwoven_pack_rope_h_50",
+        "sunwoven_pack_rope_h_78",
+        "sunwoven_pack_rope_knot",
+        "sunwoven_pack_rope_v_0",
+        "sunwoven_pack_rope_v_1",
+        "sunwoven_pack_rope_v_2",
+        "sunwoven_pack_rope_v_3",
+        "sunwoven_pack_strut_L",
+        "sunwoven_pack_strut_R",
+        "sunwoven_pack_wing_L",
+        "sunwoven_pack_wing_R",
+        "sunwoven_sandal_L",
+        "sunwoven_sandal_R",
+        "sunwoven_sash",
+        "sunwoven_sash_rear",
+        "sunwoven_sash_tail",
+        "sunwoven_side_basket",
+        "sunwoven_side_basket_sling",
+        "sunwoven_sleeve_L",
+        "sunwoven_sleeve_R",
+        "sunwoven_trousers_L",
+        "sunwoven_trousers_R",
+        "sunwoven_tunic",
+        "sunwoven_codex_shell_back",
+        "sunwoven_codex_shell_front",
+        "sunwoven_codex_shell_side"
+      ],
+      "sockets_present": [
+        "socket_tool_R",
+        "socket_tool_L",
+        "socket_carrier"
+      ],
+      "texture_count": 0,
+      "total_triangles": 5053970,
+      "total_vertices": 10092645,
+      "unexpected_clips": []
+    },
+    "lab": {
+      "all_expected_present": true,
+      "animation_count": 36,
+      "bone_nodes": 59,
+      "clip_names": [
+        "broad_construct_finish_L",
+        "broad_construct_finish_R",
+        "broad_construct_loop_L",
+        "broad_construct_loop_R",
+        "broad_construct_start_L",
+        "broad_construct_start_R",
+        "broad_deposit",
+        "broad_gather_finish_L",
+        "broad_gather_finish_R",
+        "broad_gather_loop_L",
+        "broad_gather_loop_R",
+        "broad_gather_start_L",
+        "broad_gather_start_R",
+        "broad_idle",
+        "broad_idle_loaded",
+        "broad_reverse",
+        "broad_walk_inplace",
+        "broad_walk_loaded_inplace",
+        "slender_construct_finish_L",
+        "slender_construct_finish_R",
+        "slender_construct_loop_L",
+        "slender_construct_loop_R",
+        "slender_construct_start_L",
+        "slender_construct_start_R",
+        "slender_deposit",
+        "slender_gather_finish_L",
+        "slender_gather_finish_R",
+        "slender_gather_loop_L",
+        "slender_gather_loop_R",
+        "slender_gather_start_L",
+        "slender_gather_start_R",
+        "slender_idle",
+        "slender_idle_loaded",
+        "slender_reverse",
+        "slender_walk_inplace",
+        "slender_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 36,
+      "expected_prefix": null,
+      "file": "neutral_lab.glb",
+      "image_count": 0,
+      "joint_count": 27,
+      "joint_lists": [
+        27,
+        27
+      ],
+      "manifest": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/manifest/event-markers.json",
+      "material_count": 30,
+      "mesh_count": 30,
+      "meshes": [
+        {
+          "name": "broad_body_mesh",
+          "triangle_count": 276,
+          "vertex_count": 552
+        },
+        {
+          "name": "broad_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_carrier_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "broad_construction_frame_0_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_construction_frame_1_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_construction_frame_2_mesh",
+          "triangle_count": 36,
+          "vertex_count": 72
+        },
+        {
+          "name": "broad_deposit_target_pad_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "broad_deposit_target_ring_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "broad_ground_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "broad_rest_L_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_rest_R_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "broad_source_pile_0_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "broad_source_pile_1_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "broad_source_pile_2_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_body_mesh",
+          "triangle_count": 276,
+          "vertex_count": 552
+        },
+        {
+          "name": "slender_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_carrier_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_construction_frame_0_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_construction_frame_1_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_construction_frame_2_mesh",
+          "triangle_count": 36,
+          "vertex_count": 72
+        },
+        {
+          "name": "slender_deposit_target_pad_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "slender_deposit_target_ring_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_ground_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "slender_rest_L_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_rest_R_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "slender_source_pile_0_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_source_pile_1_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "slender_source_pile_2_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        }
+      ],
+      "missing_expected_clips": [],
+      "node_count": 86,
+      "scene_count": 1,
+      "skin_count": 2,
+      "skinned_mesh_count": 4,
+      "skinned_meshes": [
+        "broad_body",
+        "broad_carrier",
+        "slender_body",
+        "slender_carrier"
+      ],
+      "sockets_present": [
+        "socket_tool_R",
+        "socket_tool_L",
+        "socket_carrier"
+      ],
+      "texture_count": 0,
+      "total_triangles": 1784,
+      "total_vertices": 3216,
+      "unexpected_clips": []
+    },
+    "lab_sunwoven": {
+      "all_expected_present": true,
+      "animation_count": 18,
+      "bone_nodes": 98,
+      "clip_names": [
+        "sunwoven_construct_finish_L",
+        "sunwoven_construct_finish_R",
+        "sunwoven_construct_loop_L",
+        "sunwoven_construct_loop_R",
+        "sunwoven_construct_start_L",
+        "sunwoven_construct_start_R",
+        "sunwoven_deposit",
+        "sunwoven_gather_finish_L",
+        "sunwoven_gather_finish_R",
+        "sunwoven_gather_loop_L",
+        "sunwoven_gather_loop_R",
+        "sunwoven_gather_start_L",
+        "sunwoven_gather_start_R",
+        "sunwoven_idle",
+        "sunwoven_idle_loaded",
+        "sunwoven_reverse",
+        "sunwoven_walk_inplace",
+        "sunwoven_walk_loaded_inplace"
+      ],
+      "expected_clip_count": 18,
+      "expected_prefix": null,
+      "file": "sunwoven_lab.glb",
+      "image_count": 0,
+      "joint_count": 27,
+      "joint_lists": [
+        27
+      ],
+      "manifest": "/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield-threejs-wkwebview/Tools/citizens/manifest/sunwoven-event-markers.json",
+      "material_count": 19,
+      "mesh_count": 70,
+      "meshes": [
+        {
+          "name": "sunwoven_arc_prop_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_bangle_L_0_mesh",
+          "triangle_count": 96,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_hand_bucket_mesh",
+          "triangle_count": 120,
+          "vertex_count": 82
+        },
+        {
+          "name": "sunwoven_mallet_mesh",
+          "triangle_count": 128,
+          "vertex_count": 68
+        },
+        {
+          "name": "sunwoven_display_sickle_mesh",
+          "triangle_count": 208,
+          "vertex_count": 108
+        },
+        {
+          "name": "sunwoven_scraper_mesh",
+          "triangle_count": 212,
+          "vertex_count": 110
+        },
+        {
+          "name": "sunwoven_cargo_0_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_cargo_1_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_cargo_2_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_bangle_L_1_mesh",
+          "triangle_count": 96,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_bangle_R_0_mesh",
+          "triangle_count": 96,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_bangle_R_1_mesh",
+          "triangle_count": 96,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_basket_mesh",
+          "triangle_count": 760,
+          "vertex_count": 522
+        },
+        {
+          "name": "sunwoven_belt_band_mesh",
+          "triangle_count": 80,
+          "vertex_count": 60
+        },
+        {
+          "name": "sunwoven_belt_buckle_mesh",
+          "triangle_count": 96,
+          "vertex_count": 50
+        },
+        {
+          "name": "sunwoven_body_mesh",
+          "triangle_count": 1980,
+          "vertex_count": 995
+        },
+        {
+          "name": "sunwoven_front_panel_0_mesh",
+          "triangle_count": 2,
+          "vertex_count": 4
+        },
+        {
+          "name": "sunwoven_front_panel_1_mesh",
+          "triangle_count": 2,
+          "vertex_count": 4
+        },
+        {
+          "name": "sunwoven_front_panel_2_mesh",
+          "triangle_count": 2,
+          "vertex_count": 4
+        },
+        {
+          "name": "sunwoven_front_panel_3_mesh",
+          "triangle_count": 2,
+          "vertex_count": 4
+        },
+        {
+          "name": "sunwoven_hair_bun_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_hair_nape_mesh",
+          "triangle_count": 48,
+          "vertex_count": 39
+        },
+        {
+          "name": "sunwoven_harness_L_mesh",
+          "triangle_count": 160,
+          "vertex_count": 82
+        },
+        {
+          "name": "sunwoven_harness_lower_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_harness_R_mesh",
+          "triangle_count": 160,
+          "vertex_count": 82
+        },
+        {
+          "name": "sunwoven_headwrap_mesh",
+          "triangle_count": 240,
+          "vertex_count": 180
+        },
+        {
+          "name": "sunwoven_headwrap_tail_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_leg_wrap_L_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_leg_wrap_R_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_pack_bump_L_mesh",
+          "triangle_count": 64,
+          "vertex_count": 34
+        },
+        {
+          "name": "sunwoven_pack_bump_R_mesh",
+          "triangle_count": 64,
+          "vertex_count": 34
+        },
+        {
+          "name": "sunwoven_pack_crown_mesh",
+          "triangle_count": 240,
+          "vertex_count": 120
+        },
+        {
+          "name": "sunwoven_pack_rope_h_22_mesh",
+          "triangle_count": 480,
+          "vertex_count": 260
+        },
+        {
+          "name": "sunwoven_pack_rope_h_50_mesh",
+          "triangle_count": 480,
+          "vertex_count": 260
+        },
+        {
+          "name": "sunwoven_pack_rope_h_78_mesh",
+          "triangle_count": 480,
+          "vertex_count": 260
+        },
+        {
+          "name": "sunwoven_pack_rope_knot_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_rope_v_0_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_rope_v_1_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_rope_v_2_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_rope_v_3_mesh",
+          "triangle_count": 80,
+          "vertex_count": 42
+        },
+        {
+          "name": "sunwoven_pack_strut_L_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_pack_strut_R_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_pack_wing_L_mesh",
+          "triangle_count": 100,
+          "vertex_count": 52
+        },
+        {
+          "name": "sunwoven_pack_wing_R_mesh",
+          "triangle_count": 100,
+          "vertex_count": 52
+        },
+        {
+          "name": "sunwoven_sandal_L_mesh",
+          "triangle_count": 160,
+          "vertex_count": 102
+        },
+        {
+          "name": "sunwoven_sandal_R_mesh",
+          "triangle_count": 160,
+          "vertex_count": 102
+        },
+        {
+          "name": "sunwoven_sash_mesh",
+          "triangle_count": 120,
+          "vertex_count": 100
+        },
+        {
+          "name": "sunwoven_sash_rear_mesh",
+          "triangle_count": 200,
+          "vertex_count": 122
+        },
+        {
+          "name": "sunwoven_sash_tail_mesh",
+          "triangle_count": 200,
+          "vertex_count": 122
+        },
+        {
+          "name": "sunwoven_side_basket_mesh",
+          "triangle_count": 654,
+          "vertex_count": 431
+        },
+        {
+          "name": "sunwoven_side_basket_sling_mesh",
+          "triangle_count": 120,
+          "vertex_count": 62
+        },
+        {
+          "name": "sunwoven_sleeve_L_mesh",
+          "triangle_count": 240,
+          "vertex_count": 162
+        },
+        {
+          "name": "sunwoven_sleeve_R_mesh",
+          "triangle_count": 240,
+          "vertex_count": 162
+        },
+        {
+          "name": "sunwoven_trousers_L_mesh",
+          "triangle_count": 200,
+          "vertex_count": 102
+        },
+        {
+          "name": "sunwoven_trousers_R_mesh",
+          "triangle_count": 200,
+          "vertex_count": 102
+        },
+        {
+          "name": "sunwoven_tunic_mesh",
+          "triangle_count": 404,
+          "vertex_count": 294
+        },
+        {
+          "name": "sunwoven_codex_shell_back_mesh",
+          "triangle_count": 1637604,
+          "vertex_count": 3275208
+        },
+        {
+          "name": "sunwoven_codex_shell_front_mesh",
+          "triangle_count": 1605576,
+          "vertex_count": 3211152
+        },
+        {
+          "name": "sunwoven_codex_shell_side_mesh",
+          "triangle_count": 1800060,
+          "vertex_count": 3600120
+        },
+        {
+          "name": "sunwoven_construction_frame_0_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_construction_frame_1_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_construction_frame_2_mesh",
+          "triangle_count": 36,
+          "vertex_count": 72
+        },
+        {
+          "name": "sunwoven_deposit_target_pad_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "sunwoven_deposit_target_ring_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "sunwoven_ground_mesh",
+          "triangle_count": 188,
+          "vertex_count": 288
+        },
+        {
+          "name": "sunwoven_rest_L_mallet_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_rest_R_scraper_mesh",
+          "triangle_count": 24,
+          "vertex_count": 48
+        },
+        {
+          "name": "sunwoven_source_pile_0_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "sunwoven_source_pile_1_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        },
+        {
+          "name": "sunwoven_source_pile_2_mesh",
+          "triangle_count": 12,
+          "vertex_count": 24
+        }
+      ],
+      "missing_expected_clips": [],
+      "node_count": 98,
+      "scene_count": 1,
+      "skin_count": 1,
+      "skinned_mesh_count": 51,
+      "skinned_meshes": [
+        "sunwoven_bangle_L_0",
+        "sunwoven_bangle_L_1",
+        "sunwoven_bangle_R_0",
+        "sunwoven_bangle_R_1",
+        "sunwoven_basket",
+        "sunwoven_belt_band",
+        "sunwoven_belt_buckle",
+        "sunwoven_body",
+        "sunwoven_front_panel_0",
+        "sunwoven_front_panel_1",
+        "sunwoven_front_panel_2",
+        "sunwoven_front_panel_3",
+        "sunwoven_hair_bun",
+        "sunwoven_hair_nape",
+        "sunwoven_harness_L",
+        "sunwoven_harness_lower",
+        "sunwoven_harness_R",
+        "sunwoven_headwrap",
+        "sunwoven_headwrap_tail",
+        "sunwoven_leg_wrap_L",
+        "sunwoven_leg_wrap_R",
+        "sunwoven_pack_bump_L",
+        "sunwoven_pack_bump_R",
+        "sunwoven_pack_crown",
+        "sunwoven_pack_rope_h_22",
+        "sunwoven_pack_rope_h_50",
+        "sunwoven_pack_rope_h_78",
+        "sunwoven_pack_rope_knot",
+        "sunwoven_pack_rope_v_0",
+        "sunwoven_pack_rope_v_1",
+        "sunwoven_pack_rope_v_2",
+        "sunwoven_pack_rope_v_3",
+        "sunwoven_pack_strut_L",
+        "sunwoven_pack_strut_R",
+        "sunwoven_pack_wing_L",
+        "sunwoven_pack_wing_R",
+        "sunwoven_sandal_L",
+        "sunwoven_sandal_R",
+        "sunwoven_sash",
+        "sunwoven_sash_rear",
+        "sunwoven_sash_tail",
+        "sunwoven_side_basket",
+        "sunwoven_side_basket_sling",
+        "sunwoven_sleeve_L",
+        "sunwoven_sleeve_R",
+        "sunwoven_trousers_L",
+        "sunwoven_trousers_R",
+        "sunwoven_tunic",
+        "sunwoven_codex_shell_back",
+        "sunwoven_codex_shell_front",
+        "sunwoven_codex_shell_side"
+      ],
+      "sockets_present": [
+        "socket_tool_R",
+        "socket_tool_L",
+        "socket_carrier"
+      ],
+      "texture_count": 0,
+      "total_triangles": 5054846,
+      "total_vertices": 10093749,
+      "unexpected_clips": []
+    }
+  },
+  "schema": "sunfold.lab.glb-inventory/1"
+}

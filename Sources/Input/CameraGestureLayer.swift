@@ -16,12 +16,16 @@ import simd
 /// and so a lasso can be added in G1 without overloading ordinary camera pan.
 struct CameraGestureLayer: UIViewRepresentable {
     let controller: WorldController
+    /// Explicit so SwiftUI re-runs `updateUIView` when placement starts/stops.
+    /// Without this, the ghost pan recognizer stayed disabled after Farm was tapped.
+    var ghostActive: Bool
 
     func makeCoordinator() -> Coordinator { Coordinator(controller: controller) }
 
     func makeUIView(context: Context) -> UIView {
-        let view = TouchPassthroughView()
+        let view = UIView()
         view.backgroundColor = .clear
+        view.isMultipleTouchEnabled = true
 
         // One finger pans; two fingers pinch and twist. Keeping pan at exactly one
         // touch is what will let a lasso share the surface in G1 without
@@ -31,6 +35,23 @@ struct CameraGestureLayer: UIViewRepresentable {
         )
         pan.minimumNumberOfTouches = 1
         pan.maximumNumberOfTouches = 1
+
+        // Ghost placement: dedicated drag — separate from camera pan so
+        // the two grammars never fight. Soft SwiftUI DragGesture overlays stole
+        // hits without reliably driving the ghost; this recognizer owns placement.
+        let ghostPan = UIPanGestureRecognizer(
+            target: context.coordinator, action: #selector(Coordinator.handleGhostPan)
+        )
+        ghostPan.minimumNumberOfTouches = 1
+        ghostPan.maximumNumberOfTouches = 1
+        ghostPan.isEnabled = false
+
+        // Stationary tap cancels. UIPan never fires without movement, so cancel
+        // cannot ride on the ghost pan alone.
+        let ghostTap = UITapGestureRecognizer(
+            target: context.coordinator, action: #selector(Coordinator.handleGhostTap)
+        )
+        ghostTap.isEnabled = false
 
         let pinch = UIPinchGestureRecognizer(
             target: context.coordinator, action: #selector(Coordinator.handlePinch)
@@ -59,8 +80,16 @@ struct CameraGestureLayer: UIViewRepresentable {
         )
         tap.require(toFail: pan)
         tap.require(toFail: lasso)
+        // Ghost tap owns the surface while placing; keep select-tap off then.
+        ghostTap.require(toFail: ghostPan)
 
-        for recognizer in [pan, pinch, rotate, lasso, tap] as [UIGestureRecognizer] {
+        context.coordinator.panRecognizer = pan
+        context.coordinator.ghostPanRecognizer = ghostPan
+        context.coordinator.ghostTapRecognizer = ghostTap
+        context.coordinator.lassoRecognizer = lasso
+        context.coordinator.tapRecognizer = tap
+
+        for recognizer in [pan, ghostPan, ghostTap, pinch, rotate, lasso, tap] as [UIGestureRecognizer] {
             recognizer.delegate = context.coordinator
             view.addGestureRecognizer(recognizer)
         }
@@ -69,11 +98,7 @@ struct CameraGestureLayer: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIView, context: Context) {
         context.coordinator.controller = controller
-    }
-
-    /// Lets touches reach the RealityView beneath while still feeding recognizers.
-    private final class TouchPassthroughView: UIView {
-        override func point(inside point: CGPoint, with event: UIEvent?) -> Bool { true }
+        context.coordinator.applyGhostGates(ghostActive)
     }
 
     @MainActor
@@ -85,8 +110,29 @@ struct CameraGestureLayer: UIViewRepresentable {
         private var lastPanTranslation: CGPoint = .zero
         private var isLassoActive = false
 
+        /// Stationary lift cancels; drag-then-release places.
+        private let ghostTapSlop: CGFloat = 10
+
+        var panRecognizer: UIPanGestureRecognizer?
+        var ghostPanRecognizer: UIPanGestureRecognizer?
+        var ghostTapRecognizer: UITapGestureRecognizer?
+        var lassoRecognizer: UILongPressGestureRecognizer?
+        var tapRecognizer: UITapGestureRecognizer?
+
         init(controller: WorldController) {
             self.controller = controller
+        }
+
+        func applyGhostGates(_ ghosting: Bool) {
+            panRecognizer?.isEnabled = !ghosting
+            ghostPanRecognizer?.isEnabled = ghosting
+            ghostTapRecognizer?.isEnabled = ghosting
+            lassoRecognizer?.isEnabled = !ghosting
+            tapRecognizer?.isEnabled = !ghosting
+        }
+
+        func refreshGhostGestureGates() {
+            applyGhostGates(controller.buildGhost != nil)
         }
 
         /// Pan, pinch and twist must all recognise together, or the first one to
@@ -98,10 +144,68 @@ struct CameraGestureLayer: UIViewRepresentable {
             true
         }
 
+        nonisolated func gestureRecognizerShouldBegin(
+            _ gestureRecognizer: UIGestureRecognizer
+        ) -> Bool {
+            MainActor.assumeIsolated {
+                if controller.buildGhost != nil {
+                    if gestureRecognizer === panRecognizer
+                        || gestureRecognizer === lassoRecognizer
+                        || gestureRecognizer === tapRecognizer {
+                        return false
+                    }
+                } else if gestureRecognizer === ghostPanRecognizer
+                    || gestureRecognizer === ghostTapRecognizer {
+                    return false
+                }
+                return true
+            }
+        }
+
+        // MARK: - Ghost pan (construction placement)
+
+        @objc func handleGhostTap(_ recognizer: UITapGestureRecognizer) {
+            guard controller.buildGhost != nil, recognizer.state == .ended else { return }
+            controller.cancelBuildGhost()
+            applyGhostGates(false)
+        }
+
+        @objc func handleGhostPan(_ recognizer: UIPanGestureRecognizer) {
+            guard controller.buildGhost != nil, let view = recognizer.view else { return }
+            let location = recognizer.location(in: view)
+            moveGhost(to: location, in: view)
+
+            switch recognizer.state {
+            case .ended:
+                let translation = recognizer.translation(in: view)
+                let travel = hypot(translation.x, translation.y)
+                if travel < ghostTapSlop {
+                    // Prefer ghostTap for true stationary cancels; this is a
+                    // safety net when the pan still recognized a tiny move.
+                    controller.cancelBuildGhost()
+                    applyGhostGates(false)
+                } else {
+                    controller.endBuildGhostDrag()
+                    applyGhostGates(controller.buildGhost != nil)
+                }
+            case .cancelled, .failed:
+                break
+            default:
+                break
+            }
+        }
+
+        private func moveGhost(to location: CGPoint, in view: UIView) {
+            let point = SIMD2<Float>(Float(location.x), Float(location.y))
+            let viewport = SIMD2<Float>(Float(view.bounds.width), Float(view.bounds.height))
+            _ = controller.moveBuildGhost(atScreenPoint: point, viewportSize: viewport)
+        }
+
         /// Draws the selection lasso. While it is live the camera must hold still,
         /// or the box and the world slide against each other and the player ends
         /// up selecting something they were not pointing at.
         @objc func handleLasso(_ recognizer: UILongPressGestureRecognizer) {
+            guard controller.buildGhost == nil else { return }
             guard let view = recognizer.view else { return }
             let location = recognizer.location(in: view)
             let point = SIMD2<Float>(Float(location.x), Float(location.y))
@@ -125,6 +229,7 @@ struct CameraGestureLayer: UIViewRepresentable {
         }
 
         @objc func handlePan(_ recognizer: UIPanGestureRecognizer) {
+            guard controller.buildGhost == nil else { return }
             guard let view = recognizer.view else { return }
             // The pan recognizer keeps running underneath a lasso; swallowing its
             // updates here is what keeps the camera anchored, and resetting the
@@ -169,6 +274,7 @@ struct CameraGestureLayer: UIViewRepresentable {
         }
 
         @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
+            guard controller.buildGhost == nil else { return }
             guard recognizer.state == .ended, let view = recognizer.view else { return }
             let location = recognizer.location(in: view)
             controller.handleTap(

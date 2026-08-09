@@ -1,0 +1,1002 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -project SunfoldGreenfield.xcodeproj -scheme SunfoldGreenfield -destination "platform=iOS Simulator,id=75898CE1-A691-4973-817A-973D4249A38F" -derivedDataPath build-agents/luna-newgame-test "-only-testing:SunfoldGreenfieldTests/LifecycleFactionTests"
+
+Build Preparation
+Build task concurrency set to 1 via user default IDEBuildOperationMaxNumberOfConcurrentCompileTasks
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (2 targets)
+    Target 'SunfoldGreenfieldTests' in project 'SunfoldGreenfield'
+        ➜ Explicit dependency on target 'SunfoldGreenfield' in project 'SunfoldGreenfield'
+    Target 'SunfoldGreenfield' in project 'SunfoldGreenfield' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+Build description signature: 4ebc05c3a5e989d9c2b17dfc418bbfda
+Build description path: /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/XCBuildData/4ebc05c3a5e989d9c2b17dfc418bbfda.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/SunfoldGreenfield.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache
+
+CreateBuildDirectory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/SunfoldGreenfield.xcodeproj
+    builtin-create-build-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products
+
+CreateBuildDirectory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/SunfoldGreenfield.xcodeproj
+    builtin-create-build-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex
+
+CreateBuildDirectory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/SunfoldGreenfield.xcodeproj
+    builtin-create-build-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield-14f68e79802bf9e448d9cd9bcf3e3362-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/SunfoldGreenfield.xcodeproj
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield-14f68e79802bf9e448d9cd9bcf3e3362-VFS-iphonesimulator/all-product-headers.yaml
+
+CreateBuildDirectory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/SunfoldGreenfield.xcodeproj
+    builtin-create-build-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/SunfoldGreenfield.xcodeproj
+    builtin-create-build-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/SunfoldGreenfield.xcodeproj
+    builtin-create-build-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/empty-SunfoldGreenfieldTests.plist (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/empty-SunfoldGreenfieldTests.plist
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests.hmap (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests.DependencyStaticMetadataFileList (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests.DependencyMetadataFileList (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-project-headers.hmap (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-project-headers.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-own-target-headers.hmap (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-generated-files.hmap (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-generated-files.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-all-target-headers.hmap (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-all-non-framework-target-headers.hmap (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests_const_extract_protocols.json (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests.SwiftFileList (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests.SwiftFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests.SwiftConstValuesFileList (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests.LinkFileList (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests.LinkFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests-OutputFileMap.json (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.hmap (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.DependencyStaticMetadataFileList (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.DependencyMetadataFileList (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-project-headers.hmap (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-project-headers.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-own-target-headers.hmap (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-generated-files.hmap (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-generated-files.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-all-target-headers.hmap (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-all-non-framework-target-headers.hmap (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-DebugDylibPath-normal-arm64.txt (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-DebugDylibInstallName-normal-arm64.txt (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-DebugDylibInstallName-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_const_extract_protocols.json (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftFileList (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftConstValuesFileList (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.LinkFileList (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.LinkFileList
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-OutputFileMap.json (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/Entitlements-Simulated.plist (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    write-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/Entitlements-Simulated.plist
+
+MkDir /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/PlugIns/SunfoldGreenfieldTests.xctest (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /bin/mkdir -p /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/PlugIns/SunfoldGreenfieldTests.xctest
+
+MkDir /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/PlugIns (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /bin/mkdir -p /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/PlugIns
+
+MkDir /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /bin/mkdir -p /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+MkDir /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /bin/mkdir -p /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app
+
+ProcessProductPackaging "" /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+    Entitlements:
+    
+    {
+    "application-identifier" = "4JRB53LG5C.com.sunfold.greenfield";
+}
+    
+    builtin-productPackagingUtility -entitlements -format xml -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent
+
+ProcessProductPackagingDER /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent.der (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /usr/bin/derq query -f xml -i /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent.der --raw
+
+MkDir /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/unthinned (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /bin/mkdir -p /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/unthinned
+
+Ld /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/__preview.dylib normal (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -O0 -L/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -F/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -install_name @rpath/SunfoldGreenfield.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_dependency_info.dat -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent.der -Xlinker -no_adhoc_codesign -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/__preview.dylib
+
+MkDir /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/thinned (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /bin/mkdir -p /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/thinned
+
+GenerateAssetSymbols /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Assets.xcassets (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Assets.xcassets --compile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_dependencies --output-partial-info-plist /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_generated_info.plist --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 26.0 --platform iphonesimulator --bundle-identifier com.sunfold.greenfield --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CpResource /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/PrivacyInfo.xcprivacy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/PrivacyInfo.xcprivacy (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/PrivacyInfo.xcprivacy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app
+
+CpResource /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/.gitkeep /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Audio/.gitkeep (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Audio/.gitkeep /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/libXCTestSwiftSupport.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/libXCTestBundleInject.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/XCUnit.framework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCUnit.framework (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCUnit.framework /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/XCUIAutomation.framework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCUIAutomation.framework (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCUIAutomation.framework /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/XCTestSupport.framework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestSupport.framework (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestSupport.framework /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/XCTestCore.framework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestCore.framework (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestCore.framework /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/XCTest.framework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCTest.framework (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCTest.framework /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/XCTAutomationSupport.framework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks/Testing.framework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks
+
+CompileMetalFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/PostProcess/SunfoldPostProcess.metal (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.UWNOzM/Metal.xctoolchain/usr/bin/metal -c -target air64-apple-ios26.0-simulator -gline-tables-only -frecord-sources -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/include -F/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -fmetal-math-mode\=fast -fmetal-math-fp32-functions\=fast -serialize-diagnostics /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Metal/SunfoldPostProcess-d919e2f7fafae2837d753a4b5f33a191.dia -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Metal/SunfoldPostProcess-d919e2f7fafae2837d753a4b5f33a191.air -index-store-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Index.noindex/DataStore -MMD -MT dependencies -MF /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Metal/SunfoldPostProcess-d919e2f7fafae2837d753a4b5f33a191.dat /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/PostProcess/SunfoldPostProcess.metal
+
+MetalLink /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/default.metallib (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.UWNOzM/Metal.xctoolchain/usr/bin/metal -target air64-apple-ios26.0-simulator -frecord-sources -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/default.metallib /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Metal/SunfoldPostProcess-d919e2f7fafae2837d753a4b5f33a191.air
+
+CompileAssetCatalogVariant thinned /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Assets.xcassets (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Assets.xcassets --compile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --filter-for-thinning-device-configuration iPad14,11 --filter-for-device-os-version 26.5 --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 26.0 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_generated_info.plist_thinned
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriver SunfoldGreenfield normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SunfoldGreenfield -Onone @/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -F /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache -output-file-map /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -sdk-module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_const_extract_protocols.json -Xcc -iquote -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-generated-files.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-own-target-headers.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-all-target-headers.hmap -Xcc -iquote -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-project-headers.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources-normal/arm64 -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/arm64 -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-Swift.h -working-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield -experimental-emit-module-separately -disable-cmo
+
+LinkAssetCatalog /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Resources/Assets.xcassets (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-linkAssetCatalog --thinned /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/thinned --thinned-dependencies /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_generated_info.plist_unthinned --output /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app --plist-output /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/AppIcon76x76@2x~ipad.png (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+note: Emplaced /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/AppIcon60x60@2x.png (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+note: Emplaced /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Assets.car (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/SwiftShims-5S10XZ3LJWZY06D0K8585OQWT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_AvailabilityInternal-6VEP0RK44SW62G3D7J7IH6SM9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_stdbool-D53GWJ7RQURH2D6OVF4M035NM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/ptrcheck-3DD8H43FSR02PJNZ9SZR6IMWC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_stddef-8DW233J4C1AD14S76XV4QMD77.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_DarwinFoundation1-2TYBFPTR52VOUN89SV2FMUZVG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_float-5B8E9A0N5USE21SGFW6FUY3NM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_limits-8UM1FY52B66ZUSQD9Q2PT2HV5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_stdarg-DXC9FLNV0VP8L35E15PQ184EK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/DeveloperToolsSupport-65QCTZDL6BWNMX0UVC3NBI6VB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/ptrauth-1QF42FME28C7R4QWLQHI7QMOT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_DarwinFoundation2-CRUS43WX5G0CMOXA6SFU1YEL6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/GroupActivities-9Z3Z8VFXJ19AHR45Y4EZ7N1M0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/sys_types-6WO276VF6CE5R9E9Q14VDS6OW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_stdint-41TQO23XVP5JKMCAHNXXHFNFM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_tgmath-5AGSN2AW5K6CI5CQNEP7ZAWC3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_stdatomic-2DJ78MG43T2DSISNZYKWDYLLG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_DarwinFoundation3-8159DD68JY06OILN6KOQLTSIT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_intrinsics-2WI9N333N4BE7PPXFH5JYKWZR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_Builtin_inttypes-38HCXHZEHONTZEPC3BL64J7R2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/simd-139YT0AUDYI91DA70GJ3M18L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Darwin-3RXWM5LZDNR44TIE4SKPNONDB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Spatial-AIEJ2IRCQ3XXJYFWEGZ8B7P3Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/ObjectiveC-BFYP2UW3719PNHGLETN1BECG9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/MachO-3BJOYZR2F7SL5GLPKI24PLEAC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/os_object-B6J0I0Y7TZF74V3QVKQ1GV4JH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_SwiftConcurrencyShims-CEI87G3915Z8BGEGHN9OOZMI5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/os_workgroup-B2JTD2EBIG1AKC6VDY3YABVQV.pcm
+
+ProcessInfoPlistFile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Info.plist /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/Info.plist (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-infoPlistUtility /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/assetcatalog_generated_info.plist -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Info.plist
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Dispatch-DHY27QLUEK0P8NYNFWRQGL3FK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/dnssd-31KQ95CVD5EBX57O2OZKBDR84.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreFoundation-DCZO4R4OULGE6OIS0BW6XNGRE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/XPC-A8PWPFZRM57VBJ7E58IAO07PL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Security-A688ID2I39VWDP4ADKE6QM1AJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/os-C8XQRT0CNXJ8KGJLYG8MNDD3A.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreAudioTypes-4Y2609OCXQB5P6XU39TDZ3CT2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreGraphics-BK5TA4FS1IM971SD34CZF0NHK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreAudio-ED5XGXKSSI6XEGCCTM71KH6K0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreText-WAX3XA5K66OT2SD4JEGCYI3F.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/ImageIO-B4AXTG5KYT9YO23Q9EWRWRN4X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreServices-38KCGYRP07RWRQ41MTQ3Z4G0B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CFNetwork-AAI3J2QFAS05T6BCO6EFWNXNP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Foundation-4MCLJS1GDV4VDERX3G9BSA5ZI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/OpenGLES-AYBSTODRQOUJR9A7RV27KWEDK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/UserNotifications-68NRL0P873NL2WG44KM32MF20.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Symbols-3M077RXC0VA5B217UM39YY6DX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/DataDetection-59ACNJEUOPU5VEOKLXT1STB7X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/_LocationEssentials-ST0UTTCKRZF0I2L4JHHGURQJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/IOSurface-F2GWBME29LXCDEIG9S32PPX5F.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Network-56NS34736PY800GRGZBXQU30X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreTransferable-9XVWGRFFIMDRZ1X3J6I2NFPBZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/AVRouting-2QW7CWZN6MCNJBWATTEB0ZZKV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/UIUtilities-AKFN2UF5HD3ZWD3I763YZO7OD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/ModelIO-TWB2XLIZCM5R2B8SIGOV3WAN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreLocation-1XIW7KI96KASB3M14STYHCMI5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Metal-CF24R5MHNKRMW0VXBTQGKCHBR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CloudKit-E44UGKBMR2XU2O5HAWPTKTI4L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/LocalAuthentication-EBJ0FBTM2IP686C31012705CN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/UniformTypeIdentifiers-80BU9EUH39KKF9I14MO2HF9FD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Accessibility-DDLO1HXHXKS1122NRYFBUX10Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/FileProvider-9ARANS0EU1TDU3GI855IG2J9H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreVideo-3HRFAG4F5CMAWG4SCLWGOJHV5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/OSLog-8K5UCH2T8FYSVF7TGWYIYZJ3I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Accelerate-F5FAIEHJILU8VAZC3M9NOZRHX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreML-B2N6FXEPQRFIAVGTO4PGWWL36.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/QuartzCore-4VN47ALYQUHQCKYUX430ZJF7B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreMedia-8YY1ZQ63MBA3O211EJWAVXQVP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/SwiftUICore-1UV3ZUFUETEBQYWXX5BOK61UI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Vision-5Z650T9KL33NLVIZXMMXKXBHC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreMotion-1DJJJ9WVDQVKT16OUZAYJJP3S.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreData-2YD16C6BCPIDV2WNS9XH9D596.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreMIDI-8U0SJG60R5SI2YAPUYDWNG9FM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/CoreImage-D37STTGPHP1Z860S7KEWUINCG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/AudioToolbox-9GH76NY8Y0DJC7RPWMCV8AC1B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/UIKit-BFMW6ZZ8GAUCKAPODATS1VFCO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/AVFAudio-1TQLIGM1RMG2K1TNJII7BUZL0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/GLKit-797N6WPRQ1TUUJABD7V9Y8NGQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/MultipeerConnectivity-8GYRPSAWIVDW9CLXG36J6OL1Z.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/SpriteKit-1QGU5HB3MLEOD8GFAXES7L1XT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/SwiftUI-59F0GNNSTYX0N26PMTQE8ABW1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/MediaToolbox-6EC54REF5251XZ9WYYLCOTJWI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/GameController-612YICKB40JMXNJ2J94ON90B0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/AVFoundation-2CYKMLM1CPFRCJQ5049R0NR7H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/SceneKit-B343PFP9JVRTZMGSHU7JHNVMI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/ARKit-CRVES890XIQ9V0T00W1UK761W.pcm
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ SunfoldGreenfield (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+EmitSwiftModule normal arm64 (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 Compiling\ DominionSpireMesh.swift,\ EntityKinds.swift,\ EntityPresenter.swift,\ FeedbackAudio.swift,\ FragmentMeshFactory.swift,\ FramePacing.swift,\ FramePerfSampler.swift,\ GatheringSystem.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/DominionSpireMesh.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/EntityKinds.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/EntityPresenter.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Audio/FeedbackAudio.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/FragmentMeshFactory.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/FramePacing.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/FramePerfSampler.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/GatheringSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/DominionSpireMesh.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/EntityKinds.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/EntityPresenter.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Audio/FeedbackAudio.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/FragmentMeshFactory.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/FramePacing.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/FramePerfSampler.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/GatheringSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for SunfoldGreenfield (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftDriver\ Compilation\ Requirements SunfoldGreenfield normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SunfoldGreenfield -Onone @/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -F /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache -output-file-map /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -sdk-module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_const_extract_protocols.json -Xcc -iquote -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-generated-files.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-own-target-headers.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-all-target-headers.hmap -Xcc -iquote -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-project-headers.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources-normal/arm64 -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/arm64 -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-Swift.h -working-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling DominionSpireMesh.swift, EntityKinds.swift, EntityPresenter.swift, FeedbackAudio.swift, FragmentMeshFactory.swift, FramePacing.swift, FramePerfSampler.swift, GatheringSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 Compiling\ ObjectiveRail.swift,\ PerfHarness.swift,\ PerfLaunchFlags.swift,\ PerfOverlay.swift,\ PlacementPanel.swift,\ ProceduralTexture.swift,\ ProductionSystem.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/ObjectiveRail.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfHarness.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfLaunchFlags.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfOverlay.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/PlacementPanel.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Texturing/ProceduralTexture.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/ProductionSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/ObjectiveRail.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfHarness.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfHarness.swift:73:34: warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context.
+        displayMaxFPS = UIScreen.main.maximumFramesPerSecond
+                                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfHarness.swift:212:64: warning: left side of nil coalescing operator '??' has non-optional type 'Float', so the right side is never used
+                minimumFPS: FramePacing.frameRateRange.minimum ?? 30,
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+                                                              
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfHarness.swift:213:64: warning: left side of nil coalescing operator '??' has non-optional type 'Float', so the right side is never used
+                maximumFPS: FramePacing.frameRateRange.maximum ?? FramePacing.targetFPS,
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+                                                              
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfHarness.swift:291:17: warning: 'init(validatingUTF8:)' is deprecated: replaced by 'String.init(validatingCString:)'
+                String(validatingUTF8: $0) ?? "unknown"
+                ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfHarness.swift:291:17: note: use 'String.init(validatingCString:)' instead
+                String(validatingUTF8: $0) ?? "unknown"
+                ^~~~~~ ~~~~~~~~~~~~~~
+                String validatingCString
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfLaunchFlags.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/PerfOverlay.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/PlacementPanel.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Texturing/ProceduralTexture.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/ProductionSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/ProductionSystem.swift:143:19: warning: variable 'queue' was never mutated; consider changing to 'let' constant
+        guard var queue = queues[buildingID], !queue.isEmpty else {
+              ~~~ ^
+              let
+
+SwiftMergeGeneratedHeaders /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/SunfoldGreenfield-Swift.h /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-Swift.h (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-swiftHeaderTool -arch arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-Swift.h -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/SunfoldGreenfield-Swift.h
+
+SwiftDriverJobDiscovery normal arm64 Compiling ObjectiveRail.swift, PerfHarness.swift, PerfLaunchFlags.swift, PerfOverlay.swift, PlacementPanel.swift, ProceduralTexture.swift, ProductionSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftmodule (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftmodule /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftdoc (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftdoc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.abi.json (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.abi.json /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftsourceinfo (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftsourceinfo /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftCompile normal arm64 Compiling\ MatchLoadingView.swift,\ MatchOverlay.swift,\ MaterialLibrary.swift,\ MeshUV.swift,\ Minimap.swift,\ MovementSystem.swift,\ NewGameView.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/MatchLoadingView.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/MatchOverlay.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Texturing/MaterialLibrary.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Texturing/MeshUV.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/Minimap.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/MovementSystem.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/NewGameView.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/MatchLoadingView.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/MatchOverlay.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Texturing/MaterialLibrary.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Texturing/MeshUV.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/Minimap.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/Minimap.swift:389:37: warning: 'main' was deprecated in iOS 26.0: Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context.
+        let screenBounds = UIScreen.main.bounds
+                                    ^
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/MovementSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/NewGameView.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 Compiling\ Adversary.swift,\ BoardingSystem.swift,\ BuildingMeshes.swift,\ CameraGestureLayer.swift,\ CameraRig.swift,\ CivilizationCoreMesh.swift,\ CombatSystem.swift,\ CombatTypes.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/Adversary.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/BoardingSystem.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/BuildingMeshes.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Input/CameraGestureLayer.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/CameraRig.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/CivilizationCoreMesh.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/CombatSystem.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/CombatTypes.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/Adversary.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/BoardingSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/BuildingMeshes.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Input/CameraGestureLayer.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/CameraRig.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/CivilizationCoreMesh.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/CombatSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/CombatTypes.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftDriverJobDiscovery normal arm64 Compiling MatchLoadingView.swift, MatchOverlay.swift, MaterialLibrary.swift, MeshUV.swift, Minimap.swift, MovementSystem.swift, NewGameView.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftDriverJobDiscovery normal arm64 Compiling Adversary.swift, BoardingSystem.swift, BuildingMeshes.swift, CameraGestureLayer.swift, CameraRig.swift, CivilizationCoreMesh.swift, CombatSystem.swift, CombatTypes.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 Compiling\ CommandGrid.swift,\ ConstructionPlacement.swift,\ ConstructionSystem.swift,\ CoreTypes.swift,\ DebugLog.swift,\ DebugOverlay.swift,\ DepositMeshes.swift,\ DeterministicRandom.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/CommandGrid.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/ConstructionPlacement.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/ConstructionSystem.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/CoreTypes.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Debug/DebugLog.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Debug/DebugOverlay.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/DepositMeshes.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/DeterministicRandom.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/CommandGrid.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/ConstructionPlacement.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/ConstructionSystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/CoreTypes.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Debug/DebugLog.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Debug/DebugOverlay.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/DepositMeshes.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/DeterministicRandom.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 Compiling\ ResourceRail.swift,\ RootView.swift,\ SceneScaleSnapshot.swift,\ SelectionModel.swift,\ SelectionPanel.swift,\ SimulationClock.swift,\ SkirmishSimulation.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/ResourceRail.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/RootView.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/SceneScaleSnapshot.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Input/SelectionModel.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/SelectionPanel.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/SimulationClock.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/SkirmishSimulation.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/ResourceRail.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/RootView.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Diagnostics/SceneScaleSnapshot.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Input/SelectionModel.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/SelectionPanel.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/SimulationClock.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/SkirmishSimulation.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/SkirmishSimulation.swift:226:19: warning: variable 'transport' was never mutated; consider changing to 'let' constant
+        guard var transport = units[transportID],
+              ~~~ ^
+              let
+
+SwiftDriverJobDiscovery normal arm64 Compiling CommandGrid.swift, ConstructionPlacement.swift, ConstructionSystem.swift, CoreTypes.swift, DebugLog.swift, DebugOverlay.swift, DepositMeshes.swift, DeterministicRandom.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ResourceRail.swift, RootView.swift, SceneScaleSnapshot.swift, SelectionModel.swift, SelectionPanel.swift, SimulationClock.swift, SkirmishSimulation.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 Compiling\ TerrainSurface.swift,\ TopBar.swift,\ TransportMesh.swift,\ UnitMeshes.swift,\ VictorySystem.swift,\ VictoryTypes.swift,\ VoidWaterMeshFactory.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/TerrainSurface.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/TopBar.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/TransportMesh.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/UnitMeshes.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/VictorySystem.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/VictoryTypes.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/VoidWaterMeshFactory.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/TerrainSurface.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/TopBar.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/TransportMesh.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/Meshes/UnitMeshes.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/VictorySystem.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/VictoryTypes.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/VoidWaterMeshFactory.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 Compiling\ WorldController.swift,\ WorldEntities.swift,\ WorldHash.swift,\ WorldMap.swift,\ WorldPopulator.swift,\ WorldScene.swift,\ GeneratedAssetSymbols.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/WorldController.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/WorldEntities.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/WorldHash.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/WorldMap.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/WorldPopulator.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/WorldScene.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/WorldController.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/WorldEntities.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/WorldHash.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/WorldMap.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/WorldPopulator.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/WorldScene.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftDriverJobDiscovery normal arm64 Compiling TerrainSurface.swift, TopBar.swift, TransportMesh.swift, UnitMeshes.swift, VictorySystem.swift, VictoryTypes.swift, VoidWaterMeshFactory.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 Compiling\ SkirmishTuning.swift,\ StarfieldFactory.swift,\ SunfoldGreenfieldApp.swift,\ SunfoldPalette.swift,\ SunfoldPostProcess.swift,\ SunfoldRealityView.swift,\ TerrainDressing.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/SkirmishTuning.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/StarfieldFactory.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/SunfoldGreenfieldApp.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/SunfoldPalette.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/PostProcess/SunfoldPostProcess.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/SunfoldRealityView.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/TerrainDressing.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/SkirmishTuning.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/StarfieldFactory.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/App/SunfoldGreenfieldApp.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/SunfoldPalette.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/PostProcess/SunfoldPostProcess.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/SunfoldRealityView.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/TerrainDressing.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftDriverJobDiscovery normal arm64 Compiling WorldController.swift, WorldEntities.swift, WorldHash.swift, WorldMap.swift, WorldPopulator.swift, WorldScene.swift, GeneratedAssetSymbols.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 Compiling\ HUDStyle.swift,\ LandContour.swift,\ LandShape.swift,\ LightingRig.swift,\ Locomotion.swift,\ LuminousMaterial.swift,\ MarqueeOverlay.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/HUDStyle.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/LandContour.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/LandShape.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/LightingRig.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/Locomotion.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/PostProcess/LuminousMaterial.swift /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/MarqueeOverlay.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/HUDStyle.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/LandContour.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Domain/LandShape.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/LightingRig.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Simulation/Locomotion.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/Rendering/PostProcess/LuminousMaterial.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftCompile normal arm64 /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Sources/HUD/MarqueeOverlay.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    
+
+SwiftDriverJobDiscovery normal arm64 Compiling SkirmishTuning.swift, StarfieldFactory.swift, SunfoldGreenfieldApp.swift, SunfoldPalette.swift, SunfoldPostProcess.swift, SunfoldRealityView.swift, TerrainDressing.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftDriverJobDiscovery normal arm64 Compiling HUDStyle.swift, LandContour.swift, LandShape.swift, LightingRig.swift, Locomotion.swift, LuminousMaterial.swift, MarqueeOverlay.swift (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+SwiftDriver\ Compilation SunfoldGreenfield normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SunfoldGreenfield -Onone @/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -F /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache -output-file-map /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -sdk-module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_const_extract_protocols.json -Xcc -iquote -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-generated-files.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-own-target-headers.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-all-target-headers.hmap -Xcc -iquote -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-project-headers.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources-normal/arm64 -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources/arm64 -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-Swift.h -working-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SunfoldGreenfield.debug.dylib normal (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -O0 -L/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -F/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -filelist /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.LinkFileList -install_name @rpath/SunfoldGreenfield.debug.dylib -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.swiftmodule @/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield-linker-args.resp -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -Xlinker -no_adhoc_codesign -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SunfoldGreenfield.debug.dylib
+
+ConstructStubExecutorLinkFileList /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-ExecutorLinkFileList-normal-arm64.txt (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    construct-stub-executor-link-file-list /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SunfoldGreenfield.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+
+Ld /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SunfoldGreenfield normal (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -O0 -L/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -F/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield-ExecutorLinkFileList-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.app-Simulated.xcent.der /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SunfoldGreenfield.debug.dylib -Xlinker -no_adhoc_codesign -o /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SunfoldGreenfield
+
+ExtractAppIntentsMetadata (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.UWNOzM/Metal.xctoolchain --module-name SunfoldGreenfield --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk --xcode-version 17F113 --platform-family iOS --deployment-target 26.0 --bundle-identifier com.sunfold.greenfield --output /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app --target-triple arm64-apple-ios26.0-simulator --binary-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SunfoldGreenfield --dependency-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield_dependency_info.dat --stringsdata-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftFileList --metadata-file-list /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.DependencyMetadataFileList --static-metadata-file-list /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.DependencyStaticMetadataFileList --swift-const-vals-list /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/Objects-normal/arm64/SunfoldGreenfield.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-08-01 20:34:07.956 appintentsmetadataprocessor[64084:10180800] Starting appintentsmetadataprocessor export
+2026-08-01 20:34:07.964 appintentsmetadataprocessor[64084:10180800] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+
+CopySwiftLibs /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SunfoldGreenfield.debug.dylib --scan-folder /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks --scan-folder /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/PlugIns --scan-folder /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/SystemExtensions --scan-folder /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.UWNOzM/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+AppIntentsSSUTraining (in target 'SunfoldGreenfield' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Info.plist --temp-dir-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/ssu --bundle-id com.sunfold.greenfield --product-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app --extracted-metadata-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Metadata.appintents --metadata-file-list /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfield.build/SunfoldGreenfield.DependencyMetadataFileList --source-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/SunfoldGreenfield.app/Info.plist --archive-ssu-assets
+2026-08-01 20:34:08.083 appintentsnltrainingprocessor[64086:10180802] Parsing options for appintentsnltrainingprocessor
+2026-08-01 20:34:08.084 appintentsnltrainingprocessor[64086:10180802] Starting AppIntents SSU YAML Generation
+2026-08-01 20:34:08.086 appintentsnltrainingprocessor[64086:10180802] No AppShortcuts found - Skipping.
+
+SwiftDriver SunfoldGreenfieldTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+    cd /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SunfoldGreenfieldTests -Onone @/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests.SwiftFileList -DDEBUG -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/Developer/Library/Frameworks -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache -output-file-map /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -sdk-module-cache-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests_const_extract_protocols.json -Xcc -iquote -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-generated-files.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-own-target-headers.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-all-target-headers.hmap -Xcc -iquote -Xcc /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/SunfoldGreenfieldTests-project-headers.hmap -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/DerivedSources-normal/arm64 -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/DerivedSources/arm64 -Xcc -I/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Build/Intermediates.noindex/SunfoldGreenfield.build/Debug-iphonesimulator/SunfoldGreenfieldTests.build/Objects-normal/arm64/SunfoldGreenfieldTests-Swift.h -working-directory /Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield -experimental-emit-module-separately -disable-cmo
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/AdversaryTests.swift:3:18: error: unable to resolve module dependency: 'SunfoldCore'
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/AdversaryTests.swift:3:18: note: a dependency of main module 'SunfoldGreenfieldTests'
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/CombatTests.swift:3:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/ConstructionIntegrityTests.swift:3:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/DeterminismTests.swift:3:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/EconomyTuningTests.swift:3:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/NineMinuteEconomyHarness.swift:3:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/NineMinuteEconomyTests.swift:3:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/RosterTests.swift:4:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/TopologyTests.swift:4:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/VictoryTests.swift:3:18: note: also imported here
+@testable import SunfoldCore
+                 ^
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/AdversaryTests.swift:3:18: error: Unable to resolve module dependency: 'SunfoldCore'
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/AdversaryTests.swift:3:18: note: A dependency of main module 'SunfoldGreenfieldTests'
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/CombatTests.swift:3:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/ConstructionIntegrityTests.swift:3:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/DeterminismTests.swift:3:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/EconomyTuningTests.swift:3:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/NineMinuteEconomyHarness.swift:3:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/NineMinuteEconomyTests.swift:3:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/RosterTests.swift:4:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/TopologyTests.swift:4:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/Tests/VictoryTests.swift:3:18: note: Also imported here
+@testable import SunfoldCore
+                 ^ (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+
+
+Test session results, code coverage, and logs:
+	/Users/prateekranka/Claude/Projects/aoe-space-edition/SunfoldGreenfield/build-agents/luna-newgame-test/Logs/Test/Test-SunfoldGreenfield-2026.08.01_20-32-30-+0530.xcresult
+
+Testing failed:
+	Unable to resolve module dependency: 'SunfoldCore'
+@testable import SunfoldCore
+                 ^
+	Testing cancelled because the build failed.
+
+** TEST FAILED **
+
+
+The following build commands failed:
+	SwiftDriver SunfoldGreenfieldTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SunfoldGreenfieldTests' from project 'SunfoldGreenfield')
+	Testing project SunfoldGreenfield with scheme SunfoldGreenfield
+(2 failures)

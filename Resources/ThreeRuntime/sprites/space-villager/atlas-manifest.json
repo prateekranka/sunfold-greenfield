@@ -1,0 +1,65 @@
+{
+  "schema": "sunfold.sprite-manifest/1",
+  "unit": "space-villager",
+  "playback": "atlas",
+  "frameWidth": 200,
+  "frameHeight": 280,
+  "fps": 10,
+  "mirrorAtRuntime": false,
+  "anchor": {
+    "x": 0.5,
+    "y": 0.92
+  },
+  "unitHeightMeters": 1.75,
+  "worldHeight": 2.45,
+  "facings": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+  ],
+  "atlas": {
+    "image": "runtime-atlas.png",
+    "width": 1600,
+    "height": 840,
+    "columns": 8,
+    "rows": 3,
+    "layout": "clip-rows",
+    "singleFacing": true
+  },
+  "clips": {
+    "idle": {
+      "frames": 6,
+      "fps": 8,
+      "loop": true,
+      "source": "real",
+      "originRow": 0
+    },
+    "walk": {
+      "frames": 8,
+      "fps": 10,
+      "loop": true,
+      "source": "real",
+      "originRow": 1
+    },
+    "gather": {
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "source": "real",
+      "originRow": 2
+    }
+  },
+  "camera": {
+    "pitchDegrees": 57,
+    "yawDegrees": 45,
+    "fovDegrees": 38
+  },
+  "provenance": {
+    "note": "Row atlas from assets/sprites/space-villager-from-scratch. Single facing (front/side art). Replace runtime-atlas.png to swap art."
+  }
+}

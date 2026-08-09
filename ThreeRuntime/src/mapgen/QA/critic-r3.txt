@@ -1,0 +1,35 @@
+All evidence is in. I have full-frame + 6 grid crops + 3 strip/zoom reads, pixel-level turquoise/hue scans, and framestat. Compiling the verdict.
+
+---
+
+# ROUND-3 CRITIC VERDICT — r7-opening.png
+
+## 1. Per-area verdicts (did the placeholder gap close?)
+
+| Area | Verdict | Evidence |
+|---|---|---|
+| **Island shell / terrain** | **PARTIALLY** | Dune relief landed (hue: 62% of saturated px are 30–59° warm; sand reads "golden"), but the model still says **"rectangular sandy platform / large polygonal ground mesh"**; terrain runs to the top-right frame edge, violating "never fill the frame with contiguous terrain" |
+| **Coast rim + underside** | **PARTIALLY** | Big improvement: underside now reads "golden geometric structure with dark angled slats" (the tapered strata) instead of gray slab — but still reads as *geometric slats*, not carved rock; no "gentle luminous rim" registered |
+| **Core pavilion** | **NO** | Still reads as **"white domed structure surrounded by glowing concentric selection rings"** — the R1 lone white dome, now with engine gizmos. Saffron band/ribs/spire did not register; turquoise banners are ~50 px total and read as *selection-UI glow*, not fabric |
+| **Units** | **NO** | Nobody reads as a figure. Robed citizens with staffs = "tent-like structures at the map edge." Zero humanoid reads in any crop |
+| **Resource nodes** | **PARTIALLY** | First real progress: "glowing light-blue/purple crystal formations" read as nodes. But "glowing floating resource icons" persist = billboard-marker placeholder tell |
+| **Causeways** | **NO** | Still **"wooden plank walkways" / "rectangular conveyor bridge segments"** — the R1 wooden-ladder complaint, verbatim |
+| **Lighting / bloom / shadows** | **PARTIALLY** | Bloom tamed (dynamic_range 0.483 at bar, no blowout), but the gas giant reads as a **"glowing light-blue sphere"** — off-brief (bible: *warm* gas giant, key hue ~34°) — and "glowing" descriptors pepper every crop |
+| **Palette incl. turquoise** | **PARTIALLY** | Warm key hue strong (#d9a34e dominant), purple nebula right. But turquoise = **0.003% of pixels** (12 sampled, one thin cluster) vs. the reference where *teal is a listed dominant color* |
+| **Backdrop** | **CLOSED** | Purple nebula wash, stars, planets read as intended (minor: one "low-poly asteroid" still reads low-poly) |
+
+**Framestat:** void_frac 0.414 ✓, luma_p05 0.000 ✓, dynamic_range 0.483 ✓ (barely), sat_mean 0.570 ✓, dominant_hue_share 0.530 ✓ — metrics pass for the first time. Metrics are no longer the problem; content is.
+
+## 2. Single biggest remaining gap
+**The core settlement still reads as an editor-selected graybox.** The frame's focal point — white dome + glowing concentric selection rings + floating resource icons + wooden plank bridges — fails the bible's "every visible object must read as a SHIPPED asset" test in the most visible place, and the whole frame still summarizes as "a 3D game level map," not "a floating island city lit in space."
+
+## 3. Top 3 fixes (by impact)
+1. **Kill every editor tell**: remove the selection rings around the dome and the floating resource icons; bake any radius/glow indication into static geometry (engraved ring in the plaza floor, crystal clusters). Leaking engine state voids the shipped-asset reading instantly — cheapest, highest payoff.
+2. **Make the pavilion read as architecture at this camera distance**: the saffron band is too thin to register — widen it to a visible third of the structure, push the spire into silhouette against the nebula, and give banners real surface area (current total turquoise ~50 px; needs 50× that, and it must read as fabric, not glow).
+3. **Break the rectangular island**: scallop the coast with rock promontories so no edge parallels the frame, pull terrain back from the top-right corner, round the underside strata shading so it reads as carved rock instead of slats, and replace wooden planks with woven golden causeways. (Honorable mention: robed citizens need staffs/headgear silhouettes legible at this scale — currently "tents.")
+
+## 4. Recommendation: **WITH FIXES**
+Not ship-ready: the metrics finally clear the bar and the underside/backdrop/terrain-texture work was real progress, but the focal settlement still leaks placeholder geometry (rings, floating icons, plank bridges, unreadable figures), turquoise is functionally absent, and the gas giant reads blue-cold instead of warm. This is the closest round yet — one focused pass on the settlement + silhouette could close it.
+
+---
+**What I did:** ran framestat (all metrics pass), modlens on full frame + 6 grid crops + turquoise-zoom + top/bottom strips (11 vision reads), pixel-level turquoise/hue scans. **Files:** /tmp/c3-{r7,ref,g00,g01,g02,g10,g11,g12,turq,stripb,stript}.json + /tmp/c3-grid-*.png crops. **Issues:** one typo'd crop name (grid-21) — reran as grid-12; none blocking.

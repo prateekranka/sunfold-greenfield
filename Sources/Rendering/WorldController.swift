@@ -15,6 +15,11 @@ final class WorldController {
     let selection = SelectionModel()
     private(set) var rig: CameraRig?
     private var presenter: EntityPresenter?
+    private var sceneRoot: Entity?
+    private(set) var isSceneReady = false
+    private var isDisposed = false
+
+    var playerFaction: Faction { simulation.playerFaction }
 
     /// Mirrors the system Reduced Motion setting. Simplifies gait and camera
     /// easing without freezing gameplay feedback, which would read as broken.
@@ -27,6 +32,42 @@ final class WorldController {
     /// The lasso the player is currently dragging, in view points. Nil when no
     /// lasso is in progress; the HUD draws it straight from here.
     private(set) var marquee: Marquee?
+
+    /// Live build ghost while placing a Farm / Extractor / Dwelling.
+    private(set) var buildGhost: ConstructionPlacement.Session?
+
+    /// Incomplete buildings that were still rising last frame — used to fire
+    /// completion feedback exactly once when progress crosses 1.
+    private var risingBuildings: Set<EntityID> = []
+
+    /// State snapshots used only to classify the player's transport order and
+    /// arrival feedback. The simulation remains the sole owner of movement.
+    private struct TransportOrderState: Equatable {
+        let destination: WorldPoint?
+        let movementPathTarget: WorldPoint?
+        let movementPath: [WorldPoint]
+        let activity: UnitActivity
+
+        init(_ unit: Unit) {
+            destination = unit.destination
+            movementPathTarget = unit.movementPathTarget
+            movementPath = unit.movementPath
+            activity = unit.activity
+        }
+    }
+
+    private struct TransportAudioState: Equatable {
+        let destination: WorldPoint?
+        let activity: UnitActivity
+
+        init(_ unit: Unit) {
+            destination = unit.destination
+            activity = unit.activity
+        }
+    }
+
+    private var transportAudioStates: [EntityID: TransportAudioState] = [:]
+    private var lastViewportSize: SIMD2<Float> = .zero
 
     struct Marquee: Equatable {
         var origin: SIMD2<Float>
@@ -57,20 +98,35 @@ final class WorldController {
     /// Builds the scene into `content` and starts driving the simulation from
     /// the render loop. Safe to call once per RealityView lifetime.
     func attach(to content: inout RealityViewCameraContent) {
+        guard !isDisposed, !isSceneReady else { return }
         content.camera = .virtual
+
+        // Bloom, filmic tonemap, split-tone grade and vignette, run on the
+        // rendered frame before SwiftUI draws the HUD on top of it. Installing
+        // is validated: if the Metal library is missing the frame is left
+        // ungraded rather than left undefined.
+        SunfoldPostProcess.install(into: &content)
 
         let (root, rig) = WorldScene.build(
             map: simulation.map,
             tuning: simulation.tuning,
             keepClear: TerrainDressing.keepClear(for: simulation)
         )
+        if let core = simulation.buildings.values.first(where: {
+            $0.kind == .civilizationCore && $0.faction == simulation.playerFaction
+        }) {
+            rig.setFocus(core.position)
+        }
         self.rig = rig
+        self.sceneRoot = root
 
         let presenter = EntityPresenter(seed: simulation.seed, tuning: simulation.tuning)
         self.presenter = presenter
         root.addChild(presenter.root)
 
         content.add(root)
+        isSceneReady = true
+        PerfHarness.shared.markSceneAttached()
 
         updateSubscription = content.subscribe(to: SceneEvents.Update.self) { [weak self] event in
             // SceneEvents.Update is delivered on the main actor by RealityKit.
@@ -82,26 +138,187 @@ final class WorldController {
 
     private func onRenderFrame(deltaTime: TimeInterval) {
         guard deltaTime > 0 else { return }
+
+        let simStart = CFAbsoluteTimeGetCurrent()
         // The simulation consumes real time through a fixed-step accumulator, so
         // frame rate changes never change game outcomes.
         simulation.update(deltaTime: deltaTime)
+        let simEnd = CFAbsoluteTimeGetCurrent()
 
         // Selection is player-side state pointing at simulation entities, so it
         // must be reconciled every frame rather than trusted to stay valid.
         selection.prune(against: simulation)
         selection.expireOrderMarker(after: 2.5, now: simulation.elapsed)
+        detectTransportMovementFeedback()
 
         // Presentation is reconciled after the simulation has stepped, so a frame
         // never shows a mix of this tick's positions and last tick's entities.
+        if var ghost = buildGhost {
+            ghost.age += deltaTime
+            let footprintOK = ConstructionPlacement.isLegal(
+                kind: ghost.kind, at: ghost.position, in: simulation
+            )
+            let canPay = simulation.stock(for: simulation.playerFaction)
+                .covers(simulation.tuning.cost(for: ghost.kind))
+            ghost.isLegal = footprintOK && canPay
+            buildGhost = ghost
+        }
+
+        let completed = detectConstructionCompletions()
         presenter?.sync(
             simulation: simulation,
             selection: selection,
             deltaTime: deltaTime,
-            reducedMotion: reducedMotion
+            reducedMotion: reducedMotion,
+            buildGhost: buildGhost,
+            completionFlashes: completed
         )
+        let presEnd = CFAbsoluteTimeGetCurrent()
+
+        if PerfLaunchFlags.isEnabled {
+            PerfHarness.shared.recordFrame(
+                deltaTime: deltaTime,
+                simulationSeconds: simEnd - simStart,
+                presentationSeconds: presEnd - simEnd,
+                sceneScale: SceneScaleSnapshot(
+                    simulationUnits: simulation.units.count,
+                    simulationBuildings: simulation.buildings.count,
+                    simulationDeposits: simulation.deposits.count,
+                    presentedEntities: presenter?.presentedEntityCount ?? 0,
+                    simulationTick: simulation.tick,
+                    mapID: simulation.mapID.rawValue,
+                    cameraZoom: currentZoom
+                )
+            )
+        }
 
         let instantaneous = 1.0 / deltaTime
         smoothedFPS = smoothedFPS == 0 ? instantaneous : smoothedFPS * 0.9 + instantaneous * 0.1
+    }
+
+    /// Buildings that finished this frame (for one-shot visual + audio cue).
+    private func detectConstructionCompletions() -> Set<EntityID> {
+        var justFinished: Set<EntityID> = []
+        var stillRising: Set<EntityID> = []
+        for (id, building) in simulation.buildings {
+            if building.isComplete {
+                if risingBuildings.contains(id) {
+                    justFinished.insert(id)
+                }
+            } else {
+                stillRising.insert(id)
+            }
+        }
+        risingBuildings = stillRising
+        if !justFinished.isEmpty {
+            FeedbackAudio.constructionComplete()
+        }
+        return justFinished
+    }
+
+    /// Emits one arrival cue for a selected, visible player Transport when its
+    /// simulation state changes from moving to stopped. Docking takes precedence
+    /// over the generic arrival cue, so one frame never stacks both sounds.
+    private func detectTransportMovementFeedback() {
+        var currentStates: [EntityID: TransportAudioState] = [:]
+        let selectedIDs = selection.selectedUnits.sorted { $0.raw < $1.raw }
+
+        for id in selectedIDs {
+            guard let unit = simulation.unit(id),
+                  unit.faction == simulation.playerFaction,
+                  unit.kind == .lightTransport
+            else { continue }
+
+            let current = TransportAudioState(unit)
+            if let previous = transportAudioStates[id] {
+                let wasMoving = previous.activity == .moving || previous.destination != nil
+                let hasStopped = current.activity == .idle && current.destination == nil
+                if wasMoving && hasStopped && isTransportVisible(unit) {
+                    if isAtShoreBerth(unit.position) {
+                        FeedbackAudio.transportDocked()
+                    } else {
+                        FeedbackAudio.movementArrived()
+                    }
+                }
+            }
+            currentStates[id] = current
+        }
+
+        transportAudioStates = currentStates
+    }
+
+    /// Uses the last touch viewport because arrival feedback must not fire for
+    /// a selected hull that has left the player's visible frame.
+    private func isTransportVisible(_ unit: Unit) -> Bool {
+        guard let rig,
+              lastViewportSize.x > 0,
+              lastViewportSize.y > 0,
+              let point = rig.screenPoint(
+                  forWorld: unit.position,
+                  viewportSize: lastViewportSize
+              )
+        else { return false }
+
+        return point.x >= 0 && point.x <= lastViewportSize.x
+            && point.y >= 0 && point.y <= lastViewportSize.y
+    }
+
+    /// A berth is the water-side position from which a passenger can reach
+    /// standable shore. This mirrors the existing boarding search without
+    /// changing its acceptance rules.
+    private func isAtShoreBerth(_ point: WorldPoint) -> Bool {
+        let samples = 24
+        for radius in stride(from: Float(2), through: BoardingSystem.embarkRadius, by: 1.2) {
+            for sample in 0..<samples {
+                let bearing = Float(sample) / Float(samples) * 2 * .pi
+                let offset = WorldPoint(cos(bearing), sin(bearing)) * radius
+                if simulation.map.isStandable(
+                    point + offset,
+                    margin: UnitKind.citizen.footprintRadius
+                ) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private func playTransportSelectionFeedback(before: Set<EntityID>) {
+        let newlySelected = selection.selectedUnits.subtracting(before)
+        guard newlySelected.contains(where: { id in
+            guard let unit = simulation.unit(id) else { return false }
+            return unit.faction == simulation.playerFaction && unit.kind == .lightTransport
+        }) else { return }
+        FeedbackAudio.unitSelected()
+    }
+
+    private func selectedTransportOrderStates() -> [EntityID: TransportOrderState] {
+        Dictionary(uniqueKeysWithValues: selection.selectedUnits.compactMap { id in
+            guard let unit = simulation.unit(id),
+                  unit.faction == simulation.playerFaction,
+                  unit.kind == .lightTransport
+            else { return nil }
+            return (id, TransportOrderState(unit))
+        })
+    }
+
+    /// Compares simulation state before and after the existing order call. A
+    /// changed Transport state means the void route was accepted; an unchanged
+    /// state means the simulation rejected the target.
+    private func playTransportOrderFeedback(before: [EntityID: TransportOrderState]) {
+        guard !before.isEmpty else { return }
+
+        let accepted = before.contains { entry in
+            let id = entry.key
+            let previous = entry.value
+            guard let unit = simulation.unit(id) else { return false }
+            return TransportOrderState(unit) != previous
+        }
+        if accepted {
+            FeedbackAudio.movementOrdered()
+        } else {
+            FeedbackAudio.movementDenied()
+        }
     }
 
     // MARK: - Touch intents
@@ -112,29 +329,70 @@ final class WorldController {
     /// elsewhere with units selected moves them; tapping empty ground with nothing
     /// selected clears. Advanced orders wait until the basic loop is proven.
     func handleTap(atScreenPoint screenPoint: SIMD2<Float>, viewportSize: SIMD2<Float>) {
+        lastViewportSize = viewportSize
+
+        // PROTOTYPE (#11): tap cancels an active ghost without placing.
+        if buildGhost != nil {
+            cancelBuildGhost()
+            return
+        }
+
         guard let rig,
               let worldPoint = rig.worldPoint(fromScreen: screenPoint, viewportSize: viewportSize)
         else { return }
 
         switch WorldPicker.pick(at: worldPoint, in: simulation) {
         case .unit(let id):
-            // Only the player's own units are commandable; tapping a Gravemark
-            // unit inspects it rather than selecting it as yours.
-            guard let unit = simulation.unit(id), unit.faction == .sunwoven else {
+            if let unit = simulation.unit(id), unit.faction != simulation.playerFaction {
                 lastTap = nil
+                if !selection.selectedUnits.isEmpty {
+                    selection.orderAttack(target: id, in: simulation)
+                }
+                return
+            }
+            // Only the player's own units are commandable; tapping an enemy
+            // unit with nothing selected is ignored.
+            guard let unit = simulation.unit(id), unit.faction == simulation.playerFaction else {
+                lastTap = nil
+                return
+            }
+            // Citizens selected + tap transport = board (the logistics verb).
+            if unit.kind == .lightTransport,
+               selection.selectedUnits.contains(where: {
+                   simulation.unit($0)?.kind.canGather == true
+               }) {
+                lastTap = nil
+                selection.orderBoard(onto: id, in: simulation)
                 return
             }
             if isDoubleTap(on: id, at: screenPoint) {
                 selectAllVisible(ofKind: unit.kind, viewportSize: viewportSize)
                 lastTap = nil
             } else {
+                let previousSelection = selection.selectedUnits
                 selection.selectUnit(id)
+                playTransportSelectionFeedback(before: previousSelection)
                 lastTap = (ProcessInfo.processInfo.systemUptime, screenPoint, id)
             }
 
         case .building(let id):
             lastTap = nil
-            selection.selectBuilding(id)
+            if let building = simulation.building(id),
+               building.faction != simulation.playerFaction,
+               !selection.selectedUnits.isEmpty
+            {
+                selection.orderAttack(target: id, in: simulation)
+                return
+            }
+            if let building = simulation.building(id),
+               !building.isComplete,
+               building.faction == simulation.playerFaction
+            {
+                // Eligible citizens → assign; Light Transport / empty / boarding → inspect.
+                selection.respondToIncompleteFoundation(id, in: simulation)
+            } else {
+                selection.selectBuilding(id)
+            }
 
         case .deposit(let id):
             lastTap = nil
@@ -151,8 +409,11 @@ final class WorldController {
             lastTap = nil
             if selection.selectedUnits.isEmpty {
                 selection.clear()
+                transportAudioStates.removeAll()
             } else {
+                let transportStates = selectedTransportOrderStates()
                 selection.orderMove(to: worldPoint, in: simulation)
+                playTransportOrderFeedback(before: transportStates)
             }
         }
     }
@@ -172,7 +433,7 @@ final class WorldController {
     private func selectAllVisible(ofKind kind: UnitKind, viewportSize: SIMD2<Float>) {
         guard let rig else { return }
         let ids = simulation.units.values
-            .filter { $0.faction == .sunwoven && $0.kind == kind }
+            .filter { $0.faction == simulation.playerFaction && $0.kind == kind }
             .filter { unit in
                 guard let point = rig.screenPoint(forWorld: unit.position, viewportSize: viewportSize)
                 else { return false }
@@ -182,7 +443,9 @@ final class WorldController {
             .map(\.id)
             .sorted { $0.raw < $1.raw }
         guard !ids.isEmpty else { return }
+        let previousSelection = selection.selectedUnits
         selection.selectUnits(ids)
+        playTransportSelectionFeedback(before: previousSelection)
     }
 
     // MARK: - Marquee selection
@@ -226,14 +489,21 @@ final class WorldController {
         let hits = unitsInMarquee(viewportSize: viewportSize)
         // An empty box is a real instruction — the player drew over open ground
         // to let go of what they had.
-        if hits.isEmpty { selection.clear() } else { selection.selectUnits(hits) }
+        if hits.isEmpty {
+            selection.clear()
+            transportAudioStates.removeAll()
+        } else {
+            let previousSelection = selection.selectedUnits
+            selection.selectUnits(hits)
+            playTransportSelectionFeedback(before: previousSelection)
+        }
     }
 
     private func unitsInMarquee(viewportSize: SIMD2<Float>) -> [EntityID] {
         guard let marquee, let rig else { return [] }
         let rect = marquee.rect
         return simulation.units.values
-            .filter { $0.faction == .sunwoven }
+            .filter { $0.faction == simulation.playerFaction }
             .filter { unit in
                 guard let point = rig.screenPoint(forWorld: unit.position, viewportSize: viewportSize)
                 else { return false }
@@ -243,9 +513,150 @@ final class WorldController {
             .sorted { $0.raw < $1.raw }
     }
 
+    // MARK: - Construction placement (CP-G2a)
+
+    /// Starts a Soft ghost for `kind`. Prefers open home ground near the Core.
+    func beginBuildGhost(_ kind: BuildingKind) {
+        guard ConstructionPlacement.placeableKinds.contains(kind) else { return }
+        let home = simulation.map.fragment(simulation.playerFaction.homeRegion).center
+        let candidates: [WorldPoint] = [
+            home + WorldPoint(14, 0),
+            home + WorldPoint(-14, 0),
+            home + WorldPoint(0, 14),
+            home + WorldPoint(0, -14),
+            home + WorldPoint(12, 12),
+            home + WorldPoint(-12, 12),
+            home + WorldPoint(16, -4),
+            currentFocus
+        ]
+        let start = candidates.first {
+            ConstructionPlacement.isLegal(kind: kind, at: $0, in: simulation)
+        } ?? candidates[0]
+        let footprintOK = ConstructionPlacement.isLegal(kind: kind, at: start, in: simulation)
+        let canPay = simulation.stock(for: simulation.playerFaction)
+            .covers(simulation.tuning.cost(for: kind))
+        buildGhost = ConstructionPlacement.Session(
+            kind: kind,
+            position: start,
+            isLegal: footprintOK && canPay
+        )
+        DebugLog.info(
+            "Build ghost: began \(kind.displayName) legal=\(footprintOK && canPay)"
+        )
+    }
+
+    /// Moves the ghost under the finger. Returns true when ghost mode ate the pan
+    /// (camera must stay put).
+    @discardableResult
+    func moveBuildGhost(
+        atScreenPoint screenPoint: SIMD2<Float>,
+        viewportSize: SIMD2<Float>
+    ) -> Bool {
+        guard var ghost = buildGhost, let rig else { return false }
+        guard let world = rig.worldPoint(fromScreen: screenPoint, viewportSize: viewportSize)
+        else { return true }
+        ghost.position = world
+        let footprintOK = ConstructionPlacement.isLegal(
+            kind: ghost.kind, at: world, in: simulation
+        )
+        let canPay = simulation.stock(for: simulation.playerFaction)
+            .covers(simulation.tuning.cost(for: ghost.kind))
+        ghost.isLegal = footprintOK && canPay
+        buildGhost = ghost
+        return true
+    }
+
+    /// Drag-release: place a real foundation if legal and affordable, else deny.
+    func endBuildGhostDrag() {
+        guard var ghost = buildGhost else { return }
+        let now = simulation.elapsed
+        let affordable = simulation.stock(for: simulation.playerFaction)
+            .covers(simulation.tuning.cost(for: ghost.kind))
+        if ghost.isLegal && affordable {
+            let id = simulation.placeBuilding(
+                ghost.kind,
+                at: ghost.position,
+                for: simulation.playerFaction,
+                preferredBuilders: Array(selection.selectedUnits)
+            )
+            if let id {
+                risingBuildings.insert(id)
+                selection.selectBuilding(id)
+                FeedbackAudio.constructionPlaced()
+                DebugLog.info("Build ghost: founded \(ghost.kind.displayName) #\(id.raw)")
+                buildGhost = nil
+                return
+            }
+        }
+        ghost.denyUntil = now + 0.35
+        FeedbackAudio.constructionDenied()
+        buildGhost = ghost
+    }
+
+    func cancelBuildGhost() {
+        guard buildGhost != nil else { return }
+        buildGhost = nil
+        DebugLog.info("Build ghost: cancelled")
+    }
+
+    /// Deselect cancels an active ghost with no charge (placement contract).
+    func clearSelection() {
+        cancelBuildGhost()
+        selection.clear()
+        transportAudioStates.removeAll()
+    }
+
+    /// Play Again. Rewinds the match to its opening state from the same seed and
+    /// drops everything the renderer was holding about the old world — selection,
+    /// a half-placed ghost, and the rising-building set, all of which name entity
+    /// IDs that no longer exist.
+    func restartMatch() {
+        clearSelection()
+        risingBuildings.removeAll()
+        simulation.restart()
+
+        // The camera is wherever the last match left it, which after a defeat is
+        // usually standing over the enemy's base watching your own Core burn.
+        // A new match starts where a new match starts.
+        if let core = simulation.buildings.values.first(where: {
+            $0.kind == .civilizationCore && $0.faction == simulation.playerFaction
+        }) {
+            rig?.setFocus(core.position)
+        }
+        DebugLog.info("Match restarted from seed \(simulation.seed)")
+    }
+
+    /// Releases the scene subscription and presentation entities before a new
+    /// match replaces this controller. The next match receives a new controller
+    /// and a new RealityView identity, so no old update closure can touch it.
+    func dispose() {
+        isDisposed = true
+        isSceneReady = false
+        updateSubscription = nil
+        sceneRoot?.removeFromParent()
+        sceneRoot = nil
+        presenter = nil
+        rig = nil
+        transportAudioStates.removeAll()
+    }
+
+    /// Cancels an incomplete foundation and refunds a fraction of its cost.
+    @discardableResult
+    func cancelConstruction(_ buildingID: EntityID) -> Bool {
+        let ok = simulation.cancelConstruction(buildingID)
+        if ok {
+            risingBuildings.remove(buildingID)
+            if selection.selectedBuilding == buildingID {
+                selection.clear()
+            }
+        }
+        return ok
+    }
+
     // MARK: - Camera intents
 
     func pan(screenDelta: SIMD2<Float>, viewportHeight: Float) {
+        guard buildGhost == nil else { return }
         guard let rig else { return }
         rig.pan(by: rig.worldDelta(forScreenDelta: screenDelta, viewportHeight: viewportHeight))
     }

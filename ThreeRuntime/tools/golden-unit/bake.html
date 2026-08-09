@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sunfold Golden Unit — 16-direction sprite bake</title>
+<style>
+  body { background: #0b0e16; color: #dfe6f2; font: 13px/1.5 ui-monospace, Menlo, monospace; margin: 24px; }
+  h1 { font-size: 16px; color: #ffd79a; }
+  #status { margin: 12px 0; white-space: pre-wrap; }
+  #atlas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  #atlas canvas { width: 320px; height: auto; border: 1px solid #2a3350; image-rendering: pixelated; }
+  .pass { color: #7dff7d; } .fail { color: #ff7d7d; }
+</style>
+</head>
+<body>
+<h1>Sunfold Golden Unit — bake (16 directions × 4 clips × 3 channels)</h1>
+<div id="status">starting…</div>
+<div id="atlas"></div>
+<script src="bake.bundle.js"></script>
+</body>
+</html>

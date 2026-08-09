@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Sunfold — Neutral Citizen Lab</title>
+  <style>
+    :root { background: #0a0d16; color: #e8e2d4; font: 13px/1.45 -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { margin: 0; padding: 12px; }
+    #lab-root canvas { width: 100%; max-width: 900px; height: auto; background: #050711; border: 1px solid #262b3a; border-radius: 6px; }
+    .row { display: flex; gap: 10px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+    select, button { background: #141926; color: #e8e2d4; border: 1px solid #333a4f; border-radius: 5px; padding: 4px 8px; font: inherit; }
+    button:hover { background: #1e2640; }
+    .mono { font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+    #event-log { max-height: 130px; overflow: auto; background: #0d1019; border: 1px solid #262b3a; border-radius: 5px; padding: 6px 10px; list-style: none; }
+    #proof-summary, #clip-meta { white-space: pre-wrap; }
+    h1 { font-size: 14px; letter-spacing: .14em; color: #d9aa5c; margin: 0 0 6px; }
+    label { color: #a7b0c7; }
+  </style>
+</head>
+<body>
+  <h1>SUNFOLD // NEUTRAL CITIZEN LAB</h1>
+  <div id="lab-root"></div>
+  <div class="row">
+    <label>Citizen <select id="citizen"><option>slender</option><option>broad</option></select></label>
+    <label>Clip <select id="clip"></select></label>
+    <label><input type="checkbox" id="loop" checked> loop</label>
+    <button id="play" type="button">Play</button>
+    <button id="stop" type="button">Stop</button>
+    <span id="status" class="mono">LOADING</span>
+    <span id="time" class="mono"></span>
+  </div>
+  <div id="clip-select" class="row" hidden><span id="clip-meta" class="mono"></span></div>
+  <div class="row"><span id="marker-tally" class="mono"></span></div>
+  <h1>EVENT LOG</h1>
+  <ul id="event-log"><li>waiting…</li></ul>
+  <h1>PROOF</h1>
+  <pre id="proof-summary" class="mono">Run the page with ?proof=1 to execute the acceptance proof, then read window.sunfoldLab.proof.</pre>
+  <script src="neutral-lab.bundle.js"></script>
+</body>
+</html>
