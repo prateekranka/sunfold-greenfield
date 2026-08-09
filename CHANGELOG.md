@@ -17,6 +17,8 @@ minimap.
 - Focused touch-camera tests for one-finger pan and two-finger pinch behavior.
 - Deterministic deck cracks and instanced fragment-edge armor for all four Broken Ring
   sectors.
+- A deterministic warped plasma texture, bright solar limb, annular halo, rotating glare,
+  and 64 additive sparks for the central objective.
 
 ### Changed
 
@@ -39,12 +41,18 @@ minimap.
 - Citizens and Guards now start on their movement-ready standing cell. Movement orders only
   change the animation clip when the requested activity differs, so a repeated order does not
   reset every selected unit's atlas UV state.
+- The solar objective is larger and remains animated in neutral and flare states. Its visual
+  contract now exposes limb, halo, glare, spark, and separate flare-corona controls without
+  changing capture or hazard timing.
 
 ### Fixed
 
 - Removed avoidable full-group animation resets from repeated movement commands. The focused
   two-order gameplay gate rendered 600 frames in 10.0007 seconds at 59.996 FPS, with 17.6 ms
   p95, 17.8 ms maximum, and no frame above 20 ms.
+- Removed the flat 55-percent corona shell that obscured the plasma texture during a flare.
+  The accepted Cycle 05 run included a flare transition and two group orders: 600 frames in
+  10.0071 seconds at 59.957 FPS, with 16.8 ms p95, 17.7 ms maximum, and no frame above 20 ms.
 
 ### Dev delivery
 
@@ -80,8 +88,11 @@ minimap.
 - One earlier central-objective run produced a non-deterministic 66.6 ms frame. An instrumented
   repeat measured the command handler at 4.7 ms with no frame above 20 ms. The final two-order
   gate stayed below 17.8 ms after redundant animation resets were removed.
-- The map still lacks animated solar plasma, substantial crystal islets, dense debris, and
-  nebula depth.
+- The molten core is a partial reference match. Its fissures remain smoother than the
+  reference. The map still lacks substantial crystal islets, dense debris, and nebula depth.
+- Land units can currently traverse and stop in open void. This is the next blocking gameplay
+  correction. Buildings and HUD expansion remain behind that gate.
+- Per user direction, Cycle 05 has no additional iPad touch check.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game
 

@@ -70,7 +70,9 @@ export function createRtsMapWorld(mapId, sceneRoot) {
         if (h.type === "solar_flare") {
           const corona = this.objectives[0]?.mesh?.getObjectByName("corona");
           if (corona?.material) {
-            corona.material.opacity = active ? 0.55 : 0.25;
+            corona.material.opacity = active
+              ? corona.userData.flareOpacity ?? 0.32
+              : corona.userData.restingOpacity ?? 0.2;
           }
           for (const bridgeId of getDisabledBridgesDuringFlare(this.hazards, this.pathGraph)) {
             if (active && this.bridgeStates.get(bridgeId)) {

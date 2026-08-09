@@ -703,10 +703,20 @@ function frame(now) {
     citizens[i].unit.update(dt);
   }
 
-  // Pulse solar corona during flare
+  // Keep the objective alive without changing capture or hazard timing.
   const flare = mapWorld.hazards.find((h) => h.type === "solar_flare" && h.active);
-  const corona = mapWorld.objectives[0]?.mesh?.getObjectByName("corona");
-  if (corona) corona.scale.setScalar(flare ? 1.15 + Math.sin(now * 0.01) * 0.08 : 1);
+  const solarObjective = mapWorld.objectives[0]?.mesh;
+  const solarCore = solarObjective?.getObjectByName("solar-core-sphere");
+  const corona = solarObjective?.getObjectByName("corona");
+  const glare = solarObjective?.getObjectByName("solar-glare");
+  const sparks = solarObjective?.getObjectByName("solar-sparks");
+  if (solarCore) solarCore.rotation.y = now * 0.000035;
+  if (corona) {
+    const pulse = flare ? 1.15 + Math.sin(now * 0.01) * 0.08 : 1 + Math.sin(now * 0.0016) * 0.025;
+    corona.scale.setScalar(pulse);
+  }
+  if (glare?.material) glare.material.rotation = now * 0.000018;
+  if (sparks) sparks.rotation.y = now * 0.000024;
 
   minimapAcc += dt;
   if (minimapAcc >= MINIMAP_INTERVAL) {

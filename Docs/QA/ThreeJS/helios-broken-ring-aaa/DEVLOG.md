@@ -319,3 +319,67 @@ Status: **Done and deployed**
 
 Give the solar objective bounded plasma structure, readable fissures, and a stronger corona.
 Keep capture rules, pathing, fragment geometry, resource islets, starfield, and HUD unchanged.
+
+## Cycle 05 — molten solar objective · 2026-08-10
+
+Status: **Done locally; dev delivery pending**
+
+### Reference defect
+
+- The central objective read as a pale flat disk instead of a volatile star.
+- Its broad translucent corona hid the surface during a flare.
+- The reference uses a stronger hierarchy: molten surface, bright limb, restrained halo,
+  white-hot glare, and small surrounding particles.
+
+### Rendered correction
+
+- Added a deterministic 384×192 warped Voronoi plasma texture with organic fissures, warm
+  plate variation, micro-heat, and cloud heat.
+- Increased the objective radius from 3.8 to 4.8 world units and its height from 4.1 to 5.3.
+- Added a bright limb, annular halo, rotating sixteen-ray glare, and 64 deterministic sparks.
+- Added slow independent rotation for the surface, glare, and sparks.
+- Added separate neutral and flare corona opacity values. The flare no longer replaces the
+  molten surface with a flat yellow shell.
+- Preserved objective capture, hazard timing, bridge state, resource state, platform IDs,
+  and movement rules.
+
+### Rendered and performance proof
+
+- The accepted frame shows a readable molten objective at the default gameplay camera.
+- The active probe selected all 12 units, issued two group orders, and crossed a forced flare
+  transition.
+- It rendered 600 frames in 10.0071 seconds at 59.957 FPS average.
+- Frame time was 16.8 ms p95, 17.6 ms p99, and 17.7 ms maximum.
+- No frame exceeded 20 ms or 33.34 ms.
+- The two command handlers took 1.7 ms and 0.3 ms.
+- Per user direction, no additional iPad touch check was run.
+
+### Focused checks
+
+- Targeted Helios esbuild — passed.
+- Real in-app Browser neutral and flare states — visually inspected.
+- Real rendered two-order movement and flare-transition frame gate — passed.
+- Scoped `git diff --check` — passed before the checkpoint commit.
+- No focused unit test was added. This checkpoint changes presentation only, and rendered
+  inspection plus the frame probe is the narrowest useful proof.
+
+### Evidence
+
+- Final frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-05-solar-final-r2.jpg`
+- Reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/reference-vs-cycle-05-solar-final-r2.png`
+- Normalized reference crop: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/reference-solar-normalized-256.png`
+- Normalized rendered crop: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-05-solar-final-r2-core-256.jpg`
+- Visual metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-05-solar-visual-metrics-final.json`
+- Frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-05-solar-final-r2-performance-10s.json`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-cycle-05-solar-final-r2.stdout.txt`
+
+### Honest limitation
+
+The objective is materially closer to the reference, but it is not a blind-match result.
+Its fissure cells remain larger and its plasma less turbulent. The full map still lacks the
+reference's large crystal islets, debris density, and nebula depth.
+
+### Next cycle
+
+Land units have been observed traversing and stopping in open void. Reproduce that path and
+enforce legal platform and bridge movement before adding buildings, training, or HUD systems.

@@ -1,5 +1,5 @@
 (() => {
-  // node_modules/three/build/three.core.js
+  // ThreeRuntime/node_modules/three/build/three.core.js
   var REVISION = "178";
   var CullFaceNone = 0;
   var CullFaceBack = 1;
@@ -20347,7 +20347,7 @@
     }
   }
 
-  // node_modules/three/build/three.module.js
+  // ThreeRuntime/node_modules/three/build/three.module.js
   function WebGLAnimation() {
     let context = null;
     let isAnimating = false;
@@ -30411,7 +30411,7 @@ void main() {
     }
   };
 
-  // src/sprites/facing.js
+  // ThreeRuntime/src/sprites/facing.js
   var FACINGS = Object.freeze(["S", "SE", "E", "NE", "N", "NW", "W", "SW"]);
   function yawToFacing(yawRadians) {
     const steps = 8;
@@ -30520,7 +30520,7 @@ void main() {
     return candidate;
   }
 
-  // src/sprites/atlas.js
+  // ThreeRuntime/src/sprites/atlas.js
   function atlasCellUV(atlas, frameWidth, frameHeight, row, column) {
     const repeatX = frameWidth / atlas.width;
     const repeatY = frameHeight / atlas.height;
@@ -30559,7 +30559,7 @@ void main() {
     attr.needsUpdate = true;
   }
 
-  // src/sprites/sprite-unit.js
+  // ThreeRuntime/src/sprites/sprite-unit.js
   var SpriteUnit = class {
     /**
      * @param {SpriteManifest} manifest
@@ -31025,7 +31025,7 @@ void main() {
     }
   };
 
-  // src/sim/types.js
+  // ThreeRuntime/src/sim/types.js
   var RESOURCE_KINDS = Object.freeze(["provisions", "matter", "lumen", "aether"]);
   var FACTIONS = Object.freeze(["sunwoven", "gravemark"]);
   var ACTIVITY_TAGS = Object.freeze([
@@ -31050,7 +31050,7 @@ void main() {
     "dominion"
   ]);
 
-  // src/sim/tuning.js
+  // ThreeRuntime/src/sim/tuning.js
   var TUNING = Object.freeze({
     // MARK: - Starting state
     startingResources: pool({ provisions: 180, matter: 160, lumen: 40, aether: 0 }),
@@ -31165,7 +31165,7 @@ void main() {
     bastionWalker: 0
   });
 
-  // src/rts-camera.js
+  // ThreeRuntime/src/rts-camera.js
   var RTS_CAMERA = Object.freeze({
     /** Degrees above the ground plane (0 = horizon, 90 = top-down). */
     pitchDegrees: TUNING.cameraPitchDegrees,
@@ -31583,7 +31583,7 @@ void main() {
     }
   };
 
-  // src/rts-maps/map-definition.js
+  // ThreeRuntime/src/rts-maps/map-definition.js
   var registry = /* @__PURE__ */ new Map();
   function registerMap(def) {
     if (!def?.id) throw new Error("MapDefinition requires id");
@@ -31595,7 +31595,7 @@ void main() {
     return def;
   }
 
-  // src/rts-maps/maps/helios-rift.js
+  // ThreeRuntime/src/rts-maps/maps/helios-rift.js
   var RING_R = 34;
   var FRAG_R = 11;
   var platforms = [
@@ -31765,15 +31765,24 @@ void main() {
         position: { x: 0, z: 0 },
         captureRadius: 10,
         visual: {
-          radius: 3.8,
-          coronaRadius: 5.35,
-          haloSize: 16,
-          height: 4.1,
+          radius: 4.8,
+          coronaRadius: 6.55,
+          haloSize: 21,
+          glareSize: 16,
+          glareOpacity: 0.88,
+          limbOpacity: 0.86,
+          sparkCount: 64,
+          sparkInnerRadius: 6.9,
+          sparkOuterRadius: 13.5,
+          sparkSize: 0.5,
+          height: 5.3,
           coreColor: 16757291,
-          coronaColor: 16739094,
+          coronaColor: 16748324,
+          haloColor: 16757050,
           beamColor: 3528910,
           coreOpacity: 1,
-          coronaOpacity: 0.24,
+          coronaOpacity: 0.16,
+          flareCoronaOpacity: 0.27,
           haloOpacity: 0.72,
           captureZone: {
             innerRadius: 8.9,
@@ -31784,12 +31793,12 @@ void main() {
           beam: {
             radiusTop: 0.08,
             radiusBottom: 0.18,
-            height: 4.2,
+            height: 5.4,
             color: 7464668,
             opacity: 0.1
           },
           emissive: 16736015,
-          emissiveIntensity: 4.2,
+          emissiveIntensity: 0.34,
           lightColor: 16742692,
           lightIntensity: 5.2,
           lightDistance: 52,
@@ -31911,7 +31920,7 @@ void main() {
   };
   registerMap(HELIOS_RIFT);
 
-  // src/rts-maps/maps/lumen-basin.stub.js
+  // ThreeRuntime/src/rts-maps/maps/lumen-basin.stub.js
   registerMap({
     id: "lumen-basin",
     name: "Lumen Basin",
@@ -31934,7 +31943,7 @@ void main() {
     }
   });
 
-  // src/rts-maps/maps/orekhar-frontier.stub.js
+  // ThreeRuntime/src/rts-maps/maps/orekhar-frontier.stub.js
   registerMap({
     id: "orekhar-frontier",
     name: "Orekhar Frontier",
@@ -31957,7 +31966,7 @@ void main() {
     }
   });
 
-  // src/rts-maps/path-graph.js
+  // ThreeRuntime/src/rts-maps/path-graph.js
   var PathGraph = class {
     /**
      * @param {import('./map-definition.js').MapDefinition} def
@@ -32138,7 +32147,7 @@ void main() {
     return Number.isFinite(point?.x) && Number.isFinite(point?.z);
   }
 
-  // src/rts-maps/terrain-generator.js
+  // ThreeRuntime/src/rts-maps/terrain-generator.js
   var PALETTE = {
     platform: 9075298,
     platformEdge: 12753757,
@@ -33181,7 +33190,7 @@ void main() {
     return hash >>> 0;
   }
 
-  // src/rts-maps/resource-spawner.js
+  // ThreeRuntime/src/rts-maps/resource-spawner.js
   var RESOURCE_COLORS = {
     provisions: 15246141,
     matter: 8031129,
@@ -33230,7 +33239,7 @@ void main() {
     return instances;
   }
 
-  // src/rts-maps/player-spawn-manager.js
+  // ThreeRuntime/src/rts-maps/player-spawn-manager.js
   var PLAYER_COLORS = [5952767, 16738922, 10354538, 16766042];
   function createPlayerSpawns(spawns) {
     return spawns.map((s, i) => ({
@@ -33243,24 +33252,152 @@ void main() {
     }));
   }
 
-  // src/rts-maps/objective-manager.js
+  // ThreeRuntime/src/rts-maps/objective-manager.js
   var solarHaloTexture = null;
+  var solarGlareTexture = null;
+  var solarSparkTexture = null;
+  var solarSurfaceTexture = null;
+  function deterministicUnit(index, salt = 0) {
+    const value = Math.sin((index + 1) * 12.9898 + (salt + 1) * 78.233) * 43758.5453;
+    return value - Math.floor(value);
+  }
+  function getSolarSurfaceTexture() {
+    if (solarSurfaceTexture) return solarSurfaceTexture;
+    const canvas = document.createElement("canvas");
+    const width = 384;
+    const height = 192;
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    const image = context.createImageData(width, height);
+    const cells = [];
+    const cellCount = 92;
+    for (let index = 0; index < cellCount; index += 1) {
+      cells.push({
+        x: deterministicUnit(index, 1) * width,
+        y: (0.06 + deterministicUnit(index, 2) * 0.88) * height,
+        heat: deterministicUnit(index, 3)
+      });
+    }
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        let nearest = Number.POSITIVE_INFINITY;
+        let second = Number.POSITIVE_INFINITY;
+        let nearestHeat = 0;
+        const sampleX = (x + Math.sin(y * 0.067) * 13 + Math.sin((x + y) * 0.031) * 7 + width) % width;
+        const sampleY = y + Math.sin(x * 0.051) * 9 + Math.sin((x - y) * 0.027) * 6;
+        for (const cell of cells) {
+          const rawDx = Math.abs(sampleX - cell.x);
+          const dx = Math.min(rawDx, width - rawDx);
+          const dy = (sampleY - cell.y) * 1.15;
+          const distance = dx * dx + dy * dy;
+          if (distance < nearest) {
+            second = nearest;
+            nearest = distance;
+            nearestHeat = cell.heat;
+          } else if (distance < second) {
+            second = distance;
+          }
+        }
+        const boundaryGap = Math.sqrt(second) - Math.sqrt(nearest);
+        const fissure = Math.max(0, Math.min(1, 1 - boundaryGap / 4.2));
+        const turbulence = Math.sin(x * 0.071 + y * 0.019) * 0.5 + Math.sin(y * 0.113 - x * 0.027) * 0.3 + Math.sin((x + y) * 0.041) * 0.2;
+        const emberCloud = 0.5 + Math.sin(x * 0.029 + Math.sin(y * 0.061) * 2.4) * 0.25 + Math.sin(y * 0.047 - Math.sin(x * 0.037) * 2.1) * 0.25;
+        const microHeat = Math.sin(x * 0.31 + Math.sin(y * 0.17) * 1.8) * 0.5 + Math.sin(y * 0.27 - Math.sin(x * 0.13) * 2.1) * 0.5;
+        const plate = Math.max(
+          0.04,
+          Math.min(
+            0.82,
+            0.07 + nearestHeat * 0.18 + (turbulence * 0.5 + 0.5) * 0.31 + emberCloud * 0.21 + microHeat * 0.07
+          )
+        );
+        const hotEdge = Math.pow(fissure, 2);
+        const centerHeat = nearestHeat > 0.72 ? Math.max(0, 1 - Math.sqrt(nearest) / (10 + nearestHeat * 9)) * (nearestHeat - 0.72) * 2.8 : 0;
+        const cloudHeat = Math.max(0, (turbulence * 0.5 + 0.5) * 0.62 + emberCloud * 0.5 - 0.78);
+        const heat = Math.min(1, hotEdge + centerHeat * (1 - hotEdge) + cloudHeat * 0.34 * (1 - hotEdge));
+        const pixel = (y * width + x) * 4;
+        image.data[pixel] = Math.round(38 + plate * 202 + heat * (217 - plate * 138));
+        image.data[pixel + 1] = Math.round(4 + plate * 112 + heat * (241 - plate * 82));
+        image.data[pixel + 2] = Math.round(1 + plate * 11 + heat * (122 - plate * 8));
+        image.data[pixel + 3] = 255;
+      }
+    }
+    context.putImageData(image, 0, 0);
+    solarSurfaceTexture = new CanvasTexture(canvas);
+    solarSurfaceTexture.colorSpace = SRGBColorSpace;
+    solarSurfaceTexture.wrapS = RepeatWrapping;
+    solarSurfaceTexture.wrapT = ClampToEdgeWrapping;
+    return solarSurfaceTexture;
+  }
   function getSolarHaloTexture() {
     if (solarHaloTexture) return solarHaloTexture;
     const canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
+    canvas.width = 256;
+    canvas.height = 256;
     const context = canvas.getContext("2d");
-    const gradient = context.createRadialGradient(64, 64, 2, 64, 64, 62);
-    gradient.addColorStop(0, "rgba(255,248,198,1)");
-    gradient.addColorStop(0.16, "rgba(255,181,54,0.95)");
-    gradient.addColorStop(0.46, "rgba(255,100,20,0.42)");
+    const gradient = context.createRadialGradient(128, 128, 0, 128, 128, 124);
+    gradient.addColorStop(0, "rgba(255,104,18,0)");
+    gradient.addColorStop(0.34, "rgba(255,104,18,0)");
+    gradient.addColorStop(0.46, "rgba(255,145,26,0.18)");
+    gradient.addColorStop(0.52, "rgba(255,182,48,0.96)");
+    gradient.addColorStop(0.6, "rgba(255,112,20,0.38)");
+    gradient.addColorStop(0.78, "rgba(255,82,14,0.1)");
     gradient.addColorStop(1, "rgba(255,68,8,0)");
     context.fillStyle = gradient;
-    context.fillRect(0, 0, 128, 128);
+    context.fillRect(0, 0, 256, 256);
     solarHaloTexture = new CanvasTexture(canvas);
     solarHaloTexture.colorSpace = SRGBColorSpace;
     return solarHaloTexture;
+  }
+  function getSolarGlareTexture() {
+    if (solarGlareTexture) return solarGlareTexture;
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 256;
+    const context = canvas.getContext("2d");
+    context.globalCompositeOperation = "lighter";
+    for (let index = 0; index < 16; index += 1) {
+      const angle = index / 16 * Math.PI * 2;
+      const outerRadius = index % 4 === 0 ? 120 : index % 2 === 0 ? 82 : 56;
+      const x = 128 + Math.cos(angle) * outerRadius;
+      const y = 128 + Math.sin(angle) * outerRadius;
+      const ray = context.createLinearGradient(128, 128, x, y);
+      ray.addColorStop(0, "rgba(255,252,220,0.92)");
+      ray.addColorStop(0.22, "rgba(255,214,98,0.72)");
+      ray.addColorStop(1, "rgba(255,129,28,0)");
+      context.strokeStyle = ray;
+      context.lineWidth = index % 4 === 0 ? 2.6 : index % 2 === 0 ? 1.8 : 1.1;
+      context.beginPath();
+      context.moveTo(128, 128);
+      context.lineTo(x, y);
+      context.stroke();
+    }
+    const glow = context.createRadialGradient(128, 128, 1, 128, 128, 44);
+    glow.addColorStop(0, "rgba(255,255,244,1)");
+    glow.addColorStop(0.18, "rgba(255,244,184,0.98)");
+    glow.addColorStop(0.52, "rgba(255,177,52,0.42)");
+    glow.addColorStop(1, "rgba(255,103,18,0)");
+    context.fillStyle = glow;
+    context.fillRect(0, 0, 256, 256);
+    solarGlareTexture = new CanvasTexture(canvas);
+    solarGlareTexture.colorSpace = SRGBColorSpace;
+    return solarGlareTexture;
+  }
+  function getSolarSparkTexture() {
+    if (solarSparkTexture) return solarSparkTexture;
+    const canvas = document.createElement("canvas");
+    canvas.width = 32;
+    canvas.height = 32;
+    const context = canvas.getContext("2d");
+    const glow = context.createRadialGradient(16, 16, 0, 16, 16, 15);
+    glow.addColorStop(0, "rgba(255,255,224,1)");
+    glow.addColorStop(0.25, "rgba(255,201,82,0.95)");
+    glow.addColorStop(1, "rgba(255,100,16,0)");
+    context.fillStyle = glow;
+    context.fillRect(0, 0, 32, 32);
+    solarSparkTexture = new CanvasTexture(canvas);
+    solarSparkTexture.colorSpace = SRGBColorSpace;
+    return solarSparkTexture;
   }
   function spawnObjectives(specs, parent) {
     return specs.map((spec) => {
@@ -33288,16 +33425,17 @@ void main() {
         const beamOpacity = visual.beamOpacity ?? beamSpec.opacity ?? 0.5;
         const beamTopRadius = visual.beamRadiusTop ?? beamSpec.radiusTop ?? 0.15;
         const beamBottomRadius = visual.beamRadiusBottom ?? beamSpec.radiusBottom ?? 0.4;
-        const hasEmissive = visual.emissive !== void 0 || visual.emissiveIntensity !== void 0;
-        const coreMaterial = hasEmissive ? new MeshStandardMaterial({
-          color: coreColor,
-          emissive: visual.emissive ?? coreColor,
-          emissiveIntensity: visual.emissiveIntensity ?? 1,
-          transparent: true,
-          opacity: coreOpacity
-        }) : new MeshBasicMaterial({
-          color: coreColor,
-          transparent: true,
+        const surfaceTexture = getSolarSurfaceTexture();
+        const surfaceTint = new Color(coreColor).lerp(new Color(16777215), 0.86);
+        const coreMaterial = new MeshStandardMaterial({
+          map: surfaceTexture,
+          color: surfaceTint,
+          emissive: visual.emissive ?? 6951680,
+          emissiveMap: surfaceTexture,
+          emissiveIntensity: Math.min(visual.emissiveIntensity ?? 0.72, 1.1),
+          roughness: 0.86,
+          metalness: 0,
+          transparent: coreOpacity < 1,
           opacity: coreOpacity
         });
         const core = new Mesh(
@@ -33308,7 +33446,7 @@ void main() {
         core.name = "solar-core-sphere";
         g.add(core);
         const corona = new Mesh(
-          new SphereGeometry(coronaRadius, 16, 12),
+          new SphereGeometry(coronaRadius, 32, 20),
           new MeshBasicMaterial({
             color: coronaColor,
             transparent: true,
@@ -33319,22 +33457,87 @@ void main() {
         );
         corona.position.y = coreHeight;
         corona.name = "corona";
+        corona.material.side = BackSide;
+        corona.userData.restingOpacity = coronaOpacity;
+        corona.userData.flareOpacity = visual.flareCoronaOpacity ?? Math.min(0.32, coronaOpacity * 1.8);
         g.add(corona);
+        const limb = new Mesh(
+          new SphereGeometry(coreRadius * 1.035, 40, 28),
+          new MeshBasicMaterial({
+            color: visual.limbColor ?? 16765540,
+            transparent: true,
+            opacity: visual.limbOpacity ?? 0.78,
+            side: BackSide,
+            depthWrite: false,
+            blending: AdditiveBlending
+          })
+        );
+        limb.position.y = coreHeight;
+        limb.name = "solar-limb";
+        g.add(limb);
         const halo = new Sprite(
           new SpriteMaterial({
             map: getSolarHaloTexture(),
-            color: coronaColor,
+            color: visual.haloColor ?? coronaColor,
             transparent: true,
             opacity: visual.haloOpacity ?? 0.62,
             blending: AdditiveBlending,
-            depthWrite: false
+            depthWrite: false,
+            depthTest: false
           })
         );
         const haloSize = visual.haloSize ?? coronaRadius * 3;
         halo.position.y = coreHeight;
         halo.scale.set(haloSize, haloSize, 1);
         halo.name = "solar-halo";
+        halo.renderOrder = -2;
         g.add(halo);
+        const glare = new Sprite(
+          new SpriteMaterial({
+            map: getSolarGlareTexture(),
+            color: visual.glareColor ?? 16767362,
+            transparent: true,
+            opacity: visual.glareOpacity ?? 0.9,
+            blending: AdditiveBlending,
+            depthWrite: false,
+            depthTest: false
+          })
+        );
+        const glareSize = visual.glareSize ?? coreRadius * 2.7;
+        glare.position.y = coreHeight;
+        glare.scale.set(glareSize, glareSize, 1);
+        glare.name = "solar-glare";
+        glare.renderOrder = 4;
+        g.add(glare);
+        const sparkCount = visual.sparkCount ?? 42;
+        const sparkInnerRadius = visual.sparkInnerRadius ?? coronaRadius * 1.05;
+        const sparkOuterRadius = visual.sparkOuterRadius ?? coronaRadius * 2.1;
+        const sparkPositions = new Float32Array(sparkCount * 3);
+        for (let index = 0; index < sparkCount; index += 1) {
+          const angle = deterministicUnit(index, 11) * Math.PI * 2;
+          const radius = sparkInnerRadius + deterministicUnit(index, 12) * (sparkOuterRadius - sparkInnerRadius);
+          sparkPositions[index * 3] = Math.cos(angle) * radius;
+          sparkPositions[index * 3 + 1] = coreHeight + (deterministicUnit(index, 13) - 0.5) * coreRadius * 1.8;
+          sparkPositions[index * 3 + 2] = Math.sin(angle) * radius;
+        }
+        const sparkGeometry = new BufferGeometry();
+        sparkGeometry.setAttribute("position", new BufferAttribute(sparkPositions, 3));
+        const sparks = new Points(
+          sparkGeometry,
+          new PointsMaterial({
+            map: getSolarSparkTexture(),
+            color: visual.sparkColor ?? 16757051,
+            size: visual.sparkSize ?? 0.32,
+            transparent: true,
+            opacity: visual.sparkOpacity ?? 0.82,
+            blending: AdditiveBlending,
+            depthWrite: false,
+            depthTest: false,
+            sizeAttenuation: true
+          })
+        );
+        sparks.name = "solar-sparks";
+        g.add(sparks);
         const beam = new Mesh(
           new CylinderGeometry(beamTopRadius, beamBottomRadius, beamHeight, 8),
           new MeshBasicMaterial({
@@ -33424,7 +33627,7 @@ void main() {
     }
   }
 
-  // src/rts-maps/hazard-system.js
+  // ThreeRuntime/src/rts-maps/hazard-system.js
   function createHazards(specs) {
     return specs.map((s) => ({
       id: s.id,
@@ -33469,7 +33672,7 @@ void main() {
     return [];
   }
 
-  // src/rts-maps/ai-hints.js
+  // ThreeRuntime/src/rts-maps/ai-hints.js
   function buildAIHints(def, runtime = {}) {
     const hints = structuredClone(def.aiHints);
     if (runtime.pathGraph && hints.preferredAttackRoutes) {
@@ -33487,7 +33690,7 @@ void main() {
     return Object.freeze(hints);
   }
 
-  // src/rts-maps/rts-map-world.js
+  // ThreeRuntime/src/rts-maps/rts-map-world.js
   function createRtsMapWorld(mapId, sceneRoot) {
     const definition = getMapDefinition(mapId);
     const pathGraph = new PathGraph(definition);
@@ -33525,7 +33728,7 @@ void main() {
           if (h.type === "solar_flare") {
             const corona = this.objectives[0]?.mesh?.getObjectByName("corona");
             if (corona?.material) {
-              corona.material.opacity = active ? 0.55 : 0.25;
+              corona.material.opacity = active ? corona.userData.flareOpacity ?? 0.32 : corona.userData.restingOpacity ?? 0.2;
             }
             for (const bridgeId of getDisabledBridgesDuringFlare(this.hazards, this.pathGraph)) {
               if (active && this.bridgeStates.get(bridgeId)) {
@@ -33640,7 +33843,7 @@ void main() {
     return false;
   }
 
-  // assets/citizens/sprites/village-manbun-wanderer/atlas-manifest.json
+  // ThreeRuntime/assets/citizens/sprites/village-manbun-wanderer/atlas-manifest.json
   var atlas_manifest_default = {
     schema: "sunfold.sprite-manifest/1",
     unit: "village-manbun-wanderer",
@@ -33741,7 +33944,7 @@ void main() {
     }
   };
 
-  // assets/citizens/sprites/lumen-guard/atlas-manifest.json
+  // ThreeRuntime/assets/citizens/sprites/lumen-guard/atlas-manifest.json
   var atlas_manifest_default2 = {
     schema: "sunfold.sprite-manifest/1",
     unit: "lumen-guard",
@@ -33826,7 +34029,7 @@ void main() {
     }
   };
 
-  // src/helios-rift-proof.js
+  // ThreeRuntime/src/helios-rift-proof.js
   var MAP_ID = "helios-rift";
   var LOCAL_PLAYER = 0;
   var MOVE_SPEED = 4.2;
@@ -34435,8 +34638,18 @@ void main() {
       citizens[i].unit.update(dt);
     }
     const flare = mapWorld.hazards.find((h) => h.type === "solar_flare" && h.active);
-    const corona = mapWorld.objectives[0]?.mesh?.getObjectByName("corona");
-    if (corona) corona.scale.setScalar(flare ? 1.15 + Math.sin(now * 0.01) * 0.08 : 1);
+    const solarObjective = mapWorld.objectives[0]?.mesh;
+    const solarCore = solarObjective?.getObjectByName("solar-core-sphere");
+    const corona = solarObjective?.getObjectByName("corona");
+    const glare = solarObjective?.getObjectByName("solar-glare");
+    const sparks = solarObjective?.getObjectByName("solar-sparks");
+    if (solarCore) solarCore.rotation.y = now * 35e-6;
+    if (corona) {
+      const pulse = flare ? 1.15 + Math.sin(now * 0.01) * 0.08 : 1 + Math.sin(now * 16e-4) * 0.025;
+      corona.scale.setScalar(pulse);
+    }
+    if (glare?.material) glare.material.rotation = now * 18e-6;
+    if (sparks) sparks.rotation.y = now * 24e-6;
     minimapAcc += dt;
     if (minimapAcc >= MINIMAP_INTERVAL) {
       minimapAcc = 0;
