@@ -185,7 +185,7 @@ gameplay system during that visual cycle.
 
 ## Cycle 03 — fragment relief and silhouette · 2026-08-09
 
-Status: **Done after the Cycle 04 movement-state gate; dev deployment pending**
+Status: **Done and deployed with Cycle 04**
 
 ### Rendered correction
 
@@ -251,7 +251,7 @@ Do not combine that correction with solar, islet, starfield, HUD, or map-topolog
 
 ## Cycle 04 — movement-state frame gate · 2026-08-09
 
-Status: **Done; dev deployment pending**
+Status: **Done and deployed**
 
 ### Player-visible correction
 
@@ -302,8 +302,20 @@ Status: **Done; dev deployment pending**
 - Path-graph benchmark: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/pathgraph-benchmark.json`
 - Targeted build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/build-cycle-04-standing-prime.stdout.txt`
 
+### Dev delivery
+
+- Commit `4cb24fa` is visible on `origin/main`.
+- Worker version `4381c0dd-bbad-48e3-97b5-4d433a09e915` serves the combined Cycle 03/04
+  artifact only at `dev.helios.contenthelper.in`.
+- The committed bundle, deploy-site bundle, and hosted bundle SHA-256 values all equal
+  `64590a5a627ad4100aae2827f3007eb7c6e0c2e57b8db7f570ba2af120f2d018`.
+- A clean hosted load showed the detailed four-sector ring, 12 Citizens, FPS 60, and no
+  browser exception.
+- Hosted frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-04-fps60.jpg`
+- Hosted bundle hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-04-bundle-hashes.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/deploy-cycle-04.stdout.txt`
+
 ### Next cycle
 
-Commit and push this correction with the generated Helios bundle. Deploy the combined Cycle
-03/04 artifact only to `dev.helios.contenthelper.in`, verify its bundle hash and startup, then
-resume the next visual correction from the hosted frame.
+Give the solar objective bounded plasma structure, readable fissures, and a stronger corona.
+Keep capture rules, pathing, fragment geometry, resource islets, starfield, and HUD unchanged.

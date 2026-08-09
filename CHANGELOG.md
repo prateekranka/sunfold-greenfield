@@ -58,6 +58,12 @@ minimap.
 - Its hosted and local Helios bundle SHA-256 values both equal
   `1e9c59b7940bd36a4d6b3217c07519162bbeedb177cf7cee25dbcc799f6d7219`. A clean hosted
   reload showed 12 Citizens, FPS 60, the touch hint, and no browser exception.
+- Combined fragment-relief and movement-state commit `4cb24fa` is deployed only to
+  `dev.helios.contenthelper.in` as Worker version
+  `4381c0dd-bbad-48e3-97b5-4d433a09e915`.
+- Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `64590a5a627ad4100aae2827f3007eb7c6e0c2e57b8db7f570ba2af120f2d018`. The hosted
+  frame showed the four detailed ring sectors, 12 Citizens, FPS 60, and no startup error.
 
 ### Proof pending
 
