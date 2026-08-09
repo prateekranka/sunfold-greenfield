@@ -1,5 +1,17 @@
 # Roadmap
 
+## Active product track — Helios Rift reference parity
+
+The user moved the active game direction to the Three.js Broken Ring proof on 2026-08-09.
+The native gate history below remains valid, but it is paused. The active track ships one
+bounded visual or gameplay correction at a time to `dev.helios.contenthelper.in`.
+
+Cycles 01–06 established the camera, touch controls, fragment relief, movement continuity,
+molten solar objective, and fail-closed land movement. Cycle 07 adds a Blender-authored
+Sunwoven Civilization Core, Farm, and Formation Yard with four readable health states. The
+next checkpoint replaces the desktop debug overlay with a compact iPad-first tactical HUD.
+Cursor owns the separate second-civilization 2D sprite workflow. This track owns Blender 3D.
+
 Gates run in order. A gate is complete only when its behaviour was observed in the
 rendered app on an iPad simulator — a green build is never sufficient.
 

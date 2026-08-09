@@ -478,3 +478,110 @@ Status: **Done and deployed**
 Build a coherent Sunwoven 3D kit in Blender: Civilization Core, Farm, and Formation Yard.
 Each building needs healthy, damaged, critical, and destroyed reads at the gameplay camera.
 Do not combine the model kit with the iPad-first construction and training HUD.
+
+## Cycle 07 — Sunwoven foundation building kit · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- The north base used placeholder primitives with no Sunwoven building hierarchy.
+- Core, Farm, and military production had no distinct silhouettes.
+- Building HP changes had no authored damage progression or destruction payoff.
+
+### Blender correction
+
+- Added reproducible Blender sources and exports for the Civilization Core, Farm, and
+  Formation Yard.
+- The Core uses a circular ceramic body, layered fabric eaves, gold rings, teal panels,
+  outer pavilion arches, flags, and a slow crown ring.
+- The Farm uses a low rectangular field, three crop rows, luminous irrigation channels,
+  perimeter posts, and restrained crop sway.
+- The Formation Yard uses a rectangular training deck, square fabric pavilion, central loom,
+  weapon rack, perimeter masts, and a distinct military silhouette.
+- Every asset exports named healthy, damaged, critical, and destroyed visibility groups.
+  Damage bands change at 75%, 50%, and 0% life.
+- Added authored missing-panel, broken-frame, scorch, ember, and wreck compositions. The
+  destroyed state replaces the standing building instead of hiding it without a payoff.
+
+### Runtime integration
+
+- Added one GLTF loader library that preloads each bundled asset once and clones it per
+  instance.
+- The simulation remains authoritative for life. The renderer maps life ratios to named
+  visual groups and does not change combat, economy, or victory rules.
+- Moved the north Matter node clear of the building footprints.
+- Moved local Citizens and Guards to an inward-facing arc that does not intersect the Core,
+  Farm, or Formation Yard.
+- Added proof controls for exact building life, aggregate damage state, camera position,
+  all-local selection, and legal movement orders.
+- Narrowed both the lab builder and the dev-site builder so deployment cannot overwrite
+  unrelated dirty lab bundles.
+
+### Asset budgets
+
+- Civilization Core: 980,388 bytes, 26,691 vertices, 26,388 triangles, 11 materials.
+- Farm: 700,348 bytes, 16,804 vertices, 14,264 triangles, 11 materials.
+- Formation Yard: 402,040 bytes, 9,923 vertices, 10,482 triangles, 11 materials.
+- All three assets pass the 1.5 MB, 30,000-vertex, 30,000-triangle, and 12-material limits.
+
+### Rendered and performance proof
+
+- Healthy, critical, and destroyed compositions were inspected in the real gameplay camera.
+- The final local run selected and moved all 12 units through two legal formation orders
+  while the camera and all building damage bands changed.
+- Local: 600 frames in 9.9884 seconds at 60.070 FPS, 16.8 ms p95, 18.7 ms maximum, and zero
+  frames above 20 ms.
+- Hosted: 600 frames in 9.9975 seconds at 60.015 FPS, 18.6 ms p95, 18.7 ms maximum, and zero
+  frames above 20 ms.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Per user direction, no additional iPad touch check was run.
+
+### Focused checks
+
+- Python source compile — passed.
+- Headless Blender build and 12-state render — passed without a traceback.
+- GLB contract and mobile budget validator — passed for all three assets.
+- `node --test tests/gltf-buildings.test.js` — 2 of 2 passed.
+- Targeted Helios esbuild — passed without rewriting unrelated lab bundles.
+- Real local and hosted Browser state transitions, legal movement, and frame gates — passed.
+- Scoped `git diff --check` — passed before each commit.
+
+### Evidence
+
+- Hosted frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-07-buildings-fps60.png`
+- Strict reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-reference-vs-rendered-buildings-arches-yard.png`
+- Blender state sheet: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-building-states-contact-sheet-arches-yard.png`
+- Local healthy frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-sunwoven-buildings-healthy-arches-yard-wide.png`
+- Local critical frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-sunwoven-buildings-critical-arches-yard.png`
+- Local destroyed frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-sunwoven-buildings-destroyed-arches-yard.png`
+- Asset validation: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-building-glb-validation-arches-yard.json`
+- Local frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-building-gameplay-performance-final-10s.json`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-07-building-gameplay-performance-10s.json`
+- Hosted bundle hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-07-bundle-hashes.txt`
+- Blender output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-blender-build-arches-yard.stdout.txt`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-07-building-tests-arches-yard-r2.stdout.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/deploy-cycle-07.stdout.txt`
+
+### Honest limitation
+
+The three buildings are a coherent first authored kit, not a blind AAA match. The strict
+comparison still shows flatter silhouettes, untextured materials, weaker contact shadows,
+and less weathering than the concept. The surrounding fragment remains dark and sparse
+instead of warm, stone-rich, and vegetated. The desktop debug overlay also blocks too much
+of the playfield.
+
+### Dev delivery
+
+- Implementation commit `7ca4824` is visible on `origin/main`.
+- Deployment-isolation commit `b8ca69a` is visible on `origin/main`.
+- Worker version `34be548a-39e3-494f-9188-a4f72e4bac74` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-07&v=7ca4824`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `455026547b1a66434501bee27a912a34cc3c8e321898fe2c89b35b8029eecab7`.
+
+### Next cycle
+
+Replace the desktop debug overlay with a compact iPad-first tactical HUD. Preserve the live
+map, touch controls, building kit, simulation rules, and 60 FPS gate. Do not add a parallel
+construction, production, or combat system during the HUD checkpoint.

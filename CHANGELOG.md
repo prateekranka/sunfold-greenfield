@@ -21,6 +21,12 @@ minimap.
   and 64 additive sparks for the central objective.
 - A pure ground-navigation contract and five focused tests covering void rejection, authored
   bridge routes, disconnected islets, edge-safe formation slots, and flare route recovery.
+- Blender-authored Sunwoven Civilization Core, Farm, and Formation Yard source files and
+  optimized GLB runtime assets.
+- Healthy, damaged, critical, and destroyed compositions for each building, with restrained
+  building motion and a shared HP-to-state contract.
+- Focused building-state tests and a GLB budget validator for node names, bytes, vertices,
+  triangles, and material counts.
 
 ### Changed
 
@@ -50,6 +56,10 @@ minimap.
   and objectives attach to their owning platform. Unreachable graph searches return no path.
 - Twelve-unit movement now uses twelve unique formation slots. Slots near a fragment edge move
   inward to nearby ground instead of spilling into space.
+- The north base now uses the authored building kit. Citizens and Guards spawn on an
+  inward-facing arc, and the Matter node moved clear of the building footprints.
+- The lab and dev-site builders can target only the Helios entry. They no longer regenerate
+  unrelated dirty lab bundles during this deployment path.
 
 ### Fixed
 
@@ -97,6 +107,12 @@ minimap.
   `e175c7d42f31a3a1b22cdbaea6dc26e62714c49b103693eba1b8060bd146cc7b`. A hosted
   open-void command produced the stable-ground message, left all 12 paths empty, kept every
   unit on valid ground, and reported FPS 60.
+- Sunwoven-building commit `7ca4824` is deployed only to `dev.helios.contenthelper.in` as
+  Worker version `34be548a-39e3-494f-9188-a4f72e4bac74`.
+- Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `455026547b1a66434501bee27a912a34cc3c8e321898fe2c89b35b8029eecab7`. The hosted
+  build loaded all three healthy structures, reported FPS 60, and completed a 600-frame
+  movement, camera, and damage-state stress run without a startup exception.
 
 ### Proof pending
 
@@ -115,9 +131,10 @@ minimap.
   gate stayed below 17.8 ms after redundant animation resets were removed.
 - The molten core is a partial reference match. Its fissures remain smoother than the
   reference. The map still lacks substantial crystal islets, dense debris, and nebula depth.
-- Cycle 06 land legality is deployed and verified on the development host.
-- The current build still uses placeholder bases and a debug HUD. Blender-authored buildings,
-  damage states, and the iPad-first training HUD remain separate checkpoints.
+- Cycle 07 buildings and damage states are deployed and verified on the development host.
+- The placeholder north bases are gone. The current build still uses a debug HUD, and the
+  authored buildings do not yet match the reference's textured material richness. The
+  iPad-first tactical and training HUD remains a separate checkpoint.
 - Per user direction, Cycle 05 has no additional iPad touch check.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game
