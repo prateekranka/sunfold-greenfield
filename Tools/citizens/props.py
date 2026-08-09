@@ -108,8 +108,13 @@ def build_deposit_target(origin_x: float = 0.0, name: str = "deposit_target") ->
     return [pad, ring]
 
 
-def build_construction_frame(origin_x: float = 0.0, name: str = "construction_frame") -> list[bpy.types.Object]:
-    """Three-piece waist-high construction frame (three separate components)."""
+def build_construction_frame(origin_x: float = 0.0, name: str = "construction_frame",
+                             station: tuple[float, float] = (3.4, -1.2)) -> list[bpy.types.Object]:
+    """Three-piece waist-high construction frame (three separate components).
+
+    Placed at the construct station so idle spawn at the origin never overlaps
+    the frame pieces.
+    """
     pieces = []
     half_h = 0.475  # waist-high frame: 0.95 m tall
     positions = [(-0.55, 0.0), (0.55, 0.0), (0.0, -0.62)]
@@ -133,7 +138,7 @@ def build_construction_frame(origin_x: float = 0.0, name: str = "construction_fr
                 verts.extend(v2)
                 faces.extend(tuple(base + j for j in quad) for quad in f2)
         obj = _mesh_object(f"{name}_{i}", verts, faces, NEUTRAL_FRAME, 0.78, 0.08)
-        obj.location = (origin_x + px + 0.55, -1.6 + py, 0.0)
+        obj.location = (origin_x + station[0] + px, station[1] + py, 0.0)
         pieces.append(obj)
     return pieces
 

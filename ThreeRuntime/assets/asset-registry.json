@@ -6,9 +6,15 @@
       "id": "sunwoven.citizen.foundation",
       "representation": "directionalSprite",
       "scaleMeters": 1.8,
-      "clips": ["idle", "walk", "gather", "carry"],
+      "clips": [
+        "idle",
+        "walk",
+        "gather",
+        "carry",
+        "build"
+      ],
       "factionMask": true,
-      "spriteSheet": "sunwoven-golden",
+      "spriteSheet": "village-manbun-wanderer",
       "fallback": "procedural.citizen",
       "clipMap": {
         "gather": "gather_loop"
@@ -31,7 +37,7 @@
         },
         {
           "kind": "sprite",
-          "spriteSheet": "sunwoven-golden",
+          "spriteSheet": "village-manbun-wanderer",
           "minScreenFraction": 0.022
         },
         {
@@ -44,9 +50,15 @@
       "id": "sunwoven.citizen.voyager",
       "representation": "directionalSprite",
       "scaleMeters": 1.8,
-      "clips": ["idle", "walk", "gather", "carry"],
+      "clips": [
+        "idle",
+        "walk",
+        "gather",
+        "carry",
+        "build"
+      ],
       "factionMask": true,
-      "spriteSheet": "sunwoven-golden",
+      "spriteSheet": "village-manbun-wanderer",
       "fallback": "sunwoven.citizen.foundation",
       "clipMap": {
         "gather": "gather_loop"
@@ -69,7 +81,7 @@
         },
         {
           "kind": "sprite",
-          "spriteSheet": "sunwoven-golden",
+          "spriteSheet": "village-manbun-wanderer",
           "minScreenFraction": 0.022
         },
         {
@@ -498,6 +510,24 @@
         "death"
       ],
       "factionMask": true
+    }
+  },
+  "pipelineUnits": {
+    "_note": "Authored by sprite-from-ref register stage; logical packaging index.",
+    "village-manbun-wanderer": {
+      "unit": "village-manbun-wanderer",
+      "spriteSheet": "village-manbun-wanderer",
+      "clips": [
+        "idle",
+        "walk",
+        "carry",
+        "gather",
+        "build"
+      ],
+      "atlas": "citizens/sprites/village-manbun-wanderer/runtime-atlas.png",
+      "manifest": "citizens/sprites/village-manbun-wanderer/atlas-manifest.json",
+      "status": "packaged",
+      "updatedAt": "2026-08-09"
     }
   }
 }

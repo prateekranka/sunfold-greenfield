@@ -1,0 +1,62 @@
+{
+  "view": "S",
+  "facingHint": "south, the figure faces the camera",
+  "source": "cutouts/front-alpha.png",
+  "figureBox": [301, 71, 1155, 1311],
+  "groundLine": 1.0,
+  "centreLine": 0.466,
+  "cutThickness": 0.005,
+  "note": "Arm A is the tool arm (the figure's left, holding the sickle). Arm B is the free arm (the figure's right, open hand beside the pail). All values are normalized to the figure box and were measured off silhouette row/column scans, not guessed. The back basket is deliberately part of `torso`: it is strapped to the back and never moves independently in the core-four clips, and separating it would cost accuracy at every shoulder for no visible gain. The sickle is deliberately part of `armA_hand` for the same reason: hand and tool rotate together about the wrist.",
+  "fallback": "torso",
+  "cuts": [
+    { "id": "neck", "from": [0.380, 0.134], "to": [0.548, 0.134] },
+    { "id": "shoulderA-cap", "from": [0.705, 0.145], "to": [0.632, 0.245] },
+    { "id": "shoulderA-armhole", "from": [0.632, 0.245], "to": [0.681, 0.372] },
+    { "id": "shoulderB-cap", "from": [0.227, 0.145], "to": [0.300, 0.245] },
+    { "id": "shoulderB-armhole", "from": [0.300, 0.245], "to": [0.241, 0.372] },
+    { "id": "elbowA", "from": [0.674, 0.441], "to": [0.814, 0.309] },
+    { "id": "wristA", "from": [0.778, 0.530], "to": [0.888, 0.410] },
+    { "id": "elbowB", "from": [0.118, 0.309], "to": [0.258, 0.441] },
+    { "id": "wristB", "from": [0.038, 0.410], "to": [0.148, 0.530] },
+    { "id": "waist", "from": [0.240, 0.418], "to": [0.690, 0.418] },
+    { "id": "skirtHem", "from": [0.225, 0.668], "to": [0.675, 0.668] },
+    { "id": "crotch", "from": [0.470, 0.660], "to": [0.470, 0.775] },
+    { "id": "kneeA", "from": [0.495, 0.782], "to": [0.660, 0.778] },
+    { "id": "kneeB", "from": [0.275, 0.778], "to": [0.440, 0.782] },
+    { "id": "ankleA", "from": [0.530, 0.932], "to": [0.660, 0.928] },
+    { "id": "ankleB", "from": [0.280, 0.928], "to": [0.410, 0.932] }
+  ],
+  "parts": [
+    {
+      "id": "pail",
+      "parent": "pelvis",
+      "z": 36,
+      "pivot": [0.205, 0.452],
+      "capRadius": 0.0,
+      "regions": [
+        [[0.140, 0.478], [0.152, 0.450], [0.190, 0.438], [0.255, 0.438],
+         [0.276, 0.470], [0.276, 0.606], [0.140, 0.606]]
+      ]
+    },
+    { "id": "head", "parent": "torso", "z": 40, "pivot": [0.462, 0.142], "capRadius": 0.020, "seeds": [[0.462, 0.070]] },
+
+    { "id": "armA_upper", "parent": "torso", "z": 60, "pivot": [0.618, 0.228], "capRadius": 0.030, "dilate": 0.018, "seeds": [[0.680, 0.320]] },
+    { "id": "armA_fore",  "parent": "armA_upper", "z": 61, "pivot": [0.744, 0.375], "capRadius": 0.024, "dilate": 0.014, "seeds": [[0.760, 0.410]] },
+    { "id": "armA_hand",  "parent": "armA_fore",  "z": 62, "pivot": [0.833, 0.470], "capRadius": 0.020, "seeds": [[0.860, 0.520]] },
+
+    { "id": "armB_upper", "parent": "torso", "z": 44, "pivot": [0.314, 0.228], "capRadius": 0.030, "dilate": 0.018, "seeds": [[0.250, 0.320]] },
+    { "id": "armB_fore",  "parent": "armB_upper", "z": 45, "pivot": [0.188, 0.375], "capRadius": 0.024, "dilate": 0.014, "seeds": [[0.140, 0.410]] },
+    { "id": "armB_hand",  "parent": "armB_fore",  "z": 46, "pivot": [0.093, 0.470], "capRadius": 0.020, "seeds": [[0.078, 0.500]] },
+
+    { "id": "legA_thigh", "parent": "pelvis",     "z": 15, "pivot": [0.540, 0.520], "capRadius": 0.032, "dilate": 0.022, "seeds": [[0.575, 0.720]] },
+    { "id": "legA_shin",  "parent": "legA_thigh", "z": 16, "pivot": [0.578, 0.780], "capRadius": 0.026, "dilate": 0.014, "seeds": [[0.580, 0.850]] },
+    { "id": "legA_foot",  "parent": "legA_shin",  "z": 17, "pivot": [0.590, 0.930], "capRadius": 0.020, "seeds": [[0.590, 0.965]] },
+
+    { "id": "legB_thigh", "parent": "pelvis",     "z": 10, "pivot": [0.400, 0.520], "capRadius": 0.032, "dilate": 0.022, "seeds": [[0.360, 0.720]] },
+    { "id": "legB_shin",  "parent": "legB_thigh", "z": 11, "pivot": [0.358, 0.780], "capRadius": 0.026, "dilate": 0.014, "seeds": [[0.345, 0.850]] },
+    { "id": "legB_foot",  "parent": "legB_shin",  "z": 12, "pivot": [0.340, 0.930], "capRadius": 0.020, "seeds": [[0.335, 0.965]] },
+
+    { "id": "pelvis", "parent": null, "z": 34, "pivot": [0.466, 0.500], "capRadius": 0.0, "dilate": 0.034, "seeds": [[0.466, 0.560], [0.250, 0.690]] },
+    { "id": "torso",  "parent": "pelvis", "z": 30, "pivot": [0.466, 0.418], "capRadius": 0.028, "dilate": 0.04, "seeds": [[0.466, 0.300]] }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "view": "E",
+  "facingHint": "east, the figure stands in profile facing screen-right",
+  "source": "cutouts/side-props-alpha.png",
+  "figureBox": [674, 96, 1055, 1255],
+  "targetHeight": 1240,
+  "key": [15, 26, 47],
+  "keyTolerance": 34,
+  "keyMinArea": 400,
+  "groundLine": 1.0,
+  "centreLine": 0.470,
+  "cutThickness": 0.005,
+  "note": "The side sheet draws the figure bare and the basket, pail and sickle as loose objects, so those three are placed with `propSource` instead of carved out. Two things about this view are deliberate cheats, both standard for an eight-facing sprite set. First, the tool: a figure facing screen-right shows the camera its RIGHT side, so its left hand - the sickle hand in the S and N rigs - is the far hand and would be hidden behind the body. The sickle is given to the near arm instead so the unit stays readable in the facing an RTS player sees most. Second, the arms: they overlap the torso down to y 0.47, so a cut that follows the paint leaves a thin wedge. Each arm is cut generously into the torso and the torso is dilated back under it, which is why every arm carries a `dilate` of its own. Both arms and the far leg are cut from real paint, not cloned; only the far side is shaded down.",
+  "fallback": "torso",
+  "cuts": [
+    { "id": "neck", "from": [0.270, 0.170], "to": [0.610, 0.170] },
+
+    { "id": "shoulderA-cap", "from": [0.480, 0.166], "to": [0.560, 0.270] },
+    { "id": "shoulderA-armhole", "from": [0.560, 0.270], "to": [0.755, 0.474] },
+    { "id": "elbowA", "from": [0.589, 0.364], "to": [0.869, 0.336] },
+    { "id": "wristA", "from": [0.707, 0.447], "to": [0.917, 0.425] },
+
+    { "id": "shoulderB-cap", "from": [0.440, 0.166], "to": [0.370, 0.270] },
+    { "id": "shoulderB-armhole", "from": [0.370, 0.270], "to": [0.208, 0.474] },
+    { "id": "elbowB", "from": [0.009, 0.320], "to": [0.373, 0.368] },
+    { "id": "wristB", "from": [-0.076, 0.406], "to": [0.266, 0.450] },
+
+    { "id": "waist", "from": [0.225, 0.430], "to": [0.730, 0.430] },
+    { "id": "skirtHem", "from": [0.170, 0.660], "to": [0.780, 0.660] },
+    { "id": "crotch", "from": [0.435, 0.650], "to": [0.435, 0.902] },
+
+    { "id": "kneeB", "from": [0.150, 0.792], "to": [0.440, 0.788] },
+    { "id": "kneeA", "from": [0.430, 0.788], "to": [0.700, 0.792] },
+    { "id": "ankleB", "from": [0.150, 0.902], "to": [0.440, 0.898] },
+    { "id": "ankleA", "from": [0.430, 0.898], "to": [0.700, 0.894] },
+    { "id": "footSplit", "from": [0.435, 0.898], "to": [0.560, 1.000] }
+  ],
+  "parts": [
+    { "id": "legA_thigh", "parent": "pelvis",     "z": 10, "pivot": [0.540, 0.690], "capRadius": 0.032, "dilate": 0.022, "shade": 0.84, "seeds": [[0.560, 0.720]] },
+    { "id": "legA_shin",  "parent": "legA_thigh", "z": 11, "pivot": [0.490, 0.790], "capRadius": 0.026, "dilate": 0.014, "shade": 0.84, "seeds": [[0.490, 0.840]] },
+    { "id": "legA_foot",  "parent": "legA_shin",  "z": 12, "pivot": [0.480, 0.895], "capRadius": 0.020, "shade": 0.84, "seeds": [[0.700, 0.955]] },
+
+    {
+      "id": "basket", "parent": "torso", "z": 16, "pivot": [0.240, 0.300],
+      "propSource": {
+        "image": "cutouts/side-props-alpha.png",
+        "box": [95, 232, 380, 636],
+        "key": [15, 26, 47], "keyTolerance": 34, "keyMinArea": 400
+      },
+      "place": [0.030, 0.180, 0.315, 0.495],
+      "fit": "stretch"
+    },
+
+    { "id": "armB_upper", "parent": "torso",      "z": 20, "pivot": [0.315, 0.245], "capRadius": 0.030, "dilate": 0.022, "restAngle": 12, "shade": 0.86, "seeds": [[0.230, 0.300]] },
+    { "id": "armB_fore",  "parent": "armB_upper", "z": 21, "pivot": [0.191, 0.344], "capRadius": 0.024, "dilate": 0.018, "shade": 0.86, "seeds": [[0.150, 0.390]] },
+    { "id": "armB_hand",  "parent": "armB_fore",  "z": 22, "pivot": [0.095, 0.428], "capRadius": 0.020, "shade": 0.86, "seeds": [[0.060, 0.490]] },
+
+    { "id": "legB_thigh", "parent": "pelvis",     "z": 24, "pivot": [0.330, 0.690], "capRadius": 0.032, "dilate": 0.022, "seeds": [[0.300, 0.720]] },
+    { "id": "legB_shin",  "parent": "legB_thigh", "z": 25, "pivot": [0.310, 0.790], "capRadius": 0.026, "dilate": 0.014, "seeds": [[0.300, 0.840]] },
+    { "id": "legB_foot",  "parent": "legB_shin",  "z": 26, "pivot": [0.300, 0.900], "capRadius": 0.020, "seeds": [[0.250, 0.955]] },
+
+    { "id": "torso",  "parent": "pelvis", "z": 30, "pivot": [0.470, 0.430], "capRadius": 0.028, "dilate": 0.050, "seeds": [[0.470, 0.280]] },
+    { "id": "pelvis", "parent": null,     "z": 34, "pivot": [0.470, 0.510], "capRadius": 0.0,   "dilate": 0.036, "seeds": [[0.470, 0.570]] },
+
+    {
+      "id": "pail", "parent": "pelvis", "z": 36, "pivot": [0.415, 0.470],
+      "propSource": {
+        "image": "cutouts/side-props-alpha.png",
+        "box": [332, 753, 561, 1198],
+        "key": [15, 26, 47], "keyTolerance": 34, "keyMinArea": 400
+      },
+      "place": [0.300, 0.455, 0.530, 0.625]
+    },
+
+    { "id": "head", "parent": "torso", "z": 40, "pivot": [0.440, 0.175], "capRadius": 0.020, "seeds": [[0.440, 0.080]] },
+
+    { "id": "armA_upper", "parent": "torso",      "z": 60, "pivot": [0.630, 0.245], "capRadius": 0.030, "dilate": 0.022, "restAngle": -8, "seeds": [[0.700, 0.300]] },
+    { "id": "armA_fore",  "parent": "armA_upper", "z": 61, "pivot": [0.729, 0.350], "capRadius": 0.024, "dilate": 0.018, "seeds": [[0.760, 0.400]] },
+    { "id": "armA_hand",  "parent": "armA_fore",  "z": 62, "pivot": [0.812, 0.436], "capRadius": 0.020, "seeds": [[0.860, 0.490]] },
+
+    {
+      "id": "sickle", "parent": "armA_hand", "z": 63, "pivot": [0.812, 0.446],
+      "propSource": {
+        "image": "cutouts/side-props-alpha.png",
+        "box": [1126, 672, 1314, 1234],
+        "key": [15, 26, 47], "keyTolerance": 34, "keyMinArea": 400
+      },
+      "place": [0.688, 0.436, 0.952, 0.696],
+      "placeRotate": 180
+    }
+  ]
+}

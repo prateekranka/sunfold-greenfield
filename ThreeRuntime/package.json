@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "build:labs": "node scripts/build-labs.mjs",
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {

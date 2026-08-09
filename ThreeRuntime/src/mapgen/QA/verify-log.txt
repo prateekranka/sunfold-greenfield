@@ -1,0 +1,47 @@
+
+=== riverlands (seed 20260726) ===
+  PASS  A1 coverage 75-80%           79.1%
+  PASS  A2 cores equidistant         34.9/34.9
+  PASS  A3 aether gated off home     5 aether
+  PASS  A4 deposits on land          21 deposits
+  PASS  A5 docks on coast            5 docks
+  PASS  A6 spars only over void      19 spars
+  PASS  A7 relief/plazas             max 1.81 plaza 0.000
+  PASS  A8 determinism               a78bb4a3
+  PASS  A9 expansion->Dominion open  land/land
+  PASS  A10 strike route home<->home land route
+  PASS  A11 dormant lanes docked + wet 2 lanes wet
+  spars per lane: hs-es:2(d)  hg-eg:2(d)  es-do:7  eg-do:8
+  docks: hs@(-40,25)  es@(-47,28)  hg@(40,-25)  eg@(47,-28)  do@(-10,5)
+
+=== basin (seed 20260726) ===
+  PASS  A1 coverage 75-80%           77.5%
+  PASS  A2 cores equidistant         34.9/34.9
+  PASS  A3 aether gated off home     5 aether
+  PASS  A4 deposits on land          21 deposits
+  PASS  A5 docks on coast            5 docks
+  PASS  A6 spars only over void      17 spars
+  PASS  A7 relief/plazas             max 1.59 plaza 0.000
+  PASS  A8 determinism               1e563ad2
+  PASS  A9 expansion->Dominion open  causeway/causeway
+  PASS  A10 strike route home<->home land route
+  PASS  A11 dormant lanes docked + wet 2 lanes wet
+  spars per lane: hs-es:2(d)  hg-eg:3(d)  es-do:8  eg-do:4
+  docks: hs@(-41,17)  es@(-50,22)  hg@(41,-17)  eg@(50,-22)  do@(-5,2)
+
+=== fjords (seed 20260726) ===
+  PASS  A1 coverage 75-80%           78.4%
+  PASS  A2 cores equidistant         34.9/34.9
+  PASS  A3 aether gated off home     5 aether
+  PASS  A4 deposits on land          21 deposits
+  PASS  A5 docks on coast            4 docks
+  PASS  A6 spars only over void      6 spars
+  PASS  A7 relief/plazas             max 1.78 plaza 0.000
+  PASS  A8 determinism               e5313e4b
+  PASS  A9 expansion->Dominion open  land/land
+  PASS  A10 strike route home<->home land route
+  PASS  A11 dormant lanes docked + wet 2 lanes wet
+  spars per lane: hs-es:3(d)  hg-eg:3(d)  es-do:0  eg-do:0
+  docks: hs@(-41,19)  es@(-47,28)  hg@(41,-19)  eg@(47,-28)
+
+ALL LAYOUTS PASS

@@ -1,0 +1,29 @@
+All evidence gathered. Two independent art-direction passes per frame plus a zoom verification on the weaker frame's terrain. Verdict below.
+
+---
+
+## BLIND CRITIC VERDICT
+
+### 1. Stronger AAA iPad frame: **frame-2** (decisively)
+
+Frame-2 clears the art-direction bar almost everywhere: true-black void with subtle purple nebula, warm golden key light with actual rim highlights, sparse stars, ivory/saffron/gold palette with restrained turquoise accents, floating island framed with void visible on all sides, and — critically — **finished hero assets**: an ornate central pavilion, golden filigree inlaid in the terrain, crop plots, a glowing crystal node, and worker units with selection rings/health bars. A vision critic rates it *alpha quality*, 7/8 criteria PASS, readable as a real strategy game screenshot.
+
+Frame-1 has the same concept DNA (void, nebula, warm sphere, island framing — its backdrop is genuinely good), but everything resting on that backdrop is a placeholder.
+
+### 2. Single biggest gap in the weaker frame (frame-1): **placeholder geometry / fidelity**
+
+It is a greenbox: flat modular sand-colored tiles with visible grid seams, a lone white dome, white pawn figures, and wooden ladder bridges spanning tiny pits — zoom-in confirms "graybox prototype quality." No finished asset exists in the frame, so it reads as a level-editor test view, not a game frame; no amount of good nebula washes over that.
+
+### 3. Top 3 improvements for frame-1, by impact
+
+1. **Replace every graybox asset with finished Sunwoven hero assets** — an ornate ivory-and-gold pavilion, filigree-inlaid terrain with luminous glow seams, real resource nodes (crops, crystal), dressed unit models. This single swap is the entire gap; nothing else matters until the frame contains at least one asset that looks shipped.
+2. **Delete the platformer vocabulary and re-sculpt the island** — kill the modular tile grid and wooden ladder-bridge micro-gaps; the island must read as one carved golden-stone continent with broken, irregular, rim-lit edges and elevation variation, not a chessboard of beige squares (the bar explicitly bans "flat beige desert" terrain).
+3. **Finish the lighting** — the warm key exists but rim light is faint and shadows are harsh black cutouts; add the gentle luminous rim band on fragment edges and soften shadow falloff so the island reads as an *object lit in space* rather than a lit graybox.
+
+---
+
+**Process notes:**
+- Did NOT open `answer.txt` (sealed, ignored).
+- Ran 2 vision passes per frame via modlens/gemini-api (general + art-bible-graded), plus a terrain zoom crop on frame-1.
+- Created only temp evidence files: `/tmp/crit-1.json`, `/tmp/crit-2.json`, `/tmp/crit-1b.json`, `/tmp/crit-2b.json`, `/tmp/crit-1-zoom.png/.json`.
+- No issues beyond one transient modlens output-write miss (retried successfully).

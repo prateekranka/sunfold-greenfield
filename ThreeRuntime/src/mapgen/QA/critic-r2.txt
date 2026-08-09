@@ -1,0 +1,30 @@
+All evidence gathered and cross-verified (vision bridge on full frame + 4 crops at 2x zoom, plus pixel-level analysis). Delivering the verdict.
+
+---
+
+## CRITIC REPORT — Round 2, r5b-opening.png vs 01-sunwoven-foundation-opening.png
+
+**Method:** modlens (gemini-api) on the full frame + 4 zoom crops (core, span, pavilion 2×, lower-left 2×, reference core 2×), cross-checked with pixel analysis (quantized-color counts, edge/gradient density, hue distribution, void fraction). The same vision pass that correctly praised the reference's filigree tents, robed citizens, and rocky cliffs reads r5b as primitives — and the numbers agree, so this is not vision-model bias.
+
+### 1. Verdict on the previous gaps — did placeholder-geometry CLOSE?
+
+- **Terrain: NO.** Still flat sand tiles with visible seams, a sawtooth/zigzag coast rim, and a flat featureless gray slab underside. Three independent vision passes say "flat rectangular platform"; the claimed "terrain relief / coast rim" rework is not visible at any zoom.
+- **Core building: NO.** Still a smooth white sphere on stacked cylinder disks. Zero surface detail: 342 quantized colors in the r5b pavilion region vs 809 in the reference's pavilion; strong-edge pixels 0.4% vs 3.0% — it is a plain gradient, not an asset. No panels, trim, woven pattern, or glow seam.
+- **Units: NO.** Still white cones, small spheres, and glowing orbs wearing cyan selection rings. No character models, no limbs/robes, nothing reading as a citizen.
+- **Resource nodes: PARTIAL.** Real low-poly crystal clusters now exist alongside the old billboard glowing orbs — first genuine non-primitive props in the frame, but the orbs dilute it.
+- **Causeways: PARTIAL.** Wooden planks → glowing step-box decks tethered by thin wireframe rings. Direction right, execution still primitive boxes.
+- **Lighting/shadows: PARTIAL.** Warm gold key confirmed numerically (33% of saturated pixels in the 30–60° band) and a luminous gold rim now runs along the island edge — the bible's two big lighting items landed. But bloom is blown out (harsh point-light halos), there are no soft shadows/AO, and turquoise accents are at **0.0%** of saturated pixels.
+
+**Bottom line: the gap did NOT close — it narrowed.** Backdrop was already good and stays good; everything the blind critic flagged as graybox is still graybox at 2× zoom.
+
+### 2. Single biggest remaining gap
+
+**TERRAIN / ISLAND SHELL (relief, coast rim, underside).** The island occupies ~60% of the frame and still reads as a flat tiled board cut with sawtooth edges and a gray slab side — it is the reference's signature element ("ivory-and-gold island suspended in deep space," sculpted rocky fragment with cracked stone, grass, cliff faces) and the exact "graybox board" the reference exists to refute; until the ground itself reads as a carved rock fragment in space, no prop polish can make the frame read as shipped.
+
+### 3. Top 3 concrete fixes (ordered by impact)
+
+1. **Rebuild the island shell, not the texture.** Replace the flat tile plane + zigzag coast with a sculpted fragment: height-mapped relief on the surface (dune undulation, cracked-stone/sand blend, a few grass or golden-bush clusters), an organic noise-beveled coast rim instead of sawtooth steps, and a tapered carved under-side with strata/rock color instead of the gray slab extrusion. This kills the "game board" read that dominates the frame.
+2. **Ship the core pavilion.** The focal object must become the Sunwoven signature: layered ivory/saffron canopy with woven-gold filigree frame, luminous glow seams along canopy edges, a central spire, and restrained turquoise banner accents (which are currently 0.0% of the palette — the bible requires them). Add material differentiation + soft shadows/AO under it; target the reference's ~800 vs current ~340 color count in that region.
+3. **Replace unit figures and rein in the bloom.** Swap the cones/orbs/pawns for hooded-robed citizen models (white robes, teal accents, staff tools — the reference shows them plainly) with soft shadow blobs beneath; and replace the overexposed point-light halos with the bible's scheme: keep the warm 34° key + luminous rim, kill the lightbulb bloom so glows read as woven-gold seams, and add turquoise to nodes/banners for the palette's third chord.
+
+**Files created:** `/tmp/mapgen-shots/crops/*` (5 crops), `/tmp/c2-*.json` (7 modlens passes), `/tmp/mapgen-shots/analyze.py`. No issues encountered.

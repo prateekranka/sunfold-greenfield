@@ -1,0 +1,895 @@
+{
+  "schema": "sunfold.cutout-clips/2",
+  "note": "Poses are authored once in profile semantics, as if the figure faced screen-right, and every facing scales them through `viewGain`. Positive degrees are counter-clockwise on screen: a limb pointing down swings toward screen-right. Timing follows the AoE2 measurements already recorded in Docs/Architecture/aoe2-sprite-pipeline.md - walk 4 keys at 10 fps, gather and build 6 keys at 5 fps.",
+  "gainNote": "`reachA`/`reachB` are separate and signed because the two arms need OPPOSITE rotations in a frontal view. In profile both arms reach forward with the same sign; face the camera and the same rotation that brings the screen-right arm down across the body throws the screen-left arm up and out. The sign flips again for the back view, where the tool arm reads on the other side of the screen. Walk legs no longer use FK `foot`/`swing` gains \u2014 they are driven by cyninja-style gait IK (`stride`/`lift` scaled by those keys so profile keeps a full stride while frontal facings scissor).",
+  "viewGain": {
+    "S": {
+      "swing": 0.42,
+      "bob": 0.55,
+      "twist": 1.0,
+      "lean": 0.3,
+      "reachA": -0.72,
+      "reachB": 0.72,
+      "stride": 0.22,
+      "lift": 0.4,
+      "bendA": 1.0,
+      "bendB": -1.0
+    },
+    "SE": {
+      "swing": 0.72,
+      "bob": 0.7,
+      "twist": 0.9,
+      "lean": 0.6,
+      "reachA": -0.82,
+      "reachB": 0.82,
+      "stride": 0.6,
+      "lift": 0.65,
+      "bendA": 1.0,
+      "bendB": -1.0
+    },
+    "E": {
+      "swing": 1.0,
+      "bob": 1.0,
+      "twist": 0.45,
+      "lean": 1.0,
+      "reachA": 1.0,
+      "reachB": 1.0,
+      "stride": 1.0,
+      "lift": 1.0,
+      "bendA": 1.0,
+      "bendB": 1.0
+    },
+    "NE": {
+      "swing": 0.72,
+      "bob": 0.7,
+      "twist": 0.9,
+      "lean": 0.6,
+      "reachA": 0.82,
+      "reachB": -0.82,
+      "stride": 0.6,
+      "lift": 0.65,
+      "bendA": -1.0,
+      "bendB": 1.0
+    },
+    "N": {
+      "swing": 0.42,
+      "bob": 0.55,
+      "twist": 1.0,
+      "lean": 0.3,
+      "reachA": 0.72,
+      "reachB": -0.72,
+      "stride": 0.22,
+      "lift": 0.4,
+      "bendA": -1.0,
+      "bendB": 1.0
+    }
+  },
+  "clips": {
+    "idle": {
+      "fps": 3,
+      "loop": true,
+      "note": "Gentle breathing. AoE2 villagers idle almost still; this keeps a unit from reading as a frozen decal without pulling the eye.",
+      "frames": [
+        {
+          "root": [
+            0,
+            0
+          ],
+          "angles": {
+            "torso": 0,
+            "head": 0,
+            "armA_upper": 0,
+            "armB_upper": 0,
+            "pail": 0
+          }
+        },
+        {
+          "root": [
+            0,
+            -0.0028
+          ],
+          "angles": {
+            "torso": [
+              "twist",
+              0.8
+            ],
+            "head": [
+              "twist",
+              -0.5
+            ],
+            "armA_upper": 1.4,
+            "armB_upper": -1.4,
+            "pail": 2.0
+          }
+        },
+        {
+          "root": [
+            0,
+            -0.004
+          ],
+          "angles": {
+            "torso": [
+              "twist",
+              0.3
+            ],
+            "head": [
+              "twist",
+              -0.2
+            ],
+            "armA_upper": 2.0,
+            "armB_upper": -2.0,
+            "pail": 0.5
+          }
+        },
+        {
+          "root": [
+            0,
+            -0.0018
+          ],
+          "angles": {
+            "torso": [
+              "twist",
+              -0.5
+            ],
+            "head": [
+              "twist",
+              0.4
+            ],
+            "armA_upper": 0.8,
+            "armB_upper": -0.8,
+            "pail": -1.5
+          }
+        }
+      ]
+    },
+    "walk": {
+      "fps": 10,
+      "loop": true,
+      "note": "AoE contact/pass walk. Shared plant center (no per-ankle orbit stutter). Continuous swing Y. Foot-only ground pin. No root-Y bob. 400 ms.",
+      "events": {
+        "footfall": [
+          0,
+          2
+        ]
+      },
+      "gait": {
+        "stride": 205.0,
+        "lift": 72.0,
+        "contact": 0.58,
+        "phaseA": 0.5,
+        "phaseB": 0.0,
+        "bendA": 1.0,
+        "bendB": 1.0,
+        "plantDrop": 58.0,
+        "phaseBias": 0.03,
+        "source": "godot-gait lab + tvanhens/cyninja-prompt-demo — large plantDrop so stride survives 1680→256 downscale"
+      },
+      "frames": [
+        {
+          "root": [
+            0,
+            0
+          ],
+          "angles": {
+            "armB_upper": [
+              "swing",
+              28
+            ],
+            "armB_fore": [
+              "swing",
+              14
+            ],
+            "armA_upper": [
+              "swing",
+              -26
+            ],
+            "armA_fore": [
+              "swing",
+              -12
+            ],
+            "armA_hand": [
+              "swing",
+              -4
+            ],
+            "torso": [
+              "lean",
+              -5.5
+            ],
+            "head": [
+              "twist",
+              1.2
+            ],
+            "pail": [
+              "swing",
+              10
+            ]
+          }
+        },
+        {
+          "root": [
+            0,
+            0
+          ],
+          "angles": {
+            "armB_upper": [
+              "swing",
+              8
+            ],
+            "armB_fore": [
+              "swing",
+              4
+            ],
+            "armA_upper": [
+              "swing",
+              -8
+            ],
+            "armA_fore": [
+              "swing",
+              -3
+            ],
+            "armA_hand": [
+              "swing",
+              -1
+            ],
+            "torso": [
+              "lean",
+              -4.0
+            ],
+            "head": [
+              "twist",
+              0.4
+            ],
+            "pail": [
+              "swing",
+              -3
+            ]
+          }
+        },
+        {
+          "root": [
+            0,
+            0
+          ],
+          "angles": {
+            "armA_upper": [
+              "swing",
+              28
+            ],
+            "armA_fore": [
+              "swing",
+              14
+            ],
+            "armA_hand": [
+              "swing",
+              5
+            ],
+            "armB_upper": [
+              "swing",
+              -26
+            ],
+            "armB_fore": [
+              "swing",
+              -12
+            ],
+            "torso": [
+              "lean",
+              -5.5
+            ],
+            "head": [
+              "twist",
+              -1.2
+            ],
+            "pail": [
+              "swing",
+              -10
+            ]
+          }
+        },
+        {
+          "root": [
+            0,
+            0
+          ],
+          "angles": {
+            "armA_upper": [
+              "swing",
+              8
+            ],
+            "armA_fore": [
+              "swing",
+              4
+            ],
+            "armA_hand": [
+              "swing",
+              1
+            ],
+            "armB_upper": [
+              "swing",
+              -8
+            ],
+            "armB_fore": [
+              "swing",
+              -3
+            ],
+            "torso": [
+              "lean",
+              -4.0
+            ],
+            "head": [
+              "twist",
+              -0.4
+            ],
+            "pail": [
+              "swing",
+              3
+            ]
+          }
+        }
+      ]
+    },
+    "gather": {
+      "fps": 5,
+      "loop": true,
+      "note": "Ground-locked sickle reap. No leg FK. Hips shift BACK on lean (negative root X) so CoG stays over feet. Even ~38\u00b0 sickle steps, wind-up clears backpack. 1200 ms.",
+      "events": {
+        "gatherContact": [
+          3
+        ]
+      },
+      "frames": [
+        {
+          "root": [
+            -0.004,
+            0
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -8
+            ],
+            "head": [
+              "lean",
+              -3
+            ],
+            "armA_upper": [
+              "reachA",
+              -110
+            ],
+            "armA_fore": [
+              "reachA",
+              -38
+            ],
+            "armA_hand": [
+              "reachA",
+              -14
+            ],
+            "armB_upper": [
+              "reachB",
+              18
+            ],
+            "armB_fore": [
+              "reachB",
+              8
+            ],
+            "pail": 4
+          }
+        },
+        {
+          "root": [
+            -0.008,
+            0
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -12
+            ],
+            "head": [
+              "lean",
+              -5
+            ],
+            "armA_upper": [
+              "reachA",
+              -88
+            ],
+            "armA_fore": [
+              "reachA",
+              -32
+            ],
+            "armA_hand": [
+              "reachA",
+              -12
+            ],
+            "armB_upper": [
+              "reachB",
+              24
+            ],
+            "armB_fore": [
+              "reachB",
+              10
+            ],
+            "pail": 2
+          }
+        },
+        {
+          "root": [
+            -0.012,
+            0
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -18
+            ],
+            "head": [
+              "lean",
+              -8
+            ],
+            "armA_upper": [
+              "reachA",
+              -42
+            ],
+            "armA_fore": [
+              "reachA",
+              -14
+            ],
+            "armA_hand": [
+              "reachA",
+              -4
+            ],
+            "armB_upper": [
+              "reachB",
+              34
+            ],
+            "armB_fore": [
+              "reachB",
+              16
+            ],
+            "pail": 0
+          }
+        },
+        {
+          "root": [
+            -0.018,
+            0
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -26
+            ],
+            "head": [
+              "lean",
+              -12
+            ],
+            "armA_upper": [
+              "reachA",
+              22
+            ],
+            "armA_fore": [
+              "reachA",
+              10
+            ],
+            "armA_hand": [
+              "reachA",
+              10
+            ],
+            "armB_upper": [
+              "reachB",
+              42
+            ],
+            "armB_fore": [
+              "reachB",
+              22
+            ],
+            "pail": -3
+          }
+        },
+        {
+          "root": [
+            -0.012,
+            0
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -18
+            ],
+            "head": [
+              "lean",
+              -8
+            ],
+            "armA_upper": [
+              "reachA",
+              -6
+            ],
+            "armA_fore": [
+              "reachA",
+              -4
+            ],
+            "armA_hand": [
+              "reachA",
+              2
+            ],
+            "armB_upper": [
+              "reachB",
+              32
+            ],
+            "armB_fore": [
+              "reachB",
+              14
+            ],
+            "pail": -1
+          }
+        },
+        {
+          "root": [
+            -0.006,
+            0
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -10
+            ],
+            "head": [
+              "lean",
+              -4
+            ],
+            "armA_upper": [
+              "reachA",
+              -70
+            ],
+            "armA_fore": [
+              "reachA",
+              -26
+            ],
+            "armA_hand": [
+              "reachA",
+              -10
+            ],
+            "armB_upper": [
+              "reachB",
+              22
+            ],
+            "armB_fore": [
+              "reachB",
+              10
+            ],
+            "pail": 2
+          }
+        }
+      ]
+    },
+    "build": {
+      "fps": 5,
+      "loop": true,
+      "note": "Overhead strike. Tool arm rises on frame 0, tops out on 1, drives down through 2, lands on 3, settles on 4 and lifts again on 5. The free arm holds the work steady throughout. 1200 ms per cycle.",
+      "events": {
+        "constructContact": [
+          3
+        ]
+      },
+      "frames": [
+        {
+          "root": [
+            0.002,
+            0.005
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -5
+            ],
+            "head": [
+              "lean",
+              -3
+            ],
+            "armA_upper": [
+              "reachA",
+              -72
+            ],
+            "armA_fore": [
+              "reachA",
+              -32
+            ],
+            "armA_hand": [
+              "reachA",
+              -12
+            ],
+            "armB_upper": [
+              "reachB",
+              34
+            ],
+            "armB_fore": [
+              "reachB",
+              -22
+            ],
+            "legA_thigh": [
+              "swing",
+              -9
+            ],
+            "legA_shin": [
+              "swing",
+              14
+            ],
+            "legB_thigh": [
+              "swing",
+              7
+            ],
+            "legB_shin": [
+              "swing",
+              10
+            ],
+            "pail": 2
+          }
+        },
+        {
+          "root": [
+            0.0,
+            0.001
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              6
+            ],
+            "head": [
+              "lean",
+              3
+            ],
+            "armA_upper": [
+              "reachA",
+              -126
+            ],
+            "armA_fore": [
+              "reachA",
+              -58
+            ],
+            "armA_hand": [
+              "reachA",
+              -18
+            ],
+            "armB_upper": [
+              "reachB",
+              32
+            ],
+            "armB_fore": [
+              "reachB",
+              -20
+            ],
+            "legA_thigh": [
+              "swing",
+              -8
+            ],
+            "legA_shin": [
+              "swing",
+              12
+            ],
+            "legB_thigh": [
+              "swing",
+              7
+            ],
+            "legB_shin": [
+              "swing",
+              9
+            ],
+            "pail": -2
+          }
+        },
+        {
+          "root": [
+            0.004,
+            0.011
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -10
+            ],
+            "head": [
+              "lean",
+              -6
+            ],
+            "armA_upper": [
+              "reachA",
+              -18
+            ],
+            "armA_fore": [
+              "reachA",
+              -12
+            ],
+            "armA_hand": [
+              "reachA",
+              -4
+            ],
+            "armB_upper": [
+              "reachB",
+              36
+            ],
+            "armB_fore": [
+              "reachB",
+              -24
+            ],
+            "legA_thigh": [
+              "swing",
+              -11
+            ],
+            "legA_shin": [
+              "swing",
+              17
+            ],
+            "legB_thigh": [
+              "swing",
+              8
+            ],
+            "legB_shin": [
+              "swing",
+              12
+            ],
+            "pail": 4
+          }
+        },
+        {
+          "root": [
+            0.006,
+            0.017
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -19
+            ],
+            "head": [
+              "lean",
+              -10
+            ],
+            "armA_upper": [
+              "reachA",
+              36
+            ],
+            "armA_fore": [
+              "reachA",
+              6
+            ],
+            "armA_hand": [
+              "reachA",
+              8
+            ],
+            "armB_upper": [
+              "reachB",
+              40
+            ],
+            "armB_fore": [
+              "reachB",
+              -26
+            ],
+            "legA_thigh": [
+              "swing",
+              -14
+            ],
+            "legA_shin": [
+              "swing",
+              22
+            ],
+            "legB_thigh": [
+              "swing",
+              9
+            ],
+            "legB_shin": [
+              "swing",
+              15
+            ],
+            "pail": 6
+          }
+        },
+        {
+          "root": [
+            0.005,
+            0.013
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -15
+            ],
+            "head": [
+              "lean",
+              -8
+            ],
+            "armA_upper": [
+              "reachA",
+              20
+            ],
+            "armA_fore": [
+              "reachA",
+              -10
+            ],
+            "armA_hand": [
+              "reachA",
+              2
+            ],
+            "armB_upper": [
+              "reachB",
+              38
+            ],
+            "armB_fore": [
+              "reachB",
+              -25
+            ],
+            "legA_thigh": [
+              "swing",
+              -12
+            ],
+            "legA_shin": [
+              "swing",
+              19
+            ],
+            "legB_thigh": [
+              "swing",
+              8
+            ],
+            "legB_shin": [
+              "swing",
+              13
+            ],
+            "pail": 2
+          }
+        },
+        {
+          "root": [
+            0.003,
+            0.007
+          ],
+          "angles": {
+            "torso": [
+              "lean",
+              -8
+            ],
+            "head": [
+              "lean",
+              -4
+            ],
+            "armA_upper": [
+              "reachA",
+              -46
+            ],
+            "armA_fore": [
+              "reachA",
+              -26
+            ],
+            "armA_hand": [
+              "reachA",
+              -10
+            ],
+            "armB_upper": [
+              "reachB",
+              35
+            ],
+            "armB_fore": [
+              "reachB",
+              -23
+            ],
+            "legA_thigh": [
+              "swing",
+              -10
+            ],
+            "legA_shin": [
+              "swing",
+              15
+            ],
+            "legB_thigh": [
+              "swing",
+              7
+            ],
+            "legB_shin": [
+              "swing",
+              11
+            ],
+            "pail": 0
+          }
+        }
+      ]
+    }
+  }
+}

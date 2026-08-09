@@ -69,11 +69,17 @@ export function atlasFrameCell(atlas, clip, facing, frame, facingCount = 8) {
 
 /**
  * Apply a cell UV to a Three.js texture (mutates in place).
+ * Prefer {@link applyAtlasUVGeometry} when many meshes share one atlas image —
+ * texture.offset/repeat cannot be shared without racing, and Texture.clone()
+ * allocates a separate GPU upload of the full sheet per unit.
  * @param {{ repeat: { set: Function }, offset: { set: Function }, needsUpdate?: boolean }} texture
  * @param {{ repeatX: number, repeatY: number, offsetX: number, offsetY: number }} uv
  * @param {boolean} [mirror=false]  flip horizontally within the cell
  */
 export function applyAtlasUV(texture, uv, mirror = false) {
+  // offset/repeat are matrix uniforms — do NOT set texture.needsUpdate.
+  // needsUpdate re-uploads image pixels; on a shared 2048×16384 atlas that
+  // thrash drops activity mode to ~8–10 FPS.
   if (mirror) {
     texture.repeat.set(-uv.repeatX, uv.repeatY);
     texture.offset.set(uv.offsetX + uv.repeatX, uv.offsetY);
@@ -81,5 +87,26 @@ export function applyAtlasUV(texture, uv, mirror = false) {
     texture.repeat.set(uv.repeatX, uv.repeatY);
     texture.offset.set(uv.offsetX, uv.offsetY);
   }
-  texture.needsUpdate = true;
+}
+
+/**
+ * Bake an atlas cell into a PlaneGeometry's UV attribute (4 verts).
+ * Lets many meshes share one Texture without clone()/offset races.
+ * @param {{ getAttribute: Function }} geometry
+ * @param {{ repeatX: number, repeatY: number, offsetX: number, offsetY: number }} uv
+ * @param {boolean} [mirror=false]
+ */
+export function applyAtlasUVGeometry(geometry, uv, mirror = false) {
+  const attr = geometry.getAttribute("uv");
+  if (!attr || attr.count < 4) return;
+  const rx = mirror ? -uv.repeatX : uv.repeatX;
+  const ox = mirror ? uv.offsetX + uv.repeatX : uv.offsetX;
+  const ry = uv.repeatY;
+  const oy = uv.offsetY;
+  // PlaneGeometry default UVs (no segments): (0,1) (1,1) (0,0) (1,0)
+  attr.setXY(0, ox + 0 * rx, oy + 1 * ry);
+  attr.setXY(1, ox + 1 * rx, oy + 1 * ry);
+  attr.setXY(2, ox + 0 * rx, oy + 0 * ry);
+  attr.setXY(3, ox + 1 * rx, oy + 0 * ry);
+  attr.needsUpdate = true;
 }

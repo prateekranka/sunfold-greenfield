@@ -1,0 +1,23 @@
+{
+  "bakedBy": "Tools/citizens/bake_sprites.py",
+  "camera": {
+    "pitchDegrees": 57.0,
+    "yawDegrees": 45.0,
+    "fovDegrees": 38.0,
+    "distance": 3.85,
+    "orthoScale": 2.5368,
+    "fillTarget": 0.85
+  },
+  "facings": 8,
+  "clip": "gather",
+  "sourceAction": "sunwoven_gather_loop_R",
+  "frames": [
+    0,
+    4,
+    8,
+    12,
+    20,
+    28
+  ],
+  "fps": 5
+}

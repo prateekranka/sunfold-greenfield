@@ -1,0 +1,455 @@
+{
+  "schema": "sunfold.sunwoven.event-markers/1",
+  "fps": 30,
+  "arc_duration_frames": 12,
+  "marker_events": [
+    "tool_attach",
+    "tool_release",
+    "gather_contact",
+    "payload_attach",
+    "deposit_release",
+    "construct_contact"
+  ],
+  "arc_prop": {
+    "name": "sunwoven_arc_prop",
+    "role": "gather_arc"
+  },
+  "cargo_chunks": [
+    "sunwoven_cargo_0",
+    "sunwoven_cargo_1",
+    "sunwoven_cargo_2"
+  ],
+  "piece_settle": {
+    "contact_offset_frames": 2,
+    "keys": [
+      [
+        0,
+        0.0
+      ],
+      [
+        2,
+        -0.012
+      ],
+      [
+        4,
+        0.0
+      ]
+    ]
+  },
+  "sequence": {
+    "fps": 30,
+    "walk_speed_m_s": 2.2,
+    "space": "blender (x, z height; -Y forward)",
+    "steps": [
+      {
+        "clip": "sunwoven_idle",
+        "position": [
+          0.0,
+          0.0
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_walk_inplace",
+        "position": [
+          -0.55,
+          -1.2
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_gather_start_R",
+        "position": [
+          -0.55,
+          -1.2
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_gather_loop_R",
+        "position": [
+          -0.55,
+          -1.2
+        ],
+        "yaw_deg": 0.0,
+        "repeat": 3
+      },
+      {
+        "clip": "sunwoven_gather_finish_R",
+        "position": [
+          -0.55,
+          -1.2
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_walk_loaded_inplace",
+        "position": [
+          0.0,
+          -2.7
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_deposit",
+        "position": [
+          0.0,
+          -2.7
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_walk_inplace",
+        "position": [
+          3.4,
+          -1.2
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_construct_start_L",
+        "position": [
+          3.4,
+          -1.2
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_construct_loop_L",
+        "position": [
+          3.4,
+          -1.2
+        ],
+        "yaw_deg": 0.0,
+        "repeat": 3
+      },
+      {
+        "clip": "sunwoven_construct_finish_L",
+        "position": [
+          3.4,
+          -1.2
+        ],
+        "yaw_deg": 0.0
+      },
+      {
+        "clip": "sunwoven_idle",
+        "position": [
+          3.4,
+          -1.2
+        ],
+        "yaw_deg": 0.0
+      }
+    ]
+  },
+  "clips": [
+    {
+      "name": "sunwoven_idle",
+      "citizen": "sunwoven",
+      "semantic": "idle",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 72,
+      "duration_s": 2.4,
+      "grip_socket": null
+    },
+    {
+      "name": "sunwoven_walk_inplace",
+      "citizen": "sunwoven",
+      "semantic": "walk_inplace",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": null
+    },
+    {
+      "name": "sunwoven_walk_loaded_inplace",
+      "citizen": "sunwoven",
+      "semantic": "walk_loaded_inplace",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": null
+    },
+    {
+      "name": "sunwoven_idle_loaded",
+      "citizen": "sunwoven",
+      "semantic": "idle_loaded",
+      "handedness": null,
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 72,
+      "duration_s": 2.4,
+      "grip_socket": null
+    },
+    {
+      "name": "sunwoven_reverse",
+      "citizen": "sunwoven",
+      "semantic": "reverse",
+      "handedness": null,
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 12,
+      "duration_s": 0.4,
+      "grip_socket": null
+    },
+    {
+      "name": "sunwoven_deposit",
+      "citizen": "sunwoven",
+      "semantic": "deposit",
+      "handedness": null,
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 60,
+      "duration_s": 2.0,
+      "grip_socket": null
+    },
+    {
+      "name": "sunwoven_gather_start_R",
+      "citizen": "sunwoven",
+      "semantic": "gather_start",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "sunwoven_gather_loop_R",
+      "citizen": "sunwoven",
+      "semantic": "gather_loop",
+      "handedness": "R",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "sunwoven_gather_finish_R",
+      "citizen": "sunwoven",
+      "semantic": "gather_finish",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "sunwoven_gather_start_L",
+      "citizen": "sunwoven",
+      "semantic": "gather_start",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "sunwoven_gather_loop_L",
+      "citizen": "sunwoven",
+      "semantic": "gather_loop",
+      "handedness": "L",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "sunwoven_gather_finish_L",
+      "citizen": "sunwoven",
+      "semantic": "gather_finish",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "sunwoven_construct_start_L",
+      "citizen": "sunwoven",
+      "semantic": "construct_start",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "sunwoven_construct_loop_L",
+      "citizen": "sunwoven",
+      "semantic": "construct_loop",
+      "handedness": "L",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "sunwoven_construct_finish_L",
+      "citizen": "sunwoven",
+      "semantic": "construct_finish",
+      "handedness": "L",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_L"
+    },
+    {
+      "name": "sunwoven_construct_start_R",
+      "citizen": "sunwoven",
+      "semantic": "construct_start",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "sunwoven_construct_loop_R",
+      "citizen": "sunwoven",
+      "semantic": "construct_loop",
+      "handedness": "R",
+      "loop": true,
+      "frame_start": 0,
+      "frame_end": 36,
+      "duration_s": 1.2,
+      "grip_socket": "socket_tool_R"
+    },
+    {
+      "name": "sunwoven_construct_finish_R",
+      "citizen": "sunwoven",
+      "semantic": "construct_finish",
+      "handedness": "R",
+      "loop": false,
+      "frame_start": 0,
+      "frame_end": 24,
+      "duration_s": 0.8,
+      "grip_socket": "socket_tool_R"
+    }
+  ],
+  "markers": [
+    {
+      "clip": "sunwoven_deposit",
+      "name": "deposit_release",
+      "frame": 40,
+      "time_s": 1.3333,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_gather_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_gather_loop_R",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_gather_loop_R",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12
+    },
+    {
+      "clip": "sunwoven_gather_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_gather_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_gather_loop_L",
+      "name": "gather_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_gather_loop_L",
+      "name": "payload_attach",
+      "frame": 24,
+      "time_s": 0.8,
+      "source": "derived",
+      "anchor": "gather_contact",
+      "offset_frames": 12
+    },
+    {
+      "clip": "sunwoven_gather_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_construct_start_L",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_construct_loop_L",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_construct_finish_L",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_construct_start_R",
+      "name": "tool_attach",
+      "frame": 16,
+      "time_s": 0.5333,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_construct_loop_R",
+      "name": "construct_contact",
+      "frame": 12,
+      "time_s": 0.4,
+      "source": "authored"
+    },
+    {
+      "clip": "sunwoven_construct_finish_R",
+      "name": "tool_release",
+      "frame": 14,
+      "time_s": 0.4667,
+      "source": "authored"
+    }
+  ]
+}

@@ -16,6 +16,8 @@ import citizenVillagerGlb from "../assets/units/citizen_villager.glb";
 import pathfinderScoutGlb from "../assets/units/pathfinder_scout.glb";
 import spaceVillagerAtlasManifest from "../assets/citizens/sprites/space-villager/atlas-manifest.json";
 import spaceVillagerAtlasPng from "../assets/citizens/sprites/space-villager/runtime-atlas.png";
+import villageManbunAtlasManifest from "../assets/citizens/sprites/village-manbun-wanderer/atlas-manifest.json";
+import villageManbunAtlasPng from "../assets/citizens/sprites/village-manbun-wanderer/runtime-atlas.png";
 
 const FOUNDATION_CITIZEN_BENCHMARK = Object.freeze({
   unitCount: 48,
@@ -40,12 +42,25 @@ const gltfLibrary = new GltfUnitLibrary();
 gltfLibrary.registerBuffer("units/citizen_villager.glb", citizenVillagerGlb);
 gltfLibrary.registerBuffer("units/pathfinder_scout.glb", pathfinderScoutGlb);
 
-// Debug override: ?art=procedural renders every unit as its primitive
-// stand-in; ?art=sprite pins the directionalSprite tier (golden 16-direction
-// sheet for the Sunwoven citizen) so the fallback path and the sprite
-// presentation are both visible and testable on device.
-const forceProceduralArt = new URLSearchParams(location.search).get("art") === "procedural";
-const forceSpriteArt = new URLSearchParams(location.search).get("art") === "sprite";
+// Art modes (Milestone 1): sprite Citizen is the default presentation.
+//   (default) / ?art=sprite  → Village Man-Bun combined atlas (walk/carry/gather/build)
+//   ?art=gltf                → keep GLB LOD ladder (Citizen villager prototype)
+//   ?art=procedural          → primitive stand-ins
+//   ?sprite=space            → GPU-safe space-villager sheet instead of Man-Bun
+// Crowd / RTS proof: citizen-crowd-lab.html · citizen-rts-proof.html
+const artParam = new URLSearchParams(location.search).get("art");
+const spriteParam = new URLSearchParams(location.search).get("sprite");
+const forceProceduralArt = artParam === "procedural";
+const forceGltfArt = artParam === "gltf";
+const forceSpriteArt = !forceProceduralArt && !forceGltfArt;
+const useManbunSprite = spriteParam !== "space";
+const activeCitizenManifest = useManbunSprite
+  ? villageManbunAtlasManifest
+  : spaceVillagerAtlasManifest;
+const activeCitizenAtlasPng = useManbunSprite ? villageManbunAtlasPng : spaceVillagerAtlasPng;
+const activeCitizenBasePath = useManbunSprite
+  ? "sprites/village-manbun-wanderer/"
+  : "sprites/space-villager/";
 
 // Kick off prototype preloading immediately — while the loading screen shows.
 gltfLibrary.preload(
@@ -146,13 +161,9 @@ function makeScene() {
     scene.add(beacon);
   }
 
-  // Unit art resolves through the asset registry. The registry's authored
-  // source for the Sunwoven citizen is the full-fidelity sunwoven-villager
-  // sheet; the shipping build overrides it with the GPU-safe space-villager
-  // atlas, bundled as a data: URL so the WKWebView CSP (connect-src 'none')
-  // can bind it without a network path. Remove the override to swap art.
-  // Procedural primitives (asset-registry.json procedural.* entries) are
-  // visible debug fallbacks — never the shipping visual target.
+  // Unit art resolves through the asset registry. Default pins the Village
+  // Man-Bun 16-dir Walk+Carry+Gather+Build atlas (Milestone 1). Use ?art=gltf
+  // to keep the Citizen GLB LOD ladder. Procedural primitives remain debug-only.
   presentationLayer = new UnitPresentationLayer({
     scene,
     registry: assetRegistry,
@@ -162,16 +173,27 @@ function makeScene() {
     proceduralFactory: createProceduralUnit,
     forceProcedural: forceProceduralArt,
     forceArt: forceSpriteArt ? "sprite" : null,
+    blobShadows: true,
     manifests: {
       "sunwoven.citizen.foundation": {
         manifest: {
-          ...spaceVillagerAtlasManifest,
+          ...activeCitizenManifest,
           atlas: {
-            ...spaceVillagerAtlasManifest.atlas,
-            image: spaceVillagerAtlasPng
+            ...activeCitizenManifest.atlas,
+            image: activeCitizenAtlasPng
           }
         },
-        basePath: "sprites/space-villager/"
+        basePath: activeCitizenBasePath
+      },
+      "sunwoven.citizen.voyager": {
+        manifest: {
+          ...activeCitizenManifest,
+          atlas: {
+            ...activeCitizenManifest.atlas,
+            image: activeCitizenAtlasPng
+          }
+        },
+        basePath: activeCitizenBasePath
       }
     }
   });

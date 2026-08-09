@@ -1,0 +1,23 @@
+Both frames measured and described. Verdict below.
+
+---
+
+## B1a BLIND GATE — FINAL VERDICT
+
+**1. Stronger frame: FRAME-1.**
+
+**2. Weaker frame (frame-2) gap: STRUCTURAL — not cosmetic.** The evidence is unambiguous:
+- The vision bridge literally tags frame-2's style as **"stylized low-poly 3D"** — the telltale language of unshipped/placeholder geometry. Frame-1 is "detailed lighting, celestial aesthetics" with 6 identified entities; frame-2 yields only 2 (a planet and a platform with "stairs and small structures" — no units, no resource nodes, no UI, no gameplay objects).
+- **Palette misses the bible.** Frame-2's terrain reads as *sandy desert* (amber #E2A64E / ochre #C28D3F) — sand is not Sunwoven ivory/saffron/woven gold. Its celestial body is a **purple** planet; the bible demands a *warm* gas giant with a purple nebula wash. Dominant hue share 0.698 is the weakest of all three (concept 0.789, frame-1 0.820) — the frame's two big color masses (sand vs planet) fight instead of one disciplined identity.
+- **Composition violates "never fill the frame with contiguous terrain":** frame-2 is a "large flat" platform — a single terrain mass. Frame-1 is a fragmented constellation of elements (pavilion, fields, crystal node, bridges, workers) floating against dark purple nebula.
+- **Numerics confirm:** dynamic range 0.499 is *below* the concept bar (0.515) and below frame-1 (0.543); it is the only frame that regresses the bar on range while also failing hue discipline.
+
+**3. Largest single gap in frame-2:** its platform is a flat, low-poly desert slab with stairs and a few indistinct structures — placeholder-grade geometry in a sand palette that reads as generic "floating island asset-pack," with zero gameplay content (no units, no resource nodes, no UI) and no warm gas giant, so it fails every clause of the art bible except "has void."
+
+**4. Ship frame-1** — it is the only frame that reads as a *shipped* Sunwoven settlement lit in deep space: gold-and-ivory pavilions with turquoise banners, glowing crystal node, worker units, golden floating bridge, UI chrome, dark purple nebula, and hue discipline (0.820) *above* the concept bar.
+
+---
+
+**What I did:** ran modlens (gemini-api) on both frames → /tmp/b1a-1.json, /tmp/b1a-2.json; ran the project's framestat.py measure on both; compared against the concept bar (0.530 void / 0.515 range / 0.484 sat / 0.789 hue). **Did not touch answer.txt** (only `ls`-listed the directory).
+**Files created:** /tmp/b1a-1.json, /tmp/b1a-2.json (no repo changes).
+**Caveat for the parent:** frame-1's void_frac (0.159) is far below the concept's 0.530 — it's a denser, brighter composition — but that is a strength here (gameplay-rich opening frame), not a bible violation, since the void is perceptually present (dark nebula background) and no contiguous terrain fills the frame.

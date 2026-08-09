@@ -114,6 +114,35 @@ function blobShadow(radius) {
   return mesh;
 }
 
+/** Simple AoE-style HP bar above a unit (world-space, camera-facing via parent). */
+function healthBar(width = 1.1) {
+  const group = new THREE.Group();
+  group.name = "health-bar";
+  group.position.y = 2.55;
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(width, 0.12),
+    new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.75, depthWrite: false })
+  );
+  const fill = new THREE.Mesh(
+    new THREE.PlaneGeometry(width * 0.96, 0.08),
+    new THREE.MeshBasicMaterial({ color: 0x5ad46a, depthWrite: false })
+  );
+  fill.name = "health-bar-fill";
+  fill.position.z = 0.01;
+  group.add(bg);
+  group.add(fill);
+  return group;
+}
+
+function setHealthBarRatio(bar, ratio) {
+  const fill = bar.getObjectByName("health-bar-fill");
+  if (!fill) return;
+  const r = Math.max(0, Math.min(1, ratio));
+  fill.scale.x = Math.max(0.02, r);
+  fill.position.x = -((1 - r) * 1.1 * 0.96) / 2;
+  fill.material.color.setHex(r > 0.45 ? 0x5ad46a : r > 0.2 ? 0xe2b866 : 0xd45a5a);
+}
+
 /**
  * One unit's visual presence: a container in the scene plus one object per
  * LOD tier. Only the active tier is visible and animated.
@@ -504,6 +533,7 @@ export class UnitPresentationLayer {
       this._syncFactionRing(view, unit);
       this._syncSelectionRing(view, unit);
       this._syncBlobShadow(view, unit);
+      this._syncHealthBar(view, unit);
     }
     for (const [id, view] of this.views) {
       if (live.has(id)) continue;
@@ -555,6 +585,23 @@ export class UnitPresentationLayer {
       view.container.remove(shadow);
       shadow.geometry.dispose();
     }
+  }
+
+  /** World-space HP bar when unit exposes hitPoints / maxHitPoints (or hp/maxHp). */
+  _syncHealthBar(view, unit) {
+    const max =
+      unit.maxHitPoints ?? unit.maxHp ?? unit.hitPointMax ?? null;
+    const cur = unit.hitPoints ?? unit.hp ?? null;
+    const wants = typeof max === "number" && max > 0 && typeof cur === "number";
+    let bar = view.container.getObjectByName("health-bar");
+    if (wants && !bar) {
+      bar = healthBar(Math.max(0.9, (view.entry?.scaleMeters ?? 1.8) * 0.62));
+      view.container.add(bar);
+    } else if (!wants && bar) {
+      view.container.remove(bar);
+      return;
+    }
+    if (bar && wants) setHealthBarRatio(bar, cur / max);
   }
 
   dispose() {

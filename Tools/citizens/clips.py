@@ -62,6 +62,19 @@ FACTION_MOTION: dict[str, dict] = {
         "deposit_kind": "hopper",
         "loaded_squat": -0.035,
     },
+    # Issue #24 — PRODUCTION Sunwoven motion: same shared timing and contacts,
+    # lighter recovery and steadier balance per the #20 Sunwoven language.
+    "sunwoven": {
+        "carrier_kind": "basket",
+        "idle_amp": 1.0,
+        "walk_amp": 0.95,
+        "walk_bob": 0.016,
+        "walk_squat": -0.012,
+        "gather_amp": 0.95,
+        "construct_amp": 0.95,
+        "deposit_kind": "basket",
+        "loaded_squat": -0.016,
+    },
 }
 
 # Derived-marker constants (authored, committed, deterministic).
@@ -126,12 +139,15 @@ def _m(amp: float) -> float:
 # --------------------------------------------------------------------------
 def idle_keyframes(fm: dict) -> list[tuple[int, dict]]:
     a = fm["idle_amp"]
+    # Slight forward pack-hunch so idle reads like the Codex labor silhouette
+    # instead of a rigid mannequin stand.
+    stand = pose(base_stand(fm), spine_02=(8, 0, 0), chest=(4, 0, 0), neck=(3, 0, 0), head=(3, 0, 0))
     return [
-        (0, pose(base_stand(fm))),
-        (18, pose(base_stand(fm), chest=(1.5 * a, 0, 0), accessory_strap=(1.5 * a, 0, 0), head=(0, 0, 2 * a), **{"@hips_loc": (0, 0, 0.004)})),
-        (36, pose(base_stand(fm))),
-        (54, pose(base_stand(fm), chest=(-1.0 * a, 0, 0), accessory_strap=(-1.5 * a, 0, 0), head=(0, 0, -2 * a), **{"@hips_loc": (0, 0, 0.004)})),
-        (72, pose(base_stand(fm))),
+        (0, pose(stand)),
+        (18, pose(stand, chest=(1.5 * a + 3, 0, 0), accessory_strap=(1.5 * a, 0, 0), head=(2, 0, 2 * a), **{"@hips_loc": (0, 0, 0.004)})),
+        (36, pose(stand)),
+        (54, pose(stand, chest=(-1.0 * a + 3, 0, 0), accessory_strap=(-1.5 * a, 0, 0), head=(2, 0, -2 * a), **{"@hips_loc": (0, 0, 0.004)})),
+        (72, pose(stand)),
     ]
 
 
@@ -227,9 +243,10 @@ def walk_loaded_keyframes(fm: dict) -> list[tuple[int, dict]]:
                 "upperarm_R": (10 * amp, 0, 0),
                 "lowerarm_L": (-26, 0, 0),
                 "lowerarm_R": (-26, 0, 0),
-                "spine_02": (3, 0, 0),  # lean into the load
-                "chest": (2, yaw, 0),
-                "head": (-2, -yaw * 0.6, 0),
+                "spine_02": (10, 0, 0),  # lean into the load (Codex forward hunch)
+                "chest": (5, yaw, 0),
+                "neck": (2, 0, 0),
+                "head": (2, -yaw * 0.6, 0),
                 "accessory_strap": (sway, 0, 0),
                 **{"@hips_loc": (0.006, 0, squat)},
                 "@root_loc": (0, 0, 0),
@@ -250,9 +267,10 @@ def walk_loaded_keyframes(fm: dict) -> list[tuple[int, dict]]:
                 "upperarm_R": (4 * amp, 0, 0),
                 "lowerarm_L": (-26, 0, 0),
                 "lowerarm_R": (-26, 0, 0),
-                "spine_02": (3, 0, 0),
-                "chest": (1, yaw, 0),
-                "head": (-4, 0, 0),
+                "spine_02": (10, 0, 0),
+                "chest": (4, yaw, 0),
+                "neck": (2, 0, 0),
+                "head": (2, 0, 0),
                 "accessory_strap": (sway, 0, 0),
                 **{"@hips_loc": (0, 0, squat + bob)},
                 "@root_loc": (0, 0, 0),

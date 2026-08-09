@@ -102,16 +102,16 @@ test("resolveEntry prefers authored art, falls through to procedural", () => {
 test("Sunwoven Foundation Citizen is the authored experiment asset", () => {
   const entry = registry.entries["sunwoven.citizen.foundation"];
   assert.equal(entry.representation, "directionalSprite");
-  assert.equal(entry.spriteSheet, "sunwoven-golden");
-  assert.deepEqual(entry.clips, ["idle", "walk", "gather", "carry"]);
-  // The golden sheet is the shipping in-world presentation; the skinned GLB
-  // is the close-gameplay LOD and the procedural stand-in the debug fallback.
+  assert.equal(entry.spriteSheet, "village-manbun-wanderer");
+  assert.deepEqual(entry.clips, ["idle", "walk", "gather", "carry", "build"]);
+  // Village Man-Bun 16-dir combined atlas is the sprite LOD (default via ?art=sprite /
+  // default art mode); the skinned GLB remains available via ?art=gltf.
   assert.deepEqual(
     entry.lods.map((lod) => lod.kind),
     ["gltf", "sprite", "procedural"]
   );
   assert.equal(entry.lods[0].gltf, "units/citizen_villager.glb");
-  assert.equal(entry.lods[1].spriteSheet, "sunwoven-golden");
+  assert.equal(entry.lods[1].spriteSheet, "village-manbun-wanderer");
 });
 
 test("assetIdForUnit maps sim units to logical ids", () => {

@@ -1,0 +1,40 @@
+{
+  "schema": "sunfold.citizen.sunwoven.reference/1",
+  "status": "production asset — issue #24",
+  "citizen": {
+    "name": "Foundation Sunwoven Weaver",
+    "canonicalReference": "Docs/Concepts/01-sunwoven-foundation-opening.png",
+    "proportionSet": "sunwoven",
+    "sharedSkeleton": {
+      "version": "sunfold.citizen.skeleton/1",
+      "boneCount": 27,
+      "hierarchy": "Tools/citizens/rig.py BONE_ORDER",
+      "sockets": ["socket_tool_R", "socket_tool_L", "socket_carrier"]
+    },
+    "lockedTraits": [
+      "slender silhouette",
+      "back basket",
+      "woven slip harness (two shoulder loops + one lower retaining strap)",
+      "ivory / warm gold / dark woven / cyan-accent material language"
+    ],
+    "conservativeInference": [
+      "dome helmet with gold brow band and crest",
+      "ivory chest plate with gold trim over a dark woven robe",
+      "gold belt and cyan collar accent",
+      "woven basket with gold rim and conservative fasteners"
+    ],
+    "constructionViews": {
+      "sheet": "Tools/citizens/build/reference-sheets/sunwoven-production-construction-sheet.png",
+      "front": "Tools/citizens/build/renders/turnaround-sunwoven-front.png",
+      "side": "Tools/citizens/build/renders/turnaround-sunwoven-side.png",
+      "rear": "Tools/citizens/build/renders/turnaround-sunwoven-rear.png",
+      "threeQuarter": "Tools/citizens/build/renders/turnaround-sunwoven-threequarter.png"
+    },
+    "runtimeAssets": {
+      "citizenGlb": "ThreeRuntime/assets/citizens/citizen_sunwoven.glb",
+      "labGlb": "ThreeRuntime/assets/citizens/sunwoven_lab.glb",
+      "manifest": "ThreeRuntime/assets/citizens/sunwoven-event-markers.json"
+    }
+  },
+  "qaEvidence": "Docs/QA/ThreeJS/issue-24/"
+}

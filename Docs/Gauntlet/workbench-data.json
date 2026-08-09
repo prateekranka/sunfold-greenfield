@@ -1,6 +1,6 @@
 {
   "meta": {
-    "updated": "2026-08-01T17:28:23+05:30",
+    "updated": "2026-08-05T20:30:00+05:30",
     "version": "0.6.1",
     "build": 46,
     "branch": "visual/aaa-uplift-cp02",
@@ -158,6 +158,18 @@
     }
   ],
   "log": [
+    {
+      "id": "s1-p1",
+      "date": "2026-08-06",
+      "title": "Sunwoven economy-unit sprite sheets — through the gauntlet loop to PASS (+ v2 character-sheet fidelity pass)",
+      "changed": "New procedural sprite pipeline at sunwoven-sprites/: a Blender 5.2 headless rig (pure-Python joints, no armature; deterministic seed 20260726) renders the Citizen/villager and Pathfinder/scout economy units — idle/walk/gather (villager) and idle/walk (pathfinder), 8 compass directions, 57.5° ortho — at 512px, then post.py packs three variants: root transparent 128px cells, sprites-720p/ green 256px cells (2048² sheets), sprites-4k/ green 512px cells (4096²), each with its own manifest (anchors, fps, chroma background), plus keying masks and preview.html with a live key/unkey toggle. Three Blender 5.2 root causes fixed on the way: transform_apply(scale=True) zeroes object locations (cubes rendered ~0.5m displaced); AgX view transform desaturates warm colours (switched to Standard); material() defaulted Emission Color to gold, muddling every fabric emission (now defaults to the material's own colour). The round-1 REVISE (palette family absent, Pathfinder contract missed) was answered with a warm key/fill/rim rig, own-colour luminous fabrics, a visible turquoise sash, and a rebuilt Pathfinder (citizen-height body, narrower torso, 0.14 forward lean, 1.63m standard). FIDELITY PASS (v2 character sheets, 2026-08-06): two blind-critic rounds against the sheets. R1 REVISE (7 items — gold invisible under EEVEE no-envmap metallic void, saffron desaturated 0.41 vs sheet 0.74, gems occluded, turban smooth dome, gather stow absent, scrolls sub-pixel, lean under-spec; 3 critic claims refuted by director probes: tip-clearance metric misread, walk-hop false positive from background-inflated overlap, N-pennant sliver false). R2 PASS: gold emission 0.8/metallic 0.35 (0→1926px), saffron (0.98,0.56,0.14) sat 0.82 (reads #E2A748 golden-saffron), gems r 0.036 proud of wrap (653/489px), front-arc turban bands (reads wrapped cloth, not dome), mote route → satchel (moving centroid y465→370), scrolls r 0.018, lean 0.085 chest 8.8°/head 11.9°, ivory lifted to bible warm ivory (lit 234,209,165).",
+      "taught": "Blind-critic loop over machine evidence (subagents have no vision tool; the project's measured-bar method applies). Round 1: REVISE — census showed 71% cool gray, zero saffron/teal, Pathfinder standard 6px above the head. Round 2: PASS — ivory 0.497/0.398, saffron 0.113/0.152, teal 0.145/0.115, gray down to 0.226/0.277; standard 24px (~36% of body height); torso 16-23px vs 22-25px (leaner, −33% at S); activity bands non-overlapping (0.437/0.682/0.758 and 0.388/0.552); gather contact anchored (node_gold 14↔0, hands 127 vs feet 128). Carried note (cosmetic): the Pathfinder renders ~10 points grayer than the villager — its forward lean tilts the torso off the key; a round 3 could lift its fill/rim. Critic models recorded: deepseek-v4-flash (opus not pinnable via delegation). FIDELITY: measured-bar discipline extended to critic claims — 3 of 10 R1 critic claims were refuted by director re-measurement (tip-clearance bar is crown-to-tip NOT tip-to-canvas-top; walk f1≈f5 overlap 0.999 was background-inflated, silhouette diff 971px; N pennant 66px ≥ range). EEVEE has no envmap: metallic >0.35 renders near-black — gold needs emission ≥0.6. Checker pitfalls paid: chin-finder must use FIRST narrow run after head max-width (last-narrow catches collarbone); pennant-sway metric must be col-centre shift not pixel-diff (wide cross-blade can't pass pixel-diff); walk-bob bar is crown span, foot travel is stride.",
+      "proof": "Docs/Gauntlet/evidence/s1-p1-round1/verdict-round26.md (PASS — SHIP, round 26) + verdict-fidelity-r2.md (PASS, fidelity)",
+      "next": "Military roster sprites (Vanguard/Quarrel) via the same pipeline; then Swift app loop CP-C6 age progression.",
+      "before": "Docs/Gauntlet/evidence/s1-p1-round1/verdict-round1.md",
+      "after": "Docs/Gauntlet/evidence/s1-p1-round1/verdict-fidelity-r2.md",
+      "evidence": "Docs/Gauntlet/evidence/s1-p1-round1/evidence.md"
+    },
     {
       "id": "CP-C9",
       "date": "2026-08-01",

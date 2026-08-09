@@ -19,10 +19,21 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 BUILD = os.path.join(HERE, "build")
 MANIFEST = os.path.join(HERE, "manifest", "event-markers.json")
+SUNWOVEN_MANIFEST = os.path.join(HERE, "manifest", "sunwoven-event-markers.json")
 GLBS = {
     "citizen": os.path.join(REPO, "ThreeRuntime", "assets", "lab", "citizen_slender.glb"),
     "citizen_broad": os.path.join(REPO, "ThreeRuntime", "assets", "lab", "citizen_broad.glb"),
     "lab": os.path.join(REPO, "ThreeRuntime", "assets", "lab", "neutral_lab.glb"),
+    "citizen_sunwoven": os.path.join(REPO, "ThreeRuntime", "assets", "citizens", "citizen_sunwoven.glb"),
+    "lab_sunwoven": os.path.join(REPO, "ThreeRuntime", "assets", "citizens", "sunwoven_lab.glb"),
+}
+# (manifest, prefix) per GLB key; prefix filters the expected clip inventory.
+GLB_PLAN = {
+    "citizen": (MANIFEST, "slender_"),
+    "citizen_broad": (MANIFEST, "broad_"),
+    "lab": (MANIFEST, None),
+    "citizen_sunwoven": (SUNWOVEN_MANIFEST, "sunwoven_"),
+    "lab_sunwoven": (SUNWOVEN_MANIFEST, None),
 }
 
 
@@ -121,13 +132,17 @@ def inspect(path: str, manifest_clips: set[str], expected_prefix: str | None = N
 
 
 def main() -> None:
-    manifest = json.load(open(MANIFEST))
-    manifest_clips = {c["name"] for c in manifest["clips"]}
-    report = {"schema": "sunfold.lab.glb-inventory/1", "manifest": MANIFEST, "glbs": {}}
+    manifests = {}
+    for key, (manifest_path, _prefix) in GLB_PLAN.items():
+        if manifest_path not in manifests:
+            manifests[manifest_path] = json.load(open(manifest_path))
+    report = {"schema": "sunfold.lab.glb-inventory/1", "glbs": {}}
     for key, path in GLBS.items():
         if os.path.exists(path):
-            prefix = "slender_" if key == "citizen" else "broad_" if key == "citizen_broad" else None
+            manifest_path, prefix = GLB_PLAN[key]
+            manifest_clips = {c["name"] for c in manifests[manifest_path]["clips"]}
             report["glbs"][key] = inspect(path, manifest_clips, prefix)
+            report["glbs"][key]["manifest"] = manifest_path
     out = os.path.join(BUILD, "validation-glb.json")
     with open(out, "w") as fh:
         json.dump(report, fh, indent=2, sort_keys=True)
@@ -135,4 +150,5 @@ def main() -> None:
     print(f"[inspect_glb] wrote {out}")
 
 
-main()
+if __name__ == "__main__":
+    main()

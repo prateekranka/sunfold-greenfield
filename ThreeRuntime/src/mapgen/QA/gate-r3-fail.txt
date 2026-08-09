@@ -1,0 +1,23 @@
+All evidence in. Both vision passes and the numeric instrument agree; verdict is unambiguous.
+
+---
+
+## BLIND CRITIC — Round 3 Verdict
+
+**1. Stronger frame: frame-1** — by a wide margin. It reads as a populated, ornate ivory-and-gold settlement (pavilion, farms, ore node, robed workers, sky bridge) on a floating island with golden filigree cliff edges, lit by a warm golden key light against starry space with a purple nebula wash — palette gold/beige/purple/black/teal/white, which is exactly the Sunwoven bible. Assets flagged "intricate, polished, high-detail shipped quality."
+
+**2. Weaker frame (frame-2): STRUCTURAL.** Two independent vision passes both call it "low-poly / placeholder assets with simple geometry" on a "sandy / sand-covered platform" with brown support beams and chasms — the flat desert-platform read that failed rounds 1-2. Its sky is bare void + faint stars with **no purple nebula and no gas giant**, its palette runs gold/brown/black (no purple, brown ≠ ivory), and its void (~30-35%) pools along the **bottom and right edges while bright sand fills the upper half** — the void is in the wrong place, inverted against "void dominating the upper half." Not one polish tweak fixes any of this.
+
+**3. Largest remaining gap in frame-2:** The scene still reads as a low-poly desert platform — placeholder-grade geometry, a bare void with no nebula/gas giant, and terrain-heavy composition with void on the wrong edges — i.e., the identical structural failure of rounds 1-2, not a cosmetic shortfall.
+
+**4. Ship: frame-1.** Not a same-class call — frame-2 is a full quality class below — and frame-1 is the only one that passes the AAA gate as shipped-asset "object lit in space."
+
+**Shared caveat (applies to the shipped frame):** both frames sit far below the concept's void profile — vision puts frame-1 at only ~25-30% void with the upper half still terrain-dominated (framestat: void_frac 0.159 vs concept 0.530; luma_p50 0.335 vs 0.015, even accounting for pair-normalization). Frame-1 is the winner but the builder should push the sky toward the full ~50% void-dominant upper half before calling this done.
+
+---
+
+**What I did:** ran `framestat.py measure` on both frames (pair-normalized stats compared frame-to-frame; concept as rough orientation only); ran the modlens vision bridge (gemini-api) on each frame twice — the mandated summary/layout/visual pass plus one targeted art-critic probe (void fraction/placement, sky elements, key-light hue, asset fidelity, UI). **Did not touch `answer.txt`.**
+
+**Findings:** frame-1 = high-detail shipped-asset settlement, warm golden key light, stars + purple nebula, Sunwoven palette, floating island (luma discipline: p50 0.335, hue share 0.820, sat 0.385). frame-2 = low-poly placeholder geometry, desert sand read, bare void with no nebula/gas giant, void on the wrong edges (luma p50 0.498, sat 0.536, brown in palette).
+
+**Files created:** `/tmp/b1c-1.json`, `/tmp/b1c-2.json`, `/tmp/b1c-1-probe.json`, `/tmp/b1c-2-probe.json` (modlens evidence). No repo files modified. No issues encountered.
