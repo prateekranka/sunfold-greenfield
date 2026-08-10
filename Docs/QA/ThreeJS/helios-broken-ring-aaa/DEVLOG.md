@@ -1502,3 +1502,97 @@ damaged infrastructure. The browser frame proof is not a device GPU percentile e
 
 Make disabled bridges read as damaged infrastructure with fractured deck slabs and restrained
 repair filaments. Preserve bridge state, route rules, controls, and the 60 FPS gate.
+
+## Cycle 18 — fractured disabled bridges · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Disabled bridges were two clean dark bars with bright dots.
+- They read as unfinished placeholder geometry, not damaged ring infrastructure.
+
+### Correction
+
+- Kept the enabled bridge as the existing four restored slabs, continuous understructure,
+  gold rails, and center conduit.
+- Replaced each disabled bridge with two terminal slabs, two staggered tongue slabs, six
+  exposed warm braces, four curved repair filaments made from 16 ribbon segments, two small
+  repair beacons, and one restrained center spark.
+- Disabled bridges create no walkable ground. Repair replaces the fractured composition with
+  the existing continuous crossing. Route and approach rules are unchanged.
+
+### Visual iteration
+
+- R1 established the fractured slabs and braces, but one-pixel V-shaped filaments read as
+  debug wireframe.
+- R2 changed the filaments to luminous double-sided ribbons, but the hard V bend looked
+  synthetic.
+- R3 divided each filament into four smooth sag segments. The result reads as damaged repair
+  infrastructure at close range and stays restrained at the hero camera.
+
+### Rendered and performance proof
+
+- Local accepted run: 600 frames in 9.9838 seconds at 60.097 FPS, 17.2 ms p95, 17.8 ms
+  maximum, and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9832 seconds at 60.101 FPS, 17.5 ms p95, 17.8 ms
+  maximum, and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- The bridge transition proof changed `bridge-w-core` from four fractured pieces, six braces,
+  and 16 filament segments with no walkable ground to four restored slabs and continuous
+  walkable understructure. `bridge-e-core` remained disabled and fractured.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check ThreeRuntime/src/rts-maps/terrain-generator.js` — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Root and deploy-site generated bundle SHA-256 values are identical.
+- Scoped `git diff --check` — passed.
+- Hosted page and versioned bundle returned HTTP 200. The hosted bundle hash matches the
+  committed and deploy-site assets.
+- The two unrelated dirty lab bundle hashes remained unchanged.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle18-fractured-bridges-final-overview.png`
+- Hosted gameplay close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle18-fractured-bridges-final-final.png`
+- Hosted disabled-bridge close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle18-disabled-bridge-close-final.png`
+- Hosted before and after: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle18-disabled-bridge-before-after.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle18-fractured-bridges-final-gameplay-performance-10s.json`
+- Hosted bridge transition: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle18-fractured-bridges-final-bridge-transition.json`
+- Hosted material contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle18-fractured-bridges-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle18-fractured-bridges-final-interaction-proof.json`
+- Local overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle18-fractured-bridges-r3-local-overview.png`
+- Local disabled-bridge close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle18-r3-disabled-east-core-final.png`
+- Local reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle18-fractured-bridges-r3-reference-comparison.png`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle18-ground-test.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle18-build-r3.stdout.txt`
+- Bundle and preservation hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle18-bundle-and-preservation-hashes.txt`
+- Hosted hash and HTTP proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle18-hosted-http-and-hash.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle18-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 18 gives disabled crossings a readable damaged state and preserves repair behavior. It
+does not blind-match the reference. Broad terrain color variation still reads as alternating
+bands at the hero camera. The browser frame proof is not a device GPU percentile export.
+
+### Dev delivery
+
+- Implementation commit `5c4e16d` is visible on `origin/main`.
+- Worker version `c53bc79d-2788-43df-a640-91e3fed25d88` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-18&v=5c4e16d`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `288ab08aa33a475b77879969f7747c6b408ba8303ce95986ac3c78e38fd8af2d`.
+
+### Next cycle
+
+Refine the existing world-space terrain material with smooth multi-scale color, slope, edge,
+and micro-normal variation. Remove visible banding without displacing collision geometry or
+changing pathing.

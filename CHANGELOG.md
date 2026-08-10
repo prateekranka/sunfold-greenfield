@@ -53,6 +53,9 @@ minimap.
 - Eight Sunwoven gravity winches in the empty terminal margins. Five shared instanced draw
   groups render eight plinths, 16 brass yokes, eight drums, 16 lumen coil rings, and eight
   top braces.
+- A fractured disabled-bridge state with four broken deck pieces, six exposed braces,
+  16 curved repair-filament segments, two repair beacons, and one restrained center spark
+  per bridge. Repair still replaces this state with the existing continuous crossing.
 
 ### Changed
 

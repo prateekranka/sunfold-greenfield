@@ -23,9 +23,12 @@ structural ribs, and restrained solar-joint sockets while preserving bridge and 
 contracts. Cycle 16 adds restrained warm solar bounce to the inner fragment walls and
 terminal faces through a separate instanced masonry material while keeping outer walls cool.
 Cycle 17 adds eight human-scale terminal gravity winches outside movement corridors in five
-shared draw groups. Cycle 18 will replace the dark, featureless disabled-bridge bars with readable damaged
-infrastructure while preserving the bridge-state contract. Cursor owns the separate
-second-civilization 2D sprite workflow. This track owns Blender 3D.
+shared draw groups. Cycle 18 replaces each dark disabled-bridge bar with fractured slabs,
+exposed braces, and curved repair filaments while preserving the bridge-state contract.
+Cycle 19 will refine the existing world-space terrain material so broad color variation no
+longer reads as alternating bands. It will use smooth multi-scale masks without displacing
+walkable geometry. Cursor owns the separate second-civilization 2D sprite workflow. This
+track owns Blender 3D.
 
 Gates run in order. A gate is complete only when its behaviour was observed in the
 rendered app on an iPad simulator — a green build is never sufficient.
