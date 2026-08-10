@@ -24,10 +24,11 @@ contracts. Cycle 16 adds restrained warm solar bounce to the inner fragment wall
 terminal faces through a separate instanced masonry material while keeping outer walls cool.
 Cycle 17 adds eight human-scale terminal gravity winches outside movement corridors in five
 shared draw groups. Cycle 18 replaces each dark disabled-bridge bar with fractured slabs,
-exposed braces, and curved repair filaments while preserving the bridge-state contract.
-Cycle 19 will refine the existing world-space terrain material so broad color variation no
-longer reads as alternating bands. It will use smooth multi-scale masks without displacing
-walkable geometry. Cursor owns the separate second-civilization 2D sprite workflow. This
+exposed braces, and curved repair filaments while preserving the bridge-state contract. Cycle
+19 replaces the remaining broad terrain bands with one continuous weathered field that blends
+broad, eroded, ridged, and cellular structure without displacing walkable geometry. Cycle 20
+will improve the deck's slab hierarchy and chipped structural borders without narrowing
+movement corridors. Cursor owns the separate second-civilization 2D sprite workflow. This
 track owns Blender 3D.
 
 Gates run in order. A gate is complete only when its behaviour was observed in the

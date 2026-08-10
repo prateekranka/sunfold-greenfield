@@ -94,6 +94,9 @@ minimap.
   the HUD does not add a second construction, production, or combat simulation.
 - The six alternating deck-panel meshes per fragment are removed. Each fragment now uses one
   continuous deck surface, eight authored cracks, and three hairline structural inlays.
+- The shared world-space terrain field now blends broad fBm, derivative-attenuated weathered
+  fBm, ridged fBm, and cellular grain through continuous masks. Deck and armor colors,
+  roughness, and derivative normals vary without hard bands or collision displacement.
 - The surrounding void now uses large warm-and-charcoal rock clusters with restrained cyan
   crystal crowns. The debris field is cosmetic and creates no walkable ground.
 - Cool distance fog now separates far debris and stars from the playable ring. The nebula is

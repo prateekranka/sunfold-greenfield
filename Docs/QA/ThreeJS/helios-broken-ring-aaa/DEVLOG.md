@@ -1596,3 +1596,100 @@ bands at the hero camera. The browser frame proof is not a device GPU percentile
 Refine the existing world-space terrain material with smooth multi-scale color, slope, edge,
 and micro-normal variation. Remove visible banding without displacing collision geometry or
 changing pathing.
+
+## Cycle 19 — continuous weathered terrain · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Broad brown and gray variation still read as alternating material bands across each deck.
+- The variation weakened the sense that every fragment belonged to one weathered structure.
+
+### Correction
+
+- Kept one deterministic 256×256 world-space terrain field and one lit terrain material per
+  deck or armor family.
+- Rebuilt the field from broad fBm, derivative-attenuated weathered fBm, ridged fBm, cellular
+  distance, and fine value noise.
+- Replaced broad color thresholds with continuous multi-scale masks. The same field now
+  drives color, roughness, and derivative normal response.
+- Shifted the deck toward cooler neutral graphite while retaining restrained warm sun wear.
+- Kept walkable meshes, collision geometry, pathing, bridge endpoints, resources, objectives,
+  and controls unchanged. The material contract explicitly reports no geometry displacement.
+
+### Source adaptation
+
+- The implementation adapts SimonDev's `MeshStandardMaterial.onBeforeCompile` approach for
+  world-space procedural color and surface response.
+- It uses the procedural-terrain thread's weathered fBm, ridged fBm, and cellular-noise ideas
+  as low-relief deck variation rather than literal mountainous displacement.
+- Sources: `https://simondev.io/demos/gamedev/#customizing-materials` and
+  `https://x.com/iced_coffee_dev/status/2084276803833581736`.
+
+### Rendered and performance proof
+
+- Local accepted run: 600 frames in 9.9902 seconds at 60.059 FPS, 17.9 ms p95, 18.6 ms
+  maximum, and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9948 seconds at 60.031 FPS, 17.6 ms p95, 17.7 ms
+  maximum, and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- A fresh in-app Browser tab loaded the exact versioned script at 1280×720 and showed FPS 60.
+  Its high-level screenshot wrapper timed out, but a direct CDP surface capture succeeded at
+  2560×1440 without changing page state.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check ThreeRuntime/src/rts-maps/terrain-generator.js` — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- The version-2 material contract reports `weathered-fbm-ridged-cellular`,
+  `continuous-multiscale`, no hard color bands, and no geometry displacement.
+- Root, deploy-site, and hosted generated bundle SHA-256 values are identical.
+- Scoped `git diff --check` — passed.
+- Hosted page and versioned bundle returned HTTP 200.
+- The two unrelated dirty lab bundle hashes remained unchanged.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-weathered-terrain-final-overview.png`
+- Hosted gameplay frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-weathered-terrain-final-final.png`
+- Hosted deck close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-weathered-terrain-close-final.png`
+- Hosted in-app Browser frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-in-app-browser-cdp.png`
+- Hosted before and after: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-weathered-terrain-before-after.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-weathered-terrain-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-weathered-terrain-final-gameplay-performance-10s.json`
+- Hosted material contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-weathered-terrain-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle19-weathered-terrain-final-interaction-proof.json`
+- Local overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle19-weathered-terrain-r3-local-overview.png`
+- Local deck close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle19-r3-west-deck-final.png`
+- Local material contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle19-weathered-terrain-r3-local-material-contract.json`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle19-ground-test-r1.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle19-build-r3.stdout.txt`
+- Bundle and preservation hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle19-bundle-and-preservation-hashes.txt`
+- Hosted hash and HTTP proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle19-hosted-http-and-hash-final.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle19-dev-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 19 removes the material-band read and preserves movement. It does not blind-match the
+reference. The deck still lacks the reference's denser chipped slab hierarchy and authored
+surface borders. The browser frame proof is not a device GPU percentile export.
+
+### Dev delivery
+
+- Implementation commit `fde7b1c` is visible on `origin/main`.
+- Worker version `416d9c96-efc2-427b-964f-14fc7e71baea` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-19&v=fde7b1c`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `8594836852e47ad5b95763b313d309d84d8409e3e84fc4097b17c208467a9152`.
+
+### Next cycle
+
+Add a restrained slab hierarchy and chipped structural borders to the playable deck. Preserve
+walkable bounds, pathing, controls, and the 60 FPS gate.
