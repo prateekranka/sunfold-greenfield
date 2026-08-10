@@ -144,7 +144,7 @@ function createHeliosMaterials(palette, seed = 2749) {
     cool: palette.terrainCool ?? 0x33464d,
     roughness: 0.86,
     metalness: 0.12,
-    bumpStrength: 0.34
+    bumpStrength: 0.42
   });
   const terrainArmor = makeHeliosTerrainMaterial(terrainField, {
     variant: "gravity-weathered-armor",
@@ -318,7 +318,7 @@ function makeHeliosTerrainFieldTexture(seed, size = 256) {
       const broad = periodicFbm(u, v, 3, 4, seed);
       const warpX = periodicFbm(u + 0.19, v - 0.11, 5, 3, seed ^ 0x632be59b) - 0.5;
       const warpY = periodicFbm(u - 0.07, v + 0.23, 5, 3, seed ^ 0x85157af5) - 0.5;
-      const weather = periodicFbm(
+      const weather = periodicWeatheredFbm(
         u + warpX * 0.12,
         v + warpY * 0.12,
         7,
@@ -327,7 +327,17 @@ function makeHeliosTerrainFieldTexture(seed, size = 256) {
       );
       const ridgeSource = periodicFbm(u + warpY * 0.08, v - warpX * 0.08, 11, 3, seed ^ 0x68bc21eb);
       const ridge = 1 - Math.abs(ridgeSource * 2 - 1);
-      const grain = periodicValueNoise(u, v, 41, seed ^ 0x27d4eb2d);
+      const cellular = periodicCellularNoise(
+        u + warpY * 0.04,
+        v - warpX * 0.04,
+        19,
+        seed ^ 0x27d4eb2d
+      );
+      const grain = THREE.MathUtils.clamp(
+        periodicValueNoise(u, v, 41, seed ^ 0x165667b1) * 0.62 + (1 - cellular) * 0.38,
+        0,
+        1
+      );
       const index = (y * size + x) * 4;
       data[index] = Math.round(THREE.MathUtils.clamp(broad, 0, 1) * 255);
       data[index + 1] = Math.round(THREE.MathUtils.clamp(weather, 0, 1) * 255);
@@ -346,7 +356,12 @@ function makeHeliosTerrainFieldTexture(seed, size = 256) {
   texture.colorSpace = THREE.NoColorSpace;
   texture.anisotropy = 4;
   texture.needsUpdate = true;
-  texture.userData = { seed, size, channels: ["broad", "weather", "ridge", "grain"] };
+  texture.userData = {
+    seed,
+    size,
+    channels: ["broad-fbm", "weathered-fbm", "ridged-fbm", "cellular-grain"],
+    sourceTechnique: "weathered-fbm-ridged-cellular"
+  };
   return texture;
 }
 
@@ -453,15 +468,18 @@ function makeHeliosTerrainMaterial(fieldTexture, options) {
 
   material.name = `helios-terrain-${options.variant}`;
   material.userData.sunfoldTerrainSurface = {
-    version: 1,
+    version: 2,
     variant: options.variant,
     fieldTexture: fieldTexture.name,
     fieldTextureSize: fieldTexture.image.width,
     mapping: "world-xz",
+    fieldModel: fieldTexture.userData.sourceTechnique,
+    colorBlend: "continuous-multiscale",
+    hardColorBands: false,
     geometryDisplacement: false,
     bumpStrength: options.bumpStrength
   };
-  material.customProgramCacheKey = () => `sunfold-helios-terrain-v1-${options.variant}`;
+  material.customProgramCacheKey = () => `sunfold-helios-terrain-v2-${options.variant}`;
   material.onBeforeCompile = (shader) => {
     shader.uniforms.sunfoldTerrainField = { value: fieldTexture };
     shader.uniforms.sunfoldTerrainShadow = { value: colors.shadow };
@@ -535,46 +553,65 @@ vec3 sunfoldPerturbTerrainNormal(
       shader.fragmentShader,
       "#include <map_fragment>",
       `#include <map_fragment>
-vec2 sunfoldTerrainBroadUv = vSunfoldTerrainWorldPosition.xz * 0.0185;
+vec2 sunfoldTerrainBroadUv = vSunfoldTerrainWorldPosition.xz * 0.0155;
 mat2 sunfoldTerrainRotation = mat2(0.8192, -0.5736, 0.5736, 0.8192);
-vec2 sunfoldTerrainDetailUv = sunfoldTerrainRotation * vSunfoldTerrainWorldPosition.xz * 0.105;
+vec2 sunfoldTerrainDetailUv = sunfoldTerrainRotation * vSunfoldTerrainWorldPosition.xz * 0.078;
 vec4 sunfoldTerrainBroad = texture2D(sunfoldTerrainField, sunfoldTerrainBroadUv);
 vec4 sunfoldTerrainDetail = texture2D(sunfoldTerrainField, sunfoldTerrainDetailUv);
 vec4 sunfoldTerrainMicro = texture2D(
   sunfoldTerrainField,
-  sunfoldTerrainDetailUv * 2.73 + vec2(0.173, 0.419)
+  sunfoldTerrainDetailUv * 2.37 + vec2(0.173, 0.419)
 );
 float sunfoldTerrainSlope = smoothstep(
   0.08,
   0.86,
   1.0 - abs(normalize(vSunfoldTerrainWorldNormal).y)
 );
-float sunfoldTerrainWeather = mix(sunfoldTerrainBroad.g, sunfoldTerrainDetail.g, 0.72);
-float sunfoldTerrainRidge = mix(sunfoldTerrainBroad.b, sunfoldTerrainDetail.b, 0.64);
-float sunfoldTerrainGrain = mix(sunfoldTerrainDetail.a, sunfoldTerrainMicro.g, 0.56);
+float sunfoldTerrainWeather = mix(sunfoldTerrainBroad.g, sunfoldTerrainDetail.g, 0.62);
+float sunfoldTerrainRidge = mix(sunfoldTerrainBroad.b, sunfoldTerrainDetail.b, 0.58);
+float sunfoldTerrainGrain = mix(sunfoldTerrainDetail.a, sunfoldTerrainMicro.a, 0.52);
 float sunfoldTerrainHeight =
-  sunfoldTerrainBroad.r * 0.11 +
-  sunfoldTerrainWeather * 0.34 +
-  sunfoldTerrainRidge * 0.22 +
-  sunfoldTerrainGrain * 0.18 +
+  sunfoldTerrainBroad.r * 0.13 +
+  sunfoldTerrainWeather * 0.31 +
+  sunfoldTerrainRidge * 0.24 +
+  sunfoldTerrainGrain * 0.17 +
   sunfoldTerrainMicro.b * 0.15;
+vec2 sunfoldTerrainHeightDerivative = vec2(
+  dFdx(sunfoldTerrainHeight),
+  dFdy(sunfoldTerrainHeight)
+);
+float sunfoldTerrainRelief = clamp(length(sunfoldTerrainHeightDerivative) * 9.0, 0.0, 1.0);
+float sunfoldTerrainBase = clamp(
+  0.48 +
+  (sunfoldTerrainBroad.r - 0.5) * 0.34 +
+  (sunfoldTerrainWeather - 0.5) * 0.18,
+  0.16,
+  0.78
+);
 vec3 sunfoldTerrainColor = mix(
   sunfoldTerrainShadow,
   sunfoldTerrainWarm,
-  smoothstep(0.12, 0.62, sunfoldTerrainBroad.r)
+  sunfoldTerrainBase
+);
+float sunfoldTerrainExposure = smoothstep(
+  0.57,
+  0.86,
+  sunfoldTerrainWeather * 0.66 + sunfoldTerrainGrain * 0.34
 );
 sunfoldTerrainColor = mix(
   sunfoldTerrainColor,
   sunfoldTerrainSunlit,
-  smoothstep(0.58, 0.94, sunfoldTerrainWeather) * 0.48 * (1.0 - sunfoldTerrainSlope * 0.68)
+  sunfoldTerrainExposure * 0.28 * (1.0 - sunfoldTerrainSlope * 0.72)
 );
 float sunfoldGravityWear = clamp(
-  sunfoldTerrainSlope * 0.72 + smoothstep(0.72, 0.98, sunfoldTerrainRidge) * 0.24,
+  sunfoldTerrainSlope * 0.62 +
+  smoothstep(0.70, 0.96, sunfoldTerrainRidge) * 0.21 +
+  sunfoldTerrainRelief * 0.16,
   0.0,
-  0.82
+  0.76
 );
 sunfoldTerrainColor = mix(sunfoldTerrainColor, sunfoldTerrainCool, sunfoldGravityWear);
-sunfoldTerrainColor *= 0.94 + sunfoldTerrainGrain * 0.10;
+sunfoldTerrainColor *= 0.965 + (sunfoldTerrainGrain - 0.5) * 0.10;
 diffuseColor.rgb = sunfoldTerrainColor;`
     );
     shader.fragmentShader = replaceShaderChunk(
@@ -582,7 +619,10 @@ diffuseColor.rgb = sunfoldTerrainColor;`
       "#include <roughnessmap_fragment>",
       `#include <roughnessmap_fragment>
 roughnessFactor = clamp(
-  sunfoldTerrainRoughness + (sunfoldTerrainWeather - 0.5) * 0.12 + sunfoldTerrainSlope * 0.05,
+  sunfoldTerrainRoughness +
+  (sunfoldTerrainWeather - 0.5) * 0.08 +
+  sunfoldTerrainSlope * 0.05 +
+  sunfoldTerrainRelief * 0.035,
   0.58,
   0.98
 );`
@@ -656,6 +696,60 @@ function periodicFbm(u, v, baseCells, octaves, seed) {
     cells *= 2;
   }
   return value / Math.max(0.0001, normalization);
+}
+
+function periodicWeatheredFbm(u, v, baseCells, octaves, seed) {
+  let value = 0;
+  let amplitude = 0.5;
+  let normalization = 0;
+  let cells = baseCells;
+  let derivativeX = 0;
+  let derivativeY = 0;
+
+  for (let octave = 0; octave < octaves; octave += 1) {
+    const octaveSeed = seed + octave * 0x9e3779b9;
+    const step = 0.35 / cells;
+    const sample = periodicValueNoise(u, v, cells, octaveSeed) - 0.5;
+    derivativeX += (
+      periodicValueNoise(u + step, v, cells, octaveSeed) -
+      periodicValueNoise(u - step, v, cells, octaveSeed)
+    ) * amplitude;
+    derivativeY += (
+      periodicValueNoise(u, v + step, cells, octaveSeed) -
+      periodicValueNoise(u, v - step, cells, octaveSeed)
+    ) * amplitude;
+    const erosion = 1 + (derivativeX * derivativeX + derivativeY * derivativeY) * 5.5;
+    value += (sample * amplitude) / erosion;
+    normalization += amplitude;
+    amplitude *= 0.5;
+    cells *= 2;
+  }
+
+  return THREE.MathUtils.clamp(0.5 + (value / Math.max(0.0001, normalization)) * 1.5, 0, 1);
+}
+
+function periodicCellularNoise(u, v, cells, seed) {
+  const x = wrap01(u) * cells;
+  const y = wrap01(v) * cells;
+  const cellX = Math.floor(x);
+  const cellY = Math.floor(y);
+  const localX = x - cellX;
+  const localY = y - cellY;
+  let nearest = Number.POSITIVE_INFINITY;
+
+  for (let offsetY = -1; offsetY <= 1; offsetY += 1) {
+    for (let offsetX = -1; offsetX <= 1; offsetX += 1) {
+      const wrappedX = ((cellX + offsetX) % cells + cells) % cells;
+      const wrappedY = ((cellY + offsetY) % cells + cells) % cells;
+      const pointX = terrainHash(wrappedX, wrappedY, seed);
+      const pointY = terrainHash(wrappedX, wrappedY, seed ^ 0x68bc21eb);
+      const dx = offsetX + pointX - localX;
+      const dy = offsetY + pointY - localY;
+      nearest = Math.min(nearest, Math.hypot(dx, dy));
+    }
+  }
+
+  return THREE.MathUtils.clamp(nearest / 0.78, 0, 1);
 }
 
 function periodicValueNoise(u, v, cells, seed) {
