@@ -21,6 +21,8 @@ const HELIOS_DEBRIS_GEOMETRY = new THREE.IcosahedronGeometry(1, 0);
 const HELIOS_DEBRIS_ISLET_GEOMETRY = new THREE.IcosahedronGeometry(1, 1);
 const HELIOS_DEBRIS_CRYSTAL_GEOMETRY = new THREE.ConeGeometry(1, 1, 5);
 const HELIOS_DEBRIS_CRYSTAL_CLUSTER_GEOMETRY = new THREE.OctahedronGeometry(1, 0);
+const HELIOS_SIDEWALL_BLOCK_GEOMETRY = makeHeliosMasonryBlockGeometry();
+const HELIOS_SIDEWALL_RIB_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
 
 /**
  * @param {import('./map-definition.js').TerrainSpec} terrain
@@ -140,10 +142,24 @@ function createHeliosMaterials(palette, seed = 2749) {
     metalness: 0.16,
     bumpStrength: 0.48
   });
+  const sidewallMasonry = metal(0xffffff, 0.82, 0.26, { flatShading: true });
+  sidewallMasonry.name = "helios-sidewall-masonry";
+  sidewallMasonry.userData.instancePalette = [
+    palette.sidewallShadow ?? 0x181b1d,
+    palette.sidewallMid ?? 0x302f2c,
+    palette.sidewallWarm ?? 0x4b3c2e,
+    palette.sidewallCool ?? 0x203036
+  ];
   const nebulaTexture = makeHeliosNebulaTexture(seed ^ 0x51ed270b, palette);
 
   return {
     understructure: metal(palette.understructure ?? 0x0b1017, 0.68, 0.72),
+    sidewallMasonry,
+    sidewallShadow: metal(palette.sidewallContactShadow ?? 0x080b0e, 0.96, 0.08),
+    sidewallRib: metal(palette.sidewallRib ?? 0x98602f, 0.52, 0.68, {
+      emissive: palette.sidewallRibEmissive ?? 0x2c1508,
+      emissiveIntensity: 0.1
+    }),
     basalt: terrainArmor,
     basaltEdge: terrainArmor,
     deckShadow: terrainDeck,
@@ -207,6 +223,31 @@ function createHeliosMaterials(palette, seed = 2749) {
       depthWrite: false
     });
   }
+}
+
+function makeHeliosMasonryBlockGeometry() {
+  const shape = new THREE.Shape();
+  const corner = 0.1;
+  shape.moveTo(-0.5 + corner, -0.5);
+  shape.lineTo(0.5 - corner, -0.5);
+  shape.lineTo(0.5, -0.5 + corner);
+  shape.lineTo(0.5, 0.5 - corner);
+  shape.lineTo(0.5 - corner, 0.5);
+  shape.lineTo(-0.5 + corner, 0.5);
+  shape.lineTo(-0.5, 0.5 - corner);
+  shape.lineTo(-0.5, -0.5 + corner);
+  shape.closePath();
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: 0.82,
+    bevelEnabled: true,
+    bevelSegments: 1,
+    bevelSize: 0.045,
+    bevelThickness: 0.045,
+    curveSegments: 1
+  });
+  geometry.center();
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
 function makeHeliosTerrainFieldTexture(seed, size = 256) {
@@ -657,6 +698,9 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
   const underDepth = visual.understructureDepth ?? visual.platformDepth ?? 1.8;
   const panelCount = visual.panelCount ?? 6;
   const armorBlockCount = visual.armorBlockCount ?? panelCount * 2 + 1;
+  const sidewallTierCount = visual.sidewallTierCount ?? 3;
+  const sidewallBlockCount = visual.sidewallBlockCount ?? armorBlockCount;
+  const sidewallRibCount = visual.sidewallRibCount ?? 5;
   const armorBandWidth = visual.armorBandWidth ?? 1.5;
   const wallJitter = visual.wallJitter ?? 0.48;
   const crackCount = visual.cracksPerFragment ?? panelCount;
@@ -835,6 +879,21 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
     random
   );
 
+  const sidewallDetail = addHeliosSidewallArchitecture(
+    g,
+    inner,
+    outer,
+    start,
+    end,
+    underDepth,
+    sidewallTierCount,
+    sidewallBlockCount,
+    sidewallRibCount,
+    materials,
+    surfaceY,
+    random
+  );
+
   for (let i = 0; i < conduitCount; i += 1) {
     const a = THREE.MathUtils.lerp(start + 0.1, end - 0.22, random());
     const length = 0.16 + random() * 0.25;
@@ -862,6 +921,12 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
     deckPanels: 0,
     deckCracks: crackCount,
     layeredArmorBands: 4,
+    sidewallTiers: sidewallDetail.tiers,
+    sidewallBlocks: sidewallDetail.blocks,
+    sidewallRibs: sidewallDetail.ribs,
+    sidewallRibBrackets: sidewallDetail.ribBrackets,
+    contactShadowBands: sidewallDetail.contactShadowBands,
+    sidewallDrawGroups: sidewallDetail.drawGroups,
     terrainSeams: terrainSeamCount,
     materialDrivenSurface: true
   };
@@ -1057,6 +1122,159 @@ function addHeliosArmorBlocks(
   blocks.name = "fragment-armor-blocks";
   blocks.instanceMatrix.needsUpdate = true;
   parent.add(blocks);
+}
+
+function addHeliosSidewallArchitecture(
+  parent,
+  inner,
+  outer,
+  start,
+  end,
+  underDepth,
+  requestedTierCount,
+  requestedBlockCount,
+  requestedRibCount,
+  materials,
+  surfaceY,
+  random
+) {
+  const tierCount = Math.max(1, Math.round(requestedTierCount));
+  const blockCount = Math.max(4, Math.round(requestedBlockCount));
+  const ribCount = Math.max(2, Math.round(requestedRibCount));
+  const palette = (materials.sidewallMasonry.userData.instancePalette ?? [0x2b2d2f])
+    .map((color) => new THREE.Color(color));
+  const topClearance = 0.44;
+  const bottomClearance = 0.38;
+  const tierPitch = Math.max(0.55, (underDepth - topClearance - bottomClearance) / tierCount);
+  const blocks = new THREE.InstancedMesh(
+    HELIOS_SIDEWALL_BLOCK_GEOMETRY,
+    materials.sidewallMasonry,
+    tierCount * blockCount * 2
+  );
+  const dummy = new THREE.Object3D();
+  const usableStart = start + 0.055;
+  const usableEnd = end - 0.055;
+  const usableSpan = Math.max(0.1, usableEnd - usableStart);
+  let blockIndex = 0;
+
+  for (let tier = 0; tier < tierCount; tier += 1) {
+    const stagger = tier % 2 === 0 ? 0 : 0.34;
+    const tierCenterY = surfaceY - topClearance - tierPitch * (tier + 0.5);
+
+    for (let i = 0; i < blockCount; i += 1) {
+      const normalized = THREE.MathUtils.clamp((i + 0.5 + stagger) / blockCount, 0.02, 0.98);
+      const angle = THREE.MathUtils.lerp(usableStart, usableEnd, normalized);
+
+      for (let edge = 0; edge < 2; edge += 1) {
+        const radiusBase = edge === 0 ? outer + 0.03 : inner - 0.03;
+        const radius = radiusBase + (edge === 0 ? 1 : -1) * tier * 0.025;
+        const slotWidth = Math.max(1.65, radius * usableSpan / blockCount);
+        const tangentWidth = slotWidth * (0.92 + random() * 0.045);
+        const blockHeight = tierPitch * (0.83 + random() * 0.055);
+        const radialDepth = (edge === 0 ? 0.88 : 0.76) * (0.94 + random() * 0.08);
+        const angleJitter = (random() - 0.5) * usableSpan / blockCount * 0.025;
+        const finalAngle = angle + angleJitter;
+
+        dummy.position.set(
+          Math.cos(finalAngle) * radius,
+          tierCenterY + (random() - 0.5) * tierPitch * 0.025,
+          Math.sin(finalAngle) * radius
+        );
+        dummy.rotation.set(
+          (random() - 0.5) * 0.012,
+          Math.PI / 2 - finalAngle + (random() - 0.5) * 0.012,
+          (random() - 0.5) * 0.016
+        );
+        dummy.scale.set(tangentWidth * 0.9, blockHeight * 0.9, radialDepth * 0.95);
+        dummy.updateMatrix();
+        blocks.setMatrixAt(blockIndex, dummy.matrix);
+        const colorIndex = (tier * 2 + i + edge + Math.floor(random() * palette.length)) % palette.length;
+        blocks.setColorAt(blockIndex, palette[colorIndex]);
+        blockIndex += 1;
+      }
+    }
+  }
+
+  blocks.name = "fragment-sidewall-masonry";
+  blocks.instanceMatrix.needsUpdate = true;
+  if (blocks.instanceColor) blocks.instanceColor.needsUpdate = true;
+  parent.add(blocks);
+
+  // Each structural frame uses one vertical rib and two short brackets. They
+  // share one instanced draw group, so the warm rhythm stays inexpensive.
+  const structuralPiecesPerRib = 3;
+  const ribs = new THREE.InstancedMesh(
+    HELIOS_SIDEWALL_RIB_GEOMETRY,
+    materials.sidewallRib,
+    ribCount * 2 * structuralPiecesPerRib
+  );
+  const ribHeight = Math.max(1.2, underDepth * 0.74);
+  const ribTop = surfaceY - 0.34;
+  let ribPieceIndex = 0;
+
+  for (let i = 0; i < ribCount; i += 1) {
+    const angle = THREE.MathUtils.lerp(
+      usableStart + 0.06,
+      usableEnd - 0.06,
+      ribCount === 1 ? 0.5 : i / (ribCount - 1)
+    );
+
+    for (let edge = 0; edge < 2; edge += 1) {
+      const radius = edge === 0 ? outer + 0.47 : inner - 0.41;
+      const radialDepth = edge === 0 ? 0.14 : 0.12;
+      dummy.position.set(
+        Math.cos(angle) * radius,
+        ribTop - ribHeight * 0.5,
+        Math.sin(angle) * radius
+      );
+      dummy.rotation.set(0, Math.PI / 2 - angle, 0);
+      dummy.scale.set(0.12, ribHeight, radialDepth);
+      dummy.updateMatrix();
+      ribs.setMatrixAt(ribPieceIndex, dummy.matrix);
+      ribPieceIndex += 1;
+
+      for (let bracket = 0; bracket < 2; bracket += 1) {
+        const bracketY = bracket === 0 ? ribTop - 0.06 : ribTop - ribHeight * 0.58;
+        dummy.position.set(Math.cos(angle) * radius, bracketY, Math.sin(angle) * radius);
+        dummy.rotation.set(0, Math.PI / 2 - angle, 0);
+        dummy.scale.set(0.44, 0.085, radialDepth * 1.5);
+        dummy.updateMatrix();
+        ribs.setMatrixAt(ribPieceIndex, dummy.matrix);
+        ribPieceIndex += 1;
+      }
+    }
+  }
+
+  ribs.name = "fragment-sidewall-structural-ribs";
+  ribs.instanceMatrix.needsUpdate = true;
+  parent.add(ribs);
+
+  const contactBandDepth = 0.5;
+  const contactBandSpan = Math.max(0.1, end - start);
+  const outerShadow = new THREE.Mesh(
+    makeAnnularSectorGeometry(outer - 0.38, outer + 0.3, contactBandSpan, contactBandDepth, 24),
+    materials.sidewallShadow
+  );
+  outerShadow.name = "fragment-outer-contact-shadow";
+  outerShadow.position.y = surfaceY - 0.37;
+  parent.add(outerShadow);
+
+  const innerShadow = new THREE.Mesh(
+    makeAnnularSectorGeometry(inner - 0.3, inner + 0.38, contactBandSpan, contactBandDepth, 24),
+    materials.sidewallShadow
+  );
+  innerShadow.name = "fragment-inner-contact-shadow";
+  innerShadow.position.y = surfaceY - 0.37;
+  parent.add(innerShadow);
+
+  return {
+    tiers: tierCount,
+    blocks: tierCount * blockCount * 2,
+    ribs: ribCount * 2,
+    ribBrackets: ribCount * 4,
+    contactShadowBands: 2,
+    drawGroups: 4
+  };
 }
 
 function addArcLine(parent, radius, start, end, y, material, segments = 16) {
