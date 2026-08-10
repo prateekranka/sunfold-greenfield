@@ -39,6 +39,8 @@ minimap.
   87 crystals around the ring. Seven instanced draw groups render the full debris composition.
 - A deterministic 256×256 warped fBm and ridged nebula texture on one camera-centered sky
   sphere, with dark blue, violet, and restrained cyan cloud structure.
+- Three attached chamfered masonry tiers on both exposed edges of every ring fragment, with
+  312 blocks, 40 warm braces, 80 brace brackets, and eight contact-shadow bands across the map.
 
 ### Changed
 
@@ -81,6 +83,9 @@ minimap.
   crystal crowns. The debris field is cosmetic and creates no walkable ground.
 - Cool distance fog now separates far debris and stars from the playable ring. The nebula is
   cosmetic, disables raycasts, follows the camera, and creates no walkable ground.
+- Fragment sidewalls now use staggered dark graphite and warm stone-metal blocks, embedded
+  brass frames, and a narrow cavity shadow below the gold rim. The playable deck, bridge
+  endpoints, path graph, and collision contract are unchanged.
 
 ### Fixed
 

@@ -932,3 +932,90 @@ materials. The browser frame proof is not a device GPU percentile export.
 Deepen the fragment sidewalls with layered structural blocks, warm ribs, and restrained
 contact shadow. Preserve the top deck, logical platforms, bridges, controls, and the 60 FPS
 gate.
+
+## Cycle 12 — fragment sidewall architecture · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Cycle 11 left the fragment edge as a thin, nearly black strip below the gold rim.
+- The approved reference uses attached stacked masonry, warm structural braces, and dark
+  cavity lines to give each sector architectural mass.
+
+### Correction
+
+- Added one shared chamfered masonry geometry and instanced it in three staggered tiers on
+  both exposed edges of every fragment.
+- Each fragment now has 78 sidewall blocks: 13 blocks across three tiers on its inner edge
+  and the same arrangement on its outer edge.
+- Added five embedded brace stations on each edge. Ten vertical brass ribs and 20 short
+  brackets share one instanced draw group per fragment.
+- Added one restrained contact-shadow band below each inner and outer gold rim.
+- The complete correction uses four draw groups per fragment. It changes visual geometry
+  only. It does not create walkable ground or alter a platform, bridge, waypoint, collision
+  shape, formation slot, repair target, or objective.
+
+### Rendered and performance proof
+
+- Four local visual revisions were inspected at the close gameplay camera. The first read as
+  loose debris; the accepted fourth revision reads as attached chamfered masonry.
+- Local accepted run: 600 frames in 9.9832 seconds at 60.101 FPS, 17.4 ms p95, 18.8 ms
+  maximum, and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9838 seconds at 60.097 FPS, 16.9 ms p95, 18.7 ms
+  maximum, and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- The hosted runtime script URL is
+  `https://dev.helios.contenthelper.in/helios-rift-proof.bundle.js?v=e63155f`.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check` for both changed terrain source files — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Root and deploy-site generated bundle SHA-256 values are identical.
+- Scoped `git diff --check` — passed.
+- Hosted page and versioned bundle returned HTTP 200. The hosted bundle hash matches the
+  committed asset.
+- The two unrelated dirty lab bundle hashes remained unchanged.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle12-sidewall-final-overview.png`
+- Hosted close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle12-sidewall-final-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle12-sidewall-final-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle12-sidewall-final-gameplay-performance-10s.json`
+- Hosted sidewall and versioned-script contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle12-sidewall-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle12-sidewall-final-interaction-proof.json`
+- Local frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle12-sidewall-r4-gameplay-performance-10s.json`
+- Ground tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle12-ground-test.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle12-build-r4.stdout.txt`
+- Bundle hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle12-bundle-hashes.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle12-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 12 materially improves the edge depth and silhouette, but it does not blind-match the
+reference. The concept still has richer chipped terminal faces, stronger warm solar bounce,
+denser deck mechanisms, and more vegetation. The north base buildings remain smoother and
+brighter than the surrounding map. The browser frame proof is not a device GPU percentile
+export.
+
+### Dev delivery
+
+- Implementation commit `e63155f` is visible on `origin/main`.
+- Worker version `33814f5d-dd73-46b7-a364-201d310b25af` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-12&v=e63155f`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `307e833edb54b715985f27ff87a0358f7f32d60f7683e3c9c95d17a78daa1058`.
+
+### Next cycle
+
+Integrate the Civilization Core, Farm, and Formation Yard into the map's weathered
+stone-metal material language. Preserve their silhouettes, health-state readability,
+gameplay footprints, controls, and the 60 FPS gate.
