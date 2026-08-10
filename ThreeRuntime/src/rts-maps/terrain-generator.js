@@ -2296,6 +2296,41 @@ function makeBridge(spec, palette, enabled, visualMaterials = null) {
   return g;
 }
 
+function makeBridgeRepairRibbonGeometry(segmentPoints, width = 0.045) {
+  const positions = [];
+  const indices = [];
+  const halfWidth = width * 0.5;
+
+  for (let i = 0; i + 1 < segmentPoints.length; i += 2) {
+    const start = segmentPoints[i];
+    const end = segmentPoints[i + 1];
+    const dx = end.x - start.x;
+    const dz = end.z - start.z;
+    const inverseLength = 1 / Math.max(0.0001, Math.hypot(dx, dz));
+    const offsetX = -dz * inverseLength * halfWidth;
+    const offsetZ = dx * inverseLength * halfWidth;
+    const base = positions.length / 3;
+    positions.push(
+      start.x + offsetX, start.y, start.z + offsetZ,
+      start.x - offsetX, start.y, start.z - offsetZ,
+      end.x - offsetX, end.y, end.z - offsetZ,
+      end.x + offsetX, end.y, end.z + offsetZ
+    );
+    indices.push(
+      base, base + 1, base + 2,
+      base, base + 2, base + 3,
+      base + 2, base + 1, base,
+      base + 3, base + 2, base
+    );
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 function makeHeliosBridge(spec, palette, enabled, visualMaterials = null) {
   const materials = visualMaterials ?? createHeliosMaterials({ ...palette, ...spec.visual?.palette });
   const from = spec.visual?.from ?? spec.from;
@@ -2335,21 +2370,25 @@ function makeHeliosBridge(spec, palette, enabled, visualMaterials = null) {
     g.add(under);
   }
 
-  const enabledPieces = enabled ? 4 : 2;
-  const gap = enabled ? Math.min(0.2, len * 0.04) : len * 0.2;
-  const pieceLen = Math.max(0.35, (len - gap * (enabledPieces - 1)) / enabledPieces);
   const deckWidth = enabled ? fullDeckWidth : fullDeckWidth * 0.88;
-  for (let i = 0; i < enabledPieces; i += 1) {
-    const deck = new THREE.Mesh(
-      new THREE.BoxGeometry(deckWidth, 0.12, pieceLen),
-      enabled ? materials.deck : materials.basaltEdge
-    );
-    deck.position.z = -len * 0.5 + pieceLen * 0.5 + i * (pieceLen + gap);
-    deck.position.y = surfaceY - 0.06;
-    g.add(deck);
-  }
+  let fracturedDeckPieces = 0;
+  let exposedBraces = 0;
+  let repairFilamentSegments = 0;
 
   if (enabled) {
+    const enabledPieces = 4;
+    const gap = Math.min(0.2, len * 0.04);
+    const pieceLen = Math.max(0.35, (len - gap * (enabledPieces - 1)) / enabledPieces);
+    for (let i = 0; i < enabledPieces; i += 1) {
+      const deck = new THREE.Mesh(
+        new THREE.BoxGeometry(deckWidth, 0.12, pieceLen),
+        materials.deck
+      );
+      deck.name = "bridge-restored-deck-slab";
+      deck.position.z = -len * 0.5 + pieceLen * 0.5 + i * (pieceLen + gap);
+      deck.position.y = surfaceY - 0.06;
+      g.add(deck);
+    }
     const railOffset = Math.max(0.55, deckWidth * 0.5 - 0.12);
     for (const side of [-railOffset, railOffset]) {
       const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.18, len * 0.88), materials.gold);
@@ -2360,15 +2399,98 @@ function makeHeliosBridge(spec, palette, enabled, visualMaterials = null) {
     conduit.position.y = surfaceY + 0.04;
     g.add(conduit);
   } else {
-    const spark = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 6), materials.conduitBright);
-    spark.name = "bridge-spark";
-    spark.position.y = surfaceY + 0.3;
-    g.add(spark);
-    for (const side of [-1, 1]) {
-      const repairLight = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.1, 8), materials.goldBright);
-      repairLight.position.set(0, surfaceY + 0.08, side * len * 0.22);
+    const terminalLength = Math.max(0.7, Math.min(len * 0.24, underStubLength * 0.7));
+    const tongueLength = Math.max(0.42, Math.min(len * 0.11, underStubLength * 0.34));
+    const fractureGap = Math.min(0.28, len * 0.025);
+    const filamentPoints = [];
+
+    for (const endSign of [-1, 1]) {
+      const endpointZ = endSign * len * 0.5;
+      const terminal = new THREE.Mesh(
+        new THREE.BoxGeometry(deckWidth, 0.13, terminalLength),
+        materials.basaltEdge
+      );
+      terminal.name = "bridge-fractured-terminal-slab";
+      terminal.position.set(
+        endSign * deckWidth * 0.018,
+        surfaceY - 0.065,
+        endpointZ - endSign * terminalLength * 0.5
+      );
+      terminal.rotation.y = endSign * 0.012;
+      g.add(terminal);
+      fracturedDeckPieces += 1;
+
+      const tongue = new THREE.Mesh(
+        new THREE.BoxGeometry(deckWidth * 0.72, 0.12, tongueLength),
+        materials.basaltEdge
+      );
+      tongue.name = "bridge-fractured-tongue-slab";
+      tongue.position.set(
+        -endSign * deckWidth * 0.08,
+        surfaceY - 0.11,
+        endpointZ - endSign * (terminalLength + fractureGap + tongueLength * 0.5)
+      );
+      tongue.rotation.set(endSign * 0.025, endSign * 0.075, endSign * 0.018);
+      g.add(tongue);
+      fracturedDeckPieces += 1;
+
+      const tornEdgeZ = endpointZ - endSign * (terminalLength + fractureGap + tongueLength);
+      for (const lateral of [-0.28, 0, 0.28]) {
+        const brace = new THREE.Mesh(HELIOS_SIDEWALL_RIB_GEOMETRY, materials.sidewallRib);
+        brace.name = "bridge-exposed-torn-brace";
+        brace.position.set(
+          lateral * deckWidth,
+          surfaceY - 0.02,
+          tornEdgeZ - endSign * 0.3
+        );
+        brace.scale.set(0.075, 0.075, 0.68);
+        brace.rotation.y = endSign * 0.055;
+        g.add(brace);
+        exposedBraces += 1;
+      }
+
+      for (const lateral of [-0.2, 0.2]) {
+        const start = new THREE.Vector3(
+          lateral * deckWidth,
+          surfaceY + 0.08,
+          tornEdgeZ - endSign * 0.62
+        );
+        const finish = new THREE.Vector3(
+          lateral * deckWidth * 0.42,
+          surfaceY + 0.1,
+          endSign * len * 0.09
+        );
+        let previous = start;
+        for (let segment = 1; segment <= 4; segment += 1) {
+          const progress = segment / 4;
+          const point = start.clone().lerp(finish, progress);
+          point.y -= Math.sin(progress * Math.PI) * 0.42;
+          filamentPoints.push(previous, point);
+          previous = point;
+          repairFilamentSegments += 1;
+        }
+      }
+
+      const repairLight = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.11, 0.11, 0.08, 8),
+        materials.gold
+      );
+      repairLight.name = "bridge-repair-beacon";
+      repairLight.position.set(0, surfaceY + 0.08, tornEdgeZ + endSign * 0.18);
       g.add(repairLight);
     }
+
+    const filaments = new THREE.Mesh(
+      makeBridgeRepairRibbonGeometry(filamentPoints),
+      materials.conduit
+    );
+    filaments.name = "bridge-broken-repair-ribbons";
+    g.add(filaments);
+
+    const spark = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), materials.conduit);
+    spark.name = "bridge-spark";
+    spark.position.y = surfaceY + 0.12;
+    g.add(spark);
   }
 
   const socketRadius = Math.min(0.42, bridgeWidth * 0.12);
@@ -2393,6 +2515,15 @@ function makeHeliosBridge(spec, palette, enabled, visualMaterials = null) {
   g.userData.spec = spec;
   g.userData.materials = materials;
   g.userData.understructureMode = enabled ? "continuous" : "terminal-stubs";
+  g.userData.visualStyle = enabled ? "restored-sunwoven-bridge" : "fractured-sunwoven-bridge";
+  g.userData.visualDetail = {
+    enabled,
+    restoredDeckSlabs: enabled ? 4 : 0,
+    fracturedDeckPieces,
+    exposedBraces,
+    repairFilamentSegments,
+    createsWalkableGround: enabled
+  };
   disableCosmeticRaycast(g);
   return g;
 }
@@ -2412,6 +2543,8 @@ export function setBridgeVisual(bridgeGroup, enabled, palette = PALETTE) {
   bridgeGroup.userData.spec = spec;
   bridgeGroup.userData.materials = rebuilt.userData.materials ?? bridgeGroup.userData.materials;
   bridgeGroup.userData.understructureMode = rebuilt.userData.understructureMode;
+  bridgeGroup.userData.visualStyle = rebuilt.userData.visualStyle;
+  bridgeGroup.userData.visualDetail = rebuilt.userData.visualDetail;
   while (rebuilt.children.length) {
     bridgeGroup.add(rebuilt.children[0]);
   }
