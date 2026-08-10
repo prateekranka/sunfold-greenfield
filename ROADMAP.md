@@ -20,9 +20,11 @@ graphite, ivory, teal, and brass material language while preserving all four dam
 Cycle 14 adds one restrained, instanced Sunwoven deck-life prop family outside movement
 corridors. Cycle 15 strengthens every thin fragment terminus with attached masonry, warm
 structural ribs, and restrained solar-joint sockets while preserving bridge and path
-contracts. Cycle 16 will add restrained warm solar bounce to the inner fragment walls and
-terminal faces. Cursor owns the separate second-civilization 2D sprite workflow. This track
-owns Blender 3D.
+contracts. Cycle 16 adds restrained warm solar bounce to the inner fragment walls and
+terminal faces through a separate instanced masonry material while keeping outer walls cool.
+Cycle 17 will add one restrained terminal maintenance-mechanism family outside movement
+corridors. Cursor owns the separate second-civilization 2D sprite workflow. This track owns
+Blender 3D.
 
 Gates run in order. A gate is complete only when its behaviour was observed in the
 rendered app on an iPad simulator — a green build is never sufficient.

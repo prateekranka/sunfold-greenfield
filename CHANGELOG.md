@@ -48,6 +48,8 @@ minimap.
   restrained lumen buds without adding walkable ground or path blockers.
 - Three attached masonry tiers on both cut faces of every ring fragment, with 144 chamfered
   blocks, 32 warm structural ribs, 64 brackets, and 16 dark solar-joint sockets across the map.
+- A restrained solar-facing masonry material for 156 inner-wall blocks and 144 terminal
+  blocks. Four additional instanced draw groups isolate the warm bounce from outer walls.
 
 ### Changed
 
@@ -103,6 +105,9 @@ minimap.
   Staggered masonry remains physically attached to the understructure, while dark socket caps
   and restrained brass rings replace the oversized bright termination discs. Bridge endpoints,
   playable ground, pathing, collision, and objectives are unchanged.
+- Inner fragment walls and terminal masonry now retain their graphite base while receiving a
+  low amber emissive lift from the solar objective. Outer walls remain cool and dark. The
+  correction adds no dynamic light, collider, path surface, or simulation state.
 
 ### Fixed
 

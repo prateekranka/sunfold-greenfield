@@ -1317,3 +1317,97 @@ browser frame proof is not a device GPU percentile export.
 
 Add restrained warm solar bounce to the inner fragment walls and terminal faces. Preserve
 deck readability, bridge endpoints, walkable ground, pathing, controls, and the 60 FPS gate.
+
+## Cycle 16 — restrained solar bounce · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Cycle 15 gave the fragment cut faces physical mass, but the inner masonry still fell toward
+  near-black at the hero camera.
+- The approved reference keeps the outer hull cool while reflected solar light reveals the
+  inner wall and terminal structure.
+
+### Correction
+
+- Split inner-wall masonry from outer-wall masonry without changing block transforms or
+  counts.
+- Applied one shared graphite-and-amber material to 156 inner-wall blocks and 144 terminal
+  blocks across the four fragments.
+- The material uses a restrained dark-amber emissive lift. It adds one instanced draw group
+  per fragment and no dynamic light.
+- Outer walls retain the original cool material. The solar core remains the brightest object.
+- The correction adds no collider, walkable surface, path, resource, objective, bridge, or
+  simulation state.
+
+### Visual iteration
+
+- R1 proved the material split but made the wall read as uniformly red brick.
+- R2 reduced the emissive intensity from 0.24 to 0.16 and moved the instance palette back
+  toward graphite. The accepted wall remains dark stone-metal at close range and gains a
+  readable amber lift at the hero overview.
+
+### Rendered and performance proof
+
+- Local accepted run: 600 frames in 9.9926 seconds at 60.044 FPS, 16.8 ms p95, 18.6 ms
+  maximum, and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9878 seconds at 60.073 FPS, 16.8 ms p95, 17.7 ms
+  maximum, and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- The hosted contract confirms 39 inner bounce blocks, 36 terminal bounce blocks, and five
+  sidewall draw groups on each fragment.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check ThreeRuntime/src/rts-maps/terrain-generator.js` — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Root and deploy-site generated bundle SHA-256 values are identical.
+- Scoped `git diff --check` — passed.
+- Hosted page and versioned bundle returned HTTP 200. The hosted bundle hash matches the
+  committed and deploy-site assets.
+- The two unrelated dirty lab bundle hashes remained unchanged.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle16-solar-bounce-final-overview.png`
+- Hosted gameplay close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle16-solar-bounce-final-final.png`
+- Hosted inner-wall close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle16-solar-bounce-inner-wall-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle16-solar-bounce-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle16-solar-bounce-final-gameplay-performance-10s.json`
+- Hosted material and versioned-script contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle16-solar-bounce-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle16-solar-bounce-final-interaction-proof.json`
+- Local overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle16-solar-bounce-r2-local-overview.png`
+- Local inner-wall close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle16-r2-inner-wall-final.png`
+- Local reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle16-solar-bounce-r2-reference-comparison.png`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle16-ground-test.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle16-build-r2.stdout.txt`
+- Bundle and preservation hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle16-bundle-and-preservation-hashes.txt`
+- Hosted hash and HTTP proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle16-hosted-http-and-hash.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle16-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 16 reveals the inner masonry without turning it into a glowing band. It does not
+blind-match the reference. The concept still has more authored maintenance mechanisms around
+terminal joints and broad deck margins. The browser frame proof is not a device GPU percentile
+export.
+
+### Dev delivery
+
+- Implementation commit `caf70cd` is visible on `origin/main`.
+- Worker version `84b7beb4-ce7f-4d66-a8ff-26680ddc78e2` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-16&v=caf70cd`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `1c19482e99dc87bae37d4726d57b6957c4b1f295b09c443c5a2a4faa7863033e`.
+
+### Next cycle
+
+Add one restrained terminal maintenance-mechanism family outside bridge and movement
+corridors. Preserve deck readability, walkable ground, pathing, controls, and the 60 FPS gate.
