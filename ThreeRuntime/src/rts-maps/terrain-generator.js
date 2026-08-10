@@ -36,11 +36,14 @@ export function buildTerrain(terrain, bridges = []) {
   const palette = { ...PALETTE, ...terrain.palette };
   const visual = terrain.visual?.style === "broken-ring" ? terrain.visual : null;
   const visualPalette = visual ? { ...palette, ...visual.palette } : palette;
-  const visualMaterials = visual ? createHeliosMaterials(visualPalette) : null;
+  const visualMaterials = visual ? createHeliosMaterials(visualPalette, visual.seed ?? 2749) : null;
 
   // Helios uses a deterministic presentation path. Other maps retain the
   // original low-cost starfield and platform rendering below.
-  if (visual) addHeliosStarfield(group, visual, visualPalette, visualMaterials);
+  if (visual) {
+    addHeliosNebulaBackdrop(group, visual, visualMaterials);
+    addHeliosStarfield(group, visual, visualPalette, visualMaterials);
+  }
   else addLegacyStarfield(group);
 
   for (const p of terrain.platforms) {
@@ -137,6 +140,7 @@ function createHeliosMaterials(palette, seed = 2749) {
     metalness: 0.16,
     bumpStrength: 0.48
   });
+  const nebulaTexture = makeHeliosNebulaTexture(seed ^ 0x51ed270b, palette);
 
   return {
     understructure: metal(palette.understructure ?? 0x0b1017, 0.68, 0.72),
@@ -158,6 +162,15 @@ function createHeliosMaterials(palette, seed = 2749) {
     crystalBright: glow(palette.crystalBright ?? 0x59ddd3, 1.32, 1, 0.08, 0.16),
     rock: metal(palette.rock ?? 0x303437, 0.94, 0.1, { flatShading: true }),
     rockWarm: metal(palette.rockWarm ?? 0x55504a, 0.9, 0.08, { flatShading: true }),
+    nebula: new THREE.MeshBasicMaterial({
+      map: nebulaTexture,
+      color: 0xffffff,
+      depthTest: false,
+      depthWrite: false,
+      fog: false,
+      toneMapped: false,
+      side: THREE.BackSide
+    }),
     goldLine: line(palette.gold ?? 0xe9a749, 0.78),
     seamLine: line(palette.seam ?? 0x252d36, 0.9),
     conduitLine: line(palette.conduit ?? 0x35d8ce, 0.8),
@@ -235,6 +248,94 @@ function makeHeliosTerrainFieldTexture(seed, size = 256) {
   texture.needsUpdate = true;
   texture.userData = { seed, size, channels: ["broad", "weather", "ridge", "grain"] };
   return texture;
+}
+
+function makeHeliosNebulaTexture(seed, palette, size = 256) {
+  const data = new Uint8Array(size * size * 4);
+  const shadow = hexRgb(palette.nebulaShadow ?? 0x01040b);
+  const blue = hexRgb(palette.nebulaBlue ?? 0x0b2346);
+  const violet = hexRgb(palette.nebulaViolet ?? 0x261b3f);
+  const teal = hexRgb(palette.nebulaTeal ?? 0x0b3544);
+
+  for (let y = 0; y < size; y += 1) {
+    const v = y / size;
+    for (let x = 0; x < size; x += 1) {
+      const u = x / size;
+      const warpX = periodicFbm(u + 0.17, v - 0.23, 2, 4, seed) - 0.5;
+      const warpY = periodicFbm(u - 0.29, v + 0.13, 3, 4, seed ^ 0x68bc21eb) - 0.5;
+      const broad = periodicFbm(
+        u + warpX * 0.18,
+        v + warpY * 0.18,
+        2,
+        5,
+        seed ^ 0x9e3779b9
+      );
+      const weather = periodicFbm(
+        u - warpY * 0.12,
+        v + warpX * 0.12,
+        5,
+        4,
+        seed ^ 0x7f4a7c15
+      );
+      const ridgeSource = periodicFbm(
+        u + warpX * 0.08,
+        v - warpY * 0.08,
+        9,
+        3,
+        seed ^ 0x2c9277b5
+      );
+      const ridge = 1 - Math.abs(ridgeSource * 2 - 1);
+      const distanceFromCenter = Math.hypot(u - 0.5, v - 0.5);
+      const outerWeight = 0.55 + smoothstepRange(0.1, 0.5, distanceFromCenter) * 0.45;
+      const cloud = smoothstepRange(0.47, 0.6, broad * 0.55 + weather * 0.45) * outerWeight;
+      const violetCloud = smoothstepRange(0.52, 0.69, weather) * outerWeight * 0.78;
+      const filament = smoothstepRange(0.58, 0.8, ridge) * outerWeight * 0.46;
+      const darkLane = smoothstepRange(0.48, 0.72, 1 - ridge) * 0.5;
+
+      let red = mixByte(shadow[0], blue[0], cloud * 0.78);
+      let green = mixByte(shadow[1], blue[1], cloud * 0.78);
+      let blueChannel = mixByte(shadow[2], blue[2], cloud * 0.78);
+      red = mixByte(red, violet[0], violetCloud);
+      green = mixByte(green, violet[1], violetCloud);
+      blueChannel = mixByte(blueChannel, violet[2], violetCloud);
+      red = mixByte(red, teal[0], filament);
+      green = mixByte(green, teal[1], filament);
+      blueChannel = mixByte(blueChannel, teal[2], filament);
+      const darken = 1 - darkLane;
+      const index = (y * size + x) * 4;
+      data[index] = Math.round(red * darken);
+      data[index + 1] = Math.round(green * darken);
+      data[index + 2] = Math.round(blueChannel * darken);
+      data[index + 3] = 255;
+    }
+  }
+
+  const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+  texture.name = "helios-nebula-field";
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(3.2, 1.8);
+  texture.offset.set(0.13, 0.07);
+  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  texture.userData = { seed, size, style: "warped-fbm-ridged-nebula" };
+  return texture;
+}
+
+function hexRgb(value) {
+  return [(value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff];
+}
+
+function mixByte(from, to, amount) {
+  return THREE.MathUtils.lerp(from, to, THREE.MathUtils.clamp(amount, 0, 1));
+}
+
+function smoothstepRange(minimum, maximum, value) {
+  const t = THREE.MathUtils.clamp((value - minimum) / Math.max(0.0001, maximum - minimum), 0, 1);
+  return t * t * (3 - 2 * t);
 }
 
 function makeHeliosTerrainMaterial(fieldTexture, options) {
@@ -410,6 +511,30 @@ normal = sunfoldPerturbTerrainNormal(
     );
   };
   return material;
+}
+
+function addHeliosNebulaBackdrop(group, visual, materials) {
+  const backdrop = visual.nebulaBackdrop ?? {};
+  if (backdrop.enabled === false) return;
+  const radius = backdrop.radius ?? 200;
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), materials.nebula);
+  mesh.name = "helios-nebula-backdrop";
+  mesh.rotation.y = backdrop.rotation ?? 0;
+  mesh.renderOrder = -1000;
+  mesh.frustumCulled = false;
+  mesh.onBeforeRender = (_renderer, _scene, camera) => {
+    mesh.position.copy(camera.position);
+  };
+  mesh.userData.visualStyle = "procedural-nebula-backdrop";
+  mesh.userData.visualDetail = {
+    texture: materials.nebula.map?.name ?? null,
+    textureSize: materials.nebula.map?.image?.width ?? null,
+    projection: "camera-centered-sphere",
+    drawGroups: 1,
+    createsWalkableGround: false
+  };
+  disableCosmeticRaycast(mesh);
+  group.add(mesh);
 }
 
 function replaceShaderChunk(source, marker, replacement) {

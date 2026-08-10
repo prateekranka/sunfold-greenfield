@@ -65,7 +65,7 @@ root.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x01040b);
-scene.fog = new THREE.Fog(0x01040b, 118, 225);
+scene.fog = new THREE.Fog(0x061426, 108, 225);
 
 const camera = createRtsCamera(1, HELIOS_CAMERA);
 const mapWorld = createRtsMapWorld(MAP_ID, scene);

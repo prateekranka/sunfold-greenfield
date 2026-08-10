@@ -65,6 +65,7 @@ const RING_VISUAL = {
   cracksPerFragment: 8,
   conduitCount: 4,
   starfield: { count: 520, innerRadius: 74, outerRadius: 106, height: 42 },
+  nebulaBackdrop: { radius: 200, rotation: 0.18 },
   palette: {
     understructure: 0x0e1218,
     basalt: 0x1a1f25,
@@ -91,6 +92,10 @@ const RING_VISUAL = {
     rockWarm: 0x55504a,
     crystal: 0x1ca7a8,
     crystalBright: 0x59ddd3,
+    nebulaShadow: 0x020612,
+    nebulaBlue: 0x0d294b,
+    nebulaViolet: 0x301f4b,
+    nebulaTeal: 0x083747,
     star: 0xb7d8ff,
     void: 0x030812
   },
