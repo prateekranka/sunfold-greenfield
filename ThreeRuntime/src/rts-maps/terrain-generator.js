@@ -156,11 +156,24 @@ function createHeliosMaterials(palette, seed = 2749) {
     palette.sidewallWarm ?? 0x4b3c2e,
     palette.sidewallCool ?? 0x203036
   ];
+  const sidewallSolarMasonry = metal(0xffffff, 0.8, 0.24, {
+    flatShading: true,
+    emissive: palette.solarBounce ?? 0x5a2108,
+    emissiveIntensity: Math.min(palette.solarBounceIntensity ?? 0.24, 0.5)
+  });
+  sidewallSolarMasonry.name = "helios-sidewall-solar-masonry";
+  sidewallSolarMasonry.userData.instancePalette = [
+    palette.sidewallSolarShadow ?? 0x2a211c,
+    palette.sidewallSolarMid ?? 0x443126,
+    palette.sidewallSolarWarm ?? 0x62452d,
+    palette.sidewallSolarCool ?? 0x354044
+  ];
   const nebulaTexture = makeHeliosNebulaTexture(seed ^ 0x51ed270b, palette);
 
   return {
     understructure: metal(palette.understructure ?? 0x0b1017, 0.68, 0.72),
     sidewallMasonry,
+    sidewallSolarMasonry,
     sidewallShadow: metal(palette.sidewallContactShadow ?? 0x080b0e, 0.96, 0.08),
     sidewallRib: metal(palette.sidewallRib ?? 0x98602f, 0.52, 0.68, {
       emissive: palette.sidewallRibEmissive ?? 0x2c1508,
@@ -987,6 +1000,9 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
     terminalRibs: terminalDetail.ribs,
     terminalRibBrackets: terminalDetail.ribBrackets,
     terminalDrawGroups: terminalDetail.drawGroups,
+    solarBounceInnerBlocks: sidewallDetail.solarBounceBlocks,
+    solarBounceTerminalBlocks: terminalDetail.solarBounceBlocks,
+    materialDrivenSolarBounce: true,
     terrainSeams: terrainSeamCount,
     materialDrivenSurface: true
   };
@@ -1320,21 +1336,30 @@ function addHeliosSidewallArchitecture(
   const tierCount = Math.max(1, Math.round(requestedTierCount));
   const blockCount = Math.max(4, Math.round(requestedBlockCount));
   const ribCount = Math.max(2, Math.round(requestedRibCount));
-  const palette = (materials.sidewallMasonry.userData.instancePalette ?? [0x2b2d2f])
-    .map((color) => new THREE.Color(color));
+  const palettes = [materials.sidewallMasonry, materials.sidewallSolarMasonry]
+    .map((material) => (material.userData.instancePalette ?? [0x2b2d2f])
+      .map((color) => new THREE.Color(color)));
   const topClearance = 0.44;
   const bottomClearance = 0.38;
   const tierPitch = Math.max(0.55, (underDepth - topClearance - bottomClearance) / tierCount);
-  const blocks = new THREE.InstancedMesh(
-    HELIOS_SIDEWALL_BLOCK_GEOMETRY,
-    materials.sidewallMasonry,
-    tierCount * blockCount * 2
-  );
+  const blocksPerEdge = tierCount * blockCount;
+  const edgeBlocks = [
+    new THREE.InstancedMesh(
+      HELIOS_SIDEWALL_BLOCK_GEOMETRY,
+      materials.sidewallMasonry,
+      blocksPerEdge
+    ),
+    new THREE.InstancedMesh(
+      HELIOS_SIDEWALL_BLOCK_GEOMETRY,
+      materials.sidewallSolarMasonry,
+      blocksPerEdge
+    )
+  ];
   const dummy = new THREE.Object3D();
   const usableStart = start + 0.055;
   const usableEnd = end - 0.055;
   const usableSpan = Math.max(0.1, usableEnd - usableStart);
-  let blockIndex = 0;
+  const edgeBlockIndices = [0, 0];
 
   for (let tier = 0; tier < tierCount; tier += 1) {
     const stagger = tier % 2 === 0 ? 0 : 0.34;
@@ -1366,18 +1391,24 @@ function addHeliosSidewallArchitecture(
         );
         dummy.scale.set(tangentWidth * 0.9, blockHeight * 0.9, radialDepth * 0.95);
         dummy.updateMatrix();
+        const blocks = edgeBlocks[edge];
+        const blockIndex = edgeBlockIndices[edge];
+        const palette = palettes[edge];
         blocks.setMatrixAt(blockIndex, dummy.matrix);
         const colorIndex = (tier * 2 + i + edge + Math.floor(random() * palette.length)) % palette.length;
         blocks.setColorAt(blockIndex, palette[colorIndex]);
-        blockIndex += 1;
+        edgeBlockIndices[edge] += 1;
       }
     }
   }
 
-  blocks.name = "fragment-sidewall-masonry";
-  blocks.instanceMatrix.needsUpdate = true;
-  if (blocks.instanceColor) blocks.instanceColor.needsUpdate = true;
-  parent.add(blocks);
+  edgeBlocks[0].name = "fragment-outer-sidewall-masonry";
+  edgeBlocks[1].name = "fragment-inner-solar-bounce-masonry";
+  for (const blocks of edgeBlocks) {
+    blocks.instanceMatrix.needsUpdate = true;
+    if (blocks.instanceColor) blocks.instanceColor.needsUpdate = true;
+    parent.add(blocks);
+  }
 
   // Each structural frame uses one vertical rib and two short brackets. They
   // share one instanced draw group, so the warm rhythm stays inexpensive.
@@ -1452,7 +1483,8 @@ function addHeliosSidewallArchitecture(
     ribs: ribCount * 2,
     ribBrackets: ribCount * 4,
     contactShadowBands: 2,
-    drawGroups: 4
+    solarBounceBlocks: blocksPerEdge,
+    drawGroups: 5
   };
 }
 
@@ -1473,11 +1505,12 @@ function addHeliosTerminalArchitecture(
   const tierCount = Math.max(1, Math.round(requestedTierCount));
   const blockCount = Math.max(4, Math.round(requestedBlockCount));
   const ribCount = Math.max(2, Math.round(requestedRibCount));
-  const palette = (materials.sidewallMasonry.userData.instancePalette ?? [0x2b2d2f])
+  const terminalMaterial = materials.sidewallSolarMasonry ?? materials.sidewallMasonry;
+  const palette = (terminalMaterial.userData.instancePalette ?? [0x2b2d2f])
     .map((color) => new THREE.Color(color));
   const blocks = new THREE.InstancedMesh(
     HELIOS_SIDEWALL_BLOCK_GEOMETRY,
-    materials.sidewallMasonry,
+    terminalMaterial,
     tierCount * blockCount * 2
   );
   const dummy = new THREE.Object3D();
@@ -1586,6 +1619,7 @@ function addHeliosTerminalArchitecture(
     blocks: tierCount * blockCount * 2,
     ribs: ribCount * 2,
     ribBrackets: ribCount * 4,
+    solarBounceBlocks: tierCount * blockCount * 2,
     drawGroups: 2
   };
 }
