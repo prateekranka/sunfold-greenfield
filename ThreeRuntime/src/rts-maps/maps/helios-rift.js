@@ -168,6 +168,18 @@ const RING_VISUAL = {
       { id: "w-inner-north", fragmentId: "frag-w", radius: 27.6, angleOffset: 0.36, scale: 1.02 }
     ]
   },
+  maintenance: {
+    winches: [
+      { id: "n-terminal-west", fragmentId: "frag-n", radius: 34.4, angleOffset: -0.55, scale: 0.92 },
+      { id: "n-terminal-east", fragmentId: "frag-n", radius: 34.1, angleOffset: 0.55, scale: 0.86 },
+      { id: "e-terminal-north", fragmentId: "frag-e", radius: 34.2, angleOffset: -0.55, scale: 0.9 },
+      { id: "e-terminal-south", fragmentId: "frag-e", radius: 34.5, angleOffset: 0.55, scale: 0.96 },
+      { id: "s-terminal-east", fragmentId: "frag-s", radius: 34.3, angleOffset: -0.55, scale: 0.88 },
+      { id: "s-terminal-west", fragmentId: "frag-s", radius: 34.1, angleOffset: 0.55, scale: 0.94 },
+      { id: "w-terminal-south", fragmentId: "frag-w", radius: 34.5, angleOffset: -0.55, scale: 0.91 },
+      { id: "w-terminal-north", fragmentId: "frag-w", radius: 34.2, angleOffset: 0.55, scale: 0.87 }
+    ]
+  },
   debrisField: {
     count: 180,
     coreRadius: 10,

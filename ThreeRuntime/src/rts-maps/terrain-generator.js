@@ -27,6 +27,11 @@ const HELIOS_DECK_LIFE_PLANTER_GEOMETRY = new THREE.CylinderGeometry(0.42, 0.7, 
 const HELIOS_DECK_LIFE_STEM_GEOMETRY = new THREE.CylinderGeometry(0.03, 0.055, 1, 5);
 const HELIOS_DECK_LIFE_LEAF_GEOMETRY = makeHeliosFabricLeafGeometry();
 const HELIOS_DECK_LIFE_BUD_GEOMETRY = new THREE.OctahedronGeometry(0.14, 0);
+const HELIOS_WINCH_BASE_GEOMETRY = new THREE.BoxGeometry(1.36, 0.22, 0.92);
+const HELIOS_WINCH_YOKE_GEOMETRY = new THREE.BoxGeometry(0.15, 0.78, 0.2);
+const HELIOS_WINCH_DRUM_GEOMETRY = new THREE.CylinderGeometry(0.27, 0.27, 0.82, 10);
+const HELIOS_WINCH_COIL_GEOMETRY = new THREE.TorusGeometry(0.32, 0.055, 6, 12);
+const HELIOS_WINCH_BRACE_GEOMETRY = new THREE.BoxGeometry(1.18, 0.1, 0.18);
 
 /**
  * @param {import('./map-definition.js').TerrainSpec} terrain
@@ -60,7 +65,10 @@ export function buildTerrain(terrain, bridges = []) {
     group.add(mesh);
   }
 
-  if (visual) addHeliosDeckLife(group, visual, visualMaterials);
+  if (visual) {
+    addHeliosDeckLife(group, visual, visualMaterials);
+    addHeliosMaintenanceMechanisms(group, visual, visualMaterials);
+  }
 
   for (const d of terrain.debris ?? []) {
     group.add(visual ? makeHeliosDebris(d, visual, visualMaterials) : makeDebris(d, palette));
@@ -1127,6 +1135,129 @@ function addHeliosDeckLife(group, visual, materials) {
   disableCosmeticRaycast(deckLife);
   group.add(deckLife);
   return deckLife;
+}
+
+function addHeliosMaintenanceMechanisms(group, visual, materials) {
+  const requested = visual.maintenance?.winches ?? [];
+  if (requested.length === 0) return null;
+
+  const maintenance = new THREE.Group();
+  maintenance.name = "helios-terminal-maintenance";
+  const baseMatrices = [];
+  const yokeMatrices = [];
+  const drumMatrices = [];
+  const coilMatrices = [];
+  const braceMatrices = [];
+  const dummy = new THREE.Object3D();
+  const upAxis = new THREE.Vector3(0, 1, 0);
+  const forwardAxis = new THREE.Vector3(0, 0, 1);
+  const surfaceY = visual.surfaceY ?? 0;
+
+  for (const winch of requested) {
+    const fragment = visual.fragments?.find((entry) => entry.id === winch.fragmentId);
+    if (!fragment) continue;
+    const worldAngle = (fragment.centerAngle ?? 0) + (winch.angleOffset ?? 0);
+    const radius = winch.radius ?? (visual.innerRadius + visual.outerRadius) * 0.5;
+    const scale = winch.scale ?? 1;
+    const centerX = Math.cos(worldAngle) * radius;
+    const centerZ = Math.sin(worldAngle) * radius;
+    const axisAngle = worldAngle + Math.PI / 2;
+    const axis = new THREE.Vector3(Math.cos(axisAngle), 0, Math.sin(axisAngle));
+
+    dummy.position.set(centerX, surfaceY + 0.11 * scale, centerZ);
+    dummy.rotation.set(0, -axisAngle, 0);
+    dummy.scale.setScalar(scale);
+    dummy.updateMatrix();
+    baseMatrices.push(dummy.matrix.clone());
+
+    for (const side of [-1, 1]) {
+      dummy.position.set(
+        centerX + axis.x * side * 0.5 * scale,
+        surfaceY + 0.52 * scale,
+        centerZ + axis.z * side * 0.5 * scale
+      );
+      dummy.rotation.set(0, -axisAngle, 0);
+      dummy.scale.setScalar(scale);
+      dummy.updateMatrix();
+      yokeMatrices.push(dummy.matrix.clone());
+    }
+
+    dummy.position.set(centerX, surfaceY + 0.62 * scale, centerZ);
+    dummy.quaternion.setFromUnitVectors(upAxis, axis);
+    dummy.scale.setScalar(scale);
+    dummy.updateMatrix();
+    drumMatrices.push(dummy.matrix.clone());
+
+    for (const side of [-1, 1]) {
+      dummy.position.set(
+        centerX + axis.x * side * 0.31 * scale,
+        surfaceY + 0.62 * scale,
+        centerZ + axis.z * side * 0.31 * scale
+      );
+      dummy.quaternion.setFromUnitVectors(forwardAxis, axis);
+      dummy.scale.setScalar(scale);
+      dummy.updateMatrix();
+      coilMatrices.push(dummy.matrix.clone());
+    }
+
+    dummy.position.set(centerX, surfaceY + 0.96 * scale, centerZ);
+    dummy.rotation.set(0, -axisAngle, 0);
+    dummy.scale.setScalar(scale);
+    dummy.updateMatrix();
+    braceMatrices.push(dummy.matrix.clone());
+  }
+
+  addStaticInstances(
+    maintenance,
+    "maintenance-winch-plinths",
+    HELIOS_WINCH_BASE_GEOMETRY,
+    materials.deckLifePlanter,
+    baseMatrices
+  );
+  addStaticInstances(
+    maintenance,
+    "maintenance-winch-yokes",
+    HELIOS_WINCH_YOKE_GEOMETRY,
+    materials.sidewallRib,
+    yokeMatrices
+  );
+  addStaticInstances(
+    maintenance,
+    "maintenance-winch-drums",
+    HELIOS_WINCH_DRUM_GEOMETRY,
+    materials.deckLifePlanter,
+    drumMatrices
+  );
+  addStaticInstances(
+    maintenance,
+    "maintenance-lumen-coil-rings",
+    HELIOS_WINCH_COIL_GEOMETRY,
+    materials.conduit,
+    coilMatrices
+  );
+  addStaticInstances(
+    maintenance,
+    "maintenance-winch-top-braces",
+    HELIOS_WINCH_BRACE_GEOMETRY,
+    materials.sidewallRib,
+    braceMatrices
+  );
+
+  maintenance.userData.visualStyle = "sunwoven-gravity-winches";
+  maintenance.userData.visualDetail = {
+    winches: baseMatrices.length,
+    plinths: baseMatrices.length,
+    yokes: yokeMatrices.length,
+    drums: drumMatrices.length,
+    lumenCoilRings: coilMatrices.length,
+    topBraces: braceMatrices.length,
+    instancedDrawGroups: maintenance.children.length,
+    createsWalkableGround: false,
+    affectsPathing: false
+  };
+  disableCosmeticRaycast(maintenance);
+  group.add(maintenance);
+  return maintenance;
 }
 
 function makeAnnularSectorGeometry(inner, outer, span, depth, segments) {
