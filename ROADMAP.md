@@ -22,9 +22,10 @@ corridors. Cycle 15 strengthens every thin fragment terminus with attached mason
 structural ribs, and restrained solar-joint sockets while preserving bridge and path
 contracts. Cycle 16 adds restrained warm solar bounce to the inner fragment walls and
 terminal faces through a separate instanced masonry material while keeping outer walls cool.
-Cycle 17 will add one restrained terminal maintenance-mechanism family outside movement
-corridors. Cursor owns the separate second-civilization 2D sprite workflow. This track owns
-Blender 3D.
+Cycle 17 adds eight human-scale terminal gravity winches outside movement corridors in five
+shared draw groups. Cycle 18 will replace the dark, featureless disabled-bridge bars with readable damaged
+infrastructure while preserving the bridge-state contract. Cursor owns the separate
+second-civilization 2D sprite workflow. This track owns Blender 3D.
 
 Gates run in order. A gate is complete only when its behaviour was observed in the
 rendered app on an iPad simulator — a green build is never sufficient.

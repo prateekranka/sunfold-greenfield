@@ -1411,3 +1411,94 @@ export.
 
 Add one restrained terminal maintenance-mechanism family outside bridge and movement
 corridors. Preserve deck readability, walkable ground, pathing, controls, and the 60 FPS gate.
+
+## Cycle 17 — terminal gravity winches · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Cycle 16 made the fragment structure readable, but the broad terminal deck margins still
+  lacked small authored machinery.
+- The approved reference uses restrained functional detail to show that the broken ring was
+  maintained and inhabited.
+
+### Correction
+
+- Added eight human-scale gravity winches, one beside each fragment end and outside all bridge,
+  building, landmark, resource, and primary movement corridors.
+- Five shared instanced draw groups render eight dark ceramic plinths, 16 brass yokes, eight
+  horizontal drums, 16 teal lumen coil rings, and eight top braces.
+- Every winch is cosmetic and raycast-disabled. The family creates no walkable ground and
+  changes no path, collider, bridge, resource, objective, or simulation rule.
+
+### Visual iteration
+
+- R1 used three bright top spokes and read as a toy propeller.
+- R2 replaced the spokes with one crank and grip, but the stacked cylinders read as a cup.
+- R3 changed the silhouette to a horizontal cable winch with paired yokes, framed drum, two
+  teal coil rings, a low rectangular plinth, and a restrained top brace. It reads as machinery
+  at close range and as a small functional accent at the hero camera.
+
+### Rendered and performance proof
+
+- Local accepted run: 600 frames in 9.9853 seconds at 60.088 FPS, 17.5 ms p95, 17.7 ms
+  maximum, and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9944 seconds at 60.034 FPS, 17.1 ms p95, 17.6 ms
+  maximum, and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- The hosted contract confirms eight winches, five draw groups, disabled raycasts, no
+  walkable ground, and no pathing effect.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check ThreeRuntime/src/rts-maps/terrain-generator.js` — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Root and deploy-site generated bundle SHA-256 values are identical.
+- Scoped `git diff --check` — passed.
+- Hosted page and versioned bundle returned HTTP 200. The hosted bundle hash matches the
+  committed and deploy-site assets.
+- The two unrelated dirty lab bundle hashes remained unchanged.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle17-winches-final-overview.png`
+- Hosted gameplay close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle17-winches-final-final.png`
+- Hosted winch close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle17-winch-close-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle17-winches-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle17-winches-final-gameplay-performance-10s.json`
+- Hosted mechanism and versioned-script contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle17-winches-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle17-winches-final-interaction-proof.json`
+- Local overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle17-winches-r3-local-overview.png`
+- Local winch close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle17-r3-terminal-margin-final.png`
+- Local reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle17-winches-r3-reference-comparison.png`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle17-ground-test.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle17-build-r3.stdout.txt`
+- Bundle and preservation hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle17-bundle-and-preservation-hashes.txt`
+- Hosted hash and HTTP proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle17-hosted-http-and-hash.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle17-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 17 adds small authored function without clutter. It does not blind-match the reference.
+Disabled bridges remain dark, featureless bars that read as unfinished geometry rather than
+damaged infrastructure. The browser frame proof is not a device GPU percentile export.
+
+### Dev delivery
+
+- Implementation commit `4cfb3c8` is visible on `origin/main`.
+- Worker version `dbef7cfb-27c8-441a-8d5d-a175f8ec338c` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-17&v=4cfb3c8`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `50d6ea67d4d5173703a8c0cde966d3ef079b9bd51a9cc1bc9b2c19f664fab2b3`.
+
+### Next cycle
+
+Make disabled bridges read as damaged infrastructure with fractured deck slabs and restrained
+repair filaments. Preserve bridge state, route rules, controls, and the 60 FPS gate.

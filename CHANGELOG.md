@@ -50,6 +50,9 @@ minimap.
   blocks, 32 warm structural ribs, 64 brackets, and 16 dark solar-joint sockets across the map.
 - A restrained solar-facing masonry material for 156 inner-wall blocks and 144 terminal
   blocks. Four additional instanced draw groups isolate the warm bounce from outer walls.
+- Eight Sunwoven gravity winches in the empty terminal margins. Five shared instanced draw
+  groups render eight plinths, 16 brass yokes, eight drums, 16 lumen coil rings, and eight
+  top braces.
 
 ### Changed
 
@@ -108,6 +111,9 @@ minimap.
 - Inner fragment walls and terminal masonry now retain their graphite base while receiving a
   low amber emissive lift from the solar objective. Outer walls remain cool and dark. The
   correction adds no dynamic light, collider, path surface, or simulation state.
+- Terminal deck margins now carry small human-scale maintenance machinery instead of empty
+  floor. The winches are cosmetic, raycast-disabled, and outside bridge, building, resource,
+  landmark, and movement corridors.
 
 ### Fixed
 
