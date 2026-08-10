@@ -18,9 +18,11 @@ sidewall architecture and contact shadow without changing the playable deck. Cyc
 integrates the Civilization Core, Farm, and Formation Yard into the map's weathered
 graphite, ivory, teal, and brass material language while preserving all four damage states.
 Cycle 14 adds one restrained, instanced Sunwoven deck-life prop family outside movement
-corridors. Cycle 15 will strengthen the thin fragment termini with attached visual buttresses
-and solar-joint architecture while preserving bridge and path contracts. Cursor owns the
-separate second-civilization 2D sprite workflow. This track owns Blender 3D.
+corridors. Cycle 15 strengthens every thin fragment terminus with attached masonry, warm
+structural ribs, and restrained solar-joint sockets while preserving bridge and path
+contracts. Cycle 16 will add restrained warm solar bounce to the inner fragment walls and
+terminal faces. Cursor owns the separate second-civilization 2D sprite workflow. This track
+owns Blender 3D.
 
 Gates run in order. A gate is complete only when its behaviour was observed in the
 rendered app on an iPad simulator — a green build is never sufficient.

@@ -1218,3 +1218,102 @@ percentile export.
 Strengthen both ends of every fragment with attached visual buttresses and solar-joint
 architecture. Preserve bridge endpoints, walkable ground, pathing, controls, and the 60 FPS
 gate.
+
+## Cycle 15 — attached fragment terminals · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Cycle 14 added living deck detail, but each fragment still ended in a thin, clean cut with
+  oversized bright sockets.
+- The approved reference uses heavy chipped terminal faces and warm structural joints to
+  communicate the mass of each broken ring segment.
+
+### Correction
+
+- Added three staggered masonry tiers to both cut faces of every fragment: 144 chamfered
+  blocks across the map.
+- Added 32 warm structural ribs and 64 brackets. Two shared instanced draw groups render each
+  fragment's complete terminal architecture.
+- Reworked all 16 end sockets as dark stone-metal pedestals with restrained brass rings and
+  hubs instead of broad bright discs.
+- The terminal blocks overlap the existing understructure cut plane. They do not float in the
+  gap or alter a bridge landing.
+- The correction changes no bridge endpoint, walkable surface, path, collision shape,
+  resource, objective, or simulation rule.
+
+### Visual iteration
+
+- R1 hid most of the masonry behind the old end cap. The sockets grew, but the fragment still
+  read as a flat cut.
+- R2 exposed the blocks, but they read as detached parallel rails and the bright socket rings
+  dominated the close view.
+- R3 moved the masonry back onto the cut plane, increased its attached depth, raised the top
+  course, restored a narrower end cap, and replaced the bright socket faces with dark caps and
+  restrained brass detail. The terminal now reads as one attached wall at close and overview
+  cameras.
+
+### Rendered and performance proof
+
+- Local accepted run: 600 frames in 9.9879 seconds at 60.073 FPS, 18.6 ms p95, 18.7 ms
+  maximum, and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9957 seconds at 60.026 FPS, 16.8 ms p95, 18.7 ms
+  maximum, and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- The hosted contract confirms three tiers, 36 blocks, eight ribs, 16 brackets, and two
+  terminal draw groups on each of the four fragments.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check ThreeRuntime/src/rts-maps/terrain-generator.js` — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Root and deploy-site generated bundle SHA-256 values are identical.
+- Scoped `git diff --check` — passed.
+- Hosted page and versioned bundle returned HTTP 200. The hosted bundle hash matches the
+  committed and deploy-site assets.
+- The two unrelated dirty lab bundle hashes remained unchanged.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle15-terminal-final-overview.png`
+- Hosted gameplay close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle15-terminal-final-final.png`
+- Hosted terminal close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle15-terminal-close-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle15-terminal-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle15-terminal-final-gameplay-performance-10s.json`
+- Hosted terminal and versioned-script contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle15-terminal-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle15-terminal-final-interaction-proof.json`
+- Local overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle15-terminal-r3-local-overview.png`
+- Local terminal close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle15-r3-se-gap-final.png`
+- Local reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle15-terminal-r3-reference-comparison.png`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle15-ground-test.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle15-build-r3.stdout.txt`
+- Bundle and preservation hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle15-bundle-and-preservation-hashes.txt`
+- Hosted hash and HTTP proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle15-hosted-http-and-hash-r2.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle15-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 15 gives each fragment a heavier, attached cut-face silhouette and reduces socket glare.
+It does not blind-match the reference. The concept still has stronger warm solar bounce under
+the inner ring and around its terminal joints, plus more small maintenance mechanisms. The
+browser frame proof is not a device GPU percentile export.
+
+### Dev delivery
+
+- Implementation commit `9fac3b5` is visible on `origin/main`.
+- Worker version `4165c745-efe2-42bd-aed5-dc715158dcca` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-15&v=9fac3b5`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `5be4e5dff6d0378a63041e9c5c21677d66ed9137630ef76a0498e0702a335dd5`.
+
+### Next cycle
+
+Add restrained warm solar bounce to the inner fragment walls and terminal faces. Preserve
+deck readability, bridge endpoints, walkable ground, pathing, controls, and the 60 FPS gate.

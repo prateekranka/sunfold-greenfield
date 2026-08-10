@@ -46,6 +46,8 @@ minimap.
 - Fourteen authored Sunwoven sun-reed clusters outside movement corridors. Four global
   instanced draw groups render dark ceramic planters, woven stems, folded fabric leaves, and
   restrained lumen buds without adding walkable ground or path blockers.
+- Three attached masonry tiers on both cut faces of every ring fragment, with 144 chamfered
+  blocks, 32 warm structural ribs, 64 brackets, and 16 dark solar-joint sockets across the map.
 
 ### Changed
 
@@ -97,6 +99,10 @@ minimap.
 - Empty deck margins now carry sparse living detail at the same restrained scale as the
   approved reference. The clusters are cosmetic, ignore raycasts, and do not alter resources,
   objectives, collision, or movement routes.
+- Fragment ends now continue the layered sidewall language across each exposed cut face.
+  Staggered masonry remains physically attached to the understructure, while dark socket caps
+  and restrained brass rings replace the oversized bright termination discs. Bridge endpoints,
+  playable ground, pathing, collision, and objectives are unchanged.
 
 ### Fixed
 
