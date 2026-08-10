@@ -37,6 +37,8 @@ minimap.
   color, roughness, metalness, and derivative normals without displacing collision geometry.
 - Twenty-one authored crystal-bearing islets, 126 clustered rock lobes, 180 loose rocks, and
   87 crystals around the ring. Seven instanced draw groups render the full debris composition.
+- A deterministic 256×256 warped fBm and ridged nebula texture on one camera-centered sky
+  sphere, with dark blue, violet, and restrained cyan cloud structure.
 
 ### Changed
 
@@ -77,6 +79,8 @@ minimap.
   continuous deck surface, eight authored cracks, and three hairline structural inlays.
 - The surrounding void now uses large warm-and-charcoal rock clusters with restrained cyan
   crystal crowns. The debris field is cosmetic and creates no walkable ground.
+- Cool distance fog now separates far debris and stars from the playable ring. The nebula is
+  cosmetic, disables raycasts, follows the camera, and creates no walkable ground.
 
 ### Fixed
 
@@ -151,6 +155,13 @@ minimap.
   `060b70f2a60d2d57587478b53c940eddeea1de8d2465d56b8f2460dd6102e014`. The hosted
   run completed 600 gameplay frames at 60.093 FPS with no frame above 20 ms and no invalid
   sample across 7,200 ground checks.
+- Nebula commit `b436188` and versioned-review commit `f7a6142` are deployed only to
+  `dev.helios.contenthelper.in` as Worker version
+  `44bf6fed-c17a-4490-bce8-7e7d9eda94d0`.
+- Their committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `163cc92614b458555bd449f0fed119730f84617661d981163507e3fd02d950ec`. The hosted
+  run completed 600 gameplay frames at 60.095 FPS with no frame above 20 ms and zero invalid
+  samples across 7,200 ground checks.
 
 ### Proof pending
 
@@ -173,8 +184,8 @@ minimap.
   layout proof is browser-emulated, not a fresh simulator or device touch run.
 - The placeholder north bases, desktop debug HUD, and alternating terrain bands are gone.
   The authored buildings still lack the reference's textured material richness. Sidewall
-  relief, vegetation, contact shadows, and blue-purple nebula depth remain below the approved
-  reference.
+  relief, vegetation, and contact shadows remain below the approved reference. The nebula is
+  one procedural sky texture, not a layered volumetric effect.
 - Per user direction, Cycle 05 has no additional iPad touch check.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game

@@ -848,3 +848,87 @@ nebula structure. The browser frame proof is not a device GPU percentile export.
 Add a low-cost blue-purple nebula backdrop and distance haze behind the existing stars and
 debris. Preserve black-space contrast, unit readability, controls, topology, and the 60 FPS
 gate.
+
+## Cycle 11 — procedural nebula backdrop · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Cycle 10 supplied object density, but the spaces between those objects remained a flat black
+  field.
+- The approved reference uses dark blue-purple cloud lanes and distance haze to separate near
+  structures from far debris.
+
+### Correction
+
+- Added one deterministic 256×256 color texture built from warped fBm, weathering fields,
+  ridged filaments, and dark lanes.
+- Projected the texture on a camera-centered 200-unit sky sphere. It follows every pan and zoom
+  without exposing a plane edge or adding parallax to the distant sky.
+- Repeated the texture at low cost to reveal cloud structure across the gameplay field.
+- Added cool distance fog while preserving a dark center, warm solar contrast, and unit
+  readability.
+- The sky uses one draw group, disables raycasts, and creates no platform, collision, path, or
+  walkable-ground state.
+- Passed the review URL's `v` parameter into the runtime script request. A long-lived review
+  browser now requests the exact checkpoint bundle instead of reusing a stale URL.
+
+### Rendered and performance proof
+
+- The final local and hosted overview frames were inspected against the approved Broken Ring
+  reference.
+- Local accepted run: 600 frames in 9.9857 seconds at 60.086 FPS, 17.7 ms p95, 18.6 ms maximum,
+  and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9842 seconds at 60.095 FPS, 17.8 ms p95, 18.7 ms maximum,
+  and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- The hosted runtime script URL is
+  `https://dev.helios.contenthelper.in/helios-rift-proof.bundle.js?v=f7a6142`.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check` for the proof, terrain generator, and map source — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Scoped `git diff --check` — passed.
+- Hosted page returned HTTP 200. The hosted bundle hash matches the committed asset.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle11-final-overview.png`
+- Hosted close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle11-final-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle11-final-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle11-final-gameplay-performance-10s.json`
+- Hosted nebula and versioned-script contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle11-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle11-final-interaction-proof.json`
+- Local frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle11-nebula-accepted-gameplay-performance-10s.json`
+- Ground tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle11-ground-test.stdout.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle11-deploy-versioned.stdout.txt`
+
+### Honest limitation
+
+Cycle 11 adds meaningful atmosphere with one low-cost sky texture. It is not volumetric and
+does not reproduce every fine filament in the reference. The reference still has deeper
+fragment sidewalls, richer contact shadows, more vegetation, and more textured building
+materials. The browser frame proof is not a device GPU percentile export.
+
+### Dev delivery
+
+- Nebula implementation commit `b436188` is visible on `origin/main`.
+- Versioned-review commit `f7a6142` is visible on `origin/main`.
+- Worker version `44bf6fed-c17a-4490-bce8-7e7d9eda94d0` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-11&v=f7a6142`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `163cc92614b458555bd449f0fed119730f84617661d981163507e3fd02d950ec`.
+
+### Next cycle
+
+Deepen the fragment sidewalls with layered structural blocks, warm ribs, and restrained
+contact shadow. Preserve the top deck, logical platforms, bridges, controls, and the 60 FPS
+gate.
