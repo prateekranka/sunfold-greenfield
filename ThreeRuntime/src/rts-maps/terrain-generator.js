@@ -739,6 +739,9 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
   const sidewallTierCount = visual.sidewallTierCount ?? 3;
   const sidewallBlockCount = visual.sidewallBlockCount ?? armorBlockCount;
   const sidewallRibCount = visual.sidewallRibCount ?? 5;
+  const terminalTierCount = visual.terminalTierCount ?? 3;
+  const terminalBlockCount = visual.terminalBlockCount ?? 6;
+  const terminalRibCount = visual.terminalRibCount ?? 4;
   const armorBandWidth = visual.armorBandWidth ?? 1.5;
   const wallJitter = visual.wallJitter ?? 0.48;
   const crackCount = visual.cracksPerFragment ?? panelCount;
@@ -931,6 +934,20 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
     surfaceY,
     random
   );
+  const terminalDetail = addHeliosTerminalArchitecture(
+    g,
+    inner,
+    outer,
+    start,
+    end,
+    underDepth,
+    terminalTierCount,
+    terminalBlockCount,
+    terminalRibCount,
+    materials,
+    surfaceY,
+    seededRandom(fragmentSeed ^ 0x3c6ef372)
+  );
 
   for (let i = 0; i < conduitCount; i += 1) {
     const a = THREE.MathUtils.lerp(start + 0.1, end - 0.22, random());
@@ -965,6 +982,11 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
     sidewallRibBrackets: sidewallDetail.ribBrackets,
     contactShadowBands: sidewallDetail.contactShadowBands,
     sidewallDrawGroups: sidewallDetail.drawGroups,
+    terminalTiers: terminalDetail.tiers,
+    terminalBlocks: terminalDetail.blocks,
+    terminalRibs: terminalDetail.ribs,
+    terminalRibBrackets: terminalDetail.ribBrackets,
+    terminalDrawGroups: terminalDetail.drawGroups,
     terrainSeams: terrainSeamCount,
     materialDrivenSurface: true
   };
@@ -1434,6 +1456,140 @@ function addHeliosSidewallArchitecture(
   };
 }
 
+function addHeliosTerminalArchitecture(
+  parent,
+  inner,
+  outer,
+  start,
+  end,
+  underDepth,
+  requestedTierCount,
+  requestedBlockCount,
+  requestedRibCount,
+  materials,
+  surfaceY,
+  random
+) {
+  const tierCount = Math.max(1, Math.round(requestedTierCount));
+  const blockCount = Math.max(4, Math.round(requestedBlockCount));
+  const ribCount = Math.max(2, Math.round(requestedRibCount));
+  const palette = (materials.sidewallMasonry.userData.instancePalette ?? [0x2b2d2f])
+    .map((color) => new THREE.Color(color));
+  const blocks = new THREE.InstancedMesh(
+    HELIOS_SIDEWALL_BLOCK_GEOMETRY,
+    materials.sidewallMasonry,
+    tierCount * blockCount * 2
+  );
+  const dummy = new THREE.Object3D();
+  const radialStart = inner + 0.62;
+  const radialEnd = outer - 0.62;
+  const radialSlot = (radialEnd - radialStart) / blockCount;
+  const tierPitch = Math.min(0.88, Math.max(0.64, (underDepth - 0.9) / tierCount));
+  let blockIndex = 0;
+
+  for (let endpoint = 0; endpoint < 2; endpoint += 1) {
+    const baseAngle = endpoint === 0 ? start : end;
+    const gapDirection = endpoint === 0 ? -1 : 1;
+    for (let tier = 0; tier < tierCount; tier += 1) {
+      // The center stays on the fragment's chipped cut plane. The deeper
+      // extrusion reaches into the gap while its back remains attached to the
+      // existing understructure, so the terminal reads as masonry rather than
+      // a detached rail.
+      const faceAngle = baseAngle + gapDirection * (0.039 + tier * 0.003);
+      const centerY = surfaceY - 0.3 - tierPitch * (tier + 0.5);
+      for (let block = 0; block < blockCount; block += 1) {
+        const stagger = tier % 2 === 0 ? 0 : radialSlot * 0.16;
+        const radius = THREE.MathUtils.clamp(
+          radialStart + radialSlot * (block + 0.5) + stagger,
+          radialStart + radialSlot * 0.42,
+          radialEnd - radialSlot * 0.42
+        );
+        const radialWidth = radialSlot * (0.88 + random() * 0.035);
+        const blockHeight = tierPitch * (0.8 + random() * 0.045);
+        const tangentialDepth = (1.42 + tier * 0.08) * (0.96 + random() * 0.05);
+        dummy.position.set(
+          Math.cos(faceAngle) * radius,
+          centerY + (random() - 0.5) * 0.025,
+          Math.sin(faceAngle) * radius
+        );
+        dummy.rotation.set(
+          (random() - 0.5) * 0.016,
+          -faceAngle + (random() - 0.5) * 0.012,
+          (random() - 0.5) * 0.014
+        );
+        dummy.scale.set(radialWidth * 0.9, blockHeight * 0.9, tangentialDepth);
+        dummy.updateMatrix();
+        blocks.setMatrixAt(blockIndex, dummy.matrix);
+        blocks.setColorAt(
+          blockIndex,
+          palette[(tier + block + endpoint + Math.floor(random() * palette.length)) % palette.length]
+        );
+        blockIndex += 1;
+      }
+    }
+  }
+
+  blocks.name = "fragment-terminal-masonry";
+  blocks.instanceMatrix.needsUpdate = true;
+  if (blocks.instanceColor) blocks.instanceColor.needsUpdate = true;
+  parent.add(blocks);
+
+  const structuralPiecesPerRib = 3;
+  const ribs = new THREE.InstancedMesh(
+    HELIOS_SIDEWALL_RIB_GEOMETRY,
+    materials.sidewallRib,
+    ribCount * 2 * structuralPiecesPerRib
+  );
+  const ribHeight = Math.min(underDepth * 0.72, 2.8);
+  const ribTop = surfaceY - 0.28;
+  let ribPieceIndex = 0;
+
+  for (let endpoint = 0; endpoint < 2; endpoint += 1) {
+    const baseAngle = endpoint === 0 ? start : end;
+    const gapDirection = endpoint === 0 ? -1 : 1;
+    const faceAngle = baseAngle + gapDirection * 0.043;
+    for (let rib = 0; rib < ribCount; rib += 1) {
+      const radius = THREE.MathUtils.lerp(
+        inner + 1.12,
+        outer - 1.12,
+        ribCount === 1 ? 0.5 : rib / (ribCount - 1)
+      );
+      dummy.position.set(
+        Math.cos(faceAngle) * radius,
+        ribTop - ribHeight * 0.5,
+        Math.sin(faceAngle) * radius
+      );
+      dummy.rotation.set(0, -faceAngle, 0);
+      dummy.scale.set(0.13, ribHeight, 0.18);
+      dummy.updateMatrix();
+      ribs.setMatrixAt(ribPieceIndex, dummy.matrix);
+      ribPieceIndex += 1;
+
+      for (let bracket = 0; bracket < 2; bracket += 1) {
+        const bracketY = bracket === 0 ? ribTop - 0.08 : ribTop - ribHeight * 0.58;
+        dummy.position.set(Math.cos(faceAngle) * radius, bracketY, Math.sin(faceAngle) * radius);
+        dummy.rotation.set(0, -faceAngle, 0);
+        dummy.scale.set(0.68, 0.085, 0.28);
+        dummy.updateMatrix();
+        ribs.setMatrixAt(ribPieceIndex, dummy.matrix);
+        ribPieceIndex += 1;
+      }
+    }
+  }
+
+  ribs.name = "fragment-terminal-structural-ribs";
+  ribs.instanceMatrix.needsUpdate = true;
+  parent.add(ribs);
+
+  return {
+    tiers: tierCount,
+    blocks: tierCount * blockCount * 2,
+    ribs: ribCount * 2,
+    ribBrackets: ribCount * 4,
+    drawGroups: 2
+  };
+}
+
 function addArcLine(parent, radius, start, end, y, material, segments = 16) {
   const points = [];
   for (let i = 0; i <= segments; i += 1) {
@@ -1466,29 +1622,38 @@ function addHeliosSocket(parent, radius, angle, size, materials, surfaceY = 0.04
   const socket = new THREE.Group();
   socket.position.set(Math.cos(angle) * radius, surfaceY + 0.04, Math.sin(angle) * radius);
   const pedestal = new THREE.Mesh(
-    new THREE.CylinderGeometry(size * 1.34, size * 1.52, 0.42, 10),
+    new THREE.CylinderGeometry(size * 1.28, size * 1.46, 0.5, 10),
     materials.basalt
   );
-  pedestal.position.y = -0.17;
+  pedestal.position.y = -0.22;
   socket.add(pedestal);
-  const cap = new THREE.Mesh(new THREE.CylinderGeometry(size, size * 1.12, 0.18, 10), materials.gold);
+  const cap = new THREE.Mesh(
+    new THREE.CylinderGeometry(size, size * 1.08, 0.16, 10),
+    materials.basaltEdge
+  );
   socket.add(cap);
   const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(size * 1.02, Math.max(0.06, size * 0.14), 6, 12),
-    materials.goldBright
+    new THREE.TorusGeometry(size * 0.73, Math.max(0.045, size * 0.085), 6, 12),
+    materials.gold
   );
   ring.rotation.x = Math.PI / 2;
   ring.position.y = 0.1;
   socket.add(ring);
+  const hub = new THREE.Mesh(
+    new THREE.CylinderGeometry(size * 0.22, size * 0.28, 0.12, 8),
+    materials.gold
+  );
+  hub.position.y = 0.11;
+  socket.add(hub);
   parent.add(socket);
   return socket;
 }
 
 function addHeliosEndAssembly(parent, inner, outer, angle, materials, surfaceY) {
-  addRadialBar(parent, angle, inner + 0.3, outer - 0.3, 0.78, 0.58, materials.basaltEdge, surfaceY - 0.16);
-  addRadialBar(parent, angle, inner + 0.75, outer - 0.75, 0.18, 0.12, materials.gold, surfaceY + 0.12);
-  addHeliosSocket(parent, outer - 0.72, angle, 0.78, materials, surfaceY);
-  addHeliosSocket(parent, inner + 0.82, angle, 0.62, materials, surfaceY);
+  addRadialBar(parent, angle, inner + 0.3, outer - 0.3, 0.86, 0.56, materials.basaltEdge, surfaceY - 0.16);
+  addRadialBar(parent, angle, inner + 0.75, outer - 0.75, 0.16, 0.11, materials.gold, surfaceY + 0.1);
+  addHeliosSocket(parent, outer - 0.72, angle, 0.86, materials, surfaceY);
+  addHeliosSocket(parent, inner + 0.82, angle, 0.66, materials, surfaceY);
 }
 
 function makeHeliosCoreVoid(spec, materials) {
