@@ -102,6 +102,10 @@ const RING_VISUAL = {
     rockWarm: 0x55504a,
     crystal: 0x1ca7a8,
     crystalBright: 0x59ddd3,
+    deckLifePlanter: 0x433f38,
+    deckLifeStem: 0x3f684e,
+    deckLifeLeaf: 0x78a35f,
+    deckLifeBud: 0x45c99a,
     nebulaShadow: 0x020612,
     nebulaBlue: 0x0d294b,
     nebulaViolet: 0x301f4b,
@@ -137,6 +141,24 @@ const RING_VISUAL = {
     { id: "zone-isle-sw", position: { x: -22, z: 22 }, radius: 2.1, color: 0x46e5e2 },
     { id: "zone-isle-nw", position: { x: -22, z: -22 }, radius: 2.1, color: 0x46e5e2 }
   ],
+  deckLife: {
+    clusters: [
+      { id: "n-outer-west", fragmentId: "frag-n", radius: 41.4, angleOffset: -0.5, scale: 0.9 },
+      { id: "n-inner-east", fragmentId: "frag-n", radius: 26.8, angleOffset: 0.48, scale: 0.86 },
+      { id: "e-outer-north", fragmentId: "frag-e", radius: 41.1, angleOffset: -0.44, scale: 1.02 },
+      { id: "e-outer-south", fragmentId: "frag-e", radius: 40.8, angleOffset: 0.45, scale: 0.9 },
+      { id: "e-inner-north", fragmentId: "frag-e", radius: 27.2, angleOffset: -0.36, scale: 0.86 },
+      { id: "e-inner-south", fragmentId: "frag-e", radius: 27.5, angleOffset: 0.37, scale: 1.08 },
+      { id: "s-outer-east", fragmentId: "frag-s", radius: 41.3, angleOffset: -0.43, scale: 0.92 },
+      { id: "s-outer-west", fragmentId: "frag-s", radius: 40.7, angleOffset: 0.46, scale: 1.06 },
+      { id: "s-inner-east", fragmentId: "frag-s", radius: 27.4, angleOffset: -0.35, scale: 1.04 },
+      { id: "s-inner-west", fragmentId: "frag-s", radius: 27.1, angleOffset: 0.38, scale: 0.88 },
+      { id: "w-outer-south", fragmentId: "frag-w", radius: 41.0, angleOffset: -0.45, scale: 1.08 },
+      { id: "w-outer-north", fragmentId: "frag-w", radius: 41.5, angleOffset: 0.43, scale: 0.92 },
+      { id: "w-inner-south", fragmentId: "frag-w", radius: 27.3, angleOffset: -0.37, scale: 0.9 },
+      { id: "w-inner-north", fragmentId: "frag-w", radius: 27.6, angleOffset: 0.36, scale: 1.02 }
+    ]
+  },
   debrisField: {
     count: 180,
     coreRadius: 10,

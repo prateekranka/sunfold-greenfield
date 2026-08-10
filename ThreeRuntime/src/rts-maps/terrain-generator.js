@@ -23,6 +23,10 @@ const HELIOS_DEBRIS_CRYSTAL_GEOMETRY = new THREE.ConeGeometry(1, 1, 5);
 const HELIOS_DEBRIS_CRYSTAL_CLUSTER_GEOMETRY = new THREE.OctahedronGeometry(1, 0);
 const HELIOS_SIDEWALL_BLOCK_GEOMETRY = makeHeliosMasonryBlockGeometry();
 const HELIOS_SIDEWALL_RIB_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
+const HELIOS_DECK_LIFE_PLANTER_GEOMETRY = new THREE.CylinderGeometry(0.42, 0.7, 0.3, 8);
+const HELIOS_DECK_LIFE_STEM_GEOMETRY = new THREE.CylinderGeometry(0.03, 0.055, 1, 5);
+const HELIOS_DECK_LIFE_LEAF_GEOMETRY = makeHeliosFabricLeafGeometry();
+const HELIOS_DECK_LIFE_BUD_GEOMETRY = new THREE.OctahedronGeometry(0.14, 0);
 
 /**
  * @param {import('./map-definition.js').TerrainSpec} terrain
@@ -55,6 +59,8 @@ export function buildTerrain(terrain, bridges = []) {
     platformMeshes.set(p.id, mesh);
     group.add(mesh);
   }
+
+  if (visual) addHeliosDeckLife(group, visual, visualMaterials);
 
   for (const d of terrain.debris ?? []) {
     group.add(visual ? makeHeliosDebris(d, visual, visualMaterials) : makeDebris(d, palette));
@@ -176,6 +182,17 @@ function createHeliosMaterials(palette, seed = 2749) {
     resource: glow(palette.resource ?? 0x3ed9b5, 1.2, 0.9, 0.16, 0.22),
     crystal: glow(palette.crystal ?? 0x1ca7a8, 0.92, 1, 0.12, 0.2),
     crystalBright: glow(palette.crystalBright ?? 0x59ddd3, 1.32, 1, 0.08, 0.16),
+    deckLifePlanter: metal(palette.deckLifePlanter ?? 0x433f38, 0.88, 0.22, {
+      flatShading: true
+    }),
+    deckLifeStem: metal(palette.deckLifeStem ?? 0x3f684e, 0.9, 0.04, {
+      flatShading: true
+    }),
+    deckLifeLeaf: metal(palette.deckLifeLeaf ?? 0x78a35f, 0.82, 0.03, {
+      flatShading: true,
+      side: THREE.DoubleSide
+    }),
+    deckLifeBud: glow(palette.deckLifeBud ?? 0x45c99a, 0.46, 1, 0.06, 0.38),
     rock: metal(palette.rock ?? 0x303437, 0.94, 0.1, { flatShading: true }),
     rockWarm: metal(palette.rockWarm ?? 0x55504a, 0.9, 0.08, { flatShading: true }),
     nebula: new THREE.MeshBasicMaterial({
@@ -246,6 +263,27 @@ function makeHeliosMasonryBlockGeometry() {
     curveSegments: 1
   });
   geometry.center();
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function makeHeliosFabricLeafGeometry() {
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(
+      [
+        0, -0.5, 0,
+        -0.28, -0.1, 0,
+        -0.18, 0.22, 0.05,
+        0, 0.55, 0.09,
+        0.18, 0.22, -0.05,
+        0.28, -0.1, 0
+      ],
+      3
+    )
+  );
+  geometry.setIndex([0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5]);
   geometry.computeVertexNormals();
   return geometry;
 }
@@ -932,6 +970,125 @@ function makeHeliosRingFragment(spec, visual, fragment, materials) {
   };
   g.userData.platformSpec = spec;
   return g;
+}
+
+function addHeliosDeckLife(group, visual, materials) {
+  const requested = visual.deckLife?.clusters ?? [];
+  if (requested.length === 0) return null;
+
+  const deckLife = new THREE.Group();
+  deckLife.name = "helios-deck-life";
+  const planterMatrices = [];
+  const stemMatrices = [];
+  const leafMatrices = [];
+  const budMatrices = [];
+  const dummy = new THREE.Object3D();
+  const surfaceY = visual.surfaceY ?? 0;
+
+  for (const cluster of requested) {
+    const fragment = visual.fragments?.find((entry) => entry.id === cluster.fragmentId);
+    if (!fragment) continue;
+    const worldAngle = (fragment.centerAngle ?? 0) + (cluster.angleOffset ?? 0);
+    const radius = cluster.radius ?? (visual.innerRadius + visual.outerRadius) * 0.5;
+    const scale = cluster.scale ?? 1;
+    const radialX = Math.cos(worldAngle);
+    const radialZ = Math.sin(worldAngle);
+    const tangentX = -radialZ;
+    const tangentZ = radialX;
+    const centerX = radialX * radius;
+    const centerZ = radialZ * radius;
+    const random = seededRandom((visual.seed ?? 1) ^ hashString(cluster.id ?? cluster.fragmentId));
+
+    dummy.position.set(centerX, surfaceY + 0.13 * scale, centerZ);
+    dummy.rotation.set(0, worldAngle, 0);
+    dummy.scale.set(scale, scale, scale);
+    dummy.updateMatrix();
+    planterMatrices.push(dummy.matrix.clone());
+
+    for (let stem = 0; stem < 5; stem += 1) {
+      const phase = (stem / 5) * Math.PI * 2 + (random() - 0.5) * 0.22;
+      const radialOffset = Math.cos(phase) * 0.2 * scale;
+      const tangentOffset = Math.sin(phase) * 0.23 * scale;
+      const stemHeight = (0.76 + random() * 0.3) * scale;
+      const stemX = centerX + radialX * radialOffset + tangentX * tangentOffset;
+      const stemZ = centerZ + radialZ * radialOffset + tangentZ * tangentOffset;
+      const leanX = Math.sin(phase) * 0.2;
+      const leanZ = Math.cos(phase) * 0.2;
+
+      dummy.position.set(stemX, surfaceY + 0.24 * scale + stemHeight * 0.5, stemZ);
+      dummy.rotation.set(leanX, worldAngle + phase, leanZ);
+      dummy.scale.set(scale, stemHeight, scale);
+      dummy.updateMatrix();
+      stemMatrices.push(dummy.matrix.clone());
+
+      const leafHeight = (0.86 + random() * 0.18) * scale;
+      dummy.position.set(
+        stemX + radialX * radialOffset * 0.45,
+        surfaceY + 0.22 * scale + stemHeight * 0.8,
+        stemZ + radialZ * radialOffset * 0.45
+      );
+      dummy.rotation.set(leanX * 2.15, worldAngle + phase + Math.PI * 0.5, leanZ * 2.15);
+      dummy.scale.set(scale, leafHeight, scale);
+      dummy.updateMatrix();
+      leafMatrices.push(dummy.matrix.clone());
+
+      if (stem % 2 === 0) {
+        dummy.position.set(
+          stemX + radialX * radialOffset * 0.72,
+          surfaceY + 0.24 * scale + stemHeight,
+          stemZ + radialZ * radialOffset * 0.72
+        );
+        dummy.rotation.set(leanX, worldAngle + phase, leanZ);
+        dummy.scale.set(scale * 0.88, scale, scale * 0.88);
+        dummy.updateMatrix();
+        budMatrices.push(dummy.matrix.clone());
+      }
+    }
+  }
+
+  addStaticInstances(
+    deckLife,
+    "deck-life-ceramic-planters",
+    HELIOS_DECK_LIFE_PLANTER_GEOMETRY,
+    materials.deckLifePlanter,
+    planterMatrices
+  );
+  addStaticInstances(
+    deckLife,
+    "deck-life-woven-stems",
+    HELIOS_DECK_LIFE_STEM_GEOMETRY,
+    materials.deckLifeStem,
+    stemMatrices
+  );
+  addStaticInstances(
+    deckLife,
+    "deck-life-fabric-leaves",
+    HELIOS_DECK_LIFE_LEAF_GEOMETRY,
+    materials.deckLifeLeaf,
+    leafMatrices
+  );
+  addStaticInstances(
+    deckLife,
+    "deck-life-lumen-buds",
+    HELIOS_DECK_LIFE_BUD_GEOMETRY,
+    materials.deckLifeBud,
+    budMatrices
+  );
+
+  deckLife.userData.visualStyle = "sunwoven-deck-life";
+  deckLife.userData.visualDetail = {
+    clusters: planterMatrices.length,
+    planters: planterMatrices.length,
+    stems: stemMatrices.length,
+    fabricLeaves: leafMatrices.length,
+    lumenBuds: budMatrices.length,
+    instancedDrawGroups: deckLife.children.length,
+    createsWalkableGround: false,
+    affectsPathing: false
+  };
+  disableCosmeticRaycast(deckLife);
+  group.add(deckLife);
+  return deckLife;
 }
 
 function makeAnnularSectorGeometry(inner, outer, span, depth, segments) {
