@@ -25,6 +25,12 @@ PLAN = {
     "farm": ("sunwoven_farm.glb", "motion_farm_crops"),
     "formationYard": ("sunwoven_formation_yard.glb", "motion_yard_loom"),
 }
+PALETTE_MATERIALS = {
+    "SW_Ivory_Cloth",
+    "SW_Teal_Fabric",
+    "SW_Woven_Gold",
+    "SW_Contact_Shadow",
+}
 
 
 def read_glb(path: Path) -> dict:
@@ -46,21 +52,37 @@ def read_glb(path: Path) -> dict:
     return document
 
 
-def inspect(kind: str, filename: str, motion_node: str) -> dict:
-    path = ASSET_DIR / filename
+def inspect(kind: str, filename: str, motion_node: str, asset_dir: Path) -> dict:
+    path = asset_dir / filename
     document = read_glb(path)
     node_names = {node.get("name") for node in document.get("nodes", [])}
     missing = sorted((REQUIRED_GROUPS | {kind, motion_node}) - node_names)
     triangle_count = 0
     vertex_count = 0
+    primitive_count = 0
+    weathered_primitive_count = 0
     for mesh in document.get("meshes", []):
         for primitive in mesh.get("primitives", []):
+            primitive_count += 1
+            if "COLOR_0" in primitive.get("attributes", {}):
+                weathered_primitive_count += 1
             position = primitive.get("attributes", {}).get("POSITION")
             if position is not None:
                 vertex_count += document["accessors"][position]["count"]
             indices = primitive.get("indices")
             if indices is not None:
                 triangle_count += document["accessors"][indices]["count"] // 3
+    root_node = next((node for node in document.get("nodes", []) if node.get("name") == kind), {})
+    root_extras = root_node.get("extras", {})
+    material_names = {material.get("name") for material in document.get("materials", [])}
+    expected_palette_materials = PALETTE_MATERIALS & material_names
+    authored_palette_materials = {
+        material.get("name")
+        for material in document.get("materials", [])
+        if material.get("name") in PALETTE_MATERIALS
+        and material.get("pbrMetallicRoughness", {}).get("baseColorFactor", [1, 1, 1, 1])[:3]
+        != [1, 1, 1]
+    }
     result = {
         "kind": kind,
         "file": filename,
@@ -71,6 +93,14 @@ def inspect(kind: str, filename: str, motion_node: str) -> dict:
         "triangleCount": triangle_count,
         "materialCount": len(document.get("materials", [])),
         "animationCount": len(document.get("animations", [])),
+        "primitiveCount": primitive_count,
+        "weatheredPrimitiveCount": weathered_primitive_count,
+        "surfaceContract": root_extras.get("surface_contract"),
+        "surfaceColorAttribute": root_extras.get("surface_color_attribute"),
+        "hasContactShadowMaterial": "SW_Contact_Shadow" in material_names,
+        "expectedPaletteMaterialCount": len(expected_palette_materials),
+        "authoredPaletteMaterialCount": len(authored_palette_materials),
+        "missingPaletteMaterials": sorted(expected_palette_materials - authored_palette_materials),
         "missingRequiredNodes": missing,
     }
     result["passes"] = (
@@ -79,17 +109,29 @@ def inspect(kind: str, filename: str, motion_node: str) -> dict:
         and triangle_count <= 30_000
         and vertex_count <= 30_000
         and result["materialCount"] <= 12
+        and primitive_count > 0
+        and weathered_primitive_count == primitive_count
+        and result["surfaceContract"] == "sunfold.weathered-building/1"
+        and result["surfaceColorAttribute"] == "SunfoldSurface"
+        and result["hasContactShadowMaterial"]
+        and result["expectedPaletteMaterialCount"] >= 3
+        and result["authoredPaletteMaterialCount"] == result["expectedPaletteMaterialCount"]
     )
     return result
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--asset-dir", type=Path, default=ASSET_DIR)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    entries = [inspect(kind, filename, motion) for kind, (filename, motion) in PLAN.items()]
+    asset_dir = args.asset_dir.resolve()
+    entries = [
+        inspect(kind, filename, motion, asset_dir)
+        for kind, (filename, motion) in PLAN.items()
+    ]
     report = {
-        "schema": "sunfold.building-glb-validation/1",
+        "schema": "sunfold.building-glb-validation/2",
         "limits": {
             "sizeBytesPerGlb": 1_500_000,
             "trianglesPerGlb": 30_000,

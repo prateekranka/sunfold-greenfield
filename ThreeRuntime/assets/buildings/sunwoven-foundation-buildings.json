@@ -3,6 +3,11 @@
   "faction": "sunwoven",
   "age": "foundation",
   "coordinateSystem": "glTF Y-up; origins at footprint centres",
+  "surfaceStyle": {
+    "contract": "sunfold.weathered-building/1",
+    "vertexColorAttribute": "SunfoldSurface",
+    "contactGrounding": true
+  },
   "damageBands": {
     "healthy": {
       "minimumLifeRatioExclusive": 0.75
@@ -51,31 +56,46 @@
       "kind": "civilization_core",
       "glb": "sunwoven_civilization_core.glb",
       "source": "source/sunwoven_civilization_core.blend",
-      "sizeBytes": 980388,
-      "meshCount": 162,
-      "vertexCount": 12782,
-      "triangleCount": 24916,
-      "materialCount": 11
+      "sizeBytes": 1253264,
+      "meshCount": 181,
+      "vertexCount": 14062,
+      "triangleCount": 27196,
+      "materialCount": 12,
+      "surfaceContract": "sunfold.weathered-building/1",
+      "vertexColorAttribute": "SunfoldSurface",
+      "weatheredMeshCount": 181,
+      "weatheredVertexCount": 14062,
+      "convertedCurveCount": 17
     },
     {
       "kind": "farm",
       "glb": "sunwoven_farm.glb",
       "source": "source/sunwoven_farm.blend",
-      "sizeBytes": 700348,
-      "meshCount": 190,
-      "vertexCount": 7526,
-      "triangleCount": 14264,
-      "materialCount": 11
+      "sizeBytes": 885880,
+      "meshCount": 192,
+      "vertexCount": 7638,
+      "triangleCount": 14480,
+      "materialCount": 12,
+      "surfaceContract": "sunfold.weathered-building/1",
+      "vertexColorAttribute": "SunfoldSurface",
+      "weatheredMeshCount": 192,
+      "weatheredVertexCount": 7638,
+      "convertedCurveCount": 0
     },
     {
       "kind": "formation_yard",
       "glb": "sunwoven_formation_yard.glb",
       "source": "source/sunwoven_formation_yard.blend",
-      "sizeBytes": 402040,
-      "meshCount": 88,
-      "vertexCount": 5432,
-      "triangleCount": 10482,
-      "materialCount": 11
+      "sizeBytes": 516664,
+      "meshCount": 90,
+      "vertexCount": 5544,
+      "triangleCount": 10698,
+      "materialCount": 12,
+      "surfaceContract": "sunfold.weathered-building/1",
+      "vertexColorAttribute": "SunfoldSurface",
+      "weatheredMeshCount": 90,
+      "weatheredVertexCount": 5544,
+      "convertedCurveCount": 0
     }
   ]
 }

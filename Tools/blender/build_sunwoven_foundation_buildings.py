@@ -35,23 +35,26 @@ from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = ROOT / "ThreeRuntime" / "assets" / "buildings"
+WEATHER_COLOR_ATTRIBUTE = "SunfoldSurface"
 
 PALETTE = {
-    # Linear values calibrated in the Helios ACES rig. The previous near-white
-    # inputs clipped flat under its 3.1 key and erased every canopy fold.
-    "ivory": (0.426, 0.380, 0.302, 1.0),
-    "ivory_light": (0.499, 0.463, 0.380, 1.0),
-    "ceramic": (0.336, 0.278, 0.215, 1.0),
-    "ceramic_light": (0.418, 0.360, 0.278, 1.0),
-    "gold": (0.518, 0.288, 0.076, 1.0),
-    "gold_light": (0.720, 0.497, 0.158, 1.0),
-    "teal": (0.015, 0.33, 0.34, 1.0),
-    "teal_light": (0.025, 0.78, 0.73, 1.0),
-    "soil": (0.095, 0.052, 0.035, 1.0),
-    "crop": (0.72, 0.43, 0.10, 1.0),
-    "crop_light": (0.98, 0.70, 0.20, 1.0),
+    # Linear values calibrated under the Helios ACES rig. Ivory remains the
+    # faction highlight, but graphite ceramic and aged brass now carry the
+    # structure so the kit belongs to the surrounding ring.
+    "ivory": (0.255, 0.218, 0.166, 1.0),
+    "ivory_light": (0.335, 0.294, 0.220, 1.0),
+    "ceramic": (0.155, 0.132, 0.112, 1.0),
+    "ceramic_light": (0.225, 0.194, 0.158, 1.0),
+    "gold": (0.365, 0.185, 0.050, 1.0),
+    "gold_light": (0.545, 0.345, 0.105, 1.0),
+    "teal": (0.010, 0.215, 0.245, 1.0),
+    "teal_light": (0.020, 0.58, 0.56, 1.0),
+    "soil": (0.070, 0.040, 0.030, 1.0),
+    "crop": (0.44, 0.245, 0.055, 1.0),
+    "crop_light": (0.68, 0.43, 0.11, 1.0),
     "scorch": (0.025, 0.020, 0.018, 1.0),
-    "ash": (0.11, 0.09, 0.085, 1.0),
+    "ash": (0.072, 0.063, 0.060, 1.0),
+    "contact": (0.012, 0.016, 0.020, 1.0),
     "ember": (1.0, 0.105, 0.012, 1.0),
 }
 
@@ -114,34 +117,45 @@ def material(
     if emission and "Emission Color" in bsdf.inputs:
         bsdf.inputs["Emission Color"].default_value = emission
         bsdf.inputs["Emission Strength"].default_value = emission_strength
+    # Keep the authored weather field visible in Blender. The exporter uses the
+    # active color attribute explicitly because material-node recognition can
+    # vary between Blender exporter versions.
+    vertex_color = mat.node_tree.nodes.new("ShaderNodeVertexColor")
+    vertex_color.layer_name = WEATHER_COLOR_ATTRIBUTE
+    multiply = mat.node_tree.nodes.new("ShaderNodeMixRGB")
+    multiply.blend_type = "MULTIPLY"
+    multiply.inputs[0].default_value = 1.0
+    multiply.inputs[1].default_value = color
+    mat.node_tree.links.new(vertex_color.outputs["Color"], multiply.inputs[2])
+    mat.node_tree.links.new(multiply.outputs["Color"], bsdf.inputs["Base Color"])
+    mat["sunfold_surface_contract"] = "sunfold.weathered-building/1"
     return mat
 
 
 def make_materials() -> dict[str, bpy.types.Material]:
     return {
-        "ivory": material("SW_Ivory_Cloth", PALETTE["ivory_light"], roughness=0.72),
-        "ivory_fold": material("SW_Ivory_Fold", PALETTE["ivory"], roughness=0.78),
-        "ceramic": material("SW_Warm_Ceramic", PALETTE["ceramic_light"], roughness=0.86),
-        "ceramic_dark": material("SW_Ceramic_Shadow", PALETTE["ceramic"], roughness=0.91),
-        # A mostly-diffuse gold survives the black void at the RTS camera. Thin
-        # true-metal members would reflect empty space and read as black.
-        "gold": material("SW_Woven_Gold", PALETTE["gold"], roughness=0.43, metallic=0.24),
+        "ivory": material("SW_Ivory_Cloth", PALETTE["ivory_light"], roughness=0.82),
+        "ivory_fold": material("SW_Ivory_Fold", PALETTE["ivory"], roughness=0.87),
+        "ceramic": material("SW_Warm_Ceramic", PALETTE["ceramic_light"], roughness=0.9),
+        "ceramic_dark": material("SW_Ceramic_Shadow", PALETTE["ceramic"], roughness=0.94),
+        "gold": material("SW_Woven_Gold", PALETTE["gold"], roughness=0.56, metallic=0.34),
         "gold_light": material(
-            "SW_Woven_Gold_Light", PALETTE["gold_light"], roughness=0.38, metallic=0.18
+            "SW_Woven_Gold_Light", PALETTE["gold_light"], roughness=0.5, metallic=0.3
         ),
-        "teal": material("SW_Teal_Fabric", PALETTE["teal"], roughness=0.66),
+        "teal": material("SW_Teal_Fabric", PALETTE["teal"], roughness=0.78),
         "teal_glow": material(
             "SW_Teal_Lantern",
             PALETTE["teal_light"],
             roughness=0.34,
             emission=PALETTE["teal_light"],
-            emission_strength=2.5,
+            emission_strength=1.4,
         ),
         "soil": material("SW_Living_Soil", PALETTE["soil"], roughness=0.98),
         "crop": material("SW_Sun_Crop", PALETTE["crop"], roughness=0.82),
         "crop_light": material("SW_Sun_Crop_Tips", PALETTE["crop_light"], roughness=0.74),
         "scorch": material("SW_Scorch", PALETTE["scorch"], roughness=0.98),
         "ash": material("SW_Ash_Ceramic", PALETTE["ash"], roughness=0.95),
+        "contact": material("SW_Contact_Shadow", PALETTE["contact"], roughness=1.0),
         "ember": material(
             "SW_Ember",
             PALETTE["ember"],
@@ -478,6 +492,11 @@ def build_core(mats: dict[str, bpy.types.Material]) -> bpy.types.Object:
     critical = g["state_critical_plus"]
     destroyed = g["state_destroyed_only"]
 
+    # A thin authored pad fills the 4 cm presentation offset used by the
+    # runtime and supplies a dark contact line without a transparent decal.
+    add_cylinder("core_contact_pad", 5.62, 0.04, -0.02, mats["contact"], shared, vertices=36, bevel=0.025)
+    add_cylinder("core_wreck_contact_pad", 5.34, 0.04, -0.02, mats["contact"], destroyed, vertices=32, bevel=0.025)
+
     # Three stepped ceramic plinths keep the hero silhouette grounded.
     add_cylinder("core_plinth_01", 5.35, 0.32, 0.16, mats["ceramic_dark"], shared, vertices=24, bevel=0.10)
     add_cylinder("core_plinth_02", 4.95, 0.30, 0.46, mats["ceramic"], shared, vertices=24, bevel=0.09)
@@ -672,6 +691,9 @@ def build_farm(mats: dict[str, bpy.types.Material]) -> bpy.types.Object:
     destroyed = g["state_destroyed_only"]
     rng = random.Random(5191)
 
+    add_box("farm_contact_pad", (0, 0, -0.02), (7.22, 7.22, 0.04), mats["contact"], shared, bevel=0.20)
+    add_box("farm_wreck_contact_pad", (0, 0, -0.02), (7.04, 7.04, 0.04), mats["contact"], destroyed, bevel=0.18)
+
     add_box("farm_base", (0, 0, 0.18), (7.0, 7.0, 0.36), mats["ceramic_dark"], shared, bevel=0.18)
     add_box("farm_soil", (0, 0, 0.43), (6.15, 6.15, 0.22), mats["soil"], shared, bevel=0.12)
     # Woven-gold kerb and teal irrigation channels make the low silhouette read.
@@ -716,6 +738,9 @@ def build_yard(mats: dict[str, bpy.types.Material]) -> bpy.types.Object:
     damaged = g["state_damaged_plus"]
     critical = g["state_critical_plus"]
     destroyed = g["state_destroyed_only"]
+
+    add_box("yard_contact_pad", (0, 0, -0.02), (8.22, 6.22, 0.04), mats["contact"], shared, bevel=0.19)
+    add_box("yard_wreck_contact_pad", (0, 0, -0.02), (8.04, 6.04, 0.04), mats["contact"], destroyed, bevel=0.17)
 
     # A rectangular muster deck separates the Yard from the circular Core at a
     # black-and-white thumbnail. Its long axis is the production/readiness cue.
@@ -827,6 +852,115 @@ def descendants(root: bpy.types.Object) -> list[bpy.types.Object]:
     return result
 
 
+def stable_name_seed(name: str) -> int:
+    return sum((index + 1) * ord(character) for index, character in enumerate(name)) & 0xFFFF
+
+
+def clamp01(value: float) -> float:
+    return max(0.0, min(1.0, value))
+
+
+def convert_authored_curves(root: bpy.types.Object) -> int:
+    """Convert curves before painting so every exported primitive carries COLOR_0."""
+    converted = 0
+    for obj in list(descendants(root)):
+        if obj.type != "CURVE":
+            continue
+        bpy.ops.object.select_all(action="DESELECT")
+        obj.hide_viewport = False
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.convert(target="MESH")
+        converted += 1
+    return converted
+
+
+def weather_profile(material_name: str) -> tuple[float, float, float]:
+    """Return minimum value, variation, and lower-edge darkening."""
+    name = material_name.upper()
+    if "CONTACT" in name:
+        return (0.86, 0.05, 0.0)
+    if "EMBER" in name:
+        return (0.94, 0.05, 0.0)
+    if "IVORY" in name:
+        return (0.76, 0.18, 0.08)
+    if "CERAMIC" in name or "ASH" in name:
+        return (0.70, 0.22, 0.10)
+    if "GOLD" in name:
+        return (0.82, 0.14, 0.04)
+    if "TEAL" in name:
+        return (0.74, 0.18, 0.05)
+    if "SOIL" in name or "SCORCH" in name:
+        return (0.68, 0.22, 0.03)
+    if "CROP" in name:
+        return (0.80, 0.17, 0.04)
+    return (0.76, 0.18, 0.06)
+
+
+def apply_weathered_mesh(obj: bpy.types.Object) -> int:
+    if obj.type != "MESH" or not obj.data.vertices or not obj.data.materials:
+        return 0
+    mesh = obj.data
+    existing = mesh.color_attributes.get(WEATHER_COLOR_ATTRIBUTE)
+    if existing:
+        mesh.color_attributes.remove(existing)
+    attribute = mesh.color_attributes.new(
+        name=WEATHER_COLOR_ATTRIBUTE,
+        type="BYTE_COLOR",
+        domain="POINT",
+    )
+    mesh.color_attributes.active_color_index = len(mesh.color_attributes) - 1
+    mesh.color_attributes.render_color_index = len(mesh.color_attributes) - 1
+    material_name = obj.data.materials[0].name
+    minimum, variation, lower_darkening = weather_profile(material_name)
+    seed = stable_name_seed(obj.name)
+
+    for index, vertex in enumerate(mesh.vertices):
+        world = obj.matrix_world @ vertex.co
+        broad = 0.5 + 0.5 * math.sin(
+            world.x * 0.73 + world.y * 0.51 + world.z * 0.29 + seed * 0.017
+        )
+        cross = 0.5 + 0.5 * math.sin(
+            world.x * 1.93 - world.y * 1.27 + world.z * 0.83 + seed * 0.041
+        )
+        grain = 0.5 + 0.5 * math.sin(
+            (world.x + world.y) * 7.1 + world.z * 4.9 + seed * 0.113
+        )
+        field = broad * 0.54 + cross * 0.34 + grain * 0.12
+        height = clamp01(world.z / 3.2)
+        factor = (minimum + variation * field) * (1.0 - lower_darkening * (1.0 - height))
+        warm_shift = (broad - 0.5) * 0.075
+        attribute.data[index].color = (
+            clamp01(factor * (1.0 + warm_shift)),
+            clamp01(factor * (0.985 + warm_shift * 0.25)),
+            clamp01(factor * (0.955 - warm_shift * 0.7)),
+            1.0,
+        )
+    mesh.update()
+    return len(mesh.vertices)
+
+
+def apply_weathered_surface(root: bpy.types.Object) -> dict[str, int | str]:
+    converted = convert_authored_curves(root)
+    bpy.context.view_layer.update()
+    colored_meshes = 0
+    colored_vertices = 0
+    for obj in descendants(root):
+        count = apply_weathered_mesh(obj)
+        if count:
+            colored_meshes += 1
+            colored_vertices += count
+    root["surface_contract"] = "sunfold.weathered-building/1"
+    root["surface_color_attribute"] = WEATHER_COLOR_ATTRIBUTE
+    return {
+        "surfaceContract": "sunfold.weathered-building/1",
+        "vertexColorAttribute": WEATHER_COLOR_ATTRIBUTE,
+        "weatheredMeshCount": colored_meshes,
+        "weatheredVertexCount": colored_vertices,
+        "convertedCurveCount": converted,
+    }
+
+
 def set_state_visibility(root: bpy.types.Object, state: str) -> None:
     visible = {
         "healthy": {"state_shared", "state_healthy_damaged", "state_healthy_only"},
@@ -858,18 +992,46 @@ def select_hierarchy(root: bpy.types.Object) -> None:
 
 def export_glb(root: bpy.types.Object, path: Path) -> None:
     select_hierarchy(root)
-    bpy.ops.export_scene.gltf(
-        filepath=str(path),
-        export_format="GLB",
-        use_selection=True,
-        export_apply=True,
-        export_yup=True,
-        export_animations=False,
-        export_extras=True,
-        export_materials="EXPORT",
-        export_cameras=False,
-        export_lights=False,
-    )
+    # Blender's glTF exporter emits a white baseColorFactor when a color node is
+    # linked to Principled Base Color. Temporarily expose the authored material
+    # color while ACTIVE still exports COLOR_0, then restore the preview graph.
+    material_links: list[tuple[bpy.types.NodeTree, bpy.types.NodeSocket, bpy.types.NodeSocket]] = []
+    materials = {
+        material
+        for obj in descendants(root)
+        if obj.type == "MESH"
+        for material in obj.data.materials
+        if material and material.use_nodes
+    }
+    for mat in materials:
+        bsdf = mat.node_tree.nodes.get("Principled BSDF")
+        if not bsdf:
+            continue
+        base_color = bsdf.inputs.get("Base Color")
+        if not base_color:
+            continue
+        for link in list(base_color.links):
+            material_links.append((mat.node_tree, link.from_socket, link.to_socket))
+            mat.node_tree.links.remove(link)
+
+    try:
+        bpy.ops.export_scene.gltf(
+            filepath=str(path),
+            export_format="GLB",
+            use_selection=True,
+            export_apply=True,
+            export_yup=True,
+            export_animations=False,
+            export_extras=True,
+            export_materials="EXPORT",
+            export_vertex_color="ACTIVE",
+            export_all_vertex_colors=False,
+            export_cameras=False,
+            export_lights=False,
+        )
+    finally:
+        for node_tree, from_socket, to_socket in material_links:
+            node_tree.links.new(from_socket, to_socket)
 
 
 def add_preview_world(root: bpy.types.Object, kind: str) -> None:
@@ -884,6 +1046,7 @@ def add_preview_world(root: bpy.types.Object, kind: str) -> None:
     bpy.ops.mesh.primitive_cylinder_add(vertices=64, radius=8.4 if is_core else 6.2, depth=0.28, location=(0, 0, -0.16))
     ground = finish_object(bpy.context.object, "preview_ground", make_materials()["ceramic_dark"], empty("preview_environment"), bevel=0.10, smooth=True)
     ground.hide_render = False
+    apply_weathered_mesh(ground)
 
     def light(name, kind_name, energy, color, location, size=5.0):
         data = bpy.data.lights.new(name, kind_name)
@@ -949,6 +1112,7 @@ def build_one(kind: str, builder, output: Path, evidence: Path | None, skip_rend
     reset_scene()
     mats = make_materials()
     root = builder(mats)
+    surface_stats = apply_weathered_surface(root)
     for obj in descendants(root):
         if obj.type == "MESH":
             obj.data.calc_loop_triangles()
@@ -970,6 +1134,7 @@ def build_one(kind: str, builder, output: Path, evidence: Path | None, skip_rend
         "source": str(Path("source") / blend_path.name),
         "sizeBytes": glb_path.stat().st_size,
         **stats,
+        **surface_stats,
     }
 
 
@@ -992,6 +1157,11 @@ def main() -> None:
         "faction": "sunwoven",
         "age": "foundation",
         "coordinateSystem": "glTF Y-up; origins at footprint centres",
+        "surfaceStyle": {
+            "contract": "sunfold.weathered-building/1",
+            "vertexColorAttribute": WEATHER_COLOR_ATTRIBUTE,
+            "contactGrounding": True,
+        },
         "damageBands": {
             "healthy": {"minimumLifeRatioExclusive": 0.75},
             "damaged": {"minimumLifeRatioExclusive": 0.50},
