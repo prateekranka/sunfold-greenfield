@@ -35,6 +35,8 @@ minimap.
   grain. One texture drives the ring in stable world space.
 - Lit terrain material variants for the sun-worn deck and gravity-weathered armor. They vary
   color, roughness, metalness, and derivative normals without displacing collision geometry.
+- Twenty-one authored crystal-bearing islets, 126 clustered rock lobes, 180 loose rocks, and
+  87 crystals around the ring. Seven instanced draw groups render the full debris composition.
 
 ### Changed
 
@@ -73,6 +75,8 @@ minimap.
   the HUD does not add a second construction, production, or combat simulation.
 - The six alternating deck-panel meshes per fragment are removed. Each fragment now uses one
   continuous deck surface, eight authored cracks, and three hairline structural inlays.
+- The surrounding void now uses large warm-and-charcoal rock clusters with restrained cyan
+  crystal crowns. The debris field is cosmetic and creates no walkable ground.
 
 ### Fixed
 
@@ -141,6 +145,12 @@ minimap.
   `eae74d6347afa0f055a3d3e406840190affa4d970bacd7cbb62482af023858ec`. The hosted
   run moved all 12 units, rejected every invalid ground sample, and completed 600 gameplay
   frames at 60.069 FPS with no frame above 20 ms.
+- Crystal-islet commit `250eb91` is deployed only to `dev.helios.contenthelper.in` as Worker
+  version `c129584a-9130-4195-a437-02b2240bbf7b`.
+- Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `060b70f2a60d2d57587478b53c940eddeea1de8d2465d56b8f2460dd6102e014`. The hosted
+  run completed 600 gameplay frames at 60.093 FPS with no frame above 20 ms and no invalid
+  sample across 7,200 ground checks.
 
 ### Proof pending
 
@@ -162,9 +172,9 @@ minimap.
 - Cycle 08 HUD is deployed and verified on the development host. Its exact iPad landscape
   layout proof is browser-emulated, not a fresh simulator or device touch run.
 - The placeholder north bases, desktop debug HUD, and alternating terrain bands are gone.
-  The authored buildings still lack the reference's textured material richness. Crystal
-  islets, debris density, sidewall relief, vegetation, contact shadows, and nebula depth
-  remain below the approved reference.
+  The authored buildings still lack the reference's textured material richness. Sidewall
+  relief, vegetation, contact shadows, and blue-purple nebula depth remain below the approved
+  reference.
 - Per user direction, Cycle 05 has no additional iPad touch check.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game

@@ -769,3 +769,82 @@ collision proof remains exact. The browser frame proof is not a device GPU perce
 Add an authored field of crystal islets and layered debris around the ring. Improve the
 diorama silhouette and resource readability without adding walkable ground, changing map
 topology, or weakening the 60 FPS gate. Treat nebula depth as a separate later checkpoint.
+
+## Cycle 10 — crystal-islet debris composition · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- The coherent Cycle 09 ring still floated in a mostly empty black field.
+- Existing debris was too small to contribute to the diorama silhouette at the gameplay
+  camera.
+- The approved reference uses large crystal-bearing islets as a second scale layer around and
+  inside the ring.
+
+### Correction
+
+- Added 21 authored islet anchors around the outer ring and in the inner void.
+- Built each anchor from deterministic clustered rock lobes and a restrained cyan crystal
+  crown. The final field contains 126 anchor lobes and 70 anchor crystals.
+- Increased the loose field to 180 rocks and 17 small crystals.
+- Batched the full field into seven static instanced draw groups: dark and warm loose rocks,
+  loose crystals, dark and warm anchor rocks, and normal and bright anchor crystals.
+- Disabled cosmetic raycasts for the complete field. It creates no platform, bridge, path,
+  collision, resource, objective, or walkable-ground state.
+
+### Rendered and performance proof
+
+- The final local and hosted overview frames were inspected against the approved Broken Ring
+  reference.
+- Local: 600 frames in 9.9864 seconds at 60.082 FPS, 18.5 ms p95, 18.7 ms maximum, and zero
+  frames above 20 ms.
+- Hosted: 600 frames in 9.9845 seconds at 60.093 FPS, 16.8 ms p95, 18.7 ms maximum, and zero
+  frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check` for both changed terrain source files — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Scoped `git diff --check` — passed.
+- Hosted page returned HTTP 200. The hosted bundle hash matches the committed asset.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle10-debris-overview.png`
+- Hosted close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle10-debris-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle10-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle10-debris-gameplay-performance-10s.json`
+- Hosted debris contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle10-debris-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle10-debris-interaction-proof.json`
+- Local frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle10-debris-final-gameplay-performance-10s.json`
+- Ground tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle10-ground-test.stdout.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle10-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 10 adds the reference's missing second scale layer, but the islets remain a low-poly
+procedural kit rather than individually sculpted Blender assets. The reference still has
+richer silhouettes, mineral variation, vegetation, contact shadows, and deep blue-purple
+nebula structure. The browser frame proof is not a device GPU percentile export.
+
+### Dev delivery
+
+- Implementation commit `250eb91` is visible on `origin/main`.
+- Worker version `c129584a-9130-4195-a437-02b2240bbf7b` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-10&v=250eb91`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `060b70f2a60d2d57587478b53c940eddeea1de8d2465d56b8f2460dd6102e014`.
+
+### Next cycle
+
+Add a low-cost blue-purple nebula backdrop and distance haze behind the existing stars and
+debris. Preserve black-space contrast, unit readability, controls, topology, and the 60 FPS
+gate.

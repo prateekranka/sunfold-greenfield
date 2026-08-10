@@ -1,12 +1,12 @@
 # Version
 
-**0.6.3** — build 48
+**0.6.4** — build 49
 
 | Field | Value |
 |---|---|
 | Active development track | Helios Rift — Broken Ring reference parity |
-| Latest Helios checkpoint | Cycle 09 — material-driven Broken Ring terrain · commit `816d06c` |
-| Dev deployment | `dev.helios.contenthelper.in` · Worker `c4c70fa5-8a06-49d6-85cb-0f7447d3c441` |
+| Latest Helios checkpoint | Cycle 10 — crystal-islet debris field · commit `250eb91` |
+| Dev deployment | `dev.helios.contenthelper.in` · Worker `c129584a-9130-4195-a437-02b2240bbf7b` |
 | Gate | G0 complete · G1 in progress (not passed) · G2 in progress (not passed) · G3 opened |
 | Play-feel reference | Age of Empires 2 / Rise of Rome, in space (BC-01, 2026-07-31) |
 | Locked map seed | `20260726` |

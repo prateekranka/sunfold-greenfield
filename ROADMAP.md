@@ -12,8 +12,9 @@ Sunwoven Civilization Core, Farm, and Formation Yard with four readable health s
 Cycle 08 replaces the desktop debug overlay with a compact iPad-first tactical HUD. Cycle 09
 replaces the visible alternating fragment bands with one coherent material-driven terrain
 surface while preserving geometry, pathing, and the 60 FPS gate. Cycle 10 adds an authored
-field of crystal islets and layered debris without creating new walkable ground. Cursor owns
-the separate second-civilization 2D sprite workflow. This track owns Blender 3D.
+field of crystal islets and layered debris without creating new walkable ground. Cycle 11
+adds a low-cost blue-purple nebula backdrop and distance haze. Cursor owns the separate
+second-civilization 2D sprite workflow. This track owns Blender 3D.
 
 Gates run in order. A gate is complete only when its behaviour was observed in the
 rendered app on an iPad simulator — a green build is never sufficient.
