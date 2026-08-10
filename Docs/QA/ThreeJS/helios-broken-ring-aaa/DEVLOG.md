@@ -1019,3 +1019,109 @@ export.
 Integrate the Civilization Core, Farm, and Formation Yard into the map's weathered
 stone-metal material language. Preserve their silhouettes, health-state readability,
 gameplay footprints, controls, and the 60 FPS gate.
+
+## Cycle 13 — weathered foundation buildings · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Cycle 12 left the north Civilization Core, Farm, and Formation Yard smoother and brighter
+  than the weathered Broken Ring around them.
+- At the gameplay camera, their pale surfaces read as imported display models rather than
+  structures built from the same graphite, ivory, teal, and brass material language.
+
+### Correction
+
+- Rebalanced the Blender source palette toward warm ivory, dark ceramic, woven brass, teal
+  fabric, living soil, crop gold, scorch, ash, and restrained emissive accents.
+- Added a deterministic `SunfoldSurface` vertex-color field after modifiers and curve
+  conversion. Broad weathering, cross-grain, fine grain, and lower-edge darkening now vary
+  the surface without changing geometry.
+- Added one thin authored contact pad to each healthy and destroyed composition. It grounds
+  each silhouette without adding a runtime shadow pass.
+- Preserved the required `SW_Teal_Lantern` and `SW_Ember` material names used by runtime
+  motion and damage feedback.
+- Preserved every building footprint, node hierarchy, motion node, and healthy, damaged,
+  critical, and destroyed visibility composition.
+- The Blender glTF path now exports the active color layer as `COLOR_0` while preserving the
+  authored material `baseColorFactor`. The validator fails closed on white palette loss or
+  a primitive without `COLOR_0`.
+
+### Asset contract
+
+- Civilization Core: 1,253,264 bytes, 27,243 exported vertices, 27,196 triangles,
+  181 weathered primitives, and 12 materials.
+- Farm: 885,880 bytes, 17,236 exported vertices, 14,480 triangles,
+  192 weathered primitives, and 12 materials.
+- Formation Yard: 516,664 bytes, 10,355 exported vertices, 10,698 triangles,
+  90 weathered primitives, and 12 materials.
+- All three assets remain below the existing 1.5 MB, 30,000-vertex, 30,000-triangle, and
+  12-material ceilings.
+
+### Rendered and performance proof
+
+- All 12 offline Blender state renders were inspected. The real map was then inspected in
+  healthy, critical, and destroyed states at the gameplay camera.
+- Local accepted run: 600 frames in 9.9938 seconds at 60.037 FPS, 18.6 ms p95, 18.7 ms
+  maximum, and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9856 seconds at 60.087 FPS, 16.9 ms p95, 18.6 ms
+  maximum, and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- The hosted runtime script URL is
+  `https://dev.helios.contenthelper.in/helios-rift-proof.bundle.js?v=f300cbd`.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- Blender 5.2 source generation for all three `.blend` and GLB assets — passed.
+- Fail-closed GLB surface, hierarchy, palette, and asset-budget validation — passed.
+- `node --test ThreeRuntime/tests/gltf-buildings.test.js ThreeRuntime/tests/ground-navigation.test.js`
+  — 7 of 7 passed.
+- Targeted Helios esbuild — passed.
+- Scoped `git diff --check` — passed.
+- Hosted page and versioned bundle returned HTTP 200. The hosted bundle hash matches the
+  committed and deploy-site assets.
+- The two unrelated dirty lab bundle hashes remained unchanged.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle13-weathered-buildings-final-overview.png`
+- Hosted close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle13-weathered-buildings-final-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle13-weathered-buildings-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle13-weathered-buildings-final-gameplay-performance-10s.json`
+- Hosted versioned-script contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle13-weathered-buildings-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle13-weathered-buildings-final-interaction-proof.json`
+- Runtime state comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle13-building-runtime-states.png`
+- Blender state sheet: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle13-building-states-r3.png`
+- Final GLB validation: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle13-building-final-validation.json`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle13-focused-tests.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle13-build-r3.stdout.txt`
+- Bundle and preservation hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle13-bundle-and-preservation-hashes.txt`
+- Hosted hash and HTTP proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle13-hosted-http-and-hash-r2.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle13-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 13 integrates the building kit into the map's material language and preserves readable
+damage. It does not blind-match the reference. Large deck areas remain sparse, while the
+concept has restrained living clusters, maintenance mechanisms, richer chipped terminal
+faces, and stronger warm solar bounce. The browser frame proof is not a device GPU percentile
+export.
+
+### Dev delivery
+
+- Implementation commit `f300cbd` is visible on `origin/main`.
+- Worker version `e48b68b8-29c5-4f9b-bb7c-44e61ccae1f2` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-13&v=f300cbd`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `ac9b49b1b0e93f47398784cc04822d2e9d37f49f633d9a22fedf196bff4343a5`.
+
+### Next cycle
+
+Add one restrained, instanced Sunwoven deck-life prop family to the empty ring sectors.
+Keep it cosmetic and preserve walkable ground, pathing, controls, and the 60 FPS gate.

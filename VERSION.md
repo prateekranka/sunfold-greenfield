@@ -1,12 +1,12 @@
 # Version
 
-**0.6.6** — build 51
+**0.6.7** — build 52
 
 | Field | Value |
 |---|---|
 | Active development track | Helios Rift — Broken Ring reference parity |
-| Latest Helios checkpoint | Cycle 12 — fragment sidewall architecture · commit `e63155f` |
-| Dev deployment | `dev.helios.contenthelper.in` · Worker `33814f5d-dd73-46b7-a364-201d310b25af` |
+| Latest Helios checkpoint | Cycle 13 — weathered foundation buildings · commit `f300cbd` |
+| Dev deployment | `dev.helios.contenthelper.in` · Worker `e48b68b8-29c5-4f9b-bb7c-44e61ccae1f2` |
 | Gate | G0 complete · G1 in progress (not passed) · G2 in progress (not passed) · G3 opened |
 | Play-feel reference | Age of Empires 2 / Rise of Rome, in space (BC-01, 2026-07-31) |
 | Locked map seed | `20260726` |

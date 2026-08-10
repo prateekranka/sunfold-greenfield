@@ -41,6 +41,8 @@ minimap.
   sphere, with dark blue, violet, and restrained cyan cloud structure.
 - Three attached chamfered masonry tiers on both exposed edges of every ring fragment, with
   312 blocks, 40 warm braces, 80 brace brackets, and eight contact-shadow bands across the map.
+- Deterministic per-vertex building weathering and thin authored contact pads for the
+  Civilization Core, Farm, and Formation Yard. Every exported primitive carries `COLOR_0`.
 
 ### Changed
 
@@ -86,6 +88,9 @@ minimap.
 - Fragment sidewalls now use staggered dark graphite and warm stone-metal blocks, embedded
   brass frames, and a narrow cavity shadow below the gold rim. The playable deck, bridge
   endpoints, path graph, and collision contract are unchanged.
+- The three Sunwoven foundation buildings now use the same graphite, ivory, teal, and brass
+  language as the Broken Ring. Their silhouettes, footprints, motion nodes, and healthy,
+  damaged, critical, and destroyed compositions are unchanged.
 
 ### Fixed
 
@@ -105,6 +110,9 @@ minimap.
   zero frames above 20 ms, and zero invalid ground samples.
 - Lab bundle source comments are now independent of the command's working directory. The
   root and `ThreeRuntime` build routes produce the same SHA-256 artifact.
+- The Blender export path now preserves authored glTF base colors while exporting the active
+  weather color layer. The GLB validator fails closed if a required palette color becomes
+  white or if any primitive loses `COLOR_0`.
 
 ### Dev delivery
 
@@ -167,6 +175,12 @@ minimap.
   `163cc92614b458555bd449f0fed119730f84617661d981163507e3fd02d950ec`. The hosted
   run completed 600 gameplay frames at 60.095 FPS with no frame above 20 ms and zero invalid
   samples across 7,200 ground checks.
+- Weathered-building commit `f300cbd` is deployed only to `dev.helios.contenthelper.in` as
+  Worker version `e48b68b8-29c5-4f9b-bb7c-44e61ccae1f2`.
+- Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `ac9b49b1b0e93f47398784cc04822d2e9d37f49f633d9a22fedf196bff4343a5`. The hosted
+  run moved all 12 units, cycled building damage, sampled 7,200 valid ground positions, and
+  completed 600 frames at 60.087 FPS with no frame above 20 ms.
 
 ### Proof pending
 
@@ -187,11 +201,12 @@ minimap.
   reference. The map still lacks substantial crystal islets, dense debris, and nebula depth.
 - Cycle 08 HUD is deployed and verified on the development host. Its exact iPad landscape
   layout proof is browser-emulated, not a fresh simulator or device touch run.
-- The placeholder north bases, desktop debug HUD, and alternating terrain bands are gone.
-  The authored buildings still lack the reference's textured material richness. Sidewall
-  relief, vegetation, and contact shadows remain below the approved reference. The nebula is
-  one procedural sky texture, not a layered volumetric effect.
-- Per user direction, Cycle 05 has no additional iPad touch check.
+- The placeholder north bases, desktop debug HUD, alternating terrain bands, thin sidewall,
+  and ungrounded building materials are gone. Sparse deck life, small maintenance mechanisms,
+  chipped terminal faces, and warm solar bounce remain below the approved reference. The
+  nebula is one procedural sky texture, not a layered volumetric effect.
+- Per user direction, Cycles 05 and 09–13 have no additional iPad touch check. Their 60 FPS
+  gates use browser `requestAnimationFrame`, not device GPU frame-time percentiles.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game
 

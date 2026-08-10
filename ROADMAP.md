@@ -14,10 +14,12 @@ replaces the visible alternating fragment bands with one coherent material-drive
 surface while preserving geometry, pathing, and the 60 FPS gate. Cycle 10 adds an authored
 field of crystal islets and layered debris without creating new walkable ground. Cycle 11
 adds a low-cost blue-purple nebula backdrop and distance haze. Cycle 12 deepens fragment
-sidewall architecture and contact shadow without changing the playable deck. Cycle 13 will
-integrate the Civilization Core, Farm, and Formation Yard into the map's weathered
-stone-metal material language while preserving their health-state readability. Cursor owns
-the separate second-civilization 2D sprite workflow. This track owns Blender 3D.
+sidewall architecture and contact shadow without changing the playable deck. Cycle 13
+integrates the Civilization Core, Farm, and Formation Yard into the map's weathered
+graphite, ivory, teal, and brass material language while preserving all four damage states.
+Cycle 14 will address the empty-deck mismatch with one restrained, instanced Sunwoven deck
+life prop family. Cursor owns the separate second-civilization 2D sprite workflow. This
+track owns Blender 3D.
 
 Gates run in order. A gate is complete only when its behaviour was observed in the
 rendered app on an iPad simulator — a green build is never sufficient.
