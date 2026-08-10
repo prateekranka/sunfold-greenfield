@@ -1,12 +1,12 @@
 # Version
 
-**0.6.2** — build 47
+**0.6.3** — build 48
 
 | Field | Value |
 |---|---|
 | Active development track | Helios Rift — Broken Ring reference parity |
-| Latest Helios checkpoint | Cycle 08 — compact iPad tactical HUD · commit `7497c8c` |
-| Dev deployment | `dev.helios.contenthelper.in` · Worker `f87e19d9-d6f2-4275-9d32-eac948ad4a26` |
+| Latest Helios checkpoint | Cycle 09 — material-driven Broken Ring terrain · commit `816d06c` |
+| Dev deployment | `dev.helios.contenthelper.in` · Worker `c4c70fa5-8a06-49d6-85cb-0f7447d3c441` |
 | Gate | G0 complete · G1 in progress (not passed) · G2 in progress (not passed) · G3 opened |
 | Play-feel reference | Age of Empires 2 / Rise of Rome, in space (BC-01, 2026-07-31) |
 | Locked map seed | `20260726` |

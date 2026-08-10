@@ -31,6 +31,10 @@ minimap.
   selection, base health, commands, frame rate, minimap, and a first-use field guide.
 - Keyboard command parity for Select all, Repair, Guide, and Guide dismissal, with visible
   focus and 44-point-or-larger interactive targets.
+- A deterministic 256×256 four-channel terrain field for broad form, weathering, ridges, and
+  grain. One texture drives the ring in stable world space.
+- Lit terrain material variants for the sun-worn deck and gravity-weathered armor. They vary
+  color, roughness, metalness, and derivative normals without displacing collision geometry.
 
 ### Changed
 
@@ -67,6 +71,8 @@ minimap.
 - The desktop debug overlay is replaced by a layered tactical interface that keeps the
   battlefield readable. All displayed values come from existing live map state and commands;
   the HUD does not add a second construction, production, or combat simulation.
+- The six alternating deck-panel meshes per fragment are removed. Each fragment now uses one
+  continuous deck surface, eight authored cracks, and three hairline structural inlays.
 
 ### Fixed
 
@@ -84,6 +90,8 @@ minimap.
 - The final Cycle 06 route moved all 12 selected units through an enabled core bridge. It
   sampled 600 frames in 9.9906 seconds at 60.056 FPS, with 16.8 ms p95, 17.7 ms maximum,
   zero frames above 20 ms, and zero invalid ground samples.
+- Lab bundle source comments are now independent of the command's working directory. The
+  root and `ThreeRuntime` build routes produce the same SHA-256 artifact.
 
 ### Dev delivery
 
@@ -126,6 +134,13 @@ minimap.
   `00185851ff2b5dc7bb52df46d9eeb1460932ac4cb4b580ddf44ac9c64ab12529`. The hosted
   run selected all 12 units by keyboard, opened and dismissed the Guide with correct focus,
   and completed 600 gameplay frames at 60.057 FPS with no frame above 20 ms.
+- Material-terrain commit `816d06c` and reproducible-build commit `4ab8e29` are deployed only
+  to `dev.helios.contenthelper.in` as Worker version
+  `c4c70fa5-8a06-49d6-85cb-0f7447d3c441`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `eae74d6347afa0f055a3d3e406840190affa4d970bacd7cbb62482af023858ec`. The hosted
+  run moved all 12 units, rejected every invalid ground sample, and completed 600 gameplay
+  frames at 60.069 FPS with no frame above 20 ms.
 
 ### Proof pending
 
@@ -146,9 +161,10 @@ minimap.
   reference. The map still lacks substantial crystal islets, dense debris, and nebula depth.
 - Cycle 08 HUD is deployed and verified on the development host. Its exact iPad landscape
   layout proof is browser-emulated, not a fresh simulator or device touch run.
-- The placeholder north bases and desktop debug HUD are gone. The authored buildings still
-  lack the reference's textured material richness, and the fragment surface still reads as
-  alternating dark armor bands instead of one coherent warm terrain material.
+- The placeholder north bases, desktop debug HUD, and alternating terrain bands are gone.
+  The authored buildings still lack the reference's textured material richness. Crystal
+  islets, debris density, sidewall relief, vegetation, contact shadows, and nebula depth
+  remain below the approved reference.
 - Per user direction, Cycle 05 has no additional iPad touch check.
 
 ## 0.6.1 — 2026-08-01 — the economy pays for the game

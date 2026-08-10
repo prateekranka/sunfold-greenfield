@@ -676,3 +676,96 @@ Replace the visible alternating fragment bands with one coherent lit terrain mat
 world-space variation to create warm stone, cooler gravity wear, cracks, and edge weathering
 without changing fragment geometry, map topology, walkability, bridges, controls, or gameplay
 rules. Preserve the 60 FPS gate.
+
+## Cycle 09 — material-driven Broken Ring terrain · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Six repeated light and dark deck panels split each fragment into broad alternating bands.
+- The surface read as assembled debug strips instead of one weathered, sun-worn land mass.
+- Color changed by mesh instead of by coherent material structure.
+
+### Correction
+
+- Added one deterministic 256×256 RGBA terrain field. Its channels carry broad form,
+  weathering, ridges, and grain.
+- Added sun-worn deck and gravity-weathered armor material variants. Both sample the field in
+  world XZ space at broad, detail, and micro scales.
+- The standard lit material remains authoritative. The terrain field varies color, roughness,
+  metalness, and derivative normals.
+- Removed every legacy alternating deck-panel mesh. Each fragment now has one continuous deck,
+  eight authored cracks, and three hairline structural inlays.
+- Kept geometry displacement disabled. Logical platforms, bridge routes, collision rules,
+  controls, units, resources, and objectives are unchanged.
+- Made the lab builder's working directory explicit. Root and runtime build routes now create
+  the same generated bundle.
+
+### Source direction
+
+- Adapted the material-customization approach from
+  `https://simondev.io/demos/gamedev/#customizing-materials`.
+- Adapted the procedural terrain thread's layered fBm, ridged, weathered, and multi-frequency
+  ideas from `https://x.com/iced_coffee_dev/status/2084276803833581736`.
+- Used those ideas for visual surface detail only. Runtime movement still uses the authored
+  ground contract.
+
+### Rendered and performance proof
+
+- The final local and hosted frames were inspected against the approved Broken Ring reference.
+- Local: 600 frames in 9.9894 seconds at 60.064 FPS, 17.0 ms p95, 18.5 ms maximum, and zero
+  frames above 20 ms.
+- Hosted: 600 frames in 9.9885 seconds at 60.069 FPS, 18.1 ms p95, 18.8 ms maximum, and zero
+  frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check` for both changed terrain source files — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Root-versus-runtime generated bundle hashes — identical.
+- Scoped `git diff --check` — passed.
+- Hosted page returned HTTP 200. The hosted bundle hash matches the committed asset.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-09-terrain-overview.png`
+- Hosted close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-09-terrain-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-09-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-09-terrain-gameplay-performance-10s.json`
+- Hosted material contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-09-terrain-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle-09-terrain-interaction-proof.json`
+- Local frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle-09-terrain-final-gray-gameplay-performance-10s.json`
+- Ground tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle09-ground-test.stdout.txt`
+- Build determinism hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle09-determinism-root.sha256` and `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle09-determinism-runtime.sha256`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle09-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 09 removes the alternating-band presentation and adds coherent procedural material
+variation. It does not yet blind-match the reference. The reference still has denser crystal
+islets, layered debris, richer sidewall relief, vegetation, contact shadows, and nebula depth.
+The terrain uses visual normal detail without vertex displacement so the existing path and
+collision proof remains exact. The browser frame proof is not a device GPU percentile export.
+
+### Dev delivery
+
+- Terrain commit `816d06c` is visible on `origin/main`.
+- Reproducible-build commit `4ab8e29` is visible on `origin/main`.
+- Worker version `c4c70fa5-8a06-49d6-85cb-0f7447d3c441` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-09&v=4ab8e29`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `eae74d6347afa0f055a3d3e406840190affa4d970bacd7cbb62482af023858ec`.
+
+### Next cycle
+
+Add an authored field of crystal islets and layered debris around the ring. Improve the
+diorama silhouette and resource readability without adding walkable ground, changing map
+topology, or weakening the 60 FPS gate. Treat nebula depth as a separate later checkpoint.
