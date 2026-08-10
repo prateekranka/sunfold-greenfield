@@ -18,7 +18,9 @@ const PALETTE = {
 // Shared Helios debris geometry. The field can contain many rocks, so avoid
 // allocating one geometry per sample while keeping deterministic transforms.
 const HELIOS_DEBRIS_GEOMETRY = new THREE.IcosahedronGeometry(1, 0);
+const HELIOS_DEBRIS_ISLET_GEOMETRY = new THREE.IcosahedronGeometry(1, 1);
 const HELIOS_DEBRIS_CRYSTAL_GEOMETRY = new THREE.ConeGeometry(1, 1, 5);
+const HELIOS_DEBRIS_CRYSTAL_CLUSTER_GEOMETRY = new THREE.OctahedronGeometry(1, 0);
 
 /**
  * @param {import('./map-definition.js').TerrainSpec} terrain
@@ -152,8 +154,10 @@ function createHeliosMaterials(palette, seed = 2749) {
     conduitBright: glow(palette.conduitBright ?? 0x83fff1, 1.75, 1, 0.12, 0.16),
     spawn: glow(palette.spawn ?? 0x328dff, 1.2, 0.88, 0.18, 0.2),
     resource: glow(palette.resource ?? 0x3ed9b5, 1.2, 0.9, 0.16, 0.22),
-    crystal: glow(palette.crystal ?? 0x46e5e2, 1.45, 1, 0.12, 0.16),
-    rock: metal(palette.rock ?? 0x1a232d, 0.92, 0.16),
+    crystal: glow(palette.crystal ?? 0x1ca7a8, 0.92, 1, 0.12, 0.2),
+    crystalBright: glow(palette.crystalBright ?? 0x59ddd3, 1.32, 1, 0.08, 0.16),
+    rock: metal(palette.rock ?? 0x303437, 0.94, 0.1, { flatShading: true }),
+    rockWarm: metal(palette.rockWarm ?? 0x55504a, 0.9, 0.08, { flatShading: true }),
     goldLine: line(palette.gold ?? 0xe9a749, 0.78),
     seamLine: line(palette.seam ?? 0x252d36, 0.9),
     conduitLine: line(palette.conduit ?? 0x35d8ce, 0.8),
@@ -1127,6 +1131,14 @@ function addHeliosDebrisField(group, visual, materials) {
   const random = seededRandom((visual.seed ?? 1) ^ 0x9e3779b9);
   const rocks = new THREE.Group();
   rocks.name = "helios-debris-field";
+  const looseDarkMatrices = [];
+  const looseWarmMatrices = [];
+  const looseCrystalMatrices = [];
+  const anchorDarkMatrices = [];
+  const anchorWarmMatrices = [];
+  const anchorCrystalMatrices = [];
+  const anchorBrightCrystalMatrices = [];
+  const dummy = new THREE.Object3D();
 
   for (let i = 0; i < count; i += 1) {
     const theta = random() * Math.PI * 2;
@@ -1135,24 +1147,142 @@ function addHeliosDebrisField(group, visual, materials) {
     const radius = useInnerPocket
       ? innerMin + Math.sqrt(random()) * innerSpan
       : outerMin + Math.sqrt(random()) * outerSpan;
-    const rock = new THREE.Mesh(HELIOS_DEBRIS_GEOMETRY, materials.rock);
-    rock.position.set(Math.cos(theta) * radius, -1.7 + random() * 3.4, Math.sin(theta) * radius);
-    rock.scale.set(size * (0.75 + random() * 0.6), size * (0.55 + random() * 0.5), size * (0.72 + random() * 0.55));
-    rock.rotation.set(random() * Math.PI, random() * Math.PI, random() * Math.PI);
-    rocks.add(rock);
+    dummy.position.set(Math.cos(theta) * radius, -2.4 + random() * 5.2, Math.sin(theta) * radius);
+    dummy.scale.set(
+      size * (0.75 + random() * 0.6),
+      size * (0.55 + random() * 0.5),
+      size * (0.72 + random() * 0.55)
+    );
+    dummy.rotation.set(random() * Math.PI, random() * Math.PI, random() * Math.PI);
+    dummy.updateMatrix();
+    const looseTarget = i % 4 === 0 ? looseWarmMatrices : looseDarkMatrices;
+    looseTarget.push(dummy.matrix.clone());
 
     if (i % 11 === 0) {
-      const crystal = new THREE.Mesh(HELIOS_DEBRIS_CRYSTAL_GEOMETRY, materials.crystal);
-      crystal.position.copy(rock.position);
-      crystal.position.y += size * 0.55;
-      crystal.scale.set(size * 0.22, size * 0.9, size * 0.22);
-      crystal.rotation.z = (random() - 0.5) * 0.5;
-      rocks.add(crystal);
+      dummy.position.y += size * 0.62;
+      dummy.scale.set(size * 0.2, size * 0.92, size * 0.2);
+      dummy.rotation.set((random() - 0.5) * 0.45, random() * Math.PI * 2, (random() - 0.5) * 0.45);
+      dummy.updateMatrix();
+      looseCrystalMatrices.push(dummy.matrix.clone());
     }
   }
 
+  for (const [anchorIndex, anchor] of (field.anchors ?? []).entries()) {
+    const anchorRandom = seededRandom((visual.seed ?? 1) ^ hashString(anchor.id ?? `anchor-${anchorIndex}`));
+    const angle = anchor.angle ?? anchorRandom() * Math.PI * 2;
+    const radius = anchor.radius ?? outerMin + anchorRandom() * outerSpan;
+    const size = anchor.size ?? 3;
+    const centerX = Math.cos(angle) * radius;
+    const centerZ = Math.sin(angle) * radius;
+    const centerY = anchor.y ?? -0.8;
+    const lobeCount = anchor.lobes ?? 6;
+
+    for (let lobe = 0; lobe < lobeCount; lobe += 1) {
+      const lobeAngle = anchorRandom() * Math.PI * 2;
+      const lobeDistance = lobe === 0 ? 0 : size * (0.18 + anchorRandom() * 0.42);
+      const lobeSize = lobe === 0 ? size : size * (0.32 + anchorRandom() * 0.34);
+      dummy.position.set(
+        centerX + Math.cos(lobeAngle) * lobeDistance,
+        centerY + (anchorRandom() - 0.54) * size * 0.32,
+        centerZ + Math.sin(lobeAngle) * lobeDistance
+      );
+      dummy.scale.set(
+        lobeSize * (0.72 + anchorRandom() * 0.48),
+        lobeSize * (0.45 + anchorRandom() * 0.34),
+        lobeSize * (0.68 + anchorRandom() * 0.5)
+      );
+      dummy.rotation.set(anchorRandom() * Math.PI, anchorRandom() * Math.PI, anchorRandom() * Math.PI);
+      dummy.updateMatrix();
+      const anchorTarget = (anchorIndex + lobe) % 3 === 0 ? anchorWarmMatrices : anchorDarkMatrices;
+      anchorTarget.push(dummy.matrix.clone());
+    }
+
+    const crystalCount = anchor.crystals ?? 0;
+    for (let crystal = 0; crystal < crystalCount; crystal += 1) {
+      const crystalAngle = anchorRandom() * Math.PI * 2;
+      const crystalDistance = size * (0.1 + anchorRandom() * 0.46);
+      const crystalHeight = size * (0.34 + anchorRandom() * 0.38);
+      const crystalWidth = crystalHeight * (0.24 + anchorRandom() * 0.07);
+      dummy.position.set(
+        centerX + Math.cos(crystalAngle) * crystalDistance,
+        centerY + size * 0.48 + crystalHeight * 0.3,
+        centerZ + Math.sin(crystalAngle) * crystalDistance
+      );
+      dummy.scale.set(crystalWidth, crystalHeight, crystalWidth);
+      dummy.rotation.set(
+        (anchorRandom() - 0.5) * 0.38,
+        anchorRandom() * Math.PI * 2,
+        (anchorRandom() - 0.5) * 0.38
+      );
+      dummy.updateMatrix();
+      const crystalTarget = crystal % 3 === 0 ? anchorBrightCrystalMatrices : anchorCrystalMatrices;
+      crystalTarget.push(dummy.matrix.clone());
+    }
+  }
+
+  addStaticInstances(rocks, "debris-loose-dark", HELIOS_DEBRIS_GEOMETRY, materials.rock, looseDarkMatrices);
+  addStaticInstances(rocks, "debris-loose-warm", HELIOS_DEBRIS_GEOMETRY, materials.rockWarm, looseWarmMatrices);
+  addStaticInstances(
+    rocks,
+    "debris-loose-crystals",
+    HELIOS_DEBRIS_CRYSTAL_GEOMETRY,
+    materials.crystal,
+    looseCrystalMatrices
+  );
+  addStaticInstances(
+    rocks,
+    "debris-anchor-dark",
+    HELIOS_DEBRIS_ISLET_GEOMETRY,
+    materials.rock,
+    anchorDarkMatrices
+  );
+  addStaticInstances(
+    rocks,
+    "debris-anchor-warm",
+    HELIOS_DEBRIS_ISLET_GEOMETRY,
+    materials.rockWarm,
+    anchorWarmMatrices
+  );
+  addStaticInstances(
+    rocks,
+    "debris-anchor-crystals",
+    HELIOS_DEBRIS_CRYSTAL_CLUSTER_GEOMETRY,
+    materials.crystal,
+    anchorCrystalMatrices
+  );
+  addStaticInstances(
+    rocks,
+    "debris-anchor-crystals-bright",
+    HELIOS_DEBRIS_CRYSTAL_CLUSTER_GEOMETRY,
+    materials.crystalBright,
+    anchorBrightCrystalMatrices
+  );
+
+  rocks.userData.visualStyle = "authored-crystal-islet-field";
+  rocks.userData.visualDetail = {
+    looseRocks: count,
+    anchorCount: field.anchors?.length ?? 0,
+    anchorRockLobes: anchorDarkMatrices.length + anchorWarmMatrices.length,
+    looseCrystals: looseCrystalMatrices.length,
+    anchorCrystals: anchorCrystalMatrices.length + anchorBrightCrystalMatrices.length,
+    instancedDrawGroups: rocks.children.length,
+    createsWalkableGround: false
+  };
+
   disableCosmeticRaycast(rocks);
   group.add(rocks);
+}
+
+function addStaticInstances(parent, name, geometry, material, matrices) {
+  if (matrices.length === 0) return null;
+  const instances = new THREE.InstancedMesh(geometry, material, matrices.length);
+  instances.name = name;
+  for (let i = 0; i < matrices.length; i += 1) instances.setMatrixAt(i, matrices[i]);
+  instances.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  instances.instanceMatrix.needsUpdate = true;
+  instances.computeBoundingSphere();
+  parent.add(instances);
+  return instances;
 }
 
 function makeHeliosDebris(spec, visual, materials) {

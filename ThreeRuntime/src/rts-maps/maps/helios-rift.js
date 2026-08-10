@@ -87,8 +87,10 @@ const RING_VISUAL = {
     conduitBright: 0x83fff1,
     spawn: 0x328dff,
     resource: 0x3ed9b5,
-    rock: 0x1a232d,
-    crystal: 0x46e5e2,
+    rock: 0x303437,
+    rockWarm: 0x55504a,
+    crystal: 0x1ca7a8,
+    crystalBright: 0x59ddd3,
     star: 0xb7d8ff,
     void: 0x030812
   },
@@ -120,7 +122,35 @@ const RING_VISUAL = {
     { id: "zone-isle-sw", position: { x: -22, z: 22 }, radius: 2.1, color: 0x46e5e2 },
     { id: "zone-isle-nw", position: { x: -22, z: -22 }, radius: 2.1, color: 0x46e5e2 }
   ],
-  debrisField: { count: 110, coreRadius: 10, outerRadius: 67, ringClearance: 2.4 }
+  debrisField: {
+    count: 180,
+    coreRadius: 10,
+    outerRadius: 70,
+    ringClearance: 2.4,
+    anchors: [
+      { id: "outer-nw-crown", angle: -2.94, radius: 61, size: 4.7, y: -0.8, crystals: 5 },
+      { id: "outer-nw-far", angle: -2.58, radius: 68, size: 2.8, y: 1.4, crystals: 0 },
+      { id: "outer-north-west", angle: -2.24, radius: 57, size: 3.6, y: -1.6, crystals: 4 },
+      { id: "outer-north", angle: -1.77, radius: 66, size: 4.2, y: 0.8, crystals: 5 },
+      { id: "outer-north-east", angle: -1.31, radius: 56, size: 3.1, y: -2.1, crystals: 3 },
+      { id: "outer-ne-crown", angle: -0.88, radius: 66, size: 4.9, y: -0.5, crystals: 6 },
+      { id: "outer-east-high", angle: -0.43, radius: 58, size: 2.9, y: 1.9, crystals: 0 },
+      { id: "outer-east", angle: 0.03, radius: 68, size: 4.1, y: -1.1, crystals: 5 },
+      { id: "outer-se-high", angle: 0.48, radius: 57, size: 3.2, y: 1.2, crystals: 3 },
+      { id: "outer-se-crown", angle: 0.92, radius: 67, size: 4.8, y: -0.6, crystals: 6 },
+      { id: "outer-south-east", angle: 1.34, radius: 57, size: 2.7, y: -2.0, crystals: 0 },
+      { id: "outer-south", angle: 1.78, radius: 66, size: 4.3, y: 0.7, crystals: 5 },
+      { id: "outer-south-west", angle: 2.19, radius: 57, size: 3.3, y: -1.7, crystals: 4 },
+      { id: "outer-sw-crown", angle: 2.62, radius: 67, size: 4.9, y: -0.4, crystals: 6 },
+      { id: "outer-west-high", angle: 3.02, radius: 57, size: 3.0, y: 1.8, crystals: 0 },
+      { id: "inner-ne", angle: -0.72, radius: 17.2, size: 2.0, y: -2.6, crystals: 3 },
+      { id: "inner-nw", angle: -2.35, radius: 16.4, size: 2.3, y: -2.2, crystals: 4 },
+      { id: "inner-se", angle: 0.78, radius: 18.1, size: 2.2, y: -2.8, crystals: 3 },
+      { id: "inner-south", angle: 1.89, radius: 15.8, size: 1.8, y: -2.1, crystals: 2 },
+      { id: "inner-sw", angle: 2.54, radius: 18.3, size: 2.4, y: -2.7, crystals: 4 },
+      { id: "inner-north", angle: -1.68, radius: 16.8, size: 1.9, y: -2.4, crystals: 2 }
+    ]
+  }
 };
 
 const visualBridge = (from, to, widthValues = {}) => ({
