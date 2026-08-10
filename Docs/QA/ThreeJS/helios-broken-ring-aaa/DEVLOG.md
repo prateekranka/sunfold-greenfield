@@ -1125,3 +1125,96 @@ export.
 
 Add one restrained, instanced Sunwoven deck-life prop family to the empty ring sectors.
 Keep it cosmetic and preserve walkable ground, pathing, controls, and the 60 FPS gate.
+
+## Cycle 14 — woven deck life · 2026-08-10
+
+Status: **Done and deployed**
+
+### Player-visible defect
+
+- Cycle 13 integrated the buildings, but large deck margins still read as sterile and empty.
+- The approved reference uses a small number of living green clusters to show that the ring
+  was inhabited without turning the battlefield into visual clutter.
+
+### Correction
+
+- Added 14 authored Sunwoven sun-reed clusters outside the central spawn, landmark, resource,
+  bridge-approach, and building corridors.
+- One low-poly family combines a dark ceramic planter, five woven stems, five folded fabric
+  leaves, and three restrained lumen buds.
+- Four global instanced draw groups render 14 planters, 70 stems, 70 leaves, and 42 buds.
+- The complete family is cosmetic, ignores raycasts, creates no walkable ground, and changes
+  no path, collision shape, resource, objective, bridge, or simulation rule.
+
+### Visual iteration
+
+- R1 passed the technical contract but failed the close visual review. It read as three dark
+  cactus rods on a pale block.
+- R2 uses a darker flared ceramic bowl, five finer stems, broader folded leaves, more graceful
+  lean, and dimmer teal tip lights. It reads as living woven sun-reeds at close range and as
+  restrained green life at the gameplay overview.
+
+### Rendered and performance proof
+
+- Local accepted run: 600 frames in 9.9946 seconds at 60.032 FPS, 17.3 ms p95, 18.6 ms
+  maximum, and zero frames above 20 ms.
+- Hosted final run: 600 frames in 9.9880 seconds at 60.072 FPS, 17.3 ms p95, 18.7 ms
+  maximum, and zero frames above 20 ms.
+- Both runs selected and moved all 12 local units through two legal formation orders while
+  camera and building damage states changed.
+- Both runs sampled all 12 units on every frame: 7,200 ground checks and zero invalid samples.
+- Pointer deselection, keyboard selection, Guide focus, Escape focus restoration, and Repair
+  availability passed on the hosted build.
+- The hosted contract confirms four draw groups, 14 clusters, no walkable ground, no pathing
+  effect, disabled raycasts, and the exact versioned runtime script.
+- Per user direction, no additional iPad simulator touch check was run.
+
+### Focused checks
+
+- `node --check` for the changed terrain generator and Helios map source — passed.
+- `node --test ThreeRuntime/tests/ground-navigation.test.js` — 5 of 5 passed.
+- Targeted Helios esbuild — passed.
+- Root and deploy-site generated bundle SHA-256 values are identical.
+- Scoped `git diff --check` — passed.
+- Hosted page and versioned bundle returned HTTP 200. The hosted bundle hash matches the
+  committed asset.
+- The two unrelated dirty lab bundle hashes remained unchanged.
+
+### Evidence
+
+- Hosted overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle14-deck-life-final-overview.png`
+- Hosted close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle14-deck-life-east-close-final.png`
+- Hosted reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle14-deck-life-reference-comparison.png`
+- Hosted frame metrics: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle14-deck-life-final-gameplay-performance-10s.json`
+- Hosted deck-life and versioned-script contract: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle14-deck-life-final-material-contract.json`
+- Hosted interaction proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/hosted-cycle14-deck-life-final-interaction-proof.json`
+- Local overview: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle14-deck-life-r2-overview.png`
+- Local close frame: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle14-deck-life-r2-east-close-final.png`
+- Local reference comparison: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle14-deck-life-r2-reference-comparison.png`
+- Focused tests: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle14-focused-tests.stdout.txt`
+- Build output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle14-build-r2.stdout.txt`
+- Bundle and preservation hashes: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle14-bundle-and-preservation-hashes.txt`
+- Hosted hash and HTTP proof: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle14-hosted-http-and-hash.txt`
+- Deployment output: `/Users/prateekranka/.codex/evidence/helios-broken-ring-aaa-takeover/20260809T153411Z.lD1se7/cycle14-deploy.stdout.txt`
+
+### Honest limitation
+
+Cycle 14 adds the missing living deck rhythm without clutter or performance loss. It does not
+blind-match the reference. Fragment termini remain thin and clean compared with the concept's
+heavy chipped buttresses and solar-joint architecture. Small maintenance mechanisms and warm
+solar bounce also remain richer in the concept. The browser frame proof is not a device GPU
+percentile export.
+
+### Dev delivery
+
+- Implementation commit `6980510` is visible on `origin/main`.
+- Worker version `f06a87e3-dd2e-4f4a-b9ae-32d61d1b87b9` serves this checkpoint only at
+  `https://dev.helios.contenthelper.in/?qa=cycle-14&v=6980510`.
+- The committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `aea0775cadc38556846a423d37422dc1b3907e3739aee3b5450ea4992d050144`.
+
+### Next cycle
+
+Strengthen both ends of every fragment with attached visual buttresses and solar-joint
+architecture. Preserve bridge endpoints, walkable ground, pathing, controls, and the 60 FPS
+gate.

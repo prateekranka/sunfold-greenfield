@@ -43,6 +43,9 @@ minimap.
   312 blocks, 40 warm braces, 80 brace brackets, and eight contact-shadow bands across the map.
 - Deterministic per-vertex building weathering and thin authored contact pads for the
   Civilization Core, Farm, and Formation Yard. Every exported primitive carries `COLOR_0`.
+- Fourteen authored Sunwoven sun-reed clusters outside movement corridors. Four global
+  instanced draw groups render dark ceramic planters, woven stems, folded fabric leaves, and
+  restrained lumen buds without adding walkable ground or path blockers.
 
 ### Changed
 
@@ -91,6 +94,9 @@ minimap.
 - The three Sunwoven foundation buildings now use the same graphite, ivory, teal, and brass
   language as the Broken Ring. Their silhouettes, footprints, motion nodes, and healthy,
   damaged, critical, and destroyed compositions are unchanged.
+- Empty deck margins now carry sparse living detail at the same restrained scale as the
+  approved reference. The clusters are cosmetic, ignore raycasts, and do not alter resources,
+  objectives, collision, or movement routes.
 
 ### Fixed
 
@@ -181,6 +187,12 @@ minimap.
   `ac9b49b1b0e93f47398784cc04822d2e9d37f49f633d9a22fedf196bff4343a5`. The hosted
   run moved all 12 units, cycled building damage, sampled 7,200 valid ground positions, and
   completed 600 frames at 60.087 FPS with no frame above 20 ms.
+- Woven-deck-life commit `6980510` is deployed only to `dev.helios.contenthelper.in` as
+  Worker version `f06a87e3-dd2e-4f4a-b9ae-32d61d1b87b9`.
+- Its committed, deploy-site, and hosted Helios bundle SHA-256 values all equal
+  `aea0775cadc38556846a423d37422dc1b3907e3739aee3b5450ea4992d050144`. The hosted
+  run moved all 12 units, verified four cosmetic draw groups, sampled 7,200 valid ground
+  positions, and completed 600 frames at 60.072 FPS with no frame above 20 ms.
 
 ### Proof pending
 
@@ -202,9 +214,9 @@ minimap.
 - Cycle 08 HUD is deployed and verified on the development host. Its exact iPad landscape
   layout proof is browser-emulated, not a fresh simulator or device touch run.
 - The placeholder north bases, desktop debug HUD, alternating terrain bands, thin sidewall,
-  and ungrounded building materials are gone. Sparse deck life, small maintenance mechanisms,
-  chipped terminal faces, and warm solar bounce remain below the approved reference. The
-  nebula is one procedural sky texture, not a layered volumetric effect.
+  ungrounded building materials, and empty deck margins are gone. Small maintenance
+  mechanisms, chipped terminal faces, and warm solar bounce remain below the approved
+  reference. The nebula is one procedural sky texture, not a layered volumetric effect.
 - Per user direction, Cycles 05 and 09–13 have no additional iPad touch check. Their 60 FPS
   gates use browser `requestAnimationFrame`, not device GPU frame-time percentiles.
 
