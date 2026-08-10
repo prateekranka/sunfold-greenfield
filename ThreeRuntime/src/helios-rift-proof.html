@@ -286,6 +286,13 @@
     <canvas id="minimap" width="180" height="180"></canvas>
     <div id="minimap-label">TACTICAL MAP</div>
   </div>
-  <script src="./helios-rift-proof.bundle.js"></script>
+  <script>
+    const reviewVersion = new URLSearchParams(window.location.search).get("v");
+    const runtimeScript = document.createElement("script");
+    runtimeScript.src = reviewVersion
+      ? `./helios-rift-proof.bundle.js?v=${encodeURIComponent(reviewVersion)}`
+      : "./helios-rift-proof.bundle.js";
+    document.body.append(runtimeScript);
+  </script>
 </body>
 </html>
